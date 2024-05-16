@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-def process_data():
+def get_data():
     try:
         # Define the base directory where your script is located
         base_dir = os.path.dirname(__file__)
@@ -14,9 +14,9 @@ def process_data():
             data = file.readlines()
         
         # Process the data and report the number of rows and ingredients per row
-        num_rows = len(data)
+        num_rows = len(data) - 1
         
-        print(f"Successfully read {num_rows} lines from the file. Loaded 137 ingredients.")
+        print(f"Successfully read {num_rows+1} lines from the file. Loaded {num_rows} ingredients.")
         
         keys = data[0].replace('\n','').replace('\ufeff','').split(',')
         
@@ -34,11 +34,19 @@ def process_data():
                 ingredients = custom_split(row)
                             
 
-            cleaned_ingredients = [ingredient.replace('"', '').replace('\n', '') for ingredient in ingredients]
+            cleaned_ingredients =[
+                                   convert_to_correct_type(ingredient.replace('"', '').replace('\n', '').strip())
+                                   for ingredient in ingredients
+                                 ]
             
             
             ingredients_df.loc[len(ingredients_df.index)] = cleaned_ingredients
             
+            # Construct the full path to the processed data file
+            processed_file_path = os.path.join(base_dir, '..', '..', 'data', 'processed_data.csv')
+            
+            ingredients_df.to_csv(processed_file_path, index=False)
+        
         return ingredients_df
     
     except FileNotFoundError:
@@ -76,6 +84,19 @@ def custom_split(row):
     
     return parts
 
+def convert_to_correct_type(value):
+    try:
+        print(value)
+        # Try to convert to integer
+        return int(value)
+    except ValueError:
+        try:
+            # Try to convert to float
+            return float(value)
+        except ValueError:
+            # If both conversions fail, return as string
+            return value
+
 # Example usage
 if __name__ == "__main__":
-    process_data()
+    get_data()
