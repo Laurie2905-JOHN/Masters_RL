@@ -86,7 +86,6 @@ def custom_split(row):
 
 def convert_to_correct_type(value):
     try:
-        print(value)
         # Try to convert to integer
         return int(value)
     except ValueError:
