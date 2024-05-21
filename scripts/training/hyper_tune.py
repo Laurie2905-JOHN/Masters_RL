@@ -47,7 +47,7 @@ def objective(trial):
     model.set_logger(new_logger)
     
     # Train the model
-    model.learn(total_timesteps=25000, callback=callback)
+    model.learn(total_timesteps=50000, callback=callback)
 
     # Evaluate the model
     eval_env = gym.make('SimpleCalorieOnlyEnv-v0', ingredient_df=ingredient_df, render_mode=None)
