@@ -14,22 +14,22 @@ import numpy as np
 
 # Setup environment and other configurations
 ingredient_df = get_data()
-env = gym.make('SimpleCalorieOnlyEnv-v0', ingredient_df=ingredient_df, render_mode=None)
+env = gym.make('SimpleCalorieOnlyEnv-v0', ingredient_df=ingredient_df, render_mode=None, num_people=50, target_calories=2500)
 env = DummyVecEnv([lambda: env])
 
-log_dir = os.path.abspath("saved_models/tensorboard/SAC_test")
-save_dir = os.path.abspath("saved_models/checkpoints/SAC_test/")
+log_dir = os.path.abspath("saved_models/tensorboard/SAC_test_single")
+save_dir = os.path.abspath("saved_models/checkpoints/SAC_test_single")
 new_logger = configure(log_dir, ["stdout", "tensorboard"])
 
-checkpoint_callback = CheckpointCallback(save_freq=10000, save_path=save_dir, name_prefix='SAC_model')
-eval_callback = EvalCallback(env, best_model_save_path=save_dir, log_path=log_dir, eval_freq=2500)
+checkpoint_callback = CheckpointCallback(save_freq=10000, save_path=save_dir, name_prefix='SAC_test_single')
+eval_callback = EvalCallback(env, best_model_save_path=save_dir, log_path=log_dir, eval_freq=5000)
 info_logger_callback = InfoLoggerCallback()
 
 callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
 
 model = SAC('MlpPolicy', env, verbose=0, tensorboard_log=log_dir)
 model.set_logger(new_logger)
-model.learn(total_timesteps=25000, callback=callback)
+model.learn(total_timesteps=1000000, callback=callback)
 
 model.save(os.path.join(save_dir, "SAC_simple_calorie_env"))
 
