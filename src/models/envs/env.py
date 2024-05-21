@@ -74,7 +74,7 @@ class SimpleCalorieOnlyEnv(gym.Env):
         else:
             reward += 10
         
-        calories_selected_ingredients = scaled_action * self.caloric_values
+        calories_selected_ingredients = scaled_action * self.caloric_values / 100 # Devide by 100 as caloric values are per 100g
         
         # Calculate average calories per day per person
         average_calories_per_day = sum(calories_selected_ingredients) / self.num_people

@@ -1,48 +1,36 @@
-# import os, sys
-# # Ensure the src directory is in the Python path
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))
 import gymnasium as gym
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from stable_baselines3 import A2C
+from stable_baselines3 import A2C, PPO, SAC, TD3
 from stable_baselines3.common.callbacks import BaseCallback, CallbackList, CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure
+from stable_baselines3.common.vec_env import DummyVecEnv
 import os
 from utils.process_data import get_data
-# Make sure environment is imported in
+from utils.train_utils import InfoLoggerCallback
 from models.envs.env import SimpleCalorieOnlyEnv
+import numpy as np
 
-    
+# Setup environment and other configurations
 ingredient_df = get_data()
+env = gym.make('SimpleCalorieOnlyEnv-v0', ingredient_df=ingredient_df, render_mode=None)
+env = DummyVecEnv([lambda: env])
 
-# Check if environment is registered
-env = gym.make('SimpleCalorieOnlyEnv-v0', ingredient_df=ingredient_df, render_mode='human')
-print("Environment created successfully.")
-
-# Set up log directory
-log_dir = os.path.abspath("Masters_RL/saved_models/tensorboard/a2c_simple_calorie_env/")
-# Set up save directory
-save_dir = os.path.abspath("Masters_RL/saved_models/checkpoints/a2c_simple_calorie_env/")
-
-# Configure logger
+log_dir = os.path.abspath("saved_models/tensorboard/SAC_test")
+save_dir = os.path.abspath("saved_models/checkpoints/SAC_test/")
 new_logger = configure(log_dir, ["stdout", "tensorboard"])
 
-# Create callbacks
-checkpoint_callback = CheckpointCallback(save_freq=1000, save_path=save_dir,
-                                            name_prefix='a2c_model')
-eval_callback = EvalCallback(env, best_model_save_path=save_dir,
-                                log_path=log_dir, eval_freq=500)
+checkpoint_callback = CheckpointCallback(save_freq=10000, save_path=save_dir, name_prefix='SAC_model')
+eval_callback = EvalCallback(env, best_model_save_path=save_dir, log_path=log_dir, eval_freq=2500)
+info_logger_callback = InfoLoggerCallback()
 
-callback = CallbackList([checkpoint_callback, eval_callback])
+callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
 
-# Train A2C model with logging and callbacks
-model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=log_dir)
+model = SAC('MlpPolicy', env, verbose=0, tensorboard_log=log_dir)
 model.set_logger(new_logger)
-model.learn(total_timesteps=5000, callback=callback)
+model.learn(total_timesteps=25000, callback=callback)
 
-# Save the model
-model.save(os.path.join(save_dir, "a2c_simple_calorie_env"))
+model.save(os.path.join(save_dir, "SAC_simple_calorie_env"))
 
 del model
-    
