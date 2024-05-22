@@ -8,5 +8,9 @@ setup(
     include_package_data=True,
     install_requires=[
         # List your project's dependencies here
+        'gym',
+        'numpy',
+        'matplotlib',
+        'stable-baselines3',
     ],
 )

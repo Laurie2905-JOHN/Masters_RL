@@ -4,14 +4,6 @@ from gymnasium.utils.env_checker import check_env
 import numpy as np
 from utils.process_data import get_data
 from models.reward.reward import calculate_simple_reward
-# # Register the environment
-# from gymnasium.envs.registration import register
-
-# register(
-#     id='SimpleCalorieOnlyEnv-v0',
-#     entry_point='models.envs.env:SimpleCalorieOnlyEnv',
-#     max_episode_steps=1,  # Set max_episode_steps to 1 for a simple step environment
-# )
 
 class SimpleCalorieOnlyEnv(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
@@ -52,6 +44,7 @@ class SimpleCalorieOnlyEnv(gym.Env):
 
     def step(self, action):
         reward, info, terminated = calculate_simple_reward(self, action)
+        
         observation = self._get_obs()
 
         self.current_info = info  # Store the info
@@ -75,6 +68,15 @@ class SimpleCalorieOnlyEnv(gym.Env):
 
     def close(self):
         pass
+
+# Register the environment
+from gymnasium.envs.registration import register
+
+register(
+    id='SimpleCalorieOnlyEnv-v0',
+    entry_point='models.envs.env:SimpleCalorieOnlyEnv',
+    max_episode_steps=1,  # Set max_episode_steps to 1 for a simple step environment
+)
 
 # Unit Testing
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 import os
 import gymnasium as gym
-from stable_baselines3 import A2C, PPO, SAC, TD3, ACKRT, DDPG, GAIL, TRPO
+from stable_baselines3 import A2C, PPO, SAC, TD3, DDPG
 from stable_baselines3.common.callbacks import BaseCallback, CallbackList, CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.vec_env import DummyVecEnv
@@ -28,10 +28,7 @@ algorithms = {
     'A2C': A2C,
     'PPO': PPO,
     'SAC': SAC,
-    'ACKTR': ACKRT,
     'DDPG': DDPG,
-    'GAIL': GAIL,
-    'TRPO': TRPO,
     'TD3': TD3
 }
 
