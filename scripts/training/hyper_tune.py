@@ -10,7 +10,7 @@ from stable_baselines3.common.evaluation import evaluate_policy
 import os
 from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback
-from models.envs.env import SimpleCalorieOnlyEnv
+from models.envs.env1 import SimpleCalorieOnlyEnv
 import numpy as np
 import optuna
 

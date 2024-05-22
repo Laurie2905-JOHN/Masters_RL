@@ -3,7 +3,7 @@ from stable_baselines3 import A2C
 from stable_baselines3.common.evaluation import evaluate_policy
 import gymnasium as gym
 from utils.process_data import get_data
-import models.envs.env
+import models.envs.env1
 
 def evaluate_agent(model_path, env, n_eval_episodes=10, render=False):
     """

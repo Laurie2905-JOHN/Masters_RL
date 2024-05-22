@@ -6,7 +6,7 @@ from stable_baselines3.common.logger import configure
 from stable_baselines3.common.vec_env import DummyVecEnv
 import numpy as np
 from utils.process_data import get_data
-from models.envs.env import SimpleCalorieOnlyEnv
+from models.envs.env1 import SimpleCalorieOnlyEnv
 from utils.train_utils import InfoLoggerCallback
 
 try:
@@ -25,9 +25,9 @@ save_dir = os.path.abspath("saved_models/checkpoints/")
 
 # List of algorithms to try
 algorithms = {
-    'A2C': A2C,
+    # 'A2C': A2C,
     'PPO': PPO,
-    'SAC': SAC,
+    # 'SAC': SAC,
     'DDPG': DDPG,
     'TD3': TD3
 }
@@ -42,8 +42,8 @@ for algo_name, algo_class in algorithms.items():
         new_logger = configure(algo_log_dir, ["stdout", "tensorboard"])
 
         # Create callbacks
-        checkpoint_callback = CheckpointCallback(save_freq=100000, save_path=algo_save_dir, name_prefix=f'{algo_name}_model')
-        eval_callback = EvalCallback(env, best_model_save_path=algo_save_dir, log_path=algo_log_dir, eval_freq=50000)
+        checkpoint_callback = CheckpointCallback(save_freq=1000, save_path=algo_save_dir, name_prefix=f'{algo_name}_model')
+        eval_callback = EvalCallback(env, best_model_save_path=algo_save_dir, log_path=algo_log_dir, eval_freq=500)
         info_logger_callback = InfoLoggerCallback()
         callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
 
@@ -53,7 +53,7 @@ for algo_name, algo_class in algorithms.items():
 
         try:
             # Train the model
-            model.learn(total_timesteps=100000, callback=callback)
+            model.learn(total_timesteps=10000, callback=callback)
             print(f"Training completed for {algo_name}.")
         except Exception as e:
             print(f"Error during training with {algo_name}: {e}")

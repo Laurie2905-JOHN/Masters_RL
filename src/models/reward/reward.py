@@ -108,8 +108,56 @@ def calculate_simple_reward(self, action):
     # Since it's a single step, always terminate after giving the reward
     terminated = True
 
-
-
-    info = self._get_info(total_selection, average_calories_per_day)
+    info = self._get_info(total_selection, average_calories_per_day, scaled_action, calories_selected_ingredients)
 
     return reward, info, terminated
+
+
+def calculate_simple_reward2(self, action):
+    # Calculate the current state values based on actions taken
+    total_selection = np.sum(self.current_selection > 0)
+
+    # Calculate calories only from the selected ingredients
+    calories_selected_ingredients = self.caloric_values / 100 * self.current_selection  # Divide by 100 as caloric values are per 100g
+    average_calories_per_day = sum(calories_selected_ingredients) / self.num_people
+
+    # Initialize reward incrementally
+    reward = 0
+
+    # Define target ranges
+    target_selection_min = 5
+    target_selection_max = 10
+    target_calories_min = self.target_calories - 50
+    target_calories_max = self.target_calories + 50
+
+    # Calculate the distance to the target ranges and provide incremental rewards or penalties
+    if target_selection_min <= total_selection <= target_selection_max:
+        reward += 5
+    else:
+        selection_distance = min(abs(total_selection - target_selection_min), abs(total_selection - target_selection_max))
+        reward -= 0.1 * selection_distance  # Penalize based on how far it is from the target range
+
+    if target_calories_min <= average_calories_per_day <= target_calories_max:
+        reward += 5
+    else:
+        calories_distance = min(abs(average_calories_per_day - target_calories_min), abs(average_calories_per_day - target_calories_max))
+        reward -= 0.1 * calories_distance  # Penalize based on how far it is from the target range
+
+    # Additional reward if both conditions are met
+    if target_selection_min <= total_selection <= target_selection_max and target_calories_min <= average_calories_per_day <= target_calories_max:
+        reward += 10  # Extra reward for meeting both conditions
+
+    # Add a penalty of -1 for each step taken
+    reward -= 1
+
+    # Determine if the episode should terminate based on both conditions being met
+    total_calories = np.sum(calories_selected_ingredients)
+    terminated = (target_selection_min <= total_selection <= target_selection_max and
+                  target_calories_min <= total_calories <= target_calories_max)
+
+    info = self._get_info(total_selection, average_calories_per_day, calories_selected_ingredients)
+
+    return reward, info, terminated
+
+
+

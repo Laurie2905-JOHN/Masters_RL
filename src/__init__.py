@@ -3,8 +3,12 @@ from gymnasium.envs.registration import register
 
 register(
     id='SimpleCalorieOnlyEnv-v0',
-    entry_point='models.envs.env:SimpleCalorieOnlyEnv',
+    entry_point='models.envs.env1:SimpleCalorieOnlyEnv',
     max_episode_steps=1,
 )
 
-print("SimpleCalorieOnlyEnv registered successfully.")
+register(
+    id='CalorieOnlyEnv-v1',
+    entry_point='models.envs.env2:CalorieOnlyEnv',
+    max_episode_steps=100,  # Allow multiple steps per episode, adjust as needed
+)
