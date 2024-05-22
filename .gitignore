@@ -166,6 +166,9 @@ saved_models/*
 # Do not ignore the best_models directory
 !saved_models/best_models/
 
+# # Do not ignore the hpc_output directory
+# !saved_models/best_models/
+
 # # Optionally, ignore everything in the best_models directory
 # saved_models/best_models/*
 
