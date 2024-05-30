@@ -25,11 +25,8 @@ save_dir = os.path.abspath("saved_models/checkpoints/")
 
 # List of algorithms to try
 algorithms = {
-    # 'A2C': A2C,
+    'A2C': A2C,
     'PPO': PPO,
-    # 'SAC': SAC,
-    'DDPG': DDPG,
-    'TD3': TD3
 }
 
 # Loop through algorithms

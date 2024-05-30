@@ -2,7 +2,7 @@ import gymnasium as gym
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from stable_baselines3 import A2C, PPO, SAC, TD3
+from stable_baselines3 import A2C
 from stable_baselines3.common.callbacks import BaseCallback, CallbackList, CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.vec_env import DummyVecEnv
@@ -23,31 +23,29 @@ env = DummyVecEnv([lambda: env])
 def objective(trial):
     # Define the hyperparameter search space
     learning_rate = trial.suggest_loguniform('learning_rate', 1e-5, 1e-3)
-    buffer_size = trial.suggest_categorical('buffer_size', [100000, 200000, 300000])
-    batch_size = trial.suggest_categorical('batch_size', [64, 128, 256])
-    tau = trial.suggest_uniform('tau', 0.01, 0.1)
+    n_steps = trial.suggest_int('n_steps', 5, 20)
     gamma = trial.suggest_uniform('gamma', 0.9, 0.999)
+    ent_coef = trial.suggest_loguniform('ent_coef', 1e-8, 1e-2)
     
     # Set up log and save directories
-    log_dir = os.path.abspath(f"saved_models/tensorboard/SAC_test_trial_{trial.number}")
-    save_dir = os.path.abspath(f"saved_models/checkpoints/SAC_test_trial_{trial.number}")
+    log_dir = os.path.abspath(f"saved_models/tensorboard/A2C_test_trial_{trial.number}")
+    save_dir = os.path.abspath(f"saved_models/checkpoints/A2C_test_trial_{trial.number}")
     new_logger = configure(log_dir, ["stdout", "tensorboard"])
 
     # Create callbacks
-    checkpoint_callback = CheckpointCallback(save_freq=10000, save_path=save_dir, name_prefix='SAC_model')
+    checkpoint_callback = CheckpointCallback(save_freq=10000, save_path=save_dir, name_prefix='A2C_model')
     eval_callback = EvalCallback(env, best_model_save_path=save_dir, log_path=log_dir, eval_freq=2500)
     info_logger_callback = InfoLoggerCallback()
 
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
 
     # Instantiate the model
-    model = SAC('MlpPolicy', env, verbose=0, tensorboard_log=log_dir,
-                learning_rate=learning_rate, buffer_size=buffer_size,
-                batch_size=batch_size, tau=tau, gamma=gamma)
+    model = A2C('MlpPolicy', env, verbose=0, tensorboard_log=log_dir,
+                learning_rate=learning_rate, n_steps=n_steps, gamma=gamma, ent_coef=ent_coef)
     model.set_logger(new_logger)
     
     # Train the model
-    model.learn(total_timesteps=50000, callback=callback)
+    model.learn(total_timesteps=10000, callback=callback)
 
     # Evaluate the model
     eval_env = gym.make('SimpleCalorieOnlyEnv-v0', ingredient_df=ingredient_df, render_mode=None)
@@ -55,7 +53,7 @@ def objective(trial):
     mean_reward, std_reward = evaluate_policy(model, eval_env, n_eval_episodes=10)
 
     # Save the model
-    model.save(os.path.join(save_dir, "SAC_simple_calorie_env"))
+    model.save(os.path.join(save_dir, "A2C_simple_calorie_env"))
     del model
 
     return mean_reward

@@ -146,9 +146,9 @@ class CalorieOnlyEnv(gym.Env):
         else:
             terminated = False
 
-        # Action penalty
-        if action_selection > 5:
-            reward -= (action_selection - 5) ** 2 * 5
+        # # Action penalty
+        # if action_selection > 5:
+        #     reward -= (action_selection - 5) ** 2 * 5
 
         reward += calorie_reward + selection_reward
 
