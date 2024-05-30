@@ -180,9 +180,9 @@ def calculate_simple_reward3(self, action):
     target_calories_max = self.target_calories + 50
 
     # Caloric intake reward
-    if target_calories_min <= average_calories_per_day <= target_calories_max and total_selection == 10:
+    if target_calories_min <= average_calories_per_day <= target_calories_max:
         reward += 10  # Reward for being within the target range
-        terminated = True  # End the episode if within target range
+        terminated = False # Continue the episode if within the target range as want it to learn this is optimal
     else:
         # Penalize based on how far it is from the target range
         calories_distance = min(abs(average_calories_per_day - target_calories_min), abs(average_calories_per_day - target_calories_max))

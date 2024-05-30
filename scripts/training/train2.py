@@ -19,11 +19,11 @@ env = gym.make('CalorieOnlyEnv-v1', ingredient_df=ingredient_df, render_mode=Non
 env = DummyVecEnv([lambda: env])
 env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
-log_dir = os.path.abspath("saved_models/tensorboard/A2C_test")
-save_dir = os.path.abspath("saved_models/checkpoints/A2C_test")
+log_dir = os.path.abspath("saved_models/tensorboard/A2C_test_noselect")
+save_dir = os.path.abspath("saved_models/checkpoints/A2C_test_noselect")
 new_logger = configure(log_dir, ["stdout", "tensorboard"])
 
-checkpoint_callback = CheckpointCallback(save_freq=100, save_path=save_dir, name_prefix='A2C_test')
+checkpoint_callback = CheckpointCallback(save_freq=100, save_path=save_dir, name_prefix='A2C_test_noselect')
 eval_callback = EvalCallback(env, best_model_save_path=save_dir, log_path=log_dir, eval_freq=100, deterministic=True)
 info_logger_callback = InfoLoggerCallback()
 
@@ -31,9 +31,9 @@ callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callbac
 
 model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=log_dir)
 model.set_logger(new_logger)
-model.learn(total_timesteps=500, callback=callback)
+model.learn(total_timesteps=5000, callback=callback)
 
-model.save(os.path.join(save_dir, "A2C_test"))
+model.save(os.path.join(save_dir, "A2C_test_noselect"))
 
 # Save the VecNormalize statistics
 env.save(os.path.join(save_dir, "vec_normalize.pkl"))
@@ -44,4 +44,4 @@ del model
 env = DummyVecEnv([lambda: gym.make('CalorieOnlyEnv-v1', ingredient_df=ingredient_df, render_mode=None, num_people=50, target_calories=530)])
 env = VecNormalize.load(os.path.join(save_dir, "vec_normalize.pkl"), env)
 
-model = A2C.load(os.path.join(save_dir, "A2C_test"), env=env)
+model = A2C.load(os.path.join(save_dir, "A2C_test_noselect"), env=env)

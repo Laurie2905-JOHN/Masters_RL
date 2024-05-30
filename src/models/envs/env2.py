@@ -1,7 +1,6 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-from models.reward.reward import calculate_simple_reward3
 
 class CalorieOnlyEnv(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
@@ -13,7 +12,7 @@ class CalorieOnlyEnv(gym.Env):
         self.num_people = num_people
         self.target_calories = target_calories
         self.max_ingredients = max_ingredients
-        self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values / 100 # Convert to per gram
+        self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values / 100  # Convert to per gram
         self.render_mode = render_mode
 
         self.n_ingredients = len(ingredient_df)
@@ -69,18 +68,16 @@ class CalorieOnlyEnv(gym.Env):
             if (action_value - 1) % 2 == 0:
                 # Increase action
                 self.current_selection[ingredient_index] += increment
-                # self.num_selected_ingredients += 1
                 self.actions_taken.append(f"{ingredient_index}: +{increment}")
             else:
                 # Decrease action
                 self.current_selection[ingredient_index] = max(0, self.current_selection[ingredient_index] - increment)
-                # self.num_selected_ingredients = max(0, self.num_selected_ingredients - 1)
-                self.actions_taken.append(f"{ingredient_index}: -{increment }")
+                self.actions_taken.append(f"{ingredient_index}: -{increment}")
                 
         self.num_selected_ingredients = np.sum(self.current_selection > 0)
         
         # Calculate the reward
-        reward, info, terminated = calculate_simple_reward3(self, action)
+        reward, info, terminated = self.calculate_simple_reward3(action)
 
         # Observation update
         observation = self._get_obs()
@@ -104,6 +101,52 @@ class CalorieOnlyEnv(gym.Env):
         }
         return info
 
+    def calculate_simple_reward3(self, action):
+        # Calculate the current number of ingredients
+        total_selection = np.sum(self.current_selection > 0)
+        
+        # Calculate number of ingredients which are selected in the action
+        action_selection = np.sum(action > 0)
+        
+        # Calculate calories only from the selected ingredients
+        calories_selected_ingredients = self.caloric_values * self.current_selection  
+        average_calories_per_day = sum(calories_selected_ingredients) / self.num_people
+
+        # Initialize reward
+        reward = 0
+
+        # Define target ranges
+        target_calories_min = self.target_calories - 50
+        target_calories_max = self.target_calories + 50
+
+        # Caloric intake reward
+        if target_calories_min <= average_calories_per_day <= target_calories_max:
+            reward += 10  # Reward for being within the target range
+            terminated = False # Continue the episode if within the target range as want it to learn this is optimal
+        else:
+            # Penalize based on how far it is from the target range
+            calories_distance = min(abs(average_calories_per_day - target_calories_min), abs(average_calories_per_day - target_calories_max))
+            reward -= 0.1 * calories_distance
+            terminated = False  # Continue the episode if not within target range
+
+        # Ingredient selection reward - Encourage moving towards 10 ingredients
+        if total_selection < 10:
+            reward += (10 - total_selection)  # Reward for reducing the number of ingredients towards 10
+        elif total_selection > 10:
+            reward -= (total_selection - 10)  # Penalize for selecting more than 10 ingredients
+
+        # Penalize if the current action increases the selection excessively
+        if action_selection > 5:
+            reward -= 10   # Penalize for selecting too many ingredients in the current action
+
+        # Add a penalty of -1 for each step taken
+        reward -= 1
+
+        # Create the info dictionary
+        info = self._get_info(total_selection, average_calories_per_day, calories_selected_ingredients)
+
+        return reward, info, terminated
+
     def render(self):
         if self.render_mode == 'human':
             if self.current_info:
@@ -113,6 +156,7 @@ class CalorieOnlyEnv(gym.Env):
 
     def close(self):
         pass
+
 # Register the environment
 from gymnasium.envs.registration import register
 
@@ -154,8 +198,8 @@ if __name__ == '__main__':
             print(f"    Sampled action: {action}")
             print(f"    Observation: {obs}")
             print(f"    Reward: {reward}")
-            # print(f"    Done: {done}")
-            # print(f"    Info: {info}")
+            print(f"    Done: {done}")
+            print(f"    Info: {info}")
 
             if done:
                 print(f"Episode {episode + 1} ended early after {step + 1} steps.")
