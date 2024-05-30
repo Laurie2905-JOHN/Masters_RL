@@ -166,12 +166,11 @@ saved_models/*
 # Do not ignore the best_models directory
 !saved_models/best_models/
 
-# # Do not ignore the hpc_output directory
-# !saved_models/best_models/
+# Do not ignore tensorboard
+!saved_models/tensorboard/
 
-# # Optionally, ignore everything in the best_models directory
-# saved_models/best_models/*
+# Do not ignore the hpc_output directory
+!saved_models/hpc_output/
 
-# # But do not ignore any best_model.zip files in the best_models directory
-# !saved_models/best_models/**/best_model.zip
+
 

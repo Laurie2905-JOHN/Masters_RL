@@ -13,14 +13,14 @@ from models.envs.env2 import CalorieOnlyEnv  # Updated import to reflect new env
 
 # Setup environment and other configurations
 ingredient_df = get_data()
-env = gym.make('CalorieOnlyEnv-v1', ingredient_df=ingredient_df, render_mode='human', num_people=50, target_calories=530)
+env = gym.make('CalorieOnlyEnv-v1', ingredient_df=ingredient_df, render_mode=None, num_people=50, target_calories=530)
 env = DummyVecEnv([lambda: env])
 
-log_dir = os.path.abspath("saved_models/tensorboard/A2C_newEnv1000step")``
-save_dir = os.path.abspath("saved_models/checkpoints/A2C_newEnv1000step")
+log_dir = os.path.abspath("saved_models/tensorboard/A2C_newEnv1000stepmil")
+save_dir = os.path.abspath("saved_models/checkpoints/A2C_newEnv1000stepmil")
 new_logger = configure(log_dir, ["stdout", "tensorboard"])
 
-checkpoint_callback = CheckpointCallback(save_freq=10000, save_path=save_dir, name_prefix='A2C_newEnv1000step')
+checkpoint_callback = CheckpointCallback(save_freq=10000, save_path=save_dir, name_prefix='A2C_newEnv1000stepmil')
 eval_callback = EvalCallback(env, best_model_save_path=save_dir, log_path=log_dir, eval_freq=500)
 info_logger_callback = InfoLoggerCallback()
 
@@ -28,8 +28,8 @@ callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callbac
 
 model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=log_dir)
 model.set_logger(new_logger)
-model.learn(total_timesteps=10000, callback=callback)
+model.learn(total_timesteps=1000000, callback=callback)
 
-model.save(os.path.join(save_dir, "A2C_newEnv1000step"))
+model.save(os.path.join(save_dir, "A2C_newEnv1000stepmil"))
 
 del model
