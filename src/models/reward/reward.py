@@ -73,7 +73,7 @@ def calculate_simple_reward(self, action):
     # print(scaled_action)
     
     # Calculate calories only from the selected ingredients
-    calories_selected_ingredients = self.caloric_values / 100 * scaled_action # Divide by 100 as caloric values are per 100g
+    calories_selected_ingredients = self.caloric_values * scaled_action
     
     # Calculate average calories per day per person
     average_calories_per_day = sum(calories_selected_ingredients) / self.num_people
@@ -118,7 +118,7 @@ def calculate_simple_reward2(self, action):
     total_selection = np.sum(self.current_selection > 0)
 
     # Calculate calories only from the selected ingredients
-    calories_selected_ingredients = self.caloric_values / 100 * self.current_selection  # Divide by 100 as caloric values are per 100g
+    calories_selected_ingredients = self.caloric_values * self.current_selection
     average_calories_per_day = sum(calories_selected_ingredients) / self.num_people
 
     # Initialize reward incrementally
@@ -160,4 +160,50 @@ def calculate_simple_reward2(self, action):
     return reward, info, terminated
 
 
+
+def calculate_simple_reward3(self, action):
+    # Calculate the current number of ingredients
+    total_selection = np.sum(self.current_selection > 0)
+    
+    # Calculate number of ingredients which are selected in the action
+    action_selection = np.sum(action > 0)
+    
+    # Calculate calories only from the selected ingredients
+    calories_selected_ingredients = self.caloric_values * self.current_selection  
+    average_calories_per_day = sum(calories_selected_ingredients) / self.num_people
+
+    # Initialize reward
+    reward = 0
+
+    # Define target ranges
+    target_calories_min = self.target_calories - 50
+    target_calories_max = self.target_calories + 50
+
+    # Caloric intake reward
+    if target_calories_min <= average_calories_per_day <= target_calories_max and total_selection == 10:
+        reward += 10  # Reward for being within the target range
+        terminated = True  # End the episode if within target range
+    else:
+        # Penalize based on how far it is from the target range
+        calories_distance = min(abs(average_calories_per_day - target_calories_min), abs(average_calories_per_day - target_calories_max))
+        reward -= 0.1 * calories_distance
+        terminated = False  # Continue the episode if not within target range
+
+    # Ingredient selection reward - Encourage moving towards 10 ingredients
+    if total_selection < 10:
+        reward += (10 - total_selection)  # Reward for reducing the number of ingredients towards 10
+    elif total_selection > 10:
+        reward -= (total_selection - 10)  # Penalize for selecting more than 10 ingredients
+
+    # Penalize if the current action increases the selection excessively
+    if action_selection > 5:
+        reward -= 10   # Penalize for selecting too many ingredients in the current action
+
+    # Add a penalty of -1 for each step taken
+    reward -= 1
+
+    # Create the info dictionary
+    info = self._get_info(total_selection, average_calories_per_day, calories_selected_ingredients)
+
+    return reward, info, terminated
 
