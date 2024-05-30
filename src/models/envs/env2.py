@@ -135,9 +135,9 @@ class CalorieOnlyEnv(gym.Env):
 
         # Selection reward calculation
         if total_selection < 10:
-            selection_reward += (10 - total_selection) ** 2 * 1.0  # Increased weight for selection reward
+            selection_reward += (10 - total_selection) * 100  # Increased weight for selection reward
         elif total_selection > 10:
-            selection_reward -= (total_selection - 10) ** 2 * 1.0
+            selection_reward -= (total_selection - 10) * 100
 
         # Large bonus for meeting both criteria
         if target_calories_min <= average_calories_per_day <= target_calories_max and total_selection == 10:
