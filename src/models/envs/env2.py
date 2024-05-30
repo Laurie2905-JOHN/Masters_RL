@@ -1,6 +1,8 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
+import matplotlib.pyplot as plt  # Make sure to import pyplot
+
 
 class CalorieOnlyEnv(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
@@ -36,6 +38,11 @@ class CalorieOnlyEnv(gym.Env):
         self.current_info = {}
         self.num_selected_ingredients = 0
         self.actions_taken = []
+
+        # Reward tracking
+        self.reward_history = []
+        self.selection_reward_history = []
+        self.calorie_reward_history = []
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -77,11 +84,16 @@ class CalorieOnlyEnv(gym.Env):
         self.num_selected_ingredients = np.sum(self.current_selection > 0)
         
         # Calculate the reward
-        reward, info, terminated = self.calculate_simple_reward3(action)
+        reward, selection_reward, calorie_reward, info, terminated = self.calculate_simple_reward3(action)
 
         # Observation update
         observation = self._get_obs()
         self.current_info = info
+
+        # Track rewards for visualization
+        self.reward_history.append(reward)
+        self.selection_reward_history.append(selection_reward)
+        self.calorie_reward_history.append(calorie_reward)
 
         if self.render_mode == 'human':
             self.render()
@@ -108,31 +120,40 @@ class CalorieOnlyEnv(gym.Env):
         average_calories_per_day = sum(calories_selected_ingredients) / self.num_people
 
         reward = 0
+        selection_reward = 0
+        calorie_reward = 0
 
         target_calories_min = self.target_calories - 50
         target_calories_max = self.target_calories + 50
 
+        # Calorie reward calculation
         if target_calories_min <= average_calories_per_day <= target_calories_max:
-            reward += 10
-            terminated = True
+            calorie_reward += 1000  # Moderate reward for meeting calorie criteria
         else:
             calories_distance = min(abs(average_calories_per_day - target_calories_min), abs(average_calories_per_day - target_calories_max))
-            reward -= (calories_distance ** 2) * 0.01
-            terminated = False
+            calorie_reward -= (calories_distance ** 1) / 500
 
+        # Selection reward calculation
         if total_selection < 10:
-            reward += (10 - total_selection) ** 2 * 0.1
+            selection_reward += (10 - total_selection) ** 2 * 1.0  # Increased weight for selection reward
         elif total_selection > 10:
-            reward -= (total_selection - 10) ** 2 * 0.1
+            selection_reward -= (total_selection - 10) ** 2 * 1.0
+
+        # Large bonus for meeting both criteria
+        if target_calories_min <= average_calories_per_day <= target_calories_max and total_selection == 10:
+            reward += 1e6  # Large reward for meeting both criteria
+            terminated = False
+        else:
             terminated = False
 
+        # Action penalty
         if action_selection > 5:
-            reward -= (action_selection - 5) ** 2 * 0.5
+            reward -= (action_selection - 5) ** 2 * 5
 
-        reward -= 0.5
+        reward += calorie_reward + selection_reward
 
         info = self._get_info(total_selection, average_calories_per_day, calories_selected_ingredients)
-        return reward, info, terminated
+        return reward, selection_reward, calorie_reward, info, terminated
 
 
     def render(self):
@@ -144,6 +165,30 @@ class CalorieOnlyEnv(gym.Env):
 
     def close(self):
         pass
+
+    def plot_reward_distribution(self):
+        plt.figure(figsize=(12, 6))
+
+        plt.subplot(1, 3, 1)
+        plt.hist(self.reward_history, bins=50, alpha=0.75)
+        plt.xlabel('Total Reward')
+        plt.ylabel('Frequency')
+        plt.title('Total Reward Distribution')
+
+        plt.subplot(1, 3, 2)
+        plt.hist(self.selection_reward_history, bins=50, alpha=0.75)
+        plt.xlabel('Selection Reward')
+        plt.ylabel('Frequency')
+        plt.title('Selection Reward Distribution')
+
+        plt.subplot(1, 3, 3)
+        plt.hist(self.calorie_reward_history, bins=50, alpha=0.75)
+        plt.xlabel('Calorie Reward')
+        plt.ylabel('Frequency')
+        plt.title('Calorie Reward Distribution')
+
+        plt.tight_layout()
+        plt.show()
 
 # Register the environment
 from gymnasium.envs.registration import register
@@ -171,7 +216,7 @@ if __name__ == '__main__':
     np.set_printoptions(suppress=True)
     # Number of episodes to test
     num_episodes = 1
-    steps_per_episode = 5  # Number of steps per episode
+    steps_per_episode = 500  # Number of steps per episode
 
     for episode in range(num_episodes):
         obs, info = env.reset()  # Reset the environment at the start of each episode
@@ -185,12 +230,16 @@ if __name__ == '__main__':
             print(f"  Step {step + 1}:")
             print(f"    Sampled action: {action}")
             print(f"    Observation: {obs}")
-            print(f"    Reward: {reward}")
-            print(f"    Done: {done}")
-            print(f"    Info: {info}")
+            # print(f"    Reward: {reward}")
+            # print(f"    Done: {done}")
+            # print(f"    Info: {info}")
 
             if done:
                 print(f"Episode {episode + 1} ended early after {step + 1} steps.")
                 break
 
         print(f"Episode {episode + 1} final observation: \n {obs}\n")
+
+    # Plot reward distribution
+    env.plot_reward_distribution()
+
