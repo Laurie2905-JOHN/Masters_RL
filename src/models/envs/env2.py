@@ -18,7 +18,7 @@ class CalorieOnlyEnv(gym.Env):
         self.n_ingredients = len(ingredient_df)
 
         # Define the increments
-        self.increments = [1, 2, 3]  # Multiple increments
+        self.increments = [100, 250, 500]  # Multiple increments
 
         # Define action space: MultiDiscrete action space for each ingredient with options for leave, increase, and decrease
         self.action_space = spaces.MultiDiscrete([2 * len(self.increments) + 1] * self.n_ingredients)
@@ -102,50 +102,38 @@ class CalorieOnlyEnv(gym.Env):
         return info
 
     def calculate_simple_reward3(self, action):
-        # Calculate the current number of ingredients
         total_selection = np.sum(self.current_selection > 0)
-        
-        # Calculate number of ingredients which are selected in the action
         action_selection = np.sum(action > 0)
-        
-        # Calculate calories only from the selected ingredients
         calories_selected_ingredients = self.caloric_values * self.current_selection  
         average_calories_per_day = sum(calories_selected_ingredients) / self.num_people
 
-        # Initialize reward
         reward = 0
 
-        # Define target ranges
         target_calories_min = self.target_calories - 50
         target_calories_max = self.target_calories + 50
 
-        # Caloric intake reward
         if target_calories_min <= average_calories_per_day <= target_calories_max:
-            reward += 10  # Reward for being within the target range
-            terminated = False # Continue the episode if within the target range as want it to learn this is optimal
+            reward += 10
+            terminated = True
         else:
-            # Penalize based on how far it is from the target range
             calories_distance = min(abs(average_calories_per_day - target_calories_min), abs(average_calories_per_day - target_calories_max))
-            reward -= 0.1 * calories_distance
-            terminated = False  # Continue the episode if not within target range
+            reward -= (calories_distance ** 2) * 0.01
+            terminated = False
 
-        # Ingredient selection reward - Encourage moving towards 10 ingredients
         if total_selection < 10:
-            reward += (10 - total_selection)  # Reward for reducing the number of ingredients towards 10
+            reward += (10 - total_selection) ** 2 * 0.1
         elif total_selection > 10:
-            reward -= (total_selection - 10)  # Penalize for selecting more than 10 ingredients
+            reward -= (total_selection - 10) ** 2 * 0.1
+            terminated = False
 
-        # Penalize if the current action increases the selection excessively
         if action_selection > 5:
-            reward -= 10   # Penalize for selecting too many ingredients in the current action
+            reward -= (action_selection - 5) ** 2 * 0.5
 
-        # Add a penalty of -1 for each step taken
-        reward -= 1
+        reward -= 0.5
 
-        # Create the info dictionary
         info = self._get_info(total_selection, average_calories_per_day, calories_selected_ingredients)
-
         return reward, info, terminated
+
 
     def render(self):
         if self.render_mode == 'human':
@@ -183,7 +171,7 @@ if __name__ == '__main__':
     np.set_printoptions(suppress=True)
     # Number of episodes to test
     num_episodes = 1
-    steps_per_episode = 100  # Number of steps per episode
+    steps_per_episode = 5  # Number of steps per episode
 
     for episode in range(num_episodes):
         obs, info = env.reset()  # Reset the environment at the start of each episode
