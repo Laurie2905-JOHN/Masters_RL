@@ -30,7 +30,7 @@ class CalorieOnlyEnv(gym.Env):
         self.observation_space = spaces.Box(
             low=0,
             high=self.max_possible_calories,
-            shape=(2 * self.n_ingredients + 2,),  # calorific values of ingredients, current selection, +2 to include total calories and number of selected ingredients
+            shape=(2 * self.n_ingredients + 1,),  # calorific values of ingredients, current selection, +2 to include total calories and number of selected ingredients
             dtype=np.float32
         )
 
@@ -162,8 +162,8 @@ if __name__ == '__main__':
     env = gym.make('CalorieOnlyEnv-v3', ingredient_df=ingredient_df, render_mode=None)
 
     # Check the custom environment (optional)
-    # check_env(env.unwrapped)
-    # print("Environment is valid!")
+    check_env(env.unwrapped)
+    print("Environment is valid!")
 
     # Set numpy print options to suppress scientific notation and set precision
     np.set_printoptions(suppress=True)
