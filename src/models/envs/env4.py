@@ -114,6 +114,9 @@ class CalorieOnlyEnv(gym.Env):
                 print(f"Step: {step}")
                 print(f"Average Calories per Day: {self.current_info.get('Average Calories per Day', 'N/A')}")
                 print(f"Actions Taken: {self.current_info.get('Action', 'N/A')}")
+        if self.render_mode == 'step':
+            if step is not None:
+                print(f"Step: {step}")
 
     def close(self):
         pass
