@@ -16,32 +16,27 @@ from utils.train_utils import EvalCallbackWithVecNormalize
 from utils.train_utils import get_unique_directory
 from utils.train_utils import generate_random_seeds
 
-
-def main(args, seed):
-    
-    # Determine the device
+# Function to select the appropriate device (CPU or GPU)
+def select_device(args):
     if args.device == 'auto':
         if args.algo == 'A2C':
-            device = "cpu"
+            return "cpu"
         else:
-            device = "cuda" if torch.cuda.is_available() else "cpu"
+            return "cuda" if torch.cuda.is_available() else "cpu"
     else:
-        device = args.device
+        return args.device
 
-    print(f"Using device: {device}")
-    
-    # Set the seed for reproducibility
+# Function to set random seeds for reproducibility
+def set_seed(seed, device):
     if seed is not None:
         print(f"Using seed: {seed}")
         random.seed(seed)
         torch.manual_seed(seed)
         if device == "cuda":
             torch.cuda.manual_seed_all(seed)
-    
-    # Setup environment and other configurations
-    ingredient_df = get_data()
 
-    # Create vectorized environments using make_vec_env
+# Function to set up the environment
+def setup_environment(args, seed, ingredient_df):
     env = make_vec_env(args.env_name, n_envs=args.num_envs, env_kwargs={
         'ingredient_df': ingredient_df,
         'render_mode': args.render_mode,
@@ -49,29 +44,41 @@ def main(args, seed):
         'target_calories': args.target_calories
     }, seed=seed)
     
-    env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
+    return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
-    # TensorBoard log directory (shared across seeds, but with subdirectories labeled with the seed)
+# Main training function
+def main(args, seed):
+    device = select_device(args)
+    set_seed(seed, device)
+
+    print(f"Using device: {device}")
+
+    # Load data required for environment setup
+    ingredient_df = get_data()
+
+    # Create and normalize vectorized environments
+    env = setup_environment(args, seed, ingredient_df)
+
+    # Set up TensorBoard logging directory
     tensorboard_log_dir = os.path.join(args.log_dir, f"{args.log_prefix}_seed{seed}")
     print(tensorboard_log_dir)
 
-    # Unique save directory for each seed
+    # Create unique directories for saving models
     save_dir, save_prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed{seed}")
-
-    # Unique best model save directory for each seed
     best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed{seed}")
     best_model_path = os.path.join(best_dir, best_prefix)
     best_vec_normalize_path = os.path.join(save_dir, f"{save_prefix}_vec_normalize_best.pkl")
     
+    # Configure logger for TensorBoard and stdout
     new_logger = configure(tensorboard_log_dir, ["stdout", "tensorboard"])
 
+    # Set up callbacks for saving checkpoints, evaluating models, and logging additional information
     checkpoint_callback = CheckpointCallback(save_freq=args.save_freq, save_path=save_dir, name_prefix=save_prefix)
     eval_callback = EvalCallbackWithVecNormalize(env, best_model_save_path=best_model_path, vec_normalize_save_path=best_vec_normalize_path, eval_freq=args.eval_freq, log_path=tensorboard_log_dir, deterministic=True, render=False)
     info_logger_callback = InfoLoggerCallback()
-
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
 
-    # Choose the algorithm
+    # Choose the RL algorithm (A2C or PPO)
     if args.algo == 'A2C':
         model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
     elif args.algo == 'PPO':
@@ -79,27 +86,21 @@ def main(args, seed):
     else:
         raise ValueError(f"Unsupported algorithm: {args.algo}")
 
+    # Set the logger for the model and start training
     model.set_logger(new_logger)
     model.learn(total_timesteps=args.total_timesteps, callback=callback)
 
-    # Final save prefix
+    # Save the final model and VecNormalize statistics
     final_save = os.path.join(save_dir, f"{save_prefix}_final.zip")
     model.save(final_save)
-
-    # Save the VecNormalize statistics for the final model
     final_vec_normalize = os.path.join(save_dir, f"{save_prefix}_vec_normalize.pkl")
     env.save(final_vec_normalize)
 
     del model
 
+    # Load the model and VecNormalize to verify they have saved correctly
     try:
-        # To load the model and VecNormalize later and check it has saved correctly
-        env = make_vec_env(args.env_name, n_envs=args.num_envs, env_kwargs={
-            'ingredient_df': ingredient_df,
-            'render_mode': args.render_mode,
-            'num_people': args.num_people,
-            'target_calories': args.target_calories
-        })
+        env = setup_environment(args, seed, ingredient_df)
         env = VecNormalize.load(final_vec_normalize, env)
 
         if args.algo == 'A2C':
@@ -109,6 +110,7 @@ def main(args, seed):
     except Exception as e:
         print(f"Error loading model: {e}")
 
+# Entry point of the script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
     parser.add_argument("--env_name", type=str, default='CalorieOnlyEnv-v1', help="Name of the environment")
@@ -126,7 +128,7 @@ if __name__ == "__main__":
     parser.add_argument("--best_prefix", type=str, default=None, help="Prefix for saving best model")
     parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
-    parser.add_argument("--seed", type=int, nargs='+', default=generate_random_seeds(5), help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
+    parser.add_argument("--seed", type=int, nargs='+', default=generate_random_seeds(3), help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
 
     args = parser.parse_args()

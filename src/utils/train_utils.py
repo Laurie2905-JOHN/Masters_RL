@@ -2,6 +2,7 @@ import os
 from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 import numpy as np
 import random
+from stable_baselines3.common.vec_env import VecNormalize
 
 class InfoLoggerCallback(BaseCallback):
     def __init__(self, verbose=0):
@@ -26,13 +27,22 @@ class EvalCallbackWithVecNormalize(EvalCallback):
 
     def _on_step(self) -> bool:
         result = super()._on_step()
+        
         # Check if we have a new best model
         if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
             mean_reward = np.mean(self.last_mean_reward)
             if mean_reward > self.best_mean_reward:
                 self.best_mean_reward = mean_reward
-                # Save VecNormalize statistics for the best model
-                self.model.get_env().save(self.vec_normalize_save_path)
+                try:
+                    # Save VecNormalize statistics for the best model
+                    vec_normalize_env = self.model.get_env()
+                    if isinstance(vec_normalize_env, VecNormalize):
+                        vec_normalize_env.save(self.vec_normalize_save_path)
+                        print(f"VecNormalize statistics saved to {self.vec_normalize_save_path}")
+                    else:
+                        print("Warning: Environment is not a VecNormalize instance. Skipping saving of normalization stats.")
+                except Exception as e:
+                    print(f"Error saving VecNormalize statistics: {e}")
         return result
 
     
