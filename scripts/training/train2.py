@@ -14,16 +14,16 @@ from models.envs.env2 import CalorieOnlyEnv  # Updated import to reflect new env
 # Setup environment and other configurations
 ingredient_df = get_data()
 env = gym.make('CalorieOnlyEnv-v1', ingredient_df=ingredient_df, render_mode=None, num_people=50, target_calories=530)
-
+env.reset()
 # Wrap the environment
 env = DummyVecEnv([lambda: env])
 env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
-log_dir = os.path.abspath("saved_models/tensorboard/A2C_100000_newR2")
-save_dir = os.path.abspath("saved_models/checkpoints/A2C_100000_newR2")
+log_dir = os.path.abspath("saved_models/tensorboard/A2C_10000_initialselection")
+save_dir = os.path.abspath("saved_models/checkpoints/A2C_10000_initialselection")
 new_logger = configure(log_dir, ["stdout", "tensorboard"])
 
-checkpoint_callback = CheckpointCallback(save_freq=100, save_path=save_dir, name_prefix='A2C_100000_newR2')
+checkpoint_callback = CheckpointCallback(save_freq=100, save_path=save_dir, name_prefix='A2C_10000_initialselection')
 eval_callback = EvalCallback(env, best_model_save_path=save_dir, log_path=log_dir, eval_freq=100, deterministic=True)
 info_logger_callback = InfoLoggerCallback()
 
@@ -31,9 +31,9 @@ callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callbac
 
 model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=log_dir)
 model.set_logger(new_logger)
-model.learn(total_timesteps=100000, callback=callback)
+model.learn(total_timesteps=10000, callback=callback)
 
-model.save(os.path.join(save_dir, "A2C_100000_newR2"))
+model.save(os.path.join(save_dir, "A2C_10000_initialselection"))
 
 # Save the VecNormalize statistics
 env.save(os.path.join(save_dir, "vec_normalize.pkl"))
@@ -44,4 +44,4 @@ del model
 env = DummyVecEnv([lambda: gym.make('CalorieOnlyEnv-v1', ingredient_df=ingredient_df, render_mode=None, num_people=50, target_calories=530)])
 env = VecNormalize.load(os.path.join(save_dir, "vec_normalize.pkl"), env)
 
-model = A2C.load(os.path.join(save_dir, "A2C_100000_newR2"), env=env)
+model = A2C.load(os.path.join(save_dir, "A2C_10000"), env=env)

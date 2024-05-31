@@ -162,48 +162,77 @@ def calculate_simple_reward2(self, action):
 
 
 def calculate_simple_reward3(self, action):
-    # Calculate the current number of ingredients
     total_selection = np.sum(self.current_selection > 0)
-    
-    # Calculate number of ingredients which are selected in the action
     action_selection = np.sum(action > 0)
-    
-    # Calculate calories only from the selected ingredients
     calories_selected_ingredients = self.caloric_values * self.current_selection  
     average_calories_per_day = sum(calories_selected_ingredients) / self.num_people
 
-    # Initialize reward
     reward = 0
+    selection_reward = 0
+    calorie_reward = 0
 
-    # Define target ranges
     target_calories_min = self.target_calories - 50
     target_calories_max = self.target_calories + 50
 
-    # Caloric intake reward
+    # Calorie reward calculation
     if target_calories_min <= average_calories_per_day <= target_calories_max:
-        reward += 10  # Reward for being within the target range
-        terminated = False # Continue the episode if within the target range as want it to learn this is optimal
+        calorie_reward += 1000  # Moderate reward for meeting calorie criteria
     else:
-        # Penalize based on how far it is from the target range
         calories_distance = min(abs(average_calories_per_day - target_calories_min), abs(average_calories_per_day - target_calories_max))
-        reward -= 0.1 * calories_distance
-        terminated = False  # Continue the episode if not within target range
+        calorie_reward -= (calories_distance ** 1) / 500
 
-    # Ingredient selection reward - Encourage moving towards 10 ingredients
+    # Selection reward calculation
     if total_selection < 10:
-        reward += (10 - total_selection)  # Reward for reducing the number of ingredients towards 10
+        selection_reward += (10 - total_selection) * 100  # Increased weight for selection reward
     elif total_selection > 10:
-        reward -= (total_selection - 10)  # Penalize for selecting more than 10 ingredients
+        selection_reward -= (total_selection - 10) * 100
 
-    # Penalize if the current action increases the selection excessively
-    if action_selection > 5:
-        reward -= 10   # Penalize for selecting too many ingredients in the current action
+    # Large bonus for meeting both criteria
+    if target_calories_min <= average_calories_per_day <= target_calories_max and total_selection == 10:
+        reward += 1e6  # Large reward for meeting both criteria
+        terminated = False
+    else:
+        terminated = False
 
-    # Add a penalty of -1 for each step taken
-    reward -= 1
+    reward += calorie_reward + selection_reward
 
-    # Create the info dictionary
     info = self._get_info(total_selection, average_calories_per_day, calories_selected_ingredients)
+    return reward, selection_reward, calorie_reward, info, terminated
 
-    return reward, info, terminated
+def reward_complex(self, action):
+    total_selection = np.sum(self.current_selection > 0)
+    action_selection = np.sum(action > 0)
+    calories_selected_ingredients = self.caloric_values * self.current_selection  
+    average_calories_per_day = sum(calories_selected_ingredients) / self.num_people
 
+    reward = 0
+    selection_reward = 0
+    calorie_reward = 0
+
+    target_calories_min = self.target_calories - 50
+    target_calories_max = self.target_calories + 50
+
+    # Calorie reward calculation
+    if target_calories_min <= average_calories_per_day <= target_calories_max:
+        calorie_reward += 1000  # Moderate reward for meeting calorie criteria
+    else:
+        calories_distance = min(abs(average_calories_per_day - target_calories_min), abs(average_calories_per_day - target_calories_max))
+        calorie_reward -= (calories_distance ** 1) / 500
+
+    # Selection reward calculation
+    if total_selection < 10:
+        selection_reward += (10 - total_selection) * 100  # Increased weight for selection reward
+    elif total_selection > 10:
+        selection_reward -= (total_selection - 10) * 100
+
+    # Large bonus for meeting both criteria
+    if target_calories_min <= average_calories_per_day <= target_calories_max and total_selection == 10:
+        reward += 1e6  # Large reward for meeting both criteria
+        terminated = False
+    else:
+        terminated = False
+
+    reward += calorie_reward + selection_reward
+
+    info = self._get_info(total_selection, average_calories_per_day, calories_selected_ingredients)
+    return reward, selection_reward, calorie_reward, info, terminated

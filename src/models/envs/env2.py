@@ -1,13 +1,12 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-import matplotlib.pyplot as plt  # Make sure to import pyplot
-
+import matplotlib.pyplot as plt
 
 class CalorieOnlyEnv(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, num_people=50, target_calories=530, max_ingredients=10, render_mode=None):
+    def __init__(self, ingredient_df, num_people=50, target_calories=530, max_ingredients=10, render_mode=None, initial_ingredients=None):
         super(CalorieOnlyEnv, self).__init__()
 
         self.ingredient_df = ingredient_df
@@ -16,6 +15,7 @@ class CalorieOnlyEnv(gym.Env):
         self.max_ingredients = max_ingredients
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values / 100  # Convert to per gram
         self.render_mode = render_mode
+        self.initial_ingredients = initial_ingredients if initial_ingredients is not None else []
 
         self.n_ingredients = len(ingredient_df)
 
@@ -49,15 +49,21 @@ class CalorieOnlyEnv(gym.Env):
         self.current_selection = np.zeros(self.n_ingredients)
         self.num_selected_ingredients = 0
         self.actions_taken = []
+
+        # Initialize with suggested ingredients if provided
+        if len(self.initial_ingredients) > 0:
+            for idx in self.initial_ingredients:
+                self.current_selection[idx] = 100 * self.num_people  # Initial selection amount (can be adjusted)
+
         observation = self._get_obs()
         self.current_info = self._get_info(
-            total_selection=0,
-            average_calories_per_day=0,
-            calories_selected_ingredients=np.zeros(self.n_ingredients)
+            total_selection=np.sum(self.current_selection > 0),
+            average_calories_per_day=np.sum(self.current_selection * self.caloric_values) / self.num_people,
+            calories_selected_ingredients=self.caloric_values * self.current_selection
         )
 
         if self.render_mode == 'human':
-            self.render()
+            self.render(step=0)
 
         return observation, self.current_info
 
@@ -96,7 +102,7 @@ class CalorieOnlyEnv(gym.Env):
         self.calorie_reward_history.append(calorie_reward)
 
         if self.render_mode == 'human':
-            self.render()
+            self.render(step=len(self.reward_history))
 
         return observation, reward, terminated, False, self.current_info
 
@@ -109,7 +115,8 @@ class CalorieOnlyEnv(gym.Env):
             'Total Number of Ingredients Selected': total_selection,
             'Average Calories per Day': average_calories_per_day,
             'Action': self.actions_taken,
-            'Calories per selected': calories_selected_ingredients
+            'Calories per selected': calories_selected_ingredients,
+            "Current Selection": self.current_selection
         }
         return info
 
@@ -146,23 +153,18 @@ class CalorieOnlyEnv(gym.Env):
         else:
             terminated = False
 
-        # # Action penalty
-        # if action_selection > 5:
-        #     reward -= (action_selection - 5) ** 2 * 5
-
         reward += calorie_reward + selection_reward
 
         info = self._get_info(total_selection, average_calories_per_day, calories_selected_ingredients)
         return reward, selection_reward, calorie_reward, info, terminated
 
-
-    def render(self):
+    def render(self, step=None):
         if self.render_mode == 'human':
             if self.current_info:
+                print(f"Step: {step}")
                 print(f"Number of Ingredients Selected: {self.current_info.get('Total Number of Ingredients Selected', 'N/A')}")
                 print(f"Average Calories per Day: {self.current_info.get('Average Calories per Day', 'N/A')}")
-                print(f"Action: {self.current_info.get('Action', 'N/A')}")
-
+                print(f"Current Selection:  {self.current_info.get('Current Selection', 'N/A')}")
     def close(self):
         pass
 
@@ -206,14 +208,19 @@ if __name__ == '__main__':
     # Load the ingredient data
     ingredient_df = get_data()
 
-    # Create the environment
-    env = gym.make('CalorieOnlyEnv-v1', ingredient_df=ingredient_df, render_mode=None)
+    # Specify initial ingredient indices
+    initial_ingredients = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]  # Example indices of initial ingredients
+
+    # Create the environment with initial ingredients
+    env = gym.make('CalorieOnlyEnv-v1', ingredient_df=ingredient_df, render_mode='human', initial_ingredients=initial_ingredients)
 
     # Check the custom environment (optional)
-    # check_env(env.unwrapped)
-    # print("Environment is valid!")
+    check_env(env.unwrapped)
+    print("Environment is valid!")
+
     # Set numpy print options to suppress scientific notation and set precision
     np.set_printoptions(suppress=True)
+
     # Number of episodes to test
     num_episodes = 1
     steps_per_episode = 500  # Number of steps per episode
@@ -230,9 +237,9 @@ if __name__ == '__main__':
             print(f"  Step {step + 1}:")
             print(f"    Sampled action: {action}")
             print(f"    Observation: {obs}")
-            # print(f"    Reward: {reward}")
-            # print(f"    Done: {done}")
-            # print(f"    Info: {info}")
+            print(f"    Reward: {reward}")
+            print(f"    Done: {done}")
+            print(f"    Info: {info}")
 
             if done:
                 print(f"Episode {episode + 1} ended early after {step + 1} steps.")
@@ -242,4 +249,3 @@ if __name__ == '__main__':
 
     # Plot reward distribution
     env.plot_reward_distribution()
-
