@@ -8,7 +8,7 @@ register(
 )
 
 register(
-    id='CalorieOnlyEnv-v2',
+    id='CalorieOnlyEnv-v1',
     entry_point='models.envs.env2:CalorieOnlyEnv',
     max_episode_steps=100,  # Allow multiple steps per episode, adjust as needed
 )
@@ -17,4 +17,10 @@ register(
     id='CalorieOnlyEnv-v2',
     entry_point='models.envs.env3:CalorieOnlyEnv',
     max_episode_steps=100,  # Allow multiple steps per episode, adjust as needed
+)
+
+register(
+    id='CalorieOnlyEnv-v3',
+    entry_point='models.envs.env4:CalorieOnlyEnv',
+    max_episode_steps=1000,  # Allow multiple steps per episode, adjust as needed
 )

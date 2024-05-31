@@ -236,3 +236,37 @@ def reward_complex(self, action):
 
     info = self._get_info(total_selection, average_calories_per_day, calories_selected_ingredients)
     return reward, selection_reward, calorie_reward, info, terminated
+
+def reward_no_selection(self, action):
+    calories_selected_ingredients = self.caloric_values * self.current_selection
+    average_calories_per_day = sum(calories_selected_ingredients) / self.num_people
+
+    reward = 0
+    selection_reward = 0
+    calorie_reward = 0
+    step_penalty = -1  # Negative reward for each step taken
+
+    target_calories_min = self.target_calories - 50
+    target_calories_max = self.target_calories + 50
+    
+    calories_distance = min(abs(average_calories_per_day - target_calories_min), abs(average_calories_per_day - target_calories_max))
+    
+    # Additional penalty for being too far from the target calories
+    if calories_distance > self.max_possible_calories:
+        calorie_reward -= 10
+        terminated = True
+    else:
+        # Calorie reward calculation
+        if target_calories_min <= average_calories_per_day <= target_calories_max:
+            calorie_reward += 10  # Moderate reward for meeting calorie criteria
+            terminated = True
+        else:
+            calorie_reward -= (calories_distance ** 1) / 500
+            terminated = False
+    
+    # Include the step penalty in the reward calculation
+    reward += calorie_reward + selection_reward + step_penalty
+
+    info = self._get_info(average_calories_per_day, calories_selected_ingredients)
+    
+    return reward, selection_reward, calorie_reward, info, terminated
