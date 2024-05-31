@@ -64,7 +64,7 @@ class CalorieOnlyEnv(gym.Env):
         # Apply actions to modify ingredient selection
         for ingredient_index in range(self.n_ingredients):
             action_value = action[ingredient_index]
-            change = action_value * self.num_people * 10 # Scale action value to meaningful change in ingredient amount
+            change = action_value * self.num_people * 15 # Scale action value to meaningful change in ingredient amount
             self.current_selection[ingredient_index] = max(0, self.current_selection[ingredient_index] + change)
 
             self.actions_taken.append(f"{ingredient_index}: {change:+.2f}")
