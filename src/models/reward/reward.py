@@ -270,3 +270,97 @@ def reward_no_selection(self, action):
     info = self._get_info(average_calories_per_day, calories_selected_ingredients)
     
     return reward, selection_reward, calorie_reward, info, terminated
+
+def reward_nutrient_env4(self, action):
+    
+    # Calculate the total values for each nutritional category for the selected ingredients
+    total_calories = sum(self.caloric_values * self.current_selection)
+    total_fat = sum(self.Fat_g * self.current_selection)
+    total_saturates = sum(self.Saturates_g * self.current_selection)
+    total_carbs = sum(self.Carbs_g * self.current_selection)
+    total_sugar = sum(self.Sugars_g * self.current_selection)
+    total_fibre = sum(self.Fibre_g * self.current_selection)
+    total_protein = sum(self.Protein_g * self.current_selection)
+    total_salt = sum(self.Salt_g * self.current_selection)
+
+    # Calculate the average values per day for each nutritional category
+    self.average_calories_per_day = total_calories / self.num_people
+    self.average_fat_per_day = total_fat / self.num_people
+    self.average_saturates_per_day = total_saturates / self.num_people
+    self.average_carbs_per_day = total_carbs / self.num_people
+    self.average_sugar_per_day = total_sugar / self.num_people
+    self.average_fibre_per_day = total_fibre / self.num_people
+    self.average_protein_per_day = total_protein / self.num_people
+    self.average_salt_per_day = total_salt / self.num_people
+
+    reward = 0
+    selection_reward = 0
+    nutrient_rewards = {
+        'calorie_reward': 0,
+        'fat_reward': 0,
+        'saturates_reward': 0,
+        'carbs_reward': 0,
+        'sugar_reward': 0,
+        'fibre_reward': 0,
+        'protein_reward': 0,
+        'salt_reward': 0
+    }
+    step_penalty = -1  # Negative reward for each step taken
+
+    # Define target ranges
+    target_ranges = {
+        'calories': (self.target_calories - 50, self.target_calories + 50),
+        'fat': (0, self.target_Fat_g),
+        'saturates': (0, self.target_Saturates_g),
+        'carbs': (self.target_Carbs_g, float('inf')),
+        'sugar': (0, self.target_Sugars_g),
+        'fibre': (self.target_Fibre_g, float('inf')),
+        'protein': (self.target_Protein_g, float('inf')),
+        'salt': (0, self.target_Salt_g)
+    }
+
+    # Calculate distances and rewards for each nutrient
+    nutrient_values = {
+        'calories': self.average_calories_per_day,
+        'fat': self.average_fat_per_day,
+        'saturates': self.average_saturates_per_day,
+        'carbs': self.average_carbs_per_day,
+        'sugar': self.average_sugar_per_day,
+        'fibre': self.average_fibre_per_day,
+        'protein': self.average_protein_per_day,
+        'salt': self.average_salt_per_day
+    }
+
+    for nutrient, average_value in nutrient_values.items():
+        target_min, target_max = target_ranges[nutrient]
+        distance = min(abs(average_value - target_min), abs(average_value - target_max))
+
+        if nutrient == 'calories':
+            if distance > self.max_possible_calories:
+                nutrient_rewards['calorie_reward'] -= 10
+                terminated = True
+            elif target_min <= average_value <= target_max:
+                nutrient_rewards['calorie_reward'] += 10
+                terminated = True
+            else:
+                nutrient_rewards['calorie_reward'] -= (distance ** 1) / 500
+                terminated = False
+        else:
+            if nutrient in ['carbs', 'fibre', 'protein']:
+                if average_value >= target_min:
+                    nutrient_rewards[f'{nutrient}_reward'] += 10
+                else:
+                    nutrient_rewards[f'{nutrient}_reward'] -= (distance ** 1) / 500
+            else:
+                if average_value <= target_max:
+                    nutrient_rewards[f'{nutrient}_reward'] += 10
+                else:
+                    nutrient_rewards[f'{nutrient}_reward'] -= (distance ** 1) / 500
+
+    # Include the step penalty in the reward calculation
+    reward += sum(nutrient_rewards.values()) + selection_reward + step_penalty
+
+    info = self._get_info()
+
+    return reward, selection_reward, nutrient_rewards, info, terminated
+
