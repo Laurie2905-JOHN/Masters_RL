@@ -1,9 +1,9 @@
 #!/bin/bash
-#PBS -l select=1:ncpus=10:mem=24gb:ngpus=1
-#PBS -l walltime=10:00:00
+#PBS -l select=1:ncpus=10:mem=16gb:ngpus=1
+#PBS -l walltime=8:00:00
 #PBS -N RL_Algo_Test
-#PBS -o /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/algo_test.log
-#PBS -e /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/algo_test_error.log
+#PBS -o /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/algo_test_gpu_env3.log
+#PBS -e /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/algo_test_error_gpu_env3.log
 
 cd $PBS_O_WORKDIR
 

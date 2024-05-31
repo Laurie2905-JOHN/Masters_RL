@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import gymnasium as gym
 from stable_baselines3 import A2C, PPO
 from stable_baselines3.common.callbacks import BaseCallback, CallbackList, CheckpointCallback, EvalCallback
@@ -12,7 +11,6 @@ import random
 import torch
 from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback
-from utils.train_utils import EvalCallbackWithVecNormalize
 from utils.train_utils import get_unique_directory
 from utils.train_utils import generate_random_seeds
 
@@ -61,20 +59,18 @@ def main(args, seed):
 
     # Set up TensorBoard logging directory
     tensorboard_log_dir = os.path.join(args.log_dir, f"{args.log_prefix}_seed{seed}")
-    print(tensorboard_log_dir)
 
     # Create unique directories for saving models
     save_dir, save_prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed{seed}")
     best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed{seed}")
     best_model_path = os.path.join(best_dir, best_prefix)
-    best_vec_normalize_path = os.path.join(save_dir, f"{save_prefix}_vec_normalize_best.pkl")
     
     # Configure logger for TensorBoard and stdout
     new_logger = configure(tensorboard_log_dir, ["stdout", "tensorboard"])
 
     # Set up callbacks for saving checkpoints, evaluating models, and logging additional information
     checkpoint_callback = CheckpointCallback(save_freq=args.save_freq, save_path=save_dir, name_prefix=save_prefix)
-    eval_callback = EvalCallbackWithVecNormalize(env, best_model_save_path=best_model_path, vec_normalize_save_path=best_vec_normalize_path, eval_freq=args.eval_freq, log_path=tensorboard_log_dir, deterministic=True, render=False)
+    eval_callback = EvalCallback(env, best_model_save_path=best_model_path, eval_freq=args.eval_freq, log_path=tensorboard_log_dir, deterministic=True, render=False)
     info_logger_callback = InfoLoggerCallback()
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
 
@@ -93,7 +89,7 @@ def main(args, seed):
     # Save the final model and VecNormalize statistics
     final_save = os.path.join(save_dir, f"{save_prefix}_final.zip")
     model.save(final_save)
-    final_vec_normalize = os.path.join(save_dir, f"{save_prefix}_vec_normalize.pkl")
+    final_vec_normalize = os.path.join(save_dir, f"{save_prefix}_vec_normalize_best.pkl")
     env.save(final_vec_normalize)
 
     del model
