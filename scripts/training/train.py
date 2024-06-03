@@ -65,6 +65,8 @@ def main(args, seed):
     best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed{seed}")
     best_model_path = os.path.join(best_dir, best_prefix)
     
+    reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_dir}_seed{seed}")
+    
     # Configure logger for TensorBoard and stdout
     new_logger = configure(tensorboard_log_dir, ["stdout", "tensorboard"])
 
@@ -91,6 +93,10 @@ def main(args, seed):
     model.save(final_save)
     final_vec_normalize = os.path.join(save_dir, f"{save_prefix}_vec_normalize_best.pkl")
     env.save(final_vec_normalize)
+    
+    # Save the reward distribution to a JSON file
+    reward_distribution_path = os.path.join(reward_dir, f"{reward_prefix}_json")
+    env.save_reward_distribution(reward_distribution_path)
 
     del model
 
@@ -120,6 +126,8 @@ if __name__ == "__main__":
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
     parser.add_argument("--save_prefix", type=str, default=None, help="Prefix for saved model files")
+    parser.add_argument("--reward_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'reward')), help="Directory to save reward data")
+    parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
     parser.add_argument("--best_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'best_models')), help="Directory for best model")
     parser.add_argument("--best_prefix", type=str, default=None, help="Prefix for saving best model")
     parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")
@@ -134,6 +142,8 @@ if __name__ == "__main__":
         args.log_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env"
     if args.save_prefix is None:
         args.save_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env"
+    if args.reward_prefix is None:
+        args.reward_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}_reward_data"
     if args.best_prefix is None:
         args.best_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env_best"
     

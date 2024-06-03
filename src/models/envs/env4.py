@@ -3,6 +3,7 @@ from gymnasium import spaces
 import numpy as np
 import matplotlib.pyplot as plt
 from models.reward.reward import reward_nutrient_env4 as calculate_reward
+import json
 
 class CalorieOnlyEnv(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
@@ -257,6 +258,14 @@ class CalorieOnlyEnv(gym.Env):
         plt.tight_layout()
         plt.show()
 
+    def save_reward_distribution(self, filepath):
+        reward_distribution = {
+            'total_reward': self.reward_history,
+            'nutrient_rewards': self.nutrient_reward_history
+        }
+        with open(filepath, 'w') as json_file:
+            json.dump(reward_distribution, json_file, indent=4)
+            
 # Register the environment
 from gymnasium.envs.registration import register
 

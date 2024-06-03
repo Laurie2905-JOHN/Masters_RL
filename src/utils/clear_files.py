@@ -31,6 +31,6 @@ def clear_directory(directory_path):
         print("Operation cancelled.")
 
 if __name__ == "__main__":
-    for directory in ["saved_models/tensorboard", "saved_models/best_models", "saved_models/checkpoints"]:
+    for directory in ["saved_models/tensorboard", "saved_models/best_models", "saved_models/checkpoints", "saved_models/hpc_output"]:
         clear_directory(os.path.abspath(directory))
 
