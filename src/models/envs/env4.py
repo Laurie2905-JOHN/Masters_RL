@@ -86,8 +86,7 @@ class CalorieOnlyEnv(gym.Env):
 
         # Reward tracking
         self.reward_history = []
-        self.selection_reward_history = []
-        self.calorie_reward_history = []
+        self.nutrient_reward_history = []
         
         # Initialising values
         self.average_calories_per_day = 0
@@ -147,7 +146,7 @@ class CalorieOnlyEnv(gym.Env):
                 self.actions_taken.append(f"{idx}: set to 0 to maintain ingredient limit")
 
         # Calculate the reward
-        reward, selection_reward, calorie_reward, info, terminated = calculate_reward(self, action)
+        reward, nutrient_reward, info, terminated = calculate_reward(self, action)
 
         # Update the environment state with the info calculated in the reward function
         self.average_calories_per_day = info.get('Average Calories per Day', self.average_calories_per_day)
@@ -165,8 +164,7 @@ class CalorieOnlyEnv(gym.Env):
 
         # Track rewards for visualization
         self.reward_history.append(reward)
-        self.selection_reward_history.append(selection_reward)
-        self.calorie_reward_history.append(calorie_reward)
+        self.nutrient_reward_history.append(nutrient_reward)
 
         if self.render_mode == 'human':
             self.render(step=len(self.reward_history))
@@ -219,25 +217,42 @@ class CalorieOnlyEnv(gym.Env):
         pass
 
     def plot_reward_distribution(self):
-        plt.figure(figsize=(12, 6))
 
-        plt.subplot(1, 3, 1)
-        plt.hist(self.reward_history, bins=50, alpha=0.75)
-        plt.xlabel('Total Reward')
-        plt.ylabel('Frequency')
-        plt.title('Total Reward Distribution')
-        
-        plt.subplot(1, 3, 2)
-        plt.hist(self.selection_reward_history, bins=50, alpha=0.75)
-        plt.xlabel('Selection Reward')
-        plt.ylabel('Frequency')
-        plt.title('Selection Reward Distribution')
+        # Create a dictionary to hold lists of values for each nutrient reward type
+        nutrient_reward_history_reformat = {key: [] for key in self.nutrient_reward_history[0].keys()}
 
-        plt.subplot(1, 3, 3)
-        plt.hist(self.calorie_reward_history, bins=50, alpha=0.75)
-        plt.xlabel('Calorie Reward')
-        plt.ylabel('Frequency')
-        plt.title('Calorie Reward Distribution')
+        # Populate the dictionary with values from each entry in nutrient_reward_history
+        for entry in self.nutrient_reward_history:
+            for key, value in entry.items():
+                nutrient_reward_history_reformat[key].append(value)
+
+        # Calculate the number of subplots required
+        num_rewards = len(nutrient_reward_history_reformat) + 1  # Plus one for the total reward
+        col = 4
+        row = num_rewards // col
+        if num_rewards % col != 0:
+            row += 1
+
+        # Create a single figure with subplots
+        fig, axes = plt.subplots(row, col, figsize=(col * 4, row * 3))
+
+        # Ensure axes is always iterable
+        axes = np.ravel(axes)
+
+        # Plot total reward distribution
+        axes[0].hist(self.reward_history, bins=50, alpha=0.75)
+        axes[0].set_xlabel('Total reward')
+        axes[0].set_ylabel('Frequency')
+
+        # Plot histograms for each nutrient reward type
+        for ax, (key, values) in zip(axes[1:], nutrient_reward_history_reformat.items()):
+            ax.hist(values, bins=50, alpha=0.75)
+            ax.set_xlabel(key.replace('_', ' ').capitalize())
+            ax.set_ylabel('Frequency')
+
+        # Hide any unused subplots
+        for ax in axes[num_rewards:]:
+            ax.set_visible(False)
 
         plt.tight_layout()
         plt.show()
@@ -269,7 +284,7 @@ if __name__ == '__main__':
     np.set_printoptions(suppress=True)
 
     # Number of episodes to test
-    num_episodes = 1
+    num_episodes = 100
     steps_per_episode = 100  # Number of steps per episode
 
     for episode in range(num_episodes):
@@ -281,9 +296,9 @@ if __name__ == '__main__':
             obs, reward, done, _, info = env.step(action)  # Take a step in the environment
 
             # Print the results after each step
-            print(f"  Step {step + 1}:")
-            print(f"    Observation: {obs}")
-            print(f"    Reward: {reward}")
+            # print(f"  Step {step + 1}:")
+            # print(f"    Observation: {obs}")
+            # print(f"    Reward: {reward}")
 
             if done:
                 print(f"Episode {episode + 1} ended early after {step + 1} steps.")

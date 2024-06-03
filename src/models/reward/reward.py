@@ -294,7 +294,6 @@ def reward_nutrient_env4(self, action):
     self.average_salt_per_day = total_salt / self.num_people
 
     reward = 0
-    selection_reward = 0
     nutrient_rewards = {
         'calorie_reward': 0,
         'fat_reward': 0,
@@ -358,9 +357,9 @@ def reward_nutrient_env4(self, action):
                     nutrient_rewards[f'{nutrient}_reward'] -= (distance ** 1) / 500
 
     # Include the step penalty in the reward calculation
-    reward += sum(nutrient_rewards.values()) + selection_reward + step_penalty
+    reward += sum(nutrient_rewards.values()) + step_penalty
 
     info = self._get_info()
 
-    return reward, selection_reward, nutrient_rewards, info, terminated
+    return reward, nutrient_rewards, info, terminated
 
