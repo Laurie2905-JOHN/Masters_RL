@@ -39,7 +39,6 @@ def setup_environment(args, seed, ingredient_df):
         'ingredient_df': ingredient_df,
         'render_mode': args.render_mode,
         'num_people': args.num_people,
-        'target_calories': args.target_calories
     }, seed=seed)
     
     return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
@@ -94,9 +93,9 @@ def main(args, seed):
     final_vec_normalize = os.path.join(save_dir, f"{save_prefix}_vec_normalize_best.pkl")
     env.save(final_vec_normalize)
     
-    # Save the reward distribution to a JSON file
-    reward_distribution_path = os.path.join(reward_dir, f"{reward_prefix}_json")
-    env.save_reward_distribution(reward_distribution_path)
+    # # Save the reward distribution to a JSON file
+    # reward_distribution_path = os.path.join(reward_dir, f"{reward_prefix}_json")
+    # env.save_reward_distribution(reward_distribution_path)
 
     del model
 
@@ -116,11 +115,11 @@ def main(args, seed):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
     parser.add_argument("--env_name", type=str, default='CalorieOnlyEnv-v1', help="Name of the environment")
+    parser.add_argument("--reward_func", type=str, default='CalorieOnlyEnv-v1', help="Name of the environment")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
     parser.add_argument("--num_people", type=int, default=50, help="Number of people in the environment")
-    parser.add_argument("--target_calories", type=int, default=530, help="Target calories for the environment")
     parser.add_argument("--total_timesteps", type=int, default=100000, help="Total number of timesteps for training")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")

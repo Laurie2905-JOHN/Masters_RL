@@ -66,6 +66,51 @@ def get_unique_directory(directory, base_name):
 
     return base_path, unique_subdir
 
+def run_episodes(env, num_episodes, steps_per_episode):
+    successful_terminations = 0
+    total_rewards = []
+
+    for episode in range(num_episodes):
+        obs, info = env.reset()  # Reset the environment at the start of each episode
+        episode_reward = 0
+
+        for step in range(steps_per_episode):
+            action = env.action_space.sample()  # Sample a random action
+            obs, reward, done, _, info = env.step(action)  # Take a step in the environment
+
+            episode_reward += reward
+
+            if done:
+                if "successful" in info.get("termination_reason", ""):
+                    successful_terminations += 1
+                break
+
+        total_rewards.append(episode_reward)
+
+    return successful_terminations, total_rewards
+
+def optimize_scaling_factor(ingredient_df, num_episodes, steps_per_episode, scale_factors):
+    best_scale_factor = None
+    max_successful_terminations = 0
+    scale_factor_results = {}
+
+    for scale_factor in scale_factors:
+        env = CalorieOnlyEnv(ingredient_df=ingredient_df, action_scaling_factor=scale_factor)
+        successful_terminations, total_rewards = run_episodes(env, num_episodes, steps_per_episode)
+        scale_factor_results[scale_factor] = {
+            "successful_terminations": successful_terminations,
+            "total_rewards": total_rewards
+        }
+        print(f"Scale Factor: {scale_factor}, Successful Terminations: {successful_terminations}")
+
+        if successful_terminations > max_successful_terminations:
+            max_successful_terminations = successful_terminations
+            best_scale_factor = scale_factor
+
+        env.close()
+
+    return best_scale_factor, max_successful_terminations, scale_factor_results
+
 if __name__ == "__main__":
     base, subdir = get_unique_directory("saved_models/tensorboard", "A2C_100000")
     print(f"Base Directory: {base}")
