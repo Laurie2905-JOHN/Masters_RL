@@ -246,12 +246,12 @@ def reward_nutrient_macro(self, action):
     
     if all_targets_met:
         terminated = True
-        self.termination_reason = 1 # 0 for all targets met to terminate
+        self.termination_reason = 2 # 0 for all targets met to terminate
     elif any_target_far_off:
         terminated = True
         self.termination_reason = -1 # 1 for any target is far off to terminate
     else:
-        self.termination_reason = 0
+        self.termination_reason = 0 # 0 for no termination
     # Include the step penalty in the reward calculation
     reward += sum(nutrient_rewards.values()) + step_penalty
 

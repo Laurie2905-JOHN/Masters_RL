@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 from models.reward.reward import reward_nutrient_macro as calculate_reward
+from gymnasium.wrappers import TimeLimit
 
 class CalorieOnlyEnv(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
@@ -73,7 +74,7 @@ class CalorieOnlyEnv(gym.Env):
         self.render_mode = render_mode
         self.initial_ingredients = initial_ingredients if initial_ingredients is not None else []
         self.n_ingredients = len(ingredient_df)
-        self.episode_count = 0
+        self.episode_count = 1
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(self.n_ingredients,), dtype=np.float32)
 
@@ -91,7 +92,7 @@ class CalorieOnlyEnv(gym.Env):
         self.reward_history = []
         self.nutrient_reward_history = []
         self.termination_reasons = []
-        self.termination_reason = 0
+        self.termination_reason = None
 
         self.average_calories_per_day = 0
         self.average_fat_per_day = 0
@@ -118,7 +119,7 @@ class CalorieOnlyEnv(gym.Env):
         self.average_fibre_per_day = 0
         self.average_protein_per_day = 0
         self.average_salt_per_day = 0
-        self.termination_reason = 0
+        self.termination_reason = None
 
         observation = self._get_obs() 
         self.current_info = self._get_info()
@@ -151,21 +152,23 @@ class CalorieOnlyEnv(gym.Env):
         self.average_protein_per_day = info.get('Average Protein per Day', self.average_protein_per_day)
         self.average_salt_per_day = info.get('Average Salt per Day', self.average_salt_per_day)
 
-        observation = self._get_obs()
+        obs = self._get_obs()
         self.current_info = info
 
         self.reward_history.append(reward)
         self.nutrient_reward_history.append(nutrient_reward)
-        
-        if terminated:
-            self.termination_reasons.append(self.termination_reason)
+        print(self.max_episode_steps)
+        if self.max_episode_steps <= len(self.actions_taken):
+            self.termination_reason = 1
+                    
+        self.termination_reasons.append(self.termination_reason)
             
         if self.render_mode == 'human':
             self.render(step=len(self.reward_history))
             
         info = self._get_info()
-
-        return observation, reward, terminated, False, self.current_info
+        # truncation=False as the time limit is handled by the `TimeLimit` wrapper added during `make`
+        return obs, reward, terminated, False, info
     
     def _get_obs(self):
         obs = np.concatenate((
@@ -203,7 +206,7 @@ class CalorieOnlyEnv(gym.Env):
             if self.current_info:
                 print(f"Step: {step}")
                 print(f"Average Calories per Day: {self.current_info.get('Average Calories per Day', 'N/A')}")
-                print(f"Actions Taken: {self.current_info.get('Action', 'N/A')}")
+                # print(f"Actions Taken: {self.current_info.get('Action', 'N/A')}")
         if self.render_mode == 'step':
             if step is not None:
                 print(f"Step: {step}")
@@ -212,18 +215,8 @@ class CalorieOnlyEnv(gym.Env):
         pass
 
     def plot_reward_distribution(self):
-        reason1 = []
-        print(self.termination_reasons)
-        for i, val in enumerate(self.termination_reasons):
-            if val == 1:
-                val = 'all_targets_met'
-            elif val == 0:
-                val = 'end_of_episode'
-            elif val == -1:
-                val = 'target_far_off'
-            reason1.append(val)
-            
-            
+        reason_str = [self._reason_to_string(val) if val != 0 else '' for val in self.termination_reasons]
+        # print(self.termination_reasons)
         nutrient_reward_history_reformat = {key: [] for key in self.nutrient_reward_history[0].keys()}
 
         for entry in self.nutrient_reward_history:
@@ -240,7 +233,9 @@ class CalorieOnlyEnv(gym.Env):
 
         axes = np.ravel(axes)
 
-        termination_reason_counts = {reason: reason1.count(reason) for reason in set(reason1)}
+        termination_reason_counts = {reason: reason_str.count(reason) for reason in set(reason_str)}
+
+        
         bars = axes[0].bar(
             [reason.replace('_', ' ').capitalize() for reason in termination_reason_counts.keys()], 
             termination_reason_counts.values()
@@ -272,23 +267,23 @@ class CalorieOnlyEnv(gym.Env):
         plt.show()
 
     def save_reward_distribution(self, filepath):
-        reason = []
-        for i, val in enumerate(self.termination_reasons):
-            if val == 1:
-                val = 'all_targets_met'
-            elif val == 0:
-                val = 'end_of_episode'
-            elif val == -1:
-                val = 'target_far_off'
-            reason.append(val)
+        reason_str = [self._reason_to_string(val) if val != 0 else '' for val in self.termination_reasons]
                 
         reward_distribution = {
             'total_reward': self.reward_history,
             'nutrient_rewards': self.nutrient_reward_history,
-            'termination_reasons': reason
+            'termination_reasons': reason_str
         }
         with open(filepath, 'w') as json_file:
             json.dump(reward_distribution, json_file, indent=4)
+            
+    def _reason_to_string(self, val):
+        if val == 2:
+            return 'all_targets_met'
+        elif val == 1:
+            return 'end_of_episode'
+        elif val == -1:
+            return 'target_far_off'
 
 from gymnasium.envs.registration import register
 
@@ -303,7 +298,8 @@ if __name__ == '__main__':
     from gymnasium.utils.env_checker import check_env
 
     ingredient_df = get_data()
-
+    max_episode_steps = 5
+    
     env = gym.make('CalorieOnlyEnv-v3', ingredient_df=ingredient_df, render_mode=None)
 
     check_env(env.unwrapped)
@@ -311,21 +307,23 @@ if __name__ == '__main__':
 
     np.set_printoptions(suppress=True)
 
-    num_episodes = 10
-    steps_per_episode = 5
-
+    num_episodes = 5
+    
     for episode in range(num_episodes):
         obs, info = env.reset()
         print(f"Episode {episode + 1}")
 
-        for step in range(steps_per_episode):
+        for step in range(max_episode_steps):
             action = env.action_space.sample()
-            obs, reward, done, _, info = env.step(action)
+            obs, reward, terminated, truncated, info = env.step(action)
 
             print(f"    Reward: {reward}")
 
-            if done:
+            if terminated:
                 print(f"Episode {episode + 1} ended early after {step + 1} steps.")
+                break
+            if truncated:
+                print(f"Episode {episode + 1} ended early after max steps. {step + 1} steps.")
                 break
 
     env.plot_reward_distribution()
