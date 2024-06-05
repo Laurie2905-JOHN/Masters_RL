@@ -9,7 +9,7 @@ from gymnasium.wrappers import TimeLimit
 class CalorieOnlyEnv(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, num_people=50, max_ingredients=10, action_scaling_factor=21.25, render_mode=None, initial_ingredients=None):
+    def __init__(self, ingredient_df, num_people=50, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
         super(CalorieOnlyEnv, self).__init__()
 
         self.ingredient_df = ingredient_df
@@ -141,7 +141,7 @@ class CalorieOnlyEnv(gym.Env):
             excess_indices = np.argsort(-self.current_selection)
             self.current_selection[excess_indices[self.max_ingredients:]] = 0
 
-        reward, nutrient_reward, info, terminated = calculate_reward(self, action)
+        reward, nutrient_reward, info, terminated = calculate_reward(self)
 
         self.average_calories_per_day = info.get('Average Calories per Day', self.average_calories_per_day)
         self.average_fat_per_day = info.get('Average Fat per Day', self.average_fat_per_day)
@@ -157,11 +157,9 @@ class CalorieOnlyEnv(gym.Env):
 
         self.reward_history.append(reward)
         self.nutrient_reward_history.append(nutrient_reward)
-        print(self.max_episode_steps)
-        if self.max_episode_steps <= len(self.actions_taken):
-            self.termination_reason = 1
-                    
-        self.termination_reasons.append(self.termination_reason)
+
+        if terminated:            
+            self.termination_reasons.append(self.termination_reason)
             
         if self.render_mode == 'human':
             self.render(step=len(self.reward_history))
@@ -298,7 +296,7 @@ if __name__ == '__main__':
     from gymnasium.utils.env_checker import check_env
 
     ingredient_df = get_data()
-    max_episode_steps = 5
+    max_episode_steps = 1000
     
     env = gym.make('CalorieOnlyEnv-v3', ingredient_df=ingredient_df, render_mode=None)
 
@@ -307,7 +305,7 @@ if __name__ == '__main__':
 
     np.set_printoptions(suppress=True)
 
-    num_episodes = 5
+    num_episodes = 1000
     
     for episode in range(num_episodes):
         obs, info = env.reset()

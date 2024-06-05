@@ -114,8 +114,8 @@ def main(args, seed):
 # Entry point of the script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
-    parser.add_argument("--env_name", type=str, default='CalorieOnlyEnv-v1', help="Name of the environment")
-    parser.add_argument("--reward_func", type=str, default='CalorieOnlyEnv-v1', help="Name of the environment")
+    parser.add_argument("--env_name", type=str, default='CalorieOnlyEnv-v3', help="Name of the environment")
+    parser.add_argument("--reward_func", type=str, default='CalorieOnlyEnv-v3', help="Name of the environment")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     parser.add_argument("--best_prefix", type=str, default=None, help="Prefix for saving best model")
     parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
-    parser.add_argument("--seed", type=int, nargs='+', default=generate_random_seeds(3), help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
+    parser.add_argument("--seed", type=int, nargs='+', default=generate_random_seeds(2), help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
 
     args = parser.parse_args()

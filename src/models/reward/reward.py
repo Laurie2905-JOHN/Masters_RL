@@ -134,7 +134,7 @@ def reward_no_selection(self, action):
     return reward, selection_reward, calorie_reward, info, terminated
 
 
-def reward_nutrient_macro(self, action):
+def reward_nutrient_macro(self):
     # Calculate the total values for each nutritional category for the selected ingredients
     total_calories = sum(self.caloric_values * self.current_selection)
     total_fat = sum(self.Fat_g * self.current_selection)
@@ -219,7 +219,7 @@ def reward_nutrient_macro(self, action):
         all_targets_met_list.append(target_min <= average_value <= target_max)
 
         if far_flag:
-            nutrient_rewards[nutrient] -= 10
+            nutrient_rewards[nutrient] -= 100
             termination_reason[nutrient] = 'too_far_off'
             terminated = True
 
@@ -247,6 +247,7 @@ def reward_nutrient_macro(self, action):
     if all_targets_met:
         terminated = True
         self.termination_reason = 2 # 0 for all targets met to terminate
+        reward += 1000
     elif any_target_far_off:
         terminated = True
         self.termination_reason = -1 # 1 for any target is far off to terminate
