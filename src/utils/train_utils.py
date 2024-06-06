@@ -7,12 +7,12 @@ from stable_baselines3.common.env_util import make_vec_env
 import torch
 
 # Import your reward functions
-from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_regulation
+from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_groups
 
 # Mapping from reward function names to actual functions
 REWARD_FUNCTIONS = {
     'reward_nutrient_macro': reward_nutrient_macro,
-    'reward_nutrient_macro_and_regulation': reward_nutrient_macro_and_regulation,
+    'reward_nutrient_macro_and_groups': reward_nutrient_macro_and_groups,
     # Add more mappings as needed
 }
 

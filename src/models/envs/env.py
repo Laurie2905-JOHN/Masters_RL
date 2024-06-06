@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 from gymnasium.wrappers import TimeLimit
-from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_regulation
+from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_groups
 
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}

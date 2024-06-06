@@ -4,12 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 from gymnasium.wrappers import TimeLimit
-from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_regulation
+from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_groups
 
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, reward_func=reward_nutrient_macro, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
+    def __init__(self, ingredient_df, reward_func=reward_nutrient_macro_and_groups, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
@@ -38,7 +38,7 @@ class SchoolMealSelection(gym.Env):
         self.target_Salt_g = 0.499
         
         # Define target ranges and initialize rewards
-        self.target_ranges = {
+        self.nutrient_target_ranges = {
             'calories': (self.target_calories * 0.95, self.target_calories * 1.05),
             'fat': (self.target_Fat_g * 0.5, self.target_Fat_g),
             'saturates': (0, self.target_Saturates_g),
@@ -48,6 +48,52 @@ class SchoolMealSelection(gym.Env):
             'protein': (self.target_Protein_g, self.target_Protein_g * 2),
             'salt': (0, self.target_Salt_g)
         }
+        
+        self.nutrient_averages = {k: 0 for k in self.nutrient_target_ranges.keys()}
+        
+        # Environment
+        self.Animal_Welfare_Rating = ingredient_df['Animal Welfare Rating'].values
+        self.Rainforest_Rating = ingredient_df['Rainforest Rating'].values
+        self.Water_Scarcity_Rating = ingredient_df['Water Scarcity Rating'].values
+        self.CO2_FU_Rating = ingredient_df['CO2 FU Rating'].values
+        self.CO2_kg_per_100g = ingredient_df['CO2_kg_per_100g'].values / 100
+
+        self.target_CO2_kg_g = 0.5 # Target max CO2 per 100g
+
+        # Group categories
+        self.Group_A_veg = ingredient_df['Group A veg'].values
+        self.Group_A_fruit = ingredient_df['Group A fruit'].values
+        self.Group_B = ingredient_df['Group B'].values
+        self.Group_C = ingredient_df['Group C'].values
+        self.Group_D = ingredient_df['Group D'].values
+        self.Group_E = ingredient_df['Group E'].values
+        self.Bread = ingredient_df['Bread'].values
+        self.Confectionary = ingredient_df['Confectionary'].values
+        
+        ## May be needed later for multiple days
+        # self.Oily_Fish = ingredient_df['Oily Fish'].values
+        # self.Red_Meat = ingredient_df['Red Meat'].values
+        # self.Oil = ingredient_df['Oil'].values
+        
+        # Ingredient day group targets: from UK school meal regulation  
+        # Define group target ranges
+        self.ingredient_group_count_targets = {
+            'fruit': 1, # 1 fruit a day per meal
+            'veg': 1, # 1 veg per day per meal
+            'non_processed_meat': 1, # Portion of non processed meat has to be provided accept if a portion of processed meat is provided. This current env is one day meal selection.
+            'processed_meat': 1, # Processed meat, see above ^
+            'carbs': 1, # Starchy food , a portion of this should be provided every day
+            'dairy': 1, # Dairy, a portion of this should be provided every day
+            'bread': 1, # Bread should be provided as well as a portion of starchy food
+            'confectionary': 0 # No confectionary should be provided
+        }
+
+        self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count_targets.keys()}
+        
+        # Consumption data
+        self.Mean_g_per_day = ingredient_df['Mean_g_per_day'].values
+        self.StandardDeviation = ingredient_df['StandardDeviation'].values
+        self.Coefficient_of_Variation = ingredient_df['Coefficient of Variation'].values
 
         self.render_mode = render_mode
         self.initial_ingredients = initial_ingredients if initial_ingredients is not None else []
@@ -55,10 +101,11 @@ class SchoolMealSelection(gym.Env):
         self.episode_count = 1
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(self.n_ingredients,), dtype=np.float32)
+        
         self.observation_space = spaces.Box(
             low=0,
             high=1000,
-            shape=(self.n_ingredients + 8,),  # Assuming 8 nutrient averages to be part of observation
+            shape=(self.n_ingredients + len(self.ingredient_group_count.keys()) + len(self.nutrient_averages.keys()),),  # Assuming 8 nutrient averages to be part of observation
             dtype=np.float32
         )
 
@@ -70,16 +117,7 @@ class SchoolMealSelection(gym.Env):
         self.termination_reasons = []
         self.termination_reason = None
 
-        self.nutrient_averages = {
-            'calories': 0,
-            'fat': 0,
-            'saturates': 0,
-            'carbs': 0,
-            'sugar': 0,
-            'fibre': 0,
-            'protein': 0,
-            'salt': 0
-        }
+
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -89,6 +127,9 @@ class SchoolMealSelection(gym.Env):
         self.episode_count += 1
         
         self.nutrient_averages = {k: 0 for k in self.nutrient_averages}
+        
+        self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count_targets.keys()}
+        
         self.termination_reason = None
 
         observation = self._get_obs()
@@ -119,6 +160,7 @@ class SchoolMealSelection(gym.Env):
         obs = self._get_obs()
 
         self.reward_history.append(reward)
+        
         self.nutrient_reward_history.append(nutrient_reward)
 
         if terminated:            
@@ -133,6 +175,7 @@ class SchoolMealSelection(gym.Env):
     def _get_obs(self):
         obs = np.concatenate((
             list(self.nutrient_averages.values()),
+            list(self.ingredient_group_count.values()),
             self.current_selection,
         )).astype(np.float32)
         return obs
@@ -140,6 +183,7 @@ class SchoolMealSelection(gym.Env):
     def _get_info(self):
         info = {
             'nutrient_averages': self.nutrient_averages,
+            'group_counts': self.ingredient_group_count,
             'Current Selection': self.current_selection,
             'Termination Reason': self.termination_reason
         }
@@ -230,7 +274,7 @@ from gymnasium.envs.registration import register
 
 register(
     id='SchoolMealSelection-v0',
-    entry_point='models.envs.env:SchoolMealSelection',
+    entry_point='models.envs.env_working:SchoolMealSelection',
     max_episode_steps=1000,
 )
 
@@ -239,6 +283,7 @@ if __name__ == '__main__':
     from gymnasium.utils.env_checker import check_env
 
     ingredient_df = get_data()
+    
     max_episode_steps = 1000
     
     env = gym.make('SchoolMealSelection-v0', ingredient_df=ingredient_df, render_mode=None)
@@ -248,7 +293,7 @@ if __name__ == '__main__':
 
     np.set_printoptions(suppress=True)
 
-    num_episodes = 10000
+    num_episodes = 10
     
     for episode in range(num_episodes):
         obs, info = env.reset()
