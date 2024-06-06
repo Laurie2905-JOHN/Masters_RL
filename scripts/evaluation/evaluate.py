@@ -51,7 +51,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate a trained RL agent on an environment")
-    parser.add_argument("--env_name", type=str, default='CalorieOnlyEnv-v3', help="Name of the environment")
+    parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v0', help="Name of the environment")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
     parser.add_argument("--num_people", type=int, default=50, help="Number of people in the environment")

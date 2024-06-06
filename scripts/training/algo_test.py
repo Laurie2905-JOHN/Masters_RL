@@ -6,13 +6,13 @@ from stable_baselines3.common.logger import configure
 from stable_baselines3.common.vec_env import DummyVecEnv
 import numpy as np
 from utils.process_data import get_data
-from models.envs.env1 import SimpleCalorieOnlyEnv
+from models.envs.env1 import SimpleSchoolMealSelection
 from utils.train_utils import InfoLoggerCallback
 
 try:
     # Get data and create environment
     ingredient_df = get_data()
-    env = gym.make('SimpleCalorieOnlyEnv-v0', ingredient_df=ingredient_df, render_mode='human')
+    env = gym.make('SimpleSchoolMealSelection-v0', ingredient_df=ingredient_df, render_mode='human')
     env = DummyVecEnv([lambda: env])  # Wrap the environment
     print("Environment created successfully.")
 except Exception as e:

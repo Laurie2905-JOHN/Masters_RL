@@ -13,17 +13,6 @@ from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback, SaveVecNormalizeCallback
 from utils.train_utils import generate_random_seeds, get_unique_directory, REWARD_FUNCTIONS, select_device, set_seed, setup_environment
 
-# Import your reward functions
-# from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_regulation
-
-# # Mapping from reward function names to actual functions
-# REWARD_FUNCTIONS = {
-#     'reward_nutrient_macro': reward_nutrient_macro,
-#     'reward_nutrient_macro_and_regulation': reward_nutrient_macro_and_regulation,
-#     # Add more mappings as needed
-# }
-
-
 # Main training function
 def main(args, seed):
     device = select_device(args)
@@ -89,7 +78,7 @@ def main(args, seed):
 # Entry point of the script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
-    parser.add_argument("--env_name", type=str, default='CalorieOnlyEnv-v3', help="Name of the environment")
+    parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v0', help="Name of the environment")
     parser.add_argument("--reward_func", type=str, default='reward_nutrient_macro', help="Name of the reward function")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")

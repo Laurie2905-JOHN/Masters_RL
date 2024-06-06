@@ -95,7 +95,7 @@ def optimize_scaling_factor(ingredient_df, num_episodes, steps_per_episode, scal
     scale_factor_results = {}
 
     for scale_factor in scale_factors:
-        env = CalorieOnlyEnv(ingredient_df=ingredient_df, action_scaling_factor=scale_factor)
+        env = SchoolMealSelection(ingredient_df=ingredient_df, action_scaling_factor=scale_factor)
         successful_terminations, total_rewards = run_episodes(env, num_episodes, steps_per_episode)
         scale_factor_results[scale_factor] = {
             "successful_terminations": successful_terminations,

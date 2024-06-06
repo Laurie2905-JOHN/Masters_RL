@@ -10,13 +10,13 @@ from stable_baselines3.common.evaluation import evaluate_policy
 import os
 from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback
-from models.envs.env1 import SimpleCalorieOnlyEnv
+from models.envs.env1 import SimpleSchoolMealSelection
 import numpy as np
 import optuna
 
 # Setup environment and other configurations
 ingredient_df = get_data()
-env = gym.make('SimpleCalorieOnlyEnv-v0', ingredient_df=ingredient_df, render_mode=None)
+env = gym.make('SimpleSchoolMealSelection-v0', ingredient_df=ingredient_df, render_mode=None)
 env = DummyVecEnv([lambda: env])
 
 # Define the objective function for Optuna
@@ -48,7 +48,7 @@ def objective(trial):
     model.learn(total_timesteps=10000, callback=callback)
 
     # Evaluate the model
-    eval_env = gym.make('SimpleCalorieOnlyEnv-v0', ingredient_df=ingredient_df, render_mode=None)
+    eval_env = gym.make('SimpleSchoolMealSelection-v0', ingredient_df=ingredient_df, render_mode=None)
     eval_env = DummyVecEnv([lambda: eval_env])
     mean_reward, std_reward = evaluate_policy(model, eval_env, n_eval_episodes=10)
 

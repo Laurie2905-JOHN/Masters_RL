@@ -142,7 +142,7 @@ def plot_results(predictions, ingredient_df, env):
 def main():
     # Setup environment and other configurations
     ingredient_df = get_data()
-    env_name = 'CalorieOnlyEnv-v3'
+    env_name = 'SchoolMealSelection-v0'
     
     # Create the environment
     env = gym.make(env_name, ingredient_df=ingredient_df, render_mode=None)

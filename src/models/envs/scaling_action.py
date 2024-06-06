@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 import json
 from models.reward.reward import reward_nutrient_macro as calculate_reward
 
-class CalorieOnlyEnv(gym.Env):
+class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
     def __init__(self, ingredient_df, num_people=50, max_ingredients=10, action_scaling_factor=21.25, render_mode=None, initial_ingredients=None):
-        super(CalorieOnlyEnv, self).__init__()
+        super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
         self.num_people = num_people
@@ -258,8 +258,8 @@ class CalorieOnlyEnv(gym.Env):
 from gymnasium.envs.registration import register
 
 register(
-    id='CalorieOnlyEnv-v3',
-    entry_point='models.envs.env4:CalorieOnlyEnv',
+    id='SchoolMealSelection-v0',
+    entry_point='models.envs.env:SchoolMealSelection',
     max_episode_steps=1000,
 )
 
@@ -282,7 +282,7 @@ def run_episodes(env, num_episodes, steps_per_episode):
 
 def shooting_method(ingredient_df, num_episodes, steps_per_episode, low, high, tolerance=0.1, eval_runs=15):
     def evaluate_scale_factor(scale_factor):
-        env = CalorieOnlyEnv(ingredient_df=ingredient_df, action_scaling_factor=scale_factor)
+        env = SchoolMealSelection(ingredient_df=ingredient_df, action_scaling_factor=scale_factor)
         successful_terminations = np.mean([run_episodes(env, num_episodes, steps_per_episode) for _ in range(eval_runs)])
         env.close()
         return successful_terminations

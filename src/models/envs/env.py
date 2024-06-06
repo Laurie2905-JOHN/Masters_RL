@@ -6,11 +6,11 @@ import json
 from gymnasium.wrappers import TimeLimit
 from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_regulation
 
-class CalorieOnlyEnv(gym.Env):
+class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
     def __init__(self, ingredient_df, reward_func=reward_nutrient_macro, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
-        super(CalorieOnlyEnv, self).__init__()
+        super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
         self.max_ingredients = max_ingredients
@@ -229,8 +229,8 @@ class CalorieOnlyEnv(gym.Env):
 from gymnasium.envs.registration import register
 
 register(
-    id='CalorieOnlyEnv-v3',
-    entry_point='models.envs.env4:CalorieOnlyEnv',
+    id='SchoolMealSelection-v0',
+    entry_point='models.envs.env:SchoolMealSelection',
     max_episode_steps=1000,
 )
 
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     ingredient_df = get_data()
     max_episode_steps = 1000
     
-    env = gym.make('CalorieOnlyEnv-v3', ingredient_df=ingredient_df, render_mode=None)
+    env = gym.make('SchoolMealSelection-v0', ingredient_df=ingredient_df, render_mode=None)
 
     check_env(env.unwrapped)
     print("Environment is valid!")
