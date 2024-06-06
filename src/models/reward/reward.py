@@ -13,13 +13,15 @@ def reward_nutrient_macro(self):
     all_group_targets_met = True
                     
     terminated, reward = termination_reason(self, all_nutrient_targets_met, nutrient_far_flag_list, all_group_targets_met, reward)
+    
+    ingredient_group_count_rewards = 0
 
     # Include the step penalty in the reward calculation
     reward += sum(nutrient_rewards.values()) + step_penalty
 
     info = self._get_info()
 
-    return reward, nutrient_rewards, info, terminated
+    return reward, nutrient_rewards, ingredient_group_count_rewards, info, terminated
 
 
 def reward_nutrient_macro_and_groups(self):
@@ -42,7 +44,7 @@ def reward_nutrient_macro_and_groups(self):
 
     info = self._get_info()
 
-    return reward, nutrient_rewards, info, terminated
+    return reward, nutrient_rewards, ingredient_group_count_rewards, info, terminated
 
 # Function to calculate the reward for the nutrients
 def nutrient_reward(self):
@@ -117,19 +119,18 @@ def termination_reason(self, all_nutrient_targets_met, nutrient_far_flag_list, a
 
 def group_count_reward(self):
     
-    # import pdb
-    # pdb.set_trace()
+    non_zero_mask = self.current_selection != 0
     
         # Calculate the total values for each nutritional category for the selected ingredients
     self.ingredient_group_count= {
-        'fruit': sum(self.Group_A_fruit * self.current_selection),
-        'veg': sum(self.Group_A_veg * self.current_selection),
-        'non_processed_meat': sum(self.Group_B * self.current_selection),
-        'processed_meat': sum(self.Group_C * self.current_selection),
-        'carbs': sum(self.Group_D * self.current_selection),
-        'dairy': sum(self.Group_E * self.current_selection),
-        'bread': sum(self.Bread * self.current_selection),
-        'confectionary': sum(self.Confectionary * self.current_selection),
+        'fruit': sum(self.Group_A_fruit * non_zero_mask),
+        'veg': sum(self.Group_A_veg * non_zero_mask),
+        'non_processed_meat': sum(self.Group_B * non_zero_mask),
+        'processed_meat': sum(self.Group_C * non_zero_mask),
+        'carbs': sum(self.Group_D * non_zero_mask),
+        'dairy': sum(self.Group_E * non_zero_mask),
+        'bread': sum(self.Bread * non_zero_mask),
+        'confectionary': sum(self.Confectionary * non_zero_mask),
     }
     
     ingredient_group_count_rewards = {k: 0 for k in self.ingredient_group_count.keys()}

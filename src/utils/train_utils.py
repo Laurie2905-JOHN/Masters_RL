@@ -5,9 +5,10 @@ import random
 from stable_baselines3.common.vec_env import VecNormalize
 from stable_baselines3.common.env_util import make_vec_env
 import torch
-
+from models.envs.env import SchoolMealSelection
 # Import your reward functions
 from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_groups
+from models.wrappers.common import RewardTrackingWrapper
 
 # Mapping from reward function names to actual functions
 REWARD_FUNCTIONS = {
@@ -38,13 +39,22 @@ def set_seed(seed, device):
 # Function to set up the environment
 def setup_environment(args, seed, ingredient_df):
     reward_func = REWARD_FUNCTIONS.get(args.reward_func, reward_nutrient_macro)
-    env = make_vec_env(args.env_name, n_envs=args.num_envs, env_kwargs={
-        'ingredient_df': ingredient_df,
-        'render_mode': args.render_mode,
-        'reward_func': reward_func
-    }, seed=seed)
     
+    def make_env():
+        env = SchoolMealSelection(
+            ingredient_df=ingredient_df,
+            reward_func=reward_func,
+            save_reward=args.plot_reward_history,
+            render_mode=args.render_mode
+        )
+        if args.plot_reward_history:
+            env = RewardTrackingWrapper(env, save_reward=True)
+        return env
+
+    env = make_vec_env(make_env, n_envs=args.num_envs, seed=seed)
     return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
+
+    
     
 def generate_random_seeds(n):
     return [random.randint(0, 2**32 - 1) for _ in range(n)]
@@ -65,6 +75,15 @@ def get_unique_directory(directory, base_name):
     unique_subdir = os.path.basename(dir_path)
 
     return base_path, unique_subdir
+
+def get_unique_image_directory(prefix):
+    
+    if len(prefix.split('.')[1].split(' ')) > 1:
+        prefix = prefix.split('.')[0] + ' ' + prefix.split('.')[1].split(' ')[1] + '.png'
+    else:
+        prefix = prefix.split('.')[0] + '.png'
+        
+    return prefix
 
 def run_episodes(env, num_episodes, steps_per_episode):
     successful_terminations = 0
@@ -121,16 +140,6 @@ def set_seed(seed, device):
         if device == "cuda":
             torch.cuda.manual_seed_all(seed)
 
-# Function to set up the environment
-def setup_environment(args, seed, ingredient_df):
-    reward_func = REWARD_FUNCTIONS.get(args.reward_func, reward_nutrient_macro)
-    env = make_vec_env(args.env_name, n_envs=args.num_envs, env_kwargs={
-        'ingredient_df': ingredient_df,
-        'render_mode': args.render_mode,
-        'reward_func': reward_func
-    }, seed=seed)
-    
-    return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
 class InfoLoggerCallback(BaseCallback):
     def __init__(self, verbose=0):

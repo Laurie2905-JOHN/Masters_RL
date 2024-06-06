@@ -5,18 +5,21 @@ import matplotlib.pyplot as plt
 import json
 from gymnasium.wrappers import TimeLimit
 from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_groups
+import os
+from utils.train_utils import get_unique_directory, get_unique_image_directory
+from models.wrappers.common import RewardTrackingWrapper
 
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, reward_func=reward_nutrient_macro_and_groups, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
+    def __init__(self, ingredient_df, reward_func=reward_nutrient_macro_and_groups, save_reward=True, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
         self.max_ingredients = max_ingredients
         self.action_scaling_factor = action_scaling_factor
         self.calculate_reward = reward_func  # Store the reward function
-        
+        self.save_reward = save_reward
         # Nutritional values
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values / 100
         self.Fat_g = ingredient_df['Fat_g'].values / 100
@@ -70,11 +73,6 @@ class SchoolMealSelection(gym.Env):
         self.Bread = ingredient_df['Bread'].values
         self.Confectionary = ingredient_df['Confectionary'].values
         
-        ## May be needed later for multiple days
-        # self.Oily_Fish = ingredient_df['Oily Fish'].values
-        # self.Red_Meat = ingredient_df['Red Meat'].values
-        # self.Oil = ingredient_df['Oil'].values
-        
         # Ingredient day group targets: from UK school meal regulation  
         # Define group target ranges
         self.ingredient_group_count_targets = {
@@ -112,12 +110,8 @@ class SchoolMealSelection(gym.Env):
         self.current_selection = np.zeros(self.n_ingredients)
         self.actions_taken = []
 
-        self.reward_history = []
-        self.nutrient_reward_history = []
         self.termination_reasons = []
         self.termination_reason = None
-
-
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -153,21 +147,18 @@ class SchoolMealSelection(gym.Env):
             excess_indices = np.argsort(-self.current_selection)
             self.current_selection[excess_indices[self.max_ingredients:]] = 0
 
-        reward, nutrient_reward, info, terminated = self.calculate_reward(self)  # Use the stored reward function
+        reward, nutrient_reward, ingredient_group_count_rewards, info, terminated = self.calculate_reward(self)  # Use the stored reward function
 
         self.nutrient_averages.update(info['nutrient_averages'])
+        self.ingredient_group_count.update(info['group_counts'])
 
         obs = self._get_obs()
-
-        self.reward_history.append(reward)
-        
-        self.nutrient_reward_history.append(nutrient_reward)
 
         if terminated:            
             self.termination_reasons.append(self.termination_reason)
             
         if self.render_mode == 'human':
-            self.render(step=len(self.reward_history))
+            self.render(step=len(self.termination_reasons))
             
         info = self._get_info()
         return obs, reward, terminated, False, info
@@ -200,80 +191,10 @@ class SchoolMealSelection(gym.Env):
     def close(self):
         pass
 
-    def plot_reward_distribution(self):
-        reason_str = [self._reason_to_string(val) if val != 0 else '' for val in self.termination_reasons]
-        nutrient_reward_history_reformat = {key: [] for key in self.nutrient_reward_history[0].keys()}
-
-        for entry in self.nutrient_reward_history:
-            for key, value in entry.items():
-                nutrient_reward_history_reformat[key].append(value)
-
-        num_rewards = len(nutrient_reward_history_reformat) + 2
-        col = 5
-        row = num_rewards // col
-        if num_rewards % col != 0:
-            row += 1
-
-        fig, axes = plt.subplots(row, col, figsize=(col * 3, row * 3))
-
-        axes = np.ravel(axes)
-
-        termination_reason_counts = {reason: reason_str.count(reason) for reason in set(reason_str)}
-
-        
-        bars = axes[0].bar(
-            [reason.replace('_', ' ').capitalize() for reason in termination_reason_counts.keys()], 
-            termination_reason_counts.values()
-        )
-        axes[0].set_xlabel('Termination Reason')
-        axes[0].set_ylabel('Frequency')
-        axes[0].set_title('Termination Reason Frequency')
-        axes[0].tick_params(axis='x', rotation=45)
-
-        for bar in bars:
-            yval = bar.get_height()
-            axes[0].text(bar.get_x() + bar.get_width()/2, yval + 0.05, int(yval), ha='center', va='bottom')
-
-        axes[1].hist(self.reward_history, bins=50, alpha=0.75)
-        axes[1].set_xlabel('Total reward')
-        axes[1].set_ylabel('Frequency')
-        axes[1].set_title('Total Reward Distribution')
-
-        for ax, (key, values) in zip(axes[2:], nutrient_reward_history_reformat.items()):
-            ax.hist(values, bins=50, alpha=0.75)
-            ax.set_xlabel(key.replace('_', ' ').capitalize())
-            ax.set_ylabel('Frequency')
-            ax.set_title(f'{key.replace("_", " ").capitalize()} Reward Distribution')
-
-        for ax in axes[num_rewards:]:
-            ax.set_visible(False)
-
-        plt.tight_layout()
-        plt.show()
-
-    def save_reward_distribution(self, filepath):
-        reason_str = [self._reason_to_string(val) if val != 0 else '' for val in self.termination_reasons]
-                
-        reward_distribution = {
-            'total_reward': self.reward_history,
-            'nutrient_rewards': self.nutrient_reward_history,
-            'termination_reasons': reason_str
-        }
-        with open(filepath, 'w') as json_file:
-            json.dump(reward_distribution, json_file, indent=4)
-            
-    def _reason_to_string(self, val):
-        if val == 2:
-            return 'all_targets_met'
-        elif val == 1:
-            return 'end_of_episode'
-        elif val == -1:
-            return 'half_of_targets_far_off'
-
 from gymnasium.envs.registration import register
 
 register(
-    id='SchoolMealSelection-v0',
+    id='SchoolMealSelection-v1',
     entry_point='models.envs.env_working:SchoolMealSelection',
     max_episode_steps=1000,
 )
@@ -284,16 +205,20 @@ if __name__ == '__main__':
 
     ingredient_df = get_data()
     
+    print(ingredient_df)
+    
     max_episode_steps = 1000
     
-    env = gym.make('SchoolMealSelection-v0', ingredient_df=ingredient_df, render_mode=None)
+    base_env = gym.make('SchoolMealSelection-v1', ingredient_df=ingredient_df, save_reward=True, render_mode=None)
+    env = RewardTrackingWrapper(base_env, save_reward=True)
 
     check_env(env.unwrapped)
+    
     print("Environment is valid!")
 
     np.set_printoptions(suppress=True)
 
-    num_episodes = 10
+    num_episodes = 1
     
     for episode in range(num_episodes):
         obs, info = env.reset()
@@ -302,6 +227,7 @@ if __name__ == '__main__':
         for step in range(max_episode_steps):
             action = env.action_space.sample()
             obs, reward, terminated, truncated, info = env.step(action)
+            print(reward)
 
             print(f"    Observation: {info}")
 
@@ -311,6 +237,11 @@ if __name__ == '__main__':
             if truncated:
                 print(f"Episode {episode + 1} ended early after max steps. {step + 1} steps.")
                 break
+    
+    reward_dir, reward_prefix = get_unique_directory(os.path.abspath(os.path.join('saved_models', 'reward')), 'reward_distribution.json')
+    
+    env.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
+    
+    reward_prefix = get_unique_image_directory(reward_prefix)
 
-    env.plot_reward_distribution()
-    env.save_reward_distribution('reward_distribution.json')
+    env.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
