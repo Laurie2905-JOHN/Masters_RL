@@ -3,19 +3,19 @@ from gymnasium import spaces
 import numpy as np
 import matplotlib.pyplot as plt
 import json
-from models.reward.reward import reward_nutrient_macro as calculate_reward
 from gymnasium.wrappers import TimeLimit
+from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_regulation
 
 class CalorieOnlyEnv(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, num_people=50, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
+    def __init__(self, ingredient_df, reward_func=reward_nutrient_macro, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
         super(CalorieOnlyEnv, self).__init__()
 
         self.ingredient_df = ingredient_df
-        self.num_people = num_people
         self.max_ingredients = max_ingredients
         self.action_scaling_factor = action_scaling_factor
+        self.calculate_reward = reward_func  # Store the reward function
         
         # Nutritional values
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values / 100
@@ -36,40 +36,18 @@ class CalorieOnlyEnv(gym.Env):
         self.target_Fibre_g = 4.2
         self.target_Protein_g = 7.5
         self.target_Salt_g = 0.499
-
-        # Ingredient groups for nutritional regulation
-        self.Group_A_veg = ingredient_df['Group A veg'].values
-        self.Group_A_fruit = ingredient_df['Group A fruit'].values
-        self.Group_B = ingredient_df['Group B'].values
-        self.Oily_Fish = ingredient_df['Oily Fish'].values
-        self.Red_Meat = ingredient_df['Red Meat'].values
-        self.Group_C = ingredient_df['Group C'].values
-        self.Group_D = ingredient_df['Group D'].values
-        self.Group_E = ingredient_df['Group E'].values
-        self.Oil = ingredient_df['Oil'].values
-        self.Bread = ingredient_df['Bread'].values
-        self.Confectionary = ingredient_df['Confectionary'].values
         
-        ### Ingredient day group targets: from UK regulations
-        self.target_Group_A_fruit = 1
-        self.target_Group_A_veg = 1
-        self.target_Group_B = 1
-        self.target_Group_C = 1
-        self.target_Group_D = 1
-        self.target_Group_E = 1
-        self.target_Bread = 1
-        self.target_Confectionary = 0
-
-        self.Animal_Welfare_Rating = ingredient_df['Animal Welfare Rating'].values
-        self.Rainforest_Rating = ingredient_df['Rainforest Rating'].values
-        self.Water_Scarcity_Rating = ingredient_df['Water Scarcity Rating'].values
-        self.CO2_FU_Rating = ingredient_df['CO2 FU Rating'].values
-        self.CO2_kg_per_100g = ingredient_df['CO2_kg_per_100g'].values / 100
-        self.target_CO2_kg_g = 0.5
-
-        self.Mean_g_per_day = ingredient_df['Mean_g_per_day'].values
-        self.StandardDeviation = ingredient_df['StandardDeviation'].values
-        self.Coefficient_of_Variation = ingredient_df['Coefficient of Variation'].values
+        # Define target ranges and initialize rewards
+        self.target_ranges = {
+            'calories': (self.target_calories * 0.95, self.target_calories * 1.05),
+            'fat': (self.target_Fat_g * 0.5, self.target_Fat_g),
+            'saturates': (0, self.target_Saturates_g),
+            'carbs': (self.target_Carbs_g, self.target_Carbs_g * 2),
+            'sugar': (0, self.target_Sugars_g),
+            'fibre': (self.target_Fibre_g, self.target_Fibre_g * 2),
+            'protein': (self.target_Protein_g, self.target_Protein_g * 2),
+            'salt': (0, self.target_Salt_g)
+        }
 
         self.render_mode = render_mode
         self.initial_ingredients = initial_ingredients if initial_ingredients is not None else []
@@ -77,16 +55,14 @@ class CalorieOnlyEnv(gym.Env):
         self.episode_count = 1
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(self.n_ingredients,), dtype=np.float32)
-
         self.observation_space = spaces.Box(
             low=0,
             high=1000,
-            shape=(self.n_ingredients + 8,),  
+            shape=(self.n_ingredients + 8,),  # Assuming 8 nutrient averages to be part of observation
             dtype=np.float32
         )
 
         self.current_selection = np.zeros(self.n_ingredients)
-        self.current_info = {}
         self.actions_taken = []
 
         self.reward_history = []
@@ -94,45 +70,40 @@ class CalorieOnlyEnv(gym.Env):
         self.termination_reasons = []
         self.termination_reason = None
 
-        self.average_calories_per_day = 0
-        self.average_fat_per_day = 0
-        self.average_saturates_per_day = 0
-        self.average_carbs_per_day = 0
-        self.average_sugar_per_day = 0
-        self.average_fibre_per_day = 0
-        self.average_protein_per_day = 0
-        self.average_salt_per_day = 0
+        self.nutrient_averages = {
+            'calories': 0,
+            'fat': 0,
+            'saturates': 0,
+            'carbs': 0,
+            'sugar': 0,
+            'fibre': 0,
+            'protein': 0,
+            'salt': 0
+        }
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         
         self.current_selection = np.zeros(self.n_ingredients)
         self.actions_taken = []
-        
         self.episode_count += 1
         
-        self.average_calories_per_day = 0
-        self.average_fat_per_day = 0
-        self.average_saturates_per_day = 0
-        self.average_carbs_per_day = 0
-        self.average_sugar_per_day = 0
-        self.average_fibre_per_day = 0
-        self.average_protein_per_day = 0
-        self.average_salt_per_day = 0
+        self.nutrient_averages = {k: 0 for k in self.nutrient_averages}
         self.termination_reason = None
 
-        observation = self._get_obs() 
-        self.current_info = self._get_info()
+        observation = self._get_obs()
+         
+        info = self._get_info()
 
         if self.render_mode == 'human':
             self.render()
 
-        return observation, self.current_info
+        return observation, info
 
     def step(self, action):
         action = np.clip(action, -1, 1)  # Ensure actions are within bounds
 
-        change = action * self.num_people * self.action_scaling_factor
+        change = action * self.action_scaling_factor
         self.current_selection = np.maximum(0, self.current_selection + change)
 
         num_selected_ingredients = np.sum(self.current_selection > 0)
@@ -141,19 +112,11 @@ class CalorieOnlyEnv(gym.Env):
             excess_indices = np.argsort(-self.current_selection)
             self.current_selection[excess_indices[self.max_ingredients:]] = 0
 
-        reward, nutrient_reward, info, terminated = calculate_reward(self)
+        reward, nutrient_reward, info, terminated = self.calculate_reward(self)  # Use the stored reward function
 
-        self.average_calories_per_day = info.get('Average Calories per Day', self.average_calories_per_day)
-        self.average_fat_per_day = info.get('Average Fat per Day', self.average_fat_per_day)
-        self.average_saturates_per_day = info.get('Average Saturates per Day', self.average_saturates_per_day)
-        self.average_carbs_per_day = info.get('Average Carbs per Day', self.average_carbs_per_day)
-        self.average_sugar_per_day = info.get('Average Sugar per Day', self.average_sugar_per_day)
-        self.average_fibre_per_day = info.get('Average Fibre per Day', self.average_fibre_per_day)
-        self.average_protein_per_day = info.get('Average Protein per Day', self.average_protein_per_day)
-        self.average_salt_per_day = info.get('Average Salt per Day', self.average_salt_per_day)
+        self.nutrient_averages.update(info['nutrient_averages'])
 
         obs = self._get_obs()
-        self.current_info = info
 
         self.reward_history.append(reward)
         self.nutrient_reward_history.append(nutrient_reward)
@@ -165,35 +128,18 @@ class CalorieOnlyEnv(gym.Env):
             self.render(step=len(self.reward_history))
             
         info = self._get_info()
-        # truncation=False as the time limit is handled by the `TimeLimit` wrapper added during `make`
         return obs, reward, terminated, False, info
     
     def _get_obs(self):
         obs = np.concatenate((
+            list(self.nutrient_averages.values()),
             self.current_selection,
-            [
-                self.average_calories_per_day,
-                self.average_fat_per_day,
-                self.average_saturates_per_day,
-                self.average_carbs_per_day,
-                self.average_sugar_per_day,
-                self.average_fibre_per_day,
-                self.average_protein_per_day,
-                self.average_salt_per_day,
-            ]
         )).astype(np.float32)
         return obs
 
     def _get_info(self):
         info = {
-            'Average Calories per Day': self.average_calories_per_day,
-            'Average Fat per Day': self.average_fat_per_day,
-            'Average Saturates per Day': self.average_saturates_per_day,
-            'Average Carbs per Day': self.average_carbs_per_day,
-            'Average Sugar per Day': self.average_sugar_per_day,
-            'Average Fibre per Day': self.average_fibre_per_day,
-            'Average Protein per Day': self.average_protein_per_day,
-            'Average Salt per Day': self.average_salt_per_day,
+            'nutrient_averages': self.nutrient_averages,
             'Current Selection': self.current_selection,
             'Termination Reason': self.termination_reason
         }
@@ -201,10 +147,8 @@ class CalorieOnlyEnv(gym.Env):
 
     def render(self, step=None):
         if self.render_mode == 'human':
-            if self.current_info:
-                print(f"Step: {step}")
-                print(f"Average Calories per Day: {self.current_info.get('Average Calories per Day', 'N/A')}")
-                # print(f"Actions Taken: {self.current_info.get('Action', 'N/A')}")
+            print(f"Step: {step}")
+            print(f"Average Calories per Day")
         if self.render_mode == 'step':
             if step is not None:
                 print(f"Step: {step}")
@@ -214,7 +158,6 @@ class CalorieOnlyEnv(gym.Env):
 
     def plot_reward_distribution(self):
         reason_str = [self._reason_to_string(val) if val != 0 else '' for val in self.termination_reasons]
-        # print(self.termination_reasons)
         nutrient_reward_history_reformat = {key: [] for key in self.nutrient_reward_history[0].keys()}
 
         for entry in self.nutrient_reward_history:
@@ -281,7 +224,7 @@ class CalorieOnlyEnv(gym.Env):
         elif val == 1:
             return 'end_of_episode'
         elif val == -1:
-            return 'target_far_off'
+            return 'half_of_targets_far_off'
 
 from gymnasium.envs.registration import register
 
@@ -305,7 +248,7 @@ if __name__ == '__main__':
 
     np.set_printoptions(suppress=True)
 
-    num_episodes = 1000
+    num_episodes = 10000
     
     for episode in range(num_episodes):
         obs, info = env.reset()
@@ -315,7 +258,7 @@ if __name__ == '__main__':
             action = env.action_space.sample()
             obs, reward, terminated, truncated, info = env.step(action)
 
-            print(f"    Reward: {reward}")
+            print(f"    Observation: {info}")
 
             if terminated:
                 print(f"Episode {episode + 1} ended early after {step + 1} steps.")

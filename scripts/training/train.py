@@ -14,6 +14,16 @@ from utils.train_utils import InfoLoggerCallback
 from utils.train_utils import get_unique_directory
 from utils.train_utils import generate_random_seeds
 
+# Import your reward functions
+from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_regulation
+
+# Mapping from reward function names to actual functions
+REWARD_FUNCTIONS = {
+    'reward_nutrient_macro': reward_nutrient_macro,
+    'reward_nutrient_macro_and_regulation': reward_nutrient_macro_and_regulation,
+    # Add more mappings as needed
+}
+
 # Function to select the appropriate device (CPU or GPU)
 def select_device(args):
     if args.device == 'auto':
@@ -35,10 +45,11 @@ def set_seed(seed, device):
 
 # Function to set up the environment
 def setup_environment(args, seed, ingredient_df):
+    reward_func = REWARD_FUNCTIONS.get(args.reward_func, reward_nutrient_macro)
     env = make_vec_env(args.env_name, n_envs=args.num_envs, env_kwargs={
         'ingredient_df': ingredient_df,
         'render_mode': args.render_mode,
-        'num_people': args.num_people,
+        'reward_func': reward_func
     }, seed=seed)
     
     return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
@@ -92,10 +103,6 @@ def main(args, seed):
     model.save(final_save)
     final_vec_normalize = os.path.join(save_dir, f"{save_prefix}_vec_normalize_best.pkl")
     env.save(final_vec_normalize)
-    
-    # # Save the reward distribution to a JSON file
-    # reward_distribution_path = os.path.join(reward_dir, f"{reward_prefix}_json")
-    # env.save_reward_distribution(reward_distribution_path)
 
     del model
 
@@ -115,18 +122,15 @@ def main(args, seed):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
     parser.add_argument("--env_name", type=str, default='CalorieOnlyEnv-v3', help="Name of the environment")
-    parser.add_argument("--reward_func", type=str, default='CalorieOnlyEnv-v3', help="Name of the environment")
+    parser.add_argument("--reward_func", type=str, default='reward_nutrient_macro', help="Name of the reward function")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--num_people", type=int, default=50, help="Number of people in the environment")
     parser.add_argument("--total_timesteps", type=int, default=100000, help="Total number of timesteps for training")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
     parser.add_argument("--save_prefix", type=str, default=None, help="Prefix for saved model files")
-    parser.add_argument("--reward_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'reward')), help="Directory to save reward data")
-    parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
     parser.add_argument("--best_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'best_models')), help="Directory for best model")
     parser.add_argument("--best_prefix", type=str, default=None, help="Prefix for saving best model")
     parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")

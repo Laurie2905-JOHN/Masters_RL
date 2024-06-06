@@ -19,18 +19,18 @@ def evaluate_model(model, env, num_episodes=10):
             action, state = model.predict(obs, state=state, deterministic=True)
             obs, reward, done, info = env.step(action)
             info = info[0]
-        
+
             if done:    
                 episode_predictions.append((
                     obs, action, reward,
-                    info['Average Calories per Day'],
-                    info['Average Fat per Day'],
-                    info['Average Saturates per Day'],
-                    info['Average Carbs per Day'],
-                    info['Average Sugar per Day'],
-                    info['Average Fibre per Day'],
-                    info['Average Protein per Day'],
-                    info['Average Salt per Day'],
+                    info['nutrient_averages']['calories'],
+                    info['nutrient_averages']['fat'],
+                    info['nutrient_averages']['saturates'],
+                    info['nutrient_averages']['carbs'],
+                    info['nutrient_averages']['sugar'],
+                    info['nutrient_averages']['fibre'],
+                    info['nutrient_averages']['protein'],
+                    info['nutrient_averages']['salt'],
                     info['Current Selection']
                 ))
         
@@ -70,16 +70,26 @@ def plot_results(predictions, ingredient_df, env):
 
     selected_ingredients = ingredient_df['Category7'].iloc[non_zero_indices]
 
-    axs[0].bar(selected_ingredients.values, non_zero_values, color='purple', width=0.5)
+    bars = axs[0].bar(selected_ingredients.values, non_zero_values, color='purple', width=0.5)
     axs[0].set_xlabel('Ingredient')
     axs[0].set_ylabel('Grams of Ingredient')
     axs[0].set_title('Selected Ingredients')
     axs[0].set_xticks(np.arange(len(selected_ingredients)))
     axs[0].set_xticklabels(selected_ingredients.values, rotation=45, ha='right', fontsize=font_size)
+    
+    # Add actual values on top of the bars
+    for bar, actual in zip(bars, non_zero_values):
+        height = bar.get_height()
+
+        axs[0].annotate(f'{actual:.2f} g', 
+                        xy=(bar.get_x() + bar.get_width() / 2, height),
+                        xytext=(0, 3),  # 3 points vertical offset
+                        textcoords="offset points",
+                        ha='center', va='bottom')
 
     # Calculate percentages of target values
     nutritional_values = {
-        'Calories': (average_calories, 530, 'max'),
+        'Calories (kcal)': (average_calories, 530, 'max'),
         'Fat (g)': (average_fat, 20.6, 'max'),
         'Saturates (g)': (average_saturates, 6.5, 'max'),
         'Carbs (g)': (average_carbs, 70.6, 'min'),
@@ -100,12 +110,17 @@ def plot_results(predictions, ingredient_df, env):
     x = np.arange(len(labels))
     width = 0.35
 
+    labels = [lab.split(" ")[0] for lab in labels]
     bars = axs[1].bar(x, percentages, width, color=colors)
     
     # Add actual values on top of the bars
     for bar, actual in zip(bars, actuals):
         height = bar.get_height()
-        axs[1].annotate(f'{actual:.2f}', 
+        if bar == bars[0]:
+            unit = "kcal"
+        else:
+            unit = "g"
+        axs[1].annotate(f'{actual:.2f} {unit}', 
                         xy=(bar.get_x() + bar.get_width() / 2, height),
                         xytext=(0, 3),  # 3 points vertical offset
                         textcoords="offset points",
@@ -134,13 +149,13 @@ def main():
     env = DummyVecEnv([lambda: env])
 
     # Load normalization statistics
-    norm_path = os.path.abspath("saved_models/evaluation_models/CalorieOnlyEnv-v3_A2C_1000000_3env_seed419_vec_normalize_best.pkl")
+    norm_path = os.path.abspath("saved_models/evaluation_models/A2C_new_reward_test_seed89_vec_normalize_best copy.pkl")
     env = VecNormalize.load(norm_path, env)
     env.training = False
     env.norm_reward = False
 
     # Load the saved agent
-    model_path = os.path.abspath("saved_models/evaluation_models/CalorieOnlyEnv-v3_A2C_1000000_3env_seed419_final.zip")
+    model_path = os.path.abspath("saved_models/evaluation_models/A2C_new_reward_test_seed89_final copy.zip")
     model = PPO.load(model_path, env=env)
 
     # Number of episodes to evaluate
