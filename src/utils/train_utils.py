@@ -3,48 +3,48 @@ from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 import numpy as np
 import random
 from stable_baselines3.common.vec_env import VecNormalize
+from stable_baselines3.common.env_util import make_vec_env
+import torch
 
-class InfoLoggerCallback(BaseCallback):
-    def __init__(self, verbose=0):
-        super(InfoLoggerCallback, self).__init__(verbose)
+# Import your reward functions
+from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_regulation
 
-    def _on_step(self) -> bool:
-        info = self.locals.get('infos', [{}])[0]
-        for key, value in info.items():
-            if isinstance(value, (int, float, np.number)):
-                self.logger.record(f'info/{key}', value)
-            elif isinstance(value, dict):
-                for sub_key, sub_value in value.items():
-                    if isinstance(sub_value, (int, float, np.number)):
-                        self.logger.record(f'info/{key}/{sub_key}', sub_value)
-        return True
+# Mapping from reward function names to actual functions
+REWARD_FUNCTIONS = {
+    'reward_nutrient_macro': reward_nutrient_macro,
+    'reward_nutrient_macro_and_regulation': reward_nutrient_macro_and_regulation,
+    # Add more mappings as needed
+}
 
-class EvalCallbackWithVecNormalize(EvalCallback):
-    def __init__(self, eval_env, best_model_save_path, vec_normalize_save_path, *args, **kwargs):
-        super().__init__(eval_env, best_model_save_path=best_model_save_path, *args, **kwargs)
-        self.vec_normalize_save_path = vec_normalize_save_path
-        self.best_mean_reward = -float('inf')
+# Function to select the appropriate device (CPU or GPU)
+def select_device(args):
+    if args.device == 'auto':
+        if args.algo == 'A2C':
+            return "cpu"
+        else:
+            return "cuda" if torch.cuda.is_available() else "cpu"
+    else:
+        return args.device
 
-    def _on_step(self) -> bool:
-        result = super()._on_step()
-        
-        # Check if we have a new best model
-        if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
-            mean_reward = np.mean(self.last_mean_reward)
-            if mean_reward > self.best_mean_reward:
-                self.best_mean_reward = mean_reward
-                try:
-                    # Save VecNormalize statistics for the best model
-                    vec_normalize_env = self.model.get_env()
-                    if isinstance(vec_normalize_env, VecNormalize):
-                        vec_normalize_env.save(self.vec_normalize_save_path)
-                        print(f"VecNormalize statistics saved to {self.vec_normalize_save_path}")
-                    else:
-                        print("Warning: Environment is not a VecNormalize instance. Skipping saving of normalization stats.")
-                except Exception as e:
-                    print(f"Error saving VecNormalize statistics: {e}")
-        return result
+# Function to set random seeds for reproducibility
+def set_seed(seed, device):
+    if seed is not None:
+        print(f"Using seed: {seed}")
+        random.seed(seed)
+        torch.manual_seed(seed)
+        if device == "cuda":
+            torch.cuda.manual_seed_all(seed)
 
+# Function to set up the environment
+def setup_environment(args, seed, ingredient_df):
+    reward_func = REWARD_FUNCTIONS.get(args.reward_func, reward_nutrient_macro)
+    env = make_vec_env(args.env_name, n_envs=args.num_envs, env_kwargs={
+        'ingredient_df': ingredient_df,
+        'render_mode': args.render_mode,
+        'reward_func': reward_func
+    }, seed=seed)
+    
+    return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
     
 def generate_random_seeds(n):
     return [random.randint(0, 2**32 - 1) for _ in range(n)]
@@ -110,6 +110,79 @@ def optimize_scaling_factor(ingredient_df, num_episodes, steps_per_episode, scal
         env.close()
 
     return best_scale_factor, max_successful_terminations, scale_factor_results
+
+
+# Function to set random seeds for reproducibility
+def set_seed(seed, device):
+    if seed is not None:
+        print(f"Using seed: {seed}")
+        random.seed(seed)
+        torch.manual_seed(seed)
+        if device == "cuda":
+            torch.cuda.manual_seed_all(seed)
+
+# Function to set up the environment
+def setup_environment(args, seed, ingredient_df):
+    reward_func = REWARD_FUNCTIONS.get(args.reward_func, reward_nutrient_macro)
+    env = make_vec_env(args.env_name, n_envs=args.num_envs, env_kwargs={
+        'ingredient_df': ingredient_df,
+        'render_mode': args.render_mode,
+        'reward_func': reward_func
+    }, seed=seed)
+    
+    return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
+
+class InfoLoggerCallback(BaseCallback):
+    def __init__(self, verbose=0):
+        super(InfoLoggerCallback, self).__init__(verbose)
+
+    def _on_step(self) -> bool:
+        info = self.locals.get('infos', [{}])[0]
+        for key, value in info.items():
+            if isinstance(value, (int, float, np.number)):
+                self.logger.record(f'info/{key}', value)
+            elif isinstance(value, dict):
+                for sub_key, sub_value in value.items():
+                    if isinstance(sub_value, (int, float, np.number)):
+                        self.logger.record(f'info/{key}/{sub_key}', sub_value)
+        return True
+
+class SaveVecNormalizeCallback(BaseCallback):
+    def __init__(self, save_freq, save_path, name_prefix, vec_normalize_env, verbose=0):
+        super(SaveVecNormalizeCallback, self).__init__(verbose)
+        self.save_freq = save_freq
+        self.save_path = save_path
+        self.name_prefix = name_prefix
+        self.vec_normalize_env = vec_normalize_env
+
+    def _on_step(self) -> bool:
+        if self.n_calls % self.save_freq == 0:
+            # Save the model
+            path = os.path.join(self.save_path, f'{self.name_prefix}_{self.n_calls}_steps.zip')
+            self.model.save(path)
+            if self.verbose > 1:
+                print(f'Saving model checkpoint to {path}')
+
+            # Save VecNormalize statistics
+            vec_normalize_path = os.path.join(self.save_path, f'{self.name_prefix}_{self.n_calls}_vec_normalize.pkl')
+            self.vec_normalize_env.save(vec_normalize_path)
+            if self.verbose > 1:
+                print(f'Saving VecNormalize statistics to {vec_normalize_path}')
+
+        return True
+
+class SaveVecNormalizeEvalCallback(EvalCallback):
+    def __init__(self, vec_normalize_env, *args, **kwargs):
+        self.vec_normalize_env = vec_normalize_env
+        super(SaveVecNormalizeEvalCallback, self).__init__(*args, **kwargs)
+
+    def _on_step(self) -> bool:
+        result = super(SaveVecNormalizeEvalCallback, self)._on_step()
+        if self.best_model_save_path is not None and self.n_calls % self.eval_freq == 0:
+            if self.vec_normalize_env is not None:
+                save_path = os.path.join(self.best_model_save_path, 'vec_normalize_best.pkl')
+                self.vec_normalize_env.save(save_path)
+        return result
 
 if __name__ == "__main__":
     base, subdir = get_unique_directory("saved_models/tensorboard", "A2C_100000")

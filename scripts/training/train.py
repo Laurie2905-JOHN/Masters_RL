@@ -10,49 +10,19 @@ import argparse
 import random
 import torch
 from utils.process_data import get_data
-from utils.train_utils import InfoLoggerCallback
-from utils.train_utils import get_unique_directory
-from utils.train_utils import generate_random_seeds
+from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback, SaveVecNormalizeCallback
+from utils.train_utils import generate_random_seeds, get_unique_directory, REWARD_FUNCTIONS, select_device, set_seed, setup_environment
 
 # Import your reward functions
-from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_regulation
+# from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_regulation
 
-# Mapping from reward function names to actual functions
-REWARD_FUNCTIONS = {
-    'reward_nutrient_macro': reward_nutrient_macro,
-    'reward_nutrient_macro_and_regulation': reward_nutrient_macro_and_regulation,
-    # Add more mappings as needed
-}
+# # Mapping from reward function names to actual functions
+# REWARD_FUNCTIONS = {
+#     'reward_nutrient_macro': reward_nutrient_macro,
+#     'reward_nutrient_macro_and_regulation': reward_nutrient_macro_and_regulation,
+#     # Add more mappings as needed
+# }
 
-# Function to select the appropriate device (CPU or GPU)
-def select_device(args):
-    if args.device == 'auto':
-        if args.algo == 'A2C':
-            return "cpu"
-        else:
-            return "cuda" if torch.cuda.is_available() else "cpu"
-    else:
-        return args.device
-
-# Function to set random seeds for reproducibility
-def set_seed(seed, device):
-    if seed is not None:
-        print(f"Using seed: {seed}")
-        random.seed(seed)
-        torch.manual_seed(seed)
-        if device == "cuda":
-            torch.cuda.manual_seed_all(seed)
-
-# Function to set up the environment
-def setup_environment(args, seed, ingredient_df):
-    reward_func = REWARD_FUNCTIONS.get(args.reward_func, reward_nutrient_macro)
-    env = make_vec_env(args.env_name, n_envs=args.num_envs, env_kwargs={
-        'ingredient_df': ingredient_df,
-        'render_mode': args.render_mode,
-        'reward_func': reward_func
-    }, seed=seed)
-    
-    return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
 # Main training function
 def main(args, seed):
@@ -75,14 +45,12 @@ def main(args, seed):
     best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed{seed}")
     best_model_path = os.path.join(best_dir, best_prefix)
     
-    reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_dir}_seed{seed}")
-    
     # Configure logger for TensorBoard and stdout
     new_logger = configure(tensorboard_log_dir, ["stdout", "tensorboard"])
 
     # Set up callbacks for saving checkpoints, evaluating models, and logging additional information
-    checkpoint_callback = CheckpointCallback(save_freq=args.save_freq, save_path=save_dir, name_prefix=save_prefix)
-    eval_callback = EvalCallback(env, best_model_save_path=best_model_path, eval_freq=args.eval_freq, log_path=tensorboard_log_dir, deterministic=True, render=False)
+    checkpoint_callback = SaveVecNormalizeCallback(save_freq=args.save_freq, save_path=save_dir, name_prefix=save_prefix, vec_normalize_env=env)
+    eval_callback = SaveVecNormalizeEvalCallback(vec_normalize_env=env, eval_env=env, best_model_save_path=best_model_path, eval_freq=args.eval_freq, log_path=tensorboard_log_dir, deterministic=True, render=False)
     info_logger_callback = InfoLoggerCallback()
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
 
@@ -101,7 +69,7 @@ def main(args, seed):
     # Save the final model and VecNormalize statistics
     final_save = os.path.join(save_dir, f"{save_prefix}_final.zip")
     model.save(final_save)
-    final_vec_normalize = os.path.join(save_dir, f"{save_prefix}_vec_normalize_best.pkl")
+    final_vec_normalize = os.path.join(save_dir, f"{save_prefix}_vec_normalize_final.pkl")
     env.save(final_vec_normalize)
 
     del model
@@ -126,7 +94,7 @@ if __name__ == "__main__":
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=100000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=10000, help="Total number of timesteps for training")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
@@ -145,8 +113,6 @@ if __name__ == "__main__":
         args.log_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env"
     if args.save_prefix is None:
         args.save_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env"
-    if args.reward_prefix is None:
-        args.reward_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}_reward_data"
     if args.best_prefix is None:
         args.best_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env_best"
     
