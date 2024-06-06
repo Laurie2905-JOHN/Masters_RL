@@ -31,7 +31,7 @@ def evaluate_model(model, env, num_episodes=10):
                     info['nutrient_averages']['fibre'],
                     info['nutrient_averages']['protein'],
                     info['nutrient_averages']['salt'],
-                    info['Current Selection']
+                    info['current_selection']
                 ))
         
         predictions.append(episode_predictions)

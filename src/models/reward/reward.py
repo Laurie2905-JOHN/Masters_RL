@@ -102,7 +102,6 @@ def nutrient_reward(self):
 
 
 def termination_reason(self, all_nutrient_targets_met, nutrient_far_flag_list, all_group_targets_met, reward):
-    
     # Implement termination conditions
     if all_nutrient_targets_met and all_group_targets_met:
         # If all targets are met terminate the episode

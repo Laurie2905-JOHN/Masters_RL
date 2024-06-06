@@ -1,4 +1,4 @@
-import json 
+import json
 import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,7 +21,10 @@ class RewardTrackingWrapper(gym.Wrapper):
             self.nutrient_reward_history.append(self._convert_to_serializable(info.get('nutrient_averages', {}).copy()))
             self.group_reward_history.append(self._convert_to_serializable(info.get('group_counts', {}).copy()))
             if terminated or truncated:
-                self.termination_reasons.append(info.get('Termination Reason', 'time_limit' if truncated else None))
+                reason = info.get('termination_reason')
+                if truncated:
+                    reason = 0  # Append 0 for truncated episodes
+                self.termination_reasons.append(reason)
 
         return obs, reward, terminated, truncated, info
 
@@ -33,7 +36,7 @@ class RewardTrackingWrapper(gym.Wrapper):
                 self.termination_reasons[-1] = 'end_of_episode'
         return self.env.reset(**kwargs)
 
-    def plot_reward_distribution(self, save_path):
+    def plot_reward_distribution(self, save_path=None):
         if self.save_reward:
             reason_str = [self._reason_to_string(val) for val in self.termination_reasons]
             group_reward_history_reformat = {key: [] for key in self.group_reward_history[0].keys()}
@@ -107,6 +110,8 @@ class RewardTrackingWrapper(gym.Wrapper):
             
             if save_path:
                 plt.savefig(save_path)
+            else:
+                plt.show()
 
     def save_reward_distribution(self, filepath):
         if self.save_reward:
@@ -144,7 +149,5 @@ class RewardTrackingWrapper(gym.Wrapper):
             return 'end_of_episode'
         elif val == -1:
             return 'targets_far_off'
-        elif val == 'time_limit':
-            return 'time_limit'
         else:
             return 'unknown_reason'

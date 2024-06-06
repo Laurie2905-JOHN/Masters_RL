@@ -5,7 +5,7 @@ import random
 from stable_baselines3.common.vec_env import VecNormalize
 from stable_baselines3.common.env_util import make_vec_env
 import torch
-
+from gymnasium.wrappers import TimeLimit
 # from models.envs.env import SchoolMealSelection
 from models.envs.env_working import SchoolMealSelection
 # Import your reward functions
@@ -39,7 +39,7 @@ def set_seed(seed, device):
             torch.cuda.manual_seed_all(seed)
 
 # Function to set up the environment
-def setup_environment(args, seed, ingredient_df):
+def setup_environment(args, seed, ingredient_df, max_steps_per_episode = 1000):
     reward_func = REWARD_FUNCTIONS.get(args.reward_func, reward_nutrient_macro)
     
     def make_env():
@@ -48,8 +48,15 @@ def setup_environment(args, seed, ingredient_df):
             reward_func=reward_func,
             render_mode=args.render_mode
         )
+        
+        # Apply the RewardTrackingWrapper if needed
         if args.plot_reward_history:
             env = RewardTrackingWrapper(env, save_reward=True)
+            
+                # Wrap the environment with TimeLimit to enforce a maximum number of steps per episode
+          # Adjust this value based on your needs
+        env = TimeLimit(env, max_episode_steps=max_steps_per_episode)
+        
         return env
 
     env = make_vec_env(make_env, n_envs=args.num_envs, seed=seed)
@@ -77,14 +84,23 @@ def get_unique_directory(directory, base_name):
 
     return base_path, unique_subdir
 
-def get_unique_image_directory(prefix):
-    
-    if len(prefix.split('.')[1].split(' ')) > 1:
-        prefix = prefix.split('.')[0] + ' ' + prefix.split('.')[1].split(' ')[1] + '.png'
-    else:
-        prefix = prefix.split('.')[0] + '.png'
-        
-    return prefix
+def get_unique_image_directory(directory, base_name):
+    """
+    Generate a unique filename with a .png extension in the given directory by appending a suffix if necessary.
+    """
+    base_name = base_name.rstrip('.png')  # Ensure base_name does not already end with .png
+    unique_filename = os.path.join(directory, base_name + '.png')
+    counter = 1
+
+    while os.path.exists(unique_filename):
+        unique_filename = os.path.join(directory, f"{base_name} ({counter}).png")
+        counter += 1
+
+    file_path = os.path.abspath(unique_filename)
+    base_path = os.path.dirname(file_path)
+    unique_file = os.path.basename(file_path)
+
+    return unique_file
 
 def run_episodes(env, num_episodes, steps_per_episode):
     successful_terminations = 0

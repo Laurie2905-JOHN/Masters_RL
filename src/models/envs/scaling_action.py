@@ -274,7 +274,7 @@ def run_episodes(env, num_episodes, steps_per_episode):
             obs, reward, done, _, info = env.step(action)
 
             if done:
-                if 0 == info['Termination Reason']:
+                if 0 == info['termination_reason']:
                     successful_terminations += 1
                 break
 

@@ -36,7 +36,6 @@ def main(args, seed):
     # Create unique directories for saving models
     save_dir, save_prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed{seed}")
     best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed{seed}")
-    reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed{seed}")  
     best_model_path = os.path.join(best_dir, best_prefix)
     
     # Configure logger for TensorBoard and stdout
@@ -65,15 +64,20 @@ def main(args, seed):
     model.save(final_save)
     final_vec_normalize = os.path.join(save_dir, f"{save_prefix}_vec_normalize_final.pkl")
     env.save(final_vec_normalize)
-    
-    if args.plot_reward_history:
-        # Save and plot the reward distribution
-        reward_prefix = get_unique_image_directory(reward_prefix)
-        reward_save_path = os.path.join(reward_dir, f"{reward_prefix}.json")
-        plot_save_path = os.path.join(reward_dir, f"{reward_prefix}.png")
 
-        env.env_method('save_reward_distribution', reward_save_path)
-        env.env_method('plot_reward_distribution', plot_save_path)
+    # Access the underlying RewardTrackingWrapper for saving rewards
+    if args.plot_reward_history: 
+        
+        # Save reward distribution for each environment in the vectorized environment
+        for i, env_instance in enumerate(env.envs):
+                
+            reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed{seed}_env{i}")
+            
+            env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
+            
+            reward_prefix_instance = get_unique_image_directory(reward_dir, reward_prefix)
+
+            env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
 
     del model
 
@@ -98,7 +102,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_envs", type=int, default=2, help="Number of parallel environments")
     parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=10000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=1000, help="Total number of timesteps for training")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
@@ -109,7 +113,7 @@ if __name__ == "__main__":
     parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
     parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
-    parser.add_argument("--seed", type=int, nargs='+', default=generate_random_seeds(2), help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
+    parser.add_argument("--seed", type=list, nargs='+', default=[1], help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
 
     args = parser.parse_args()
@@ -118,7 +122,7 @@ if __name__ == "__main__":
     if args.log_prefix is None:
         args.log_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env"
     if args.reward_prefix is None:
-        args.reward_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}_reward_data"
+        args.reward_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}envs_reward_data"
     if args.save_prefix is None:
         args.save_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env"
     if args.best_prefix is None:

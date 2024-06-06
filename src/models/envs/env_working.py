@@ -10,7 +10,7 @@ from utils.process_data import get_data
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, reward_func=reward_nutrient_macro_and_groups, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
+    def __init__(self, ingredient_df, reward_func=reward_nutrient_macro_and_groups, max_ingredients=10, action_scaling_factor=21.25, render_mode=None, initial_ingredients=None):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
@@ -205,8 +205,8 @@ if __name__ == '__main__':
 class Args:
     reward_func = 'reward_nutrient_macro_and_groups'
     render_mode = None
-    num_envs = 2
-    plot_reward_history=False
+    num_envs = 1
+    plot_reward_history=True
 
 if __name__ == '__main__':
     ingredient_df = get_data()
@@ -216,7 +216,10 @@ if __name__ == '__main__':
 
     from utils.train_utils import get_unique_directory, get_unique_image_directory, setup_environment
     
-    env = setup_environment(args, seed, ingredient_df)
+    num_episodes = 100
+    max_episode_steps = 1
+    
+    env = setup_environment(args, seed, ingredient_df, max_steps_per_episode=max_episode_steps)
 
     # Check the first environment in the VecEnv
     check_env(env.unwrapped.envs[0].unwrapped)
@@ -224,44 +227,38 @@ if __name__ == '__main__':
     print("Environment is valid!")
 
     np.set_printoptions(suppress=True)
-
-    num_episodes = 100
-    max_episode_steps = 1000
     
     for episode in range(num_episodes):
-        obs = env.reset()
-        print(f"Episode {episode + 1}")
+            obs = env.reset()
+            print(f"Episode {episode + 1}")
 
-        # Track which environments are done
-        done_masks = np.zeros(env.num_envs, dtype=bool)
+            for step in range(max_episode_steps):
+                action = env.action_space.sample()
+                obs, rewards, dones, infos = env.step(action)
+                
+                # VecEnv will return arrays of values
+                terminated = dones[0]
+                truncated = infos[0].get('TimeLimit.truncated', False)
+                
+                print(infos)
+                
+                print(f"Step {step + 1}: terminated={terminated}, truncated={truncated}")
+                
+                if terminated or truncated:
+                    break
 
-        for step in range(max_episode_steps):
-            action = env.action_space.sample()
-            obs, rewards, dones, infos = env.step(action)
+    # # Access the underlying RewardTrackingWrapper for saving rewards
+    # if args.plot_reward_history: 
+        
+    #     # Save reward distribution for each environment in the vectorized environment
+    #     for i, env_instance in enumerate(env.envs):
+                
+    #         reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}")
             
-            print(f"    Observation: {obs}")
-            # print(f"    Rewards: {rewards}")
-            # print(f"    Info: {infos}")
-            # Update done masks
-            done_masks = np.logical_or(done_masks, dones)
-
-            # If all environments are done, break the loop
-            if np.all(done_masks):
-                print(f"All environments in Episode {episode + 1} ended after {step + 1} steps.")
-                break
-    
-    reward_dir, reward_prefix = get_unique_directory(os.path.abspath(os.path.join('saved_models', 'reward')), 'reward_distribution.json')
-
-    # Access the underlying RewardTrackingWrapper for saving rewards
-    if args.plot_reward_history:
-        # Save reward distribution for each environment in the vectorized environment
-        for i, env_instance in enumerate(env.envs):
+    #         env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
             
-            env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
-            
-            reward_prefix_instance = get_unique_image_directory(reward_prefix)
-            
-            print(reward_prefix_instance)
+    #         reward_prefix_instance = get_unique_image_directory(reward_dir, reward_prefix)
 
-            env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
+    #         env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
+            
 
