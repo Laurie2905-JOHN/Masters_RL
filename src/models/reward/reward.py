@@ -21,7 +21,7 @@ def reward_nutrient_macro(self):
 
     info = self._get_info()
 
-    return reward, nutrient_rewards, ingredient_group_count_rewards, info, terminated
+    return reward, info, terminated
 
 
 def reward_nutrient_macro_and_groups(self):
@@ -44,7 +44,7 @@ def reward_nutrient_macro_and_groups(self):
 
     info = self._get_info()
 
-    return reward, nutrient_rewards, ingredient_group_count_rewards, info, terminated
+    return reward, info, terminated
 
 # Function to calculate the reward for the nutrients
 def nutrient_reward(self):
@@ -72,7 +72,8 @@ def nutrient_reward(self):
     
     # Loop through values and calculate rewards
     for nutrient, average_value in self.nutrient_averages.items():
-        
+        # import pdb
+        # pdb.set_trace()
         target_min, target_max = self.nutrient_target_ranges[nutrient]
         
         # If targets are a quarter or quadruple the average value, consider it far off

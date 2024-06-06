@@ -5,7 +5,9 @@ import random
 from stable_baselines3.common.vec_env import VecNormalize
 from stable_baselines3.common.env_util import make_vec_env
 import torch
-from models.envs.env import SchoolMealSelection
+
+# from models.envs.env import SchoolMealSelection
+from models.envs.env_working import SchoolMealSelection
 # Import your reward functions
 from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_groups
 from models.wrappers.common import RewardTrackingWrapper
@@ -44,7 +46,6 @@ def setup_environment(args, seed, ingredient_df):
         env = SchoolMealSelection(
             ingredient_df=ingredient_df,
             reward_func=reward_func,
-            save_reward=args.plot_reward_history,
             render_mode=args.render_mode
         )
         if args.plot_reward_history:

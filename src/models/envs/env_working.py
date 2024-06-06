@@ -1,25 +1,23 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-import matplotlib.pyplot as plt
-import json
-from gymnasium.wrappers import TimeLimit
 from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_groups
 import os
-from utils.train_utils import get_unique_directory, get_unique_image_directory
-from models.wrappers.common import RewardTrackingWrapper
+from utils.process_data import get_data
+
+
 
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, reward_func=reward_nutrient_macro_and_groups, save_reward=True, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
+    def __init__(self, ingredient_df, reward_func=reward_nutrient_macro_and_groups, max_ingredients=10, action_scaling_factor=15, render_mode=None, initial_ingredients=None):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
         self.max_ingredients = max_ingredients
         self.action_scaling_factor = action_scaling_factor
         self.calculate_reward = reward_func  # Store the reward function
-        self.save_reward = save_reward
+
         # Nutritional values
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values / 100
         self.Fat_g = ingredient_df['Fat_g'].values / 100
@@ -147,7 +145,7 @@ class SchoolMealSelection(gym.Env):
             excess_indices = np.argsort(-self.current_selection)
             self.current_selection[excess_indices[self.max_ingredients:]] = 0
 
-        reward, nutrient_reward, ingredient_group_count_rewards, info, terminated = self.calculate_reward(self)  # Use the stored reward function
+        reward, info, terminated = self.calculate_reward(self)  # Use the stored reward function
 
         self.nutrient_averages.update(info['nutrient_averages'])
         self.ingredient_group_count.update(info['group_counts'])
@@ -175,8 +173,8 @@ class SchoolMealSelection(gym.Env):
         info = {
             'nutrient_averages': self.nutrient_averages,
             'group_counts': self.ingredient_group_count,
-            'Current Selection': self.current_selection,
-            'Termination Reason': self.termination_reason
+            'current_selection': self.current_selection,
+            'termination_reason': self.termination_reason
         }
         return info
 
@@ -203,45 +201,67 @@ if __name__ == '__main__':
     from utils.process_data import get_data
     from gymnasium.utils.env_checker import check_env
 
+    # Define arguments
+class Args:
+    reward_func = 'reward_nutrient_macro_and_groups'
+    render_mode = None
+    num_envs = 2
+    plot_reward_history=False
+
+if __name__ == '__main__':
     ingredient_df = get_data()
     
-    print(ingredient_df)
-    
-    max_episode_steps = 1000
-    
-    base_env = gym.make('SchoolMealSelection-v1', ingredient_df=ingredient_df, save_reward=True, render_mode=None)
-    env = RewardTrackingWrapper(base_env, save_reward=True)
+    args = Args()
+    seed = 42
 
-    check_env(env.unwrapped)
+    from utils.train_utils import get_unique_directory, get_unique_image_directory, setup_environment
+    
+    env = setup_environment(args, seed, ingredient_df)
+
+    # Check the first environment in the VecEnv
+    check_env(env.unwrapped.envs[0].unwrapped)
     
     print("Environment is valid!")
 
     np.set_printoptions(suppress=True)
 
-    num_episodes = 1
+    num_episodes = 100
+    max_episode_steps = 1000
     
     for episode in range(num_episodes):
-        obs, info = env.reset()
+        obs = env.reset()
         print(f"Episode {episode + 1}")
+
+        # Track which environments are done
+        done_masks = np.zeros(env.num_envs, dtype=bool)
 
         for step in range(max_episode_steps):
             action = env.action_space.sample()
-            obs, reward, terminated, truncated, info = env.step(action)
-            print(reward)
+            obs, rewards, dones, infos = env.step(action)
+            
+            print(f"    Observation: {obs}")
+            # print(f"    Rewards: {rewards}")
+            # print(f"    Info: {infos}")
+            # Update done masks
+            done_masks = np.logical_or(done_masks, dones)
 
-            print(f"    Observation: {info}")
-
-            if terminated:
-                print(f"Episode {episode + 1} ended early after {step + 1} steps.")
-                break
-            if truncated:
-                print(f"Episode {episode + 1} ended early after max steps. {step + 1} steps.")
+            # If all environments are done, break the loop
+            if np.all(done_masks):
+                print(f"All environments in Episode {episode + 1} ended after {step + 1} steps.")
                 break
     
     reward_dir, reward_prefix = get_unique_directory(os.path.abspath(os.path.join('saved_models', 'reward')), 'reward_distribution.json')
-    
-    env.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
-    
-    reward_prefix = get_unique_image_directory(reward_prefix)
 
-    env.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
+    # Access the underlying RewardTrackingWrapper for saving rewards
+    if args.plot_reward_history:
+        # Save reward distribution for each environment in the vectorized environment
+        for i, env_instance in enumerate(env.envs):
+            
+            env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
+            
+            reward_prefix_instance = get_unique_image_directory(reward_prefix)
+            
+            print(reward_prefix_instance)
+
+            env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
+

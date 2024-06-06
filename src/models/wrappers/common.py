@@ -1,7 +1,7 @@
+import json 
 import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
-import json
 
 class RewardTrackingWrapper(gym.Wrapper):
     def __init__(self, env, save_reward=False):
