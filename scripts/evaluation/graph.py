@@ -155,20 +155,19 @@ def main():
     # Setup environment and other configurations
     ingredient_df = get_data()
     
-    seed = 42
+    seed = 43
     
     # Create the environment using the setup function
     env = setup_environment(args, seed, ingredient_df)
 
     # Load normalization statistics
-    # norm_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_100000_1env_best_seed3583778663/vec_normalize_best.pkl")
-    norm_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_100000_1env_best_seed3583778663/vec_normalize_best.pkl")
+    norm_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_1000000_3env_best_seed814108005/vec_normalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
     env.training = False
     env.norm_reward = False
 
     # Load the saved agent
-    model_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_100000_1env_best_seed3583778663/best_model.zip")
+    model_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_1000000_3env_best_seed814108005/best_model.zip")
     model = A2C.load(model_path, env=env)
 
     # Number of episodes to evaluate

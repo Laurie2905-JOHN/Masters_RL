@@ -1,22 +1,22 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_groups
+from models.reward.reward import reward_nutrient, reward_nutrient_food_groups, reward_nutrient_food_groups_environment
 import os
 from utils.process_data import get_data
-
-
 
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, reward_func=reward_nutrient_macro_and_groups, max_ingredients=10, action_scaling_factor=21.25, render_mode=None, initial_ingredients=None):
+    def __init__(self, ingredient_df, max_ingredients=10, action_scaling_factor=21.25, render_mode=None, initial_ingredients=None, reward_metrics=None):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
         self.max_ingredients = max_ingredients
         self.action_scaling_factor = action_scaling_factor
-        self.calculate_reward = reward_func  # Store the reward function
+        self.reward_metrics = reward_metrics if reward_metrics else ['nutrients', 'groups', 'environment']
+        
+        self.calculate_reward = self.select_reward_function()
 
         # Nutritional values
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values / 100
@@ -79,15 +79,20 @@ class SchoolMealSelection(gym.Env):
         
         
         # Environment
-        # A - E ratings - no targets will be rewarded for more A
-        self.Animal_Welfare_Rating = ingredient_df['Animal Welfare Rating'].values 
-        self.Rainforest_Rating = ingredient_df['Rainforest Rating'].values
-        self.Water_Scarcity_Rating = ingredient_df['Water Scarcity Rating'].values
-        self.CO2_FU_Rating = ingredient_df['CO2 FU Rating'].values
+        # A - E ratings - converted to a mapping 1 - 5
+        # Define the mapping dictionary
+        rating_to_int = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5}
+
+        # Apply the mapping to the 'Animal Welfare Rating' column
+        self.Animal_Welfare_Rating = [rating_to_int[val] for val in ingredient_df['Animal Welfare Rating'].values]
+        self.Rainforest_Rating = [rating_to_int[val] for val in ingredient_df['Rainforest Rating'].values]
+        self.Water_Scarcity_Rating = [rating_to_int[val] for val in ingredient_df['Water Scarcity Rating'].values]
+        self.CO2_FU_Rating = [rating_to_int[val] for val in ingredient_df['CO2 FU Rating'].values]
+        
         # CO2 values
         self.CO2_kg_per_100g = ingredient_df['CO2_kg_per_100g'].values / 100
 
-        self.target_CO2_kg_g = 0.5 # Target max CO2 per 100g
+        self.target_CO2_kg_g = 0.5 # Target max CO2 per meal
         
         # For A - E ratings will be converted to numbers an average will be taken
         self.ingredient_environment_count = {
@@ -111,10 +116,19 @@ class SchoolMealSelection(gym.Env):
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(self.n_ingredients,), dtype=np.float32)
         
+        # Define the observation space based on selected reward metrics
+        obs_shape = self.n_ingredients
+        if 'nutrients' in self.reward_metrics:
+            obs_shape += len(self.nutrient_averages.keys())
+        if 'groups' in self.reward_metrics:
+            obs_shape += len(self.ingredient_group_count.keys())
+        if 'environment' in self.reward_metrics:
+            obs_shape += len(self.ingredient_environment_count.keys())
+
         self.observation_space = spaces.Box(
             low=0,
             high=1000,
-            shape=(self.n_ingredients + len(self.ingredient_group_count.keys()) + len(self.nutrient_averages.keys()),),  # Assuming 8 nutrient averages to be part of observation
+            shape=(obs_shape,),
             dtype=np.float32
         )
 
@@ -123,28 +137,40 @@ class SchoolMealSelection(gym.Env):
 
         self.termination_reasons = []
         self.termination_reason = None
+        
+    def select_reward_function(self):
+        if set(self.reward_metrics) == {'nutrients'}:
+            return reward_nutrient
+        elif set(self.reward_metrics) == {'nutrients', 'groups'}:
+            return reward_nutrient_food_groups
+        elif set(self.reward_metrics) == {'nutrients', 'groups', 'environment'}:
+            return reward_nutrient_food_groups_environment
+        else:
+            raise ValueError("Invalid combination of reward metrics")
 
     def reset(self, seed=None, options=None):
-        super().reset(seed=seed)
-        
-        self.current_selection = np.zeros(self.n_ingredients)
-        self.actions_taken = []
-        self.episode_count += 1
-        
-        self.nutrient_averages = {k: 0 for k in self.nutrient_averages}
-        
-        self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count_targets.keys()}
-        
-        self.termination_reason = None
+            super().reset(seed=seed)
+            
+            self.current_selection = np.zeros(self.n_ingredients)
+            self.actions_taken = []
+            self.episode_count += 1
+            
+            self.nutrient_averages = {k: 0 for k in self.nutrient_averages.keys()}
+            
+            self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count.keys()}
+            
+            self.ingredient_environment_count = {k: 0 for k in self.ingredient_environment_count.keys()}
+            
+            self.termination_reason = None
 
-        observation = self._get_obs()
-         
-        info = self._get_info()
+            observation = self._get_obs()
+            
+            info = self._get_info()
 
-        if self.render_mode == 'human':
-            self.render()
+            if self.render_mode == 'human':
+                self.render()
 
-        return observation, info
+            return observation, info
 
     def step(self, action):
         action = np.clip(action, -1, 1)  # Ensure actions are within bounds
@@ -160,9 +186,6 @@ class SchoolMealSelection(gym.Env):
 
         reward, info, terminated = self.calculate_reward(self)  # Use the stored reward function
 
-        self.nutrient_averages.update(info['nutrient_averages'])
-        self.ingredient_group_count.update(info['group_counts'])
-
         obs = self._get_obs()
 
         if terminated:            
@@ -175,17 +198,23 @@ class SchoolMealSelection(gym.Env):
         return obs, reward, terminated, False, info
     
     def _get_obs(self):
-        obs = np.concatenate((
-            list(self.nutrient_averages.values()),
-            list(self.ingredient_group_count.values()),
-            self.current_selection,
-        )).astype(np.float32)
+        obs_parts = []
+        if 'nutrients' in self.reward_metrics:
+            obs_parts.append(list(self.nutrient_averages.values()))
+        if 'groups' in self.reward_metrics:
+            obs_parts.append(list(self.ingredient_group_count.values()))
+        if 'environment' in self.reward_metrics:
+            obs_parts.append(list(self.ingredient_environment_count.values()))
+        obs_parts.append(self.current_selection)
+        
+        obs = np.concatenate(obs_parts).astype(np.float32)
         return obs
 
     def _get_info(self):
         info = {
             'nutrient_averages': self.nutrient_averages,
-            'group_counts': self.ingredient_group_count,
+            'ingredient_group_count': self.ingredient_group_count,
+            'ingredient_environment_count': self.ingredient_environment_count,
             'current_selection': self.current_selection,
             'termination_reason': self.termination_reason
         }

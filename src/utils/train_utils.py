@@ -9,15 +9,10 @@ from gymnasium.wrappers import TimeLimit
 # from models.envs.env import SchoolMealSelection
 from models.envs.env_working import SchoolMealSelection
 # Import your reward functions
-from models.reward.reward import reward_nutrient_macro, reward_nutrient_macro_and_groups
+from models.reward.reward import reward_nutrient, reward_nutrient_food_groups, reward_nutrient_food_groups_environment
+
 from models.wrappers.common import RewardTrackingWrapper
 
-# Mapping from reward function names to actual functions
-REWARD_FUNCTIONS = {
-    'reward_nutrient_macro': reward_nutrient_macro,
-    'reward_nutrient_macro_and_groups': reward_nutrient_macro_and_groups,
-    # Add more mappings as needed
-}
 
 # Function to select the appropriate device (CPU or GPU)
 def select_device(args):
@@ -40,13 +35,12 @@ def set_seed(seed, device):
 
 # Function to set up the environment
 def setup_environment(args, seed, ingredient_df):
-    reward_func = REWARD_FUNCTIONS.get(args.reward_func, reward_nutrient_macro)
     
     def make_env():
         env = SchoolMealSelection(
             ingredient_df=ingredient_df,
-            reward_func=reward_func,
-            render_mode=args.render_mode
+            render_mode=args.render_mode,
+            reward_metrics=args.reward_metrics
         )
         
         # Apply the RewardTrackingWrapper if needed

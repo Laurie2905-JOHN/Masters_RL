@@ -1,6 +1,6 @@
 
 
-def reward_nutrient_macro(self):
+def reward_nutrient(self):
     
     step_penalty = -1  # Negative reward for each step taken
     # Initialising reward as 0
@@ -24,7 +24,7 @@ def reward_nutrient_macro(self):
     return reward, info, terminated
 
 
-def reward_nutrient_macro_and_groups(self):
+def reward_nutrient_food_groups(self):
     
     step_penalty = -1  # Negative reward for each step taken
     
@@ -41,6 +41,31 @@ def reward_nutrient_macro_and_groups(self):
 
     # Include the step penalty in the reward calculation
     reward += sum(nutrient_rewards.values()) + sum(ingredient_group_count_rewards.values()) + step_penalty
+
+    info = self._get_info()
+
+    return reward, info, terminated
+
+
+def reward_nutrient_food_groups_environment(self):
+    
+    step_penalty = -1  # Negative reward for each step taken
+    
+    # Initialising reward as 0
+    reward = 0
+
+    terminated = False
+
+    nutrient_rewards, all_nutrient_targets_met, nutrient_far_flag_list = nutrient_reward(self)
+    
+    ingredient_group_count_rewards, all_group_targets_met = group_count_reward(self)
+    
+    ingredient_environment_count_rewards = environment_count_reward(self)
+                    
+    terminated, reward = termination_reason(self, all_nutrient_targets_met, nutrient_far_flag_list, all_group_targets_met, reward)
+
+    # Include the step penalty in the reward calculation
+    reward += sum(nutrient_rewards.values()) + sum(ingredient_group_count_rewards.values()) + sum(ingredient_environment_count_rewards.values()) + step_penalty
 
     info = self._get_info()
 
@@ -165,3 +190,38 @@ def group_count_reward(self):
             ingredient_group_count_rewards[group] += distance_reward
     
     return ingredient_group_count_rewards, all_group_targets_met
+
+def environment_count_reward(self):
+    non_zero_mask = self.current_selection != 0
+    
+    # Calculate environmental counts
+    self.ingredient_environment_count = {
+        'animal_welfare': round(sum(self.Animal_Welfare_Rating * non_zero_mask) / self.max_ingredients),
+        'rainforest': round(sum(self.Rainforest_Rating * non_zero_mask) / self.max_ingredients),
+        'water': round(sum(self.Water_Scarcity_Rating * non_zero_mask) / self.max_ingredients),
+        'CO2_rating': round(sum(self.CO2_FU_Rating * non_zero_mask) / self.max_ingredients),
+        'CO2_g': sum(self.CO2_kg_per_100g * self.current_selection),
+    }
+    
+    # Initialize rewards
+    ingredient_environment_count_rewards = {k: 0 for k in self.ingredient_environment_count.keys()}
+    
+    # Calculate shaped reward for CO2_g
+    CO2_g_value = self.ingredient_environment_count['CO2_g']
+    if CO2_g_value <= self.target_CO2_kg_g:
+        ingredient_environment_count_rewards['CO2_g'] = (self.target_CO2_kg_g - CO2_g_value) * 10  # Positive reward for lower CO2 emissions
+    else:
+        ingredient_environment_count_rewards['CO2_g'] = -(CO2_g_value - self.target_CO2_kg_g) * 10  # Negative reward for higher CO2 emissions
+    
+    # Define the mapping for ratings (1 gets highest reward, 5 gets lowest)
+    rating_to_reward = {1: 100, 2: 80, 3: 60, 4: 40, 5: 20}
+    
+    # Assign rewards based on ratings for other environmental factors
+    for factor in ['animal_welfare', 'rainforest', 'water', 'CO2_rating']:
+        rating_value = self.ingredient_environment_count[factor]
+        if rating_value in rating_to_reward:
+            ingredient_environment_count_rewards[factor] = rating_to_reward[rating_value]
+    
+    return ingredient_environment_count_rewards
+
+
