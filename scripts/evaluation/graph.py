@@ -138,25 +138,38 @@ def plot_results(predictions, ingredient_df, env):
 
     plt.tight_layout()
     plt.show()
+    
+    
+class Args:
+    reward_func = 'reward_nutrient_macro_and_groups'
+    render_mode = None
+    num_envs = 1
+    plot_reward_history=False
 
 def main():
+    
+    args = Args()
+    
+    from utils.train_utils import setup_environment, get_unique_directory, get_unique_image_directory
+    
     # Setup environment and other configurations
     ingredient_df = get_data()
-    env_name = 'SchoolMealSelection-v0'
     
-    # Create the environment
-    env = gym.make(env_name, ingredient_df=ingredient_df, render_mode=None)
-    env = DummyVecEnv([lambda: env])
+    seed = 42
+    
+    # Create the environment using the setup function
+    env = setup_environment(args, seed, ingredient_df)
 
     # Load normalization statistics
-    norm_path = os.path.abspath("saved_models/evaluation_models/A2C_new_reward_test_seed89_vec_normalize_best copy.pkl")
+    # norm_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_100000_1env_best_seed3583778663/vec_normalize_best.pkl")
+    norm_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_100000_1env_best_seed3583778663/vec_normalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
     env.training = False
     env.norm_reward = False
 
     # Load the saved agent
-    model_path = os.path.abspath("saved_models/evaluation_models/A2C_new_reward_test_seed89_final copy.zip")
-    model = PPO.load(model_path, env=env)
+    model_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_100000_1env_best_seed3583778663/best_model.zip")
+    model = A2C.load(model_path, env=env)
 
     # Number of episodes to evaluate
     num_episodes = 10
@@ -166,6 +179,22 @@ def main():
 
     # Plot the results
     plot_results(predictions, ingredient_df, env)
+    
+    # Access the underlying RewardTrackingWrapper for saving rewards
+    if args.plot_reward_history: 
+        
+        reward_dir = os.path.abspath(os.path.join('saved_models', 'reward'))
+        reward_prefix = "test_trained"       
+        # Save reward distribution for each environment in the vectorized environment
+        for i, env_instance in enumerate(env.envs):
+                
+            reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}")
+            
+            env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
+            
+            reward_prefix_instance = get_unique_image_directory(reward_dir, reward_prefix)
+
+            env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
 
 if __name__ == "__main__":
     main()

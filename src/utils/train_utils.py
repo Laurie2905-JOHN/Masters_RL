@@ -39,7 +39,7 @@ def set_seed(seed, device):
             torch.cuda.manual_seed_all(seed)
 
 # Function to set up the environment
-def setup_environment(args, seed, ingredient_df, max_steps_per_episode = 1000):
+def setup_environment(args, seed, ingredient_df):
     reward_func = REWARD_FUNCTIONS.get(args.reward_func, reward_nutrient_macro)
     
     def make_env():
@@ -52,10 +52,6 @@ def setup_environment(args, seed, ingredient_df, max_steps_per_episode = 1000):
         # Apply the RewardTrackingWrapper if needed
         if args.plot_reward_history:
             env = RewardTrackingWrapper(env, save_reward=True)
-            
-                # Wrap the environment with TimeLimit to enforce a maximum number of steps per episode
-          # Adjust this value based on your needs
-        env = TimeLimit(env, max_episode_steps=max_steps_per_episode)
         
         return env
 

@@ -51,15 +51,6 @@ class SchoolMealSelection(gym.Env):
         }
         
         self.nutrient_averages = {k: 0 for k in self.nutrient_target_ranges.keys()}
-        
-        # Environment
-        self.Animal_Welfare_Rating = ingredient_df['Animal Welfare Rating'].values
-        self.Rainforest_Rating = ingredient_df['Rainforest Rating'].values
-        self.Water_Scarcity_Rating = ingredient_df['Water Scarcity Rating'].values
-        self.CO2_FU_Rating = ingredient_df['CO2 FU Rating'].values
-        self.CO2_kg_per_100g = ingredient_df['CO2_kg_per_100g'].values / 100
-
-        self.target_CO2_kg_g = 0.5 # Target max CO2 per 100g
 
         # Group categories
         self.Group_A_veg = ingredient_df['Group A veg'].values
@@ -85,6 +76,28 @@ class SchoolMealSelection(gym.Env):
         }
 
         self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count_targets.keys()}
+        
+        
+        # Environment
+        # A - E ratings - no targets will be rewarded for more A
+        self.Animal_Welfare_Rating = ingredient_df['Animal Welfare Rating'].values 
+        self.Rainforest_Rating = ingredient_df['Rainforest Rating'].values
+        self.Water_Scarcity_Rating = ingredient_df['Water Scarcity Rating'].values
+        self.CO2_FU_Rating = ingredient_df['CO2 FU Rating'].values
+        # CO2 values
+        self.CO2_kg_per_100g = ingredient_df['CO2_kg_per_100g'].values / 100
+
+        self.target_CO2_kg_g = 0.5 # Target max CO2 per 100g
+        
+        # For A - E ratings will be converted to numbers an average will be taken
+        self.ingredient_environment_count = {
+            'animal_welfare': 0, 
+            'rainforest': 0,
+            'water': 0, 
+            'CO2_rating': 0, 
+            'CO2_g': 0, 
+        }
+        
         
         # Consumption data
         self.Mean_g_per_day = ingredient_df['Mean_g_per_day'].values
@@ -212,14 +225,16 @@ if __name__ == '__main__':
     ingredient_df = get_data()
     
     args = Args()
+    
     seed = 42
-
-    from utils.train_utils import get_unique_directory, get_unique_image_directory, setup_environment
-    
+ 
     num_episodes = 100
-    max_episode_steps = 1
     
-    env = setup_environment(args, seed, ingredient_df, max_steps_per_episode=max_episode_steps)
+    max_episode_steps = 1000
+    
+    from utils.train_utils import setup_environment, get_unique_directory, get_unique_image_directory
+    
+    env = setup_environment(args, seed, ingredient_df)
 
     # Check the first environment in the VecEnv
     check_env(env.unwrapped.envs[0].unwrapped)
@@ -239,26 +254,26 @@ if __name__ == '__main__':
                 # VecEnv will return arrays of values
                 terminated = dones[0]
                 truncated = infos[0].get('TimeLimit.truncated', False)
-                
-                print(infos)
-                
-                print(f"Step {step + 1}: terminated={terminated}, truncated={truncated}")
+                targets_met = infos[0].get('all_targets_met', False)
+                    
                 
                 if terminated or truncated:
                     break
 
-    # # Access the underlying RewardTrackingWrapper for saving rewards
-    # if args.plot_reward_history: 
+    # Access the underlying RewardTrackingWrapper for saving rewards
+    if args.plot_reward_history: 
         
-    #     # Save reward distribution for each environment in the vectorized environment
-    #     for i, env_instance in enumerate(env.envs):
+        reward_dir = os.path.abspath(os.path.join('saved_models', 'reward'))
+        reward_prefix = "test"       
+        # Save reward distribution for each environment in the vectorized environment
+        for i, env_instance in enumerate(env.envs):
                 
-    #         reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}")
+            reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}")
             
-    #         env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
+            env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
             
-    #         reward_prefix_instance = get_unique_image_directory(reward_dir, reward_prefix)
+            reward_prefix_instance = get_unique_image_directory(reward_dir, reward_prefix)
 
-    #         env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
+            env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
             
 

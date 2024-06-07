@@ -118,11 +118,10 @@ def termination_reason(self, all_nutrient_targets_met, nutrient_far_flag_list, a
     return terminated, reward
 
 def group_count_reward(self):
-    
     non_zero_mask = self.current_selection != 0
     
-        # Calculate the total values for each nutritional category for the selected ingredients
-    self.ingredient_group_count= {
+    # Calculate the total values for each nutritional category for the selected ingredients
+    self.ingredient_group_count = {
         'fruit': sum(self.Group_A_fruit * non_zero_mask),
         'veg': sum(self.Group_A_veg * non_zero_mask),
         'non_processed_meat': sum(self.Group_B * non_zero_mask),
@@ -134,28 +133,35 @@ def group_count_reward(self):
     }
     
     ingredient_group_count_rewards = {k: 0 for k in self.ingredient_group_count.keys()}
-    
     all_group_targets_met = True
     
-    # Loop through values and calculate rewards
+    # Special handling for meat groups
+    total_meat_count = self.ingredient_group_count['non_processed_meat'] + self.ingredient_group_count['processed_meat']
+    total_meat_target = self.ingredient_group_count_targets['non_processed_meat'] + self.ingredient_group_count_targets['processed_meat']
+    
+    if total_meat_count == total_meat_target:
+        ingredient_group_count_rewards['non_processed_meat'] += 100
+        ingredient_group_count_rewards['processed_meat'] += 100
+    else:
+        all_group_targets_met = False
+        meat_distance = abs(total_meat_target - total_meat_count)
+        meat_distance_reward = meat_distance * 10
+        ingredient_group_count_rewards['non_processed_meat'] += meat_distance_reward
+        ingredient_group_count_rewards['processed_meat'] += meat_distance_reward
+    
+    # Loop through other groups to calculate rewards
     for group, value in self.ingredient_group_count.items():
-        
+        if group in ['non_processed_meat', 'processed_meat']:
+            continue
+            
         target = self.ingredient_group_count_targets[group]
         
-        if target == value <= target:
-            ingredient_group_count_rewards[group] += 10
+        if target == value:
+            ingredient_group_count_rewards[group] += 100
         else:
             all_group_targets_met = False
-             
             distance = abs(target - value)
-            
-            distance_reward = distance / 10
-            
-            all_group_targets_met = False
-            
-            if distance_reward > 500:
-                ingredient_group_count_rewards[group] -= 500
-            else:
-                ingredient_group_count_rewards[group] -= distance / 10
+            distance_reward = distance * 10
+            ingredient_group_count_rewards[group] += distance_reward
     
     return ingredient_group_count_rewards, all_group_targets_met

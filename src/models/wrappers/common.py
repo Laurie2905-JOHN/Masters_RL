@@ -15,7 +15,6 @@ class RewardTrackingWrapper(gym.Wrapper):
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
-
         if self.save_reward:
             self.reward_history.append(float(reward))
             self.nutrient_reward_history.append(self._convert_to_serializable(info.get('nutrient_averages', {}).copy()))
@@ -23,7 +22,7 @@ class RewardTrackingWrapper(gym.Wrapper):
             if terminated or truncated:
                 reason = info.get('termination_reason')
                 if truncated:
-                    reason = 0  # Append 0 for truncated episodes
+                    reason = 1  # Append 1 for truncated episodes
                 self.termination_reasons.append(reason)
 
         return obs, reward, terminated, truncated, info
