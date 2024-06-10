@@ -8,8 +8,7 @@ import torch
 from gymnasium.wrappers import TimeLimit
 # from models.envs.env import SchoolMealSelection
 from models.envs.env_working import SchoolMealSelection
-# Import your reward functions
-from models.reward.reward import reward_nutrient, reward_nutrient_food_groups, reward_nutrient_food_groups_environment
+
 
 from models.wrappers.common import RewardTrackingWrapper
 

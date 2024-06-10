@@ -102,7 +102,7 @@ def environment_count_reward(self, ingredient_environment_count_rewards):
     
     return ingredient_environment_count_rewards, environment_target_met
 
-def cost_reward(self):
+def cost_reward(self, cost_rewards):
     # Calculate the cost difference
     cost_difference = self.menu_cost - self.target_cost_per_meal
     
@@ -112,12 +112,12 @@ def cost_reward(self):
     # Calculate the reward
     if cost_targets_met:
         # Positive reward for staying under or meeting the target cost
-        cost_reward = -cost_difference / 10  # Reward is positive because cost_difference is negative or zero
+        cost_rewards['from_target'] = -cost_difference / 10  # Reward is positive because cost_difference is negative or zero
     else:
         # Negative reward for exceeding the target cost
-        cost_reward = -cost_difference / 10  # Reward is negative because cost_difference is positive
+        cost_rewards['from_target'] = -cost_difference / 10  # Reward is negative because cost_difference is positive
 
-    return cost_reward, cost_targets_met
+    return cost_rewards, cost_targets_met
 
 
 def consumption_reward(self, consumption_reward):
@@ -126,47 +126,47 @@ def consumption_reward(self, consumption_reward):
 
     # Reward for food waste percentage less than 10%
     if self.consumption_average['food_waste_percentage'] < 0.1:
-        consumption_reward += 100
+        consumption_reward['food_waste_percentage'] += 100
         consumption_targets_met = True
     
     # Penalize for food waste percentage
-    consumption_reward -= self.consumption_average['food_waste_percentage'] * 100
+    consumption_reward['food_waste_percentage'] -= self.consumption_average['food_waste_percentage'] * 100
 
     # Shape the reward based on coefficient of variation
     # Assuming a lower CV is better, we use an inverse relation for the reward
-    cv_penalty = self.consumption_average['average_cv_ingredients'] * 50  # Adjust the multiplier as needed
-    
-    consumption_reward -= cv_penalty
+    consumption_reward['cv_penalty'] = self.consumption_average['average_cv_ingredients'] * 50  # Adjust the multiplier as needed
 
     return consumption_reward, consumption_targets_met
 
 
 def termination_reason(
-            self,
-            nutrition_targets_met,
-            group_targets_met,
-            environment_targets_met,
-            cost_targets_met,
-            consumption_targets_met,
-            nutrient_far_flag_list,
-            targets_met,
-            reward
-        ):
-    
+        self,
+        nutrition_targets_met,
+        group_targets_met,
+        environment_targets_met,
+        cost_targets_met,
+        consumption_targets_met,
+        nutrient_far_flag_list,
+        reward
+    ):
+
     # Implement termination conditions
-    if all_nutrient_targets_met and all_group_targets_met:
+    if all([nutrition_targets_met, group_targets_met, environment_targets_met, cost_targets_met, consumption_targets_met]): 
         # If all targets are met terminate the episode
         terminated = True
         self.termination_reason = 2  # All targets met
         reward += 10000
-    elif nutrient_far_flag_list.count(True) > 4:
-        # If 4 of the metrics are far away terminate the episode as no learning oppurtunity
+    elif nutrient_far_flag_list.count(True) > 4 or self.consumption_average['food_waste_percentage'] > 0.5:
+        # If 4 of the metrics are far away or the food wastage is high terminate the episode as no learning opportunity
         terminated = True
         self.termination_reason = -1  # A target is far off
+        reward -= 1000
     else:
         terminated = False
         self.termination_reason = 0  # No termination
+    
     return terminated, reward
+
 
 def estimated_food_waste_percentage(self):
     

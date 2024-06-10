@@ -150,9 +150,9 @@ class SchoolMealSelection(gym.Env):
         )
 
         self.current_selection = np.zeros(self.n_ingredients)
-        self.actions_taken = []
 
         self.termination_reasons = []
+        
         self.termination_reason = None
         
         # Create an empty reward dictionary
@@ -160,8 +160,8 @@ class SchoolMealSelection(gym.Env):
             'nutrient_rewards': {},
             'ingredient_group_count_rewards': {},
             'ingredient_environment_count_rewards': {},
-            'cost_rewards': 0,
-            'consumption_rewards': 0
+            'cost_rewards': {},
+            'consumption_rewards': {}
         }
         
     def calculate_reward(self):
@@ -222,8 +222,10 @@ class SchoolMealSelection(gym.Env):
         nutrient_rewards = {k: 0 for k in self.nutrient_averages.keys()}
         ingredient_group_count_rewards = {k: 0 for k in self.ingredient_group_count.keys()}
         ingredient_environment_count_rewards = {k: 0 for k in self.ingredient_environment_count.keys()}
-        consumption_rewards = 0
-        cost_rewards = 0
+        cost_rewards = {'from_target': 0}
+        consumption_rewards = {'food_waste_percentage': 0,
+                               'cv_penalty': 0
+                              }
         
         # Initialize target met flags for the case if metrics are not requested
         group_targets_met = True
@@ -258,7 +260,6 @@ class SchoolMealSelection(gym.Env):
             cost_targets_met,
             consumption_targets_met,
             nutrient_far_flag_list,
-            targets_met,
             reward
         )
 
@@ -275,8 +276,8 @@ class SchoolMealSelection(gym.Env):
         reward += sum(nutrient_rewards.values()) + \
                   sum(ingredient_group_count_rewards.values()) + \
                   sum(ingredient_environment_count_rewards.values()) + \
-                  consumption_rewards + \
-                  cost_rewards + \
+                  sum(consumption_rewards.values()) + \
+                  sum(cost_rewards.values()) + \
                   step_penalty
 
         info = self._get_info()
@@ -287,7 +288,7 @@ class SchoolMealSelection(gym.Env):
         super().reset(seed=seed)
         
         self.current_selection = np.zeros(self.n_ingredients)
-        self.actions_taken = []
+
         self.episode_count += 1
         
         self.nutrient_averages = {k: 0 for k in self.nutrient_averages.keys()}
@@ -303,8 +304,8 @@ class SchoolMealSelection(gym.Env):
             'nutrient_rewards': {},
             'ingredient_group_count_rewards': {},
             'ingredient_environment_count_rewards': {},
-            'cost_rewards': 0,
-            'consumption_rewards': 0
+            'cost_rewards': {},
+            'consumption_rewards': {}
         }
 
         observation = self._get_obs()
@@ -352,7 +353,7 @@ class SchoolMealSelection(gym.Env):
         if 'environment' in self.reward_metrics:
             obs_parts.append(list(self.ingredient_environment_count.values()))
         if 'cost' in self.reward_metrics:
-            obs_parts.append(self.menu_cost)
+            obs_parts.append([self.menu_cost])
         if 'consumption' in self.reward_metrics:
             obs_parts.append(list(self.consumption_average.values()))
         obs_parts.append(self.current_selection)
@@ -398,7 +399,7 @@ if __name__ == '__main__':
 
     # Define arguments
 class Args:
-    reward_metrics = ['nutrients', 'groups', 'environment']
+    reward_metrics = ['nutrients', 'groups', 'environment', 'consumption', 'cost']
     render_mode = None
     num_envs = 1
     plot_reward_history = True

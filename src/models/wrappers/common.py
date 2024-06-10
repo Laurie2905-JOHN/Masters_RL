@@ -41,8 +41,11 @@ class RewardTrackingWrapper(gym.Wrapper):
             flattened_reward_histories = {
                 'nutrient_rewards': {},
                 'ingredient_group_count_rewards': {},
-                'ingredient_environment_count_rewards': {}
+                'ingredient_environment_count_rewards': {},
+                'cost_rewards': {},
+                'consumption_rewards': {}
             }
+            
             
             for entry in self.reward_details_history:
                 for category, rewards in entry.items():
@@ -56,16 +59,18 @@ class RewardTrackingWrapper(gym.Wrapper):
             label_mapping = {
                 'nutrient_rewards': 'Nutrient',
                 'ingredient_group_count_rewards': 'Ingredient Group',
-                'ingredient_environment_count_rewards': 'Environment'
+                'ingredient_environment_count_rewards': 'Environment',
+                'cost_rewards': 'Cost',
+                'consumption_rewards': 'Consumption'
             }
 
             num_rewards = sum(len(rewards) for rewards in flattened_reward_histories.values()) + 2
-            col = 6
+            col = 7
             row = num_rewards // col
             if num_rewards % col != 0:
                 row += 1
 
-            fig, axes = plt.subplots(row, col, figsize=(col * 3, row * 3))
+            fig, axes = plt.subplots(row, col, figsize=(col * 4, row * 3))
             axes = np.ravel(axes)
 
             termination_reason_counts = {reason: reason_str.count(reason) for reason in set(reason_str)}
