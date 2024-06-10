@@ -50,6 +50,7 @@ class SchoolMealSelection(gym.Env):
             'salt': (0, self.target_Salt_g)
         }
         
+        # Average values for nutrients over time
         self.nutrient_averages = {k: 0 for k in self.nutrient_target_ranges.keys()}
 
         # Group categories
@@ -74,7 +75,7 @@ class SchoolMealSelection(gym.Env):
             'bread': 1, # Bread should be provided as well as a portion of starchy food
             'confectionary': 0 # No confectionary should be provided
         }
-
+        # Count of ingredient groups
         self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count_targets.keys()}
         
         
@@ -90,11 +91,11 @@ class SchoolMealSelection(gym.Env):
         self.CO2_FU_Rating = [rating_to_int[val] for val in ingredient_df['CO2 FU Rating'].values]
         
         # CO2 values
-        self.CO2_kg_per_100g = ingredient_df['CO2_kg_per_100g'].values / 100
+        self.CO2_g_per_1g = ingredient_df['CO2_g_per_100g'].values / 100 # Retrieve the data and convert to per gram
 
-        self.target_CO2_kg_g = 0.5 # Target max CO2 per meal
+        self.target_CO2_g_per_meal = 500 # Target max CO2 per meal
         
-        # For A - E ratings will be converted to numbers an average will be taken
+        # For A - E ratings will be converted to numbers an average will be taken for each env target
         self.ingredient_environment_count = {
             'animal_welfare': 0, 
             'rainforest': 0,
@@ -138,6 +139,13 @@ class SchoolMealSelection(gym.Env):
         self.termination_reasons = []
         self.termination_reason = None
         
+        # Create an empty reward dictionary
+        self.reward_dict = {
+            'nutrient_rewards': {},
+            'ingredient_group_count_rewards': {},
+            'ingredient_environment_count_rewards': {}
+        }
+        
     def select_reward_function(self):
         if set(self.reward_metrics) == {'nutrients'}:
             return reward_nutrient
@@ -162,6 +170,12 @@ class SchoolMealSelection(gym.Env):
             self.ingredient_environment_count = {k: 0 for k in self.ingredient_environment_count.keys()}
             
             self.termination_reason = None
+            
+            self.reward_dict = {
+                'nutrient_rewards': {},
+                'ingredient_group_count_rewards': {},
+                'ingredient_environment_count_rewards': {}
+            }
 
             observation = self._get_obs()
             
@@ -215,6 +229,7 @@ class SchoolMealSelection(gym.Env):
             'nutrient_averages': self.nutrient_averages,
             'ingredient_group_count': self.ingredient_group_count,
             'ingredient_environment_count': self.ingredient_environment_count,
+            'reward': self.reward_dict,
             'current_selection': self.current_selection,
             'termination_reason': self.termination_reason
         }
@@ -245,10 +260,10 @@ if __name__ == '__main__':
 
     # Define arguments
 class Args:
-    reward_func = 'reward_nutrient_macro_and_groups'
+    reward_metrics = ['nutrients', 'groups', 'environment']
     render_mode = None
     num_envs = 1
-    plot_reward_history=True
+    plot_reward_history = True
 
 if __name__ == '__main__':
     ingredient_df = get_data()

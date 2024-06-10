@@ -2,7 +2,7 @@
 import gymnasium as gym
 from stable_baselines3 import A2C, PPO
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
-from stable_baselines3.common.logger import configure
+from stable_baselines3.common.logger import configure, HumanOutputFormat
 from stable_baselines3.common.vec_env import VecNormalize
 from stable_baselines3.common.env_util import make_vec_env
 import os
@@ -39,7 +39,12 @@ def main(args, seed):
     best_model_path = os.path.join(best_dir, best_prefix)
     
     # Configure logger for TensorBoard and stdout
-    new_logger = configure(tensorboard_log_dir, ["stdout", "tensorboard"])
+    new_logger = configure(tensorboard_log_dir, format_strings=["stdout", "tensorboard"])
+
+    # Accessing the current formatters to update max_length
+    for handler in new_logger.output_formats:
+        if isinstance(handler, HumanOutputFormat):
+            handler.max_length = 128
 
     # Set up callbacks for saving checkpoints, evaluating models, and logging additional information
     checkpoint_callback = SaveVecNormalizeCallback(save_freq=args.save_freq, save_path=save_dir, name_prefix=save_prefix, vec_normalize_env=env)
@@ -99,10 +104,10 @@ if __name__ == "__main__":
     parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v1', help="Name of the environment")
     parser.add_argument("--reward_metrics", type=list, default=['nutrients', 'groups', 'environment'], help="Metrics to give reward for")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
-    parser.add_argument("--num_envs", type=int, default=3, help="Number of parallel environments")
+    parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
     parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=1000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=20000, help="Total number of timesteps for training")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
@@ -113,7 +118,7 @@ if __name__ == "__main__":
     parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
     parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
-    parser.add_argument("--seed", type=list, nargs='+', default=generate_random_seeds(4), help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
+    parser.add_argument("--seed", type=list, nargs='+', default=generate_random_seeds(1), help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
 
     args = parser.parse_args()
