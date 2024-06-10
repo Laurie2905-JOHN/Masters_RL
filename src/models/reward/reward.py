@@ -1,96 +1,7 @@
-def reward_nutrient(self):
-    step_penalty = -1  # Negative reward for each step taken
-    reward = 0
-    terminated = False
-
-    nutrient_rewards, all_nutrient_targets_met, nutrient_far_flag_list = nutrient_reward(self)
-    all_group_targets_met = True
-
-    terminated, reward = termination_reason(self, all_nutrient_targets_met, nutrient_far_flag_list, all_group_targets_met, reward)
-
-    # Create and update reward dictionary
-    self.reward_dict = {
-        'nutrient_rewards': nutrient_rewards,
-        'ingredient_group_count_rewards': {},
-        'ingredient_environment_count_rewards': {}
-    }
-
-    # Calculate total reward
-    reward += sum(nutrient_rewards.values()) + step_penalty
-
-    info = self._get_info()
-
-    return reward, info, terminated
-
-
-def reward_nutrient_food_groups(self):
-    step_penalty = -1  # Negative reward for each step taken
-    reward = 0
-    terminated = False
-
-    nutrient_rewards, all_nutrient_targets_met, nutrient_far_flag_list = nutrient_reward(self)
-    ingredient_group_count_rewards, all_group_targets_met = group_count_reward(self)
-
-    terminated, reward = termination_reason(self, all_nutrient_targets_met, nutrient_far_flag_list, all_group_targets_met, reward)
-
-    # Create and update reward dictionary
-    self.reward_dict = {
-        'nutrient_rewards': nutrient_rewards,
-        'ingredient_group_count_rewards': ingredient_group_count_rewards,
-        'ingredient_environment_count_rewards': {}
-    }
-
-    # Calculate total reward
-    reward += sum(nutrient_rewards.values()) + sum(ingredient_group_count_rewards.values()) + step_penalty
-
-    info = self._get_info()
-
-    return reward, info, terminated
-
-
-def reward_nutrient_food_groups_environment(self):
-    step_penalty = -1  # Negative reward for each step taken
-    reward = 0
-    terminated = False
-
-    nutrient_rewards, all_nutrient_targets_met, nutrient_far_flag_list = nutrient_reward(self)
-    ingredient_group_count_rewards, all_group_targets_met = group_count_reward(self)
-    ingredient_environment_count_rewards = environment_count_reward(self)
-
-    terminated, reward = termination_reason(self, all_nutrient_targets_met, nutrient_far_flag_list, all_group_targets_met, reward)
-
-    # Create and update reward dictionary
-    self.reward_dict = {
-        'nutrient_rewards': nutrient_rewards,
-        'ingredient_group_count_rewards': ingredient_group_count_rewards,
-        'ingredient_environment_count_rewards': ingredient_environment_count_rewards
-    }
-
-    # Calculate total reward
-    reward += sum(nutrient_rewards.values()) + sum(ingredient_group_count_rewards.values()) + sum(ingredient_environment_count_rewards.values()) + step_penalty
-
-    info = self._get_info()
-
-    return reward, info, terminated
-
+import numpy as np
 
 # Function to calculate the reward for the nutrients
-def nutrient_reward(self):
-    
-    # Calculate the total values for each nutritional category for the selected ingredients
-    self.nutrient_averages = {
-        'calories': sum(self.caloric_values * self.current_selection),
-        'fat': sum(self.Fat_g * self.current_selection),
-        'saturates': sum(self.Saturates_g * self.current_selection),
-        'carbs': sum(self.Carbs_g * self.current_selection),
-        'sugar': sum(self.Sugars_g * self.current_selection),
-        'fibre': sum(self.Fibre_g * self.current_selection),
-        'protein': sum(self.Protein_g * self.current_selection),
-        'salt': sum(self.Salt_g * self.current_selection)
-    }
-    
-    # Initialising nutrient rewards
-    nutrient_rewards = {k: 0 for k in self.nutrient_averages.keys()}
+def nutrient_reward(self, nutrient_rewards):
     
     # Flag for if all nutrient targets are met
     all_nutrient_targets_met = True
@@ -129,38 +40,8 @@ def nutrient_reward(self):
     return nutrient_rewards, all_nutrient_targets_met, nutrient_far_flag_list
 
 
-def termination_reason(self, all_nutrient_targets_met, nutrient_far_flag_list, all_group_targets_met, reward):
-    # Implement termination conditions
-    if all_nutrient_targets_met and all_group_targets_met:
-        # If all targets are met terminate the episode
-        terminated = True
-        self.termination_reason = 2  # All targets met
-        reward += 10000
-    elif nutrient_far_flag_list.count(True) > 4:
-        # If 4 of the metrics are far away terminate the episode as no learning oppurtunity
-        terminated = True
-        self.termination_reason = -1  # A target is far off
-    else:
-        terminated = False
-        self.termination_reason = 0  # No termination
-    return terminated, reward
-
-def group_count_reward(self):
-    non_zero_mask = self.current_selection != 0
+def group_count_reward(self, ingredient_group_count_rewards):
     
-    # Calculate the total values for each nutritional category for the selected ingredients
-    self.ingredient_group_count = {
-        'fruit': sum(self.Group_A_fruit * non_zero_mask),
-        'veg': sum(self.Group_A_veg * non_zero_mask),
-        'non_processed_meat': sum(self.Group_B * non_zero_mask),
-        'processed_meat': sum(self.Group_C * non_zero_mask),
-        'carbs': sum(self.Group_D * non_zero_mask),
-        'dairy': sum(self.Group_E * non_zero_mask),
-        'bread': sum(self.Bread * non_zero_mask),
-        'confectionary': sum(self.Confectionary * non_zero_mask),
-    }
-    
-    ingredient_group_count_rewards = {k: 0 for k in self.ingredient_group_count.keys()}
     all_group_targets_met = True
     
     # Special handling for meat groups
@@ -194,28 +75,16 @@ def group_count_reward(self):
     
     return ingredient_group_count_rewards, all_group_targets_met
 
-def environment_count_reward(self):
-    non_zero_mask = self.current_selection != 0
-    
-    # Calculate environmental counts
-    self.ingredient_environment_count = {
-        'animal_welfare': round(sum(self.Animal_Welfare_Rating * non_zero_mask) / self.max_ingredients),
-        'rainforest': round(sum(self.Rainforest_Rating * non_zero_mask) / self.max_ingredients),
-        'water': round(sum(self.Water_Scarcity_Rating * non_zero_mask) / self.max_ingredients),
-        'CO2_rating': round(sum(self.CO2_FU_Rating * non_zero_mask) / self.max_ingredients),
-        'CO2_g': sum(self.CO2_g_per_1g * self.current_selection),
-    }
-    
-    # Initialize rewards
-    ingredient_environment_count_rewards = {k: 0 for k in self.ingredient_environment_count.keys()}
-    
+def environment_count_reward(self, ingredient_environment_count_rewards):
+
     # Calculate shaped reward for CO2_g
-    CO2_g_value = self.ingredient_environment_count['CO2_g']
+    CO2_distance = abs(self.target_CO2_g_per_meal - self.ingredient_environment_count['CO2_g'])
     
-    CO2_distance = abs(self.target_CO2_g_per_meal - CO2_g_value)
+    environment_target_met = False
     
-    if CO2_g_value <= self.target_CO2_g_per_meal:
+    if self.ingredient_environment_count['CO2_g'] <= self.target_CO2_g_per_meal:
         ingredient_environment_count_rewards['CO2_g'] = CO2_distance / 10  # Positive reward for lower CO2 emissions
+        environment_target_met = True
     else:
         if CO2_distance > 500:
             ingredient_environment_count_rewards['CO2_g'] = -100
@@ -231,6 +100,105 @@ def environment_count_reward(self):
         if rating_value in rating_to_reward:
             ingredient_environment_count_rewards[factor] = rating_to_reward[rating_value]
     
-    return ingredient_environment_count_rewards
+    return ingredient_environment_count_rewards, environment_target_met
+
+def cost_reward(self):
+    # Calculate the cost difference
+    cost_difference = self.menu_cost - self.target_cost_per_meal
+    
+    # Determine if cost targets are met
+    cost_targets_met = cost_difference <= 0
+    
+    # Calculate the reward
+    if cost_targets_met:
+        # Positive reward for staying under or meeting the target cost
+        cost_reward = -cost_difference / 10  # Reward is positive because cost_difference is negative or zero
+    else:
+        # Negative reward for exceeding the target cost
+        cost_reward = -cost_difference / 10  # Reward is negative because cost_difference is positive
+
+    return cost_reward, cost_targets_met
 
 
+def consumption_reward(self, consumption_reward):
+    
+    consumption_targets_met = False
+
+    # Reward for food waste percentage less than 10%
+    if self.consumption_average['food_waste_percentage'] < 0.1:
+        consumption_reward += 100
+        consumption_targets_met = True
+    
+    # Penalize for food waste percentage
+    consumption_reward -= self.consumption_average['food_waste_percentage'] * 100
+
+    # Shape the reward based on coefficient of variation
+    # Assuming a lower CV is better, we use an inverse relation for the reward
+    cv_penalty = self.consumption_average['average_cv_ingredients'] * 50  # Adjust the multiplier as needed
+    
+    consumption_reward -= cv_penalty
+
+    return consumption_reward, consumption_targets_met
+
+
+def termination_reason(
+            self,
+            nutrition_targets_met,
+            group_targets_met,
+            environment_targets_met,
+            cost_targets_met,
+            consumption_targets_met,
+            nutrient_far_flag_list,
+            targets_met,
+            reward
+        ):
+    
+    # Implement termination conditions
+    if all_nutrient_targets_met and all_group_targets_met:
+        # If all targets are met terminate the episode
+        terminated = True
+        self.termination_reason = 2  # All targets met
+        reward += 10000
+    elif nutrient_far_flag_list.count(True) > 4:
+        # If 4 of the metrics are far away terminate the episode as no learning oppurtunity
+        terminated = True
+        self.termination_reason = -1  # A target is far off
+    else:
+        terminated = False
+        self.termination_reason = 0  # No termination
+    return terminated, reward
+
+def estimated_food_waste_percentage(self):
+    
+    threshold = 0
+    total_food_waste = 0  # Initialize total food waste
+
+    # Mask for non-zero values in the current selection
+    non_zero_indices = np.where(self.current_selection > 0)[0]
+
+    # Generate random values from a normal distribution for each person and each non-zero ingredient
+    consumption_values = np.random.normal(
+        loc=self.Mean_g_per_day[non_zero_indices][:, np.newaxis],
+        scale=self.StandardDeviation[non_zero_indices][:, np.newaxis],
+        size=(len(non_zero_indices), self.num_people)
+    )
+
+    # Replace negative values with zero for realistic consumption values
+    consumption_values = np.where(consumption_values < threshold, 0, consumption_values)
+
+    # Calculate the total expected consumption for each ingredient
+    total_expected_consumption = np.sum(consumption_values, axis=1)
+
+    # Calculate the expected food waste for each ingredient
+    ingredient_food_waste = self.current_selection[non_zero_indices] * self.num_people - total_expected_consumption
+
+    # Sum up the food waste for all ingredients
+    total_food_waste = np.sum(ingredient_food_waste)
+    
+    # Sum up the total selection for ingredients
+    total_selection = np.sum(self.current_selection)
+    
+    # Calculate the percentage of food waste
+    food_waste_percentage = total_food_waste / total_selection
+
+    return food_waste_percentage
