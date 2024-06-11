@@ -1,7 +1,7 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-from models.reward.reward import nutrient_reward, group_count_reward, environment_count_reward, cost_reward, consumption_reward, termination_reason, estimated_food_waste_percentage
+from models.reward.reward import nutrient_reward, group_count_reward, environment_count_reward, cost_reward, consumption_reward, termination_reason
 import os
 from utils.process_data import get_data
 
@@ -111,9 +111,9 @@ class SchoolMealSelection(gym.Env):
         
         
         self.consumption_average = {
-            'estimated_waste': 0, 
+            # 'estimated_waste': 0, 
             'average_mean_consumption': 0,
-            'average_sd_ingredients': 0,
+            # 'average_sd_ingredients': 0,
             'average_cv_ingredients': 0
         }
         
@@ -212,9 +212,9 @@ class SchoolMealSelection(gym.Env):
         
         # Calculate the consumption stats
         self.consumption_average = {
-            'food_waste_percentage': estimated_food_waste_percentage(self), 
+            # 'food_waste_percentage': estimated_food_waste_percentage(self), 
             'average_mean_consumption': sum(non_zero_mask * self.Mean_g_per_day) / self.max_ingredients,
-            'average_sd_ingredients': sum(non_zero_mask * self.StandardDeviation) / self.max_ingredients,
+            # 'average_sd_ingredients': sum(non_zero_mask * self.StandardDeviation) / self.max_ingredients,
             'average_cv_ingredients': sum(non_zero_mask * self.Coefficient_of_Variation) / self.max_ingredients
         }
     
@@ -223,7 +223,8 @@ class SchoolMealSelection(gym.Env):
         ingredient_group_count_rewards = {k: 0 for k in self.ingredient_group_count.keys()}
         ingredient_environment_count_rewards = {k: 0 for k in self.ingredient_environment_count.keys()}
         cost_rewards = {'from_target': 0}
-        consumption_rewards = {'food_waste_percentage': 0,
+        
+        consumption_rewards = {'average_mean_consumption': 0,
                                'cv_penalty': 0
                               }
         
@@ -411,7 +412,7 @@ if __name__ == '__main__':
     
     seed = 42
  
-    num_episodes = 100
+    num_episodes = 10000
     
     max_episode_steps = 1000
     

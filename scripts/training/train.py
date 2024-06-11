@@ -15,8 +15,6 @@ from utils.train_utils import generate_random_seeds, setup_environment, get_uniq
 from models.wrappers.common import RewardTrackingWrapper
 from models.envs.env_working import SchoolMealSelection
 
-
-
 # Main training function
 def main(args, seed):
     device = select_device(args)
@@ -51,14 +49,26 @@ def main(args, seed):
     eval_callback = SaveVecNormalizeEvalCallback(vec_normalize_env=env, eval_env=env, best_model_save_path=best_model_path, eval_freq=args.eval_freq, log_path=tensorboard_log_dir, deterministic=True, render=False)
     info_logger_callback = InfoLoggerCallback()
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
+    
 
-    # Choose the RL algorithm (A2C or PPO)
-    if args.algo == 'A2C':
-        model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
-    elif args.algo == 'PPO':
-        model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+    checkpoint_path = os.path.abspath(os.path.join('saved_models', 'checkpoints','SchoolMealSelection-v1_A2C_20000_1env_nutrients_groups_environment_seed3243222545_20000_steps'))
+    pkl_path = os.path.abspath(os.path.join('saved_models', 'checkpoints','SchoolMealSelection-v1_A2C_20000_1env_nutrients_groups_environment_seed3243222545_19000_vec_normalize.pkl'))
+    if os.path.exists(checkpoint_path):
+        # Load the model and VecNormalize from the checkpoint
+        print(f"Loading model from checkpoint: {checkpoint_path}")
+        env = VecNormalize.load(pkl_path, env)
+        if args.algo == 'A2C':
+            model = A2C.load(checkpoint_path, env=env, device=device)
+        elif args.algo == 'PPO':
+            model = PPO.load(checkpoint_path, env=env, device=device)
     else:
-        raise ValueError(f"Unsupported algorithm: {args.algo}")
+        # Choose the RL algorithm (A2C or PPO)
+        if args.algo == 'A2C':
+            model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+        elif args.algo == 'PPO':
+            model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+        else:
+            raise ValueError(f"Unsupported algorithm: {args.algo}")
 
     # Set the logger for the model and start training
     model.set_logger(new_logger)
@@ -120,6 +130,7 @@ if __name__ == "__main__":
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
     parser.add_argument("--seed", type=list, nargs='+', default=generate_random_seeds(1), help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
+    parser.add_argument("--checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
 
     args = parser.parse_args()
     

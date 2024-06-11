@@ -112,29 +112,24 @@ def cost_reward(self, cost_rewards):
     # Calculate the reward
     if cost_targets_met:
         # Positive reward for staying under or meeting the target cost
-        cost_rewards['from_target'] = -cost_difference / 10  # Reward is positive because cost_difference is negative or zero
+        cost_rewards['from_target'] = -cost_difference * 10  # Reward is positive because cost_difference is negative or zero
     else:
         # Negative reward for exceeding the target cost
-        cost_rewards['from_target'] = -cost_difference / 10  # Reward is negative because cost_difference is positive
+        cost_rewards['from_target'] = -cost_difference * 10  # Reward is negative because cost_difference is positive
 
     return cost_rewards, cost_targets_met
 
 
 def consumption_reward(self, consumption_reward):
     
-    consumption_targets_met = False
+    consumption_targets_met = True
 
-    # Reward for food waste percentage less than 10%
-    if self.consumption_average['food_waste_percentage'] < 0.1:
-        consumption_reward['food_waste_percentage'] += 100
-        consumption_targets_met = True
-    
-    # Penalize for food waste percentage
-    consumption_reward['food_waste_percentage'] -= self.consumption_average['food_waste_percentage'] * 100
+    # Shape the reward based on the average consumption
+    consumption_reward['average_mean_consumption'] = self.consumption_average['average_mean_consumption'] * 15  # Adjust the multiplier as needed
 
     # Shape the reward based on coefficient of variation
     # Assuming a lower CV is better, we use an inverse relation for the reward
-    consumption_reward['cv_penalty'] = self.consumption_average['average_cv_ingredients'] * 50  # Adjust the multiplier as needed
+    consumption_reward['cv_penalty'] = self.consumption_average['average_cv_ingredients'] * 10  # Adjust the multiplier as needed
 
     return consumption_reward, consumption_targets_met
 
@@ -156,7 +151,7 @@ def termination_reason(
         terminated = True
         self.termination_reason = 2  # All targets met
         reward += 10000
-    elif nutrient_far_flag_list.count(True) > 4 or self.consumption_average['food_waste_percentage'] > 0.5:
+    elif nutrient_far_flag_list.count(True) > 4:
         # If 4 of the metrics are far away or the food wastage is high terminate the episode as no learning opportunity
         terminated = True
         self.termination_reason = -1  # A target is far off
@@ -168,37 +163,37 @@ def termination_reason(
     return terminated, reward
 
 
-def estimated_food_waste_percentage(self):
+# def estimated_food_waste_percentage(self):
     
-    threshold = 0
-    total_food_waste = 0  # Initialize total food waste
+#     threshold = 0
+#     total_food_waste = 0  # Initialize total food waste
 
-    # Mask for non-zero values in the current selection
-    non_zero_indices = np.where(self.current_selection > 0)[0]
+#     # Mask for non-zero values in the current selection
+#     non_zero_indices = np.where(self.current_selection > 0)[0]
 
-    # Generate random values from a normal distribution for each person and each non-zero ingredient
-    consumption_values = np.random.normal(
-        loc=self.Mean_g_per_day[non_zero_indices][:, np.newaxis],
-        scale=self.StandardDeviation[non_zero_indices][:, np.newaxis],
-        size=(len(non_zero_indices), self.num_people)
-    )
+#     # Generate random values from a normal distribution for each person and each non-zero ingredient
+#     consumption_values = np.random.normal(
+#         loc=self.Mean_g_per_day[non_zero_indices][:, np.newaxis],
+#         scale=self.StandardDeviation[non_zero_indices][:, np.newaxis],
+#         size=(len(non_zero_indices), self.num_people)
+#     )
 
-    # Replace negative values with zero for realistic consumption values
-    consumption_values = np.where(consumption_values < threshold, 0, consumption_values)
+#     # Replace negative values with zero for realistic consumption values
+#     consumption_values = np.where(consumption_values < threshold, 0, consumption_values)
 
-    # Calculate the total expected consumption for each ingredient
-    total_expected_consumption = np.sum(consumption_values, axis=1)
+#     # Calculate the total expected consumption for each ingredient
+#     total_expected_consumption = np.sum(consumption_values, axis=1)
 
-    # Calculate the expected food waste for each ingredient
-    ingredient_food_waste = self.current_selection[non_zero_indices] * self.num_people - total_expected_consumption
+#     # Calculate the expected food waste for each ingredient
+#     ingredient_food_waste = self.current_selection[non_zero_indices] * self.num_people - total_expected_consumption
 
-    # Sum up the food waste for all ingredients
-    total_food_waste = np.sum(ingredient_food_waste)
+#     # Sum up the food waste for all ingredients
+#     total_food_waste = np.sum(ingredient_food_waste)
     
-    # Sum up the total selection for ingredients
-    total_selection = np.sum(self.current_selection)
+#     # Sum up the total selection for ingredients
+#     total_selection = np.sum(self.current_selection)
     
-    # Calculate the percentage of food waste
-    food_waste_percentage = total_food_waste / total_selection
+#     # Calculate the percentage of food waste
+#     food_waste_percentage = total_food_waste / total_selection
 
-    return food_waste_percentage
+#     return food_waste_percentage
