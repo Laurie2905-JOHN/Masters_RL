@@ -401,7 +401,7 @@ if __name__ == '__main__':
         reward_metrics = ['nutrients', 'groups', 'environment', 'consumption', 'cost']
         render_mode = None
         num_envs = 1
-        plot_reward_history = True
+        plot_reward_history = False
 
     ingredient_df = get_data()
     

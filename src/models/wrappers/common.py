@@ -5,10 +5,11 @@ import matplotlib.pyplot as plt
 import os
 
 class RewardTrackingWrapper(gym.Wrapper):
-    def __init__(self, env, save_reward=False, save_interval=100):
+    def __init__(self, env, save_reward=False, save_interval=100, save_path="reward_data.json"):
         super(RewardTrackingWrapper, self).__init__(env)
         self.save_reward = save_reward
         self.save_interval = save_interval
+        self.save_path = save_path
         self.step_count = 0
         if self.save_reward:
             self.reward_history = []
@@ -29,7 +30,7 @@ class RewardTrackingWrapper(gym.Wrapper):
             
             self.step_count += 1
             if self.step_count % self.save_interval == 0:
-                self.save_and_clear()
+                self.save_and_clear(self.save_path)
 
         return obs, reward, terminated, truncated, info
 
@@ -60,7 +61,7 @@ class RewardTrackingWrapper(gym.Wrapper):
     def save_reward_distribution(self, save_path):
         self.save_and_clear(save_path)
 
-    def plot_reward_distribution(self, save_path):
+    def plot_reward_distribution(self, load_path, save_plot_path=None):
         if not self.save_reward:
             return
 
@@ -69,7 +70,7 @@ class RewardTrackingWrapper(gym.Wrapper):
         reward_details_history = []
         termination_reasons = []
 
-        with open(save_path, 'r') as json_file:
+        with open(load_path, 'r') as json_file:
             for line in json_file:
                 reward_distribution = json.loads(line)
                 reward_history.extend(reward_distribution['total_reward'])
@@ -147,8 +148,8 @@ class RewardTrackingWrapper(gym.Wrapper):
 
         plt.tight_layout()
 
-        if save_path:
-            plt.savefig(save_path)
+        if save_plot_path:
+            plt.savefig(save_plot_path)
         else:
             plt.show()
 
