@@ -33,7 +33,7 @@ def main(args, seed):
         checkpoint_path = os.path.abspath(args.checkpoint_path)
         print(f"Loading model from checkpoint: {checkpoint_path}")
         tensorboard_log_dir = os.path.join(args.log_dir, f"{args.log_prefix}_seed_{seed}")
-        
+        reset_num_timesteps = False
         if os.path.exists(f"{checkpoint_path}.zip"):
             pkl_path = f"{checkpoint_path}_vec_normalize.pkl"
             print(f"Loading VecNormalize from: {pkl_path}")
@@ -44,7 +44,7 @@ def main(args, seed):
                 model = PPO.load(checkpoint_path, env=env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
             else:
                 raise ValueError(f"Unsupported algorithm: {args.algo}")
-            reset_num_timesteps = False
+            
         else:
             print(f"Checkpoint path does not exist: {checkpoint_path}")
             return

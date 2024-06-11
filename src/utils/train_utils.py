@@ -165,14 +165,14 @@ class SaveVecNormalizeCallback(BaseCallback):
         if self.n_calls % self.save_freq == 0:
             # Save the model
             # Create unique directories for saving models
-            save_dir, save_prefix = get_unique_directory(self.save_path, f'{self.name_prefix}_{self.n_calls}_steps', '.zip')
+            save_dir, save_prefix = get_unique_directory(self.save_path, f'{self.name_prefix}_{self.num_timesteps}_steps', '.zip')
             path = os.path.join(save_dir, f"{save_prefix}")
             self.model.save(path)
             if self.verbose >= 1:
                 print(f'Saving model checkpoint to {path}')
 
             # Save VecNormalize statistics
-            save_dir, save_prefix = get_unique_directory(self.save_path, f'{self.name_prefix}_{self.n_calls}_steps_vec_normalize', '.pkl')
+            save_dir, save_prefix = get_unique_directory(self.save_path, f'{self.name_prefix}_{self.num_timesteps}_steps_vec_normalize', '.pkl')
             vec_normalize_path = os.path.join(save_dir, f"{save_prefix}")
             self.vec_normalize_env.save(vec_normalize_path)
             if self.verbose >= 1:
