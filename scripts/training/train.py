@@ -11,7 +11,7 @@ import random
 import torch
 from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback, SaveVecNormalizeCallback
-from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed
+from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed, monitor_memory_usage
 from models.wrappers.common import RewardTrackingWrapper
 from models.envs.env_working import SchoolMealSelection
 
@@ -84,7 +84,12 @@ def main(args, seed):
     info_logger_callback = InfoLoggerCallback()
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
     
-    # Continue training from the checkpoint
+    # Start the memory monitoring in a separate thread
+    import threading
+    monitoring_thread = threading.Thread(target=monitor_memory_usage, args=(3,), daemon=True)
+    monitoring_thread.start()
+    
+    
     model.set_logger(new_logger)
     model.learn(total_timesteps=args.total_timesteps, callback=callback, reset_num_timesteps=reset_num_timesteps)
     

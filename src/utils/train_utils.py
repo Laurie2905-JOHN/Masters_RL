@@ -192,6 +192,16 @@ class SaveVecNormalizeEvalCallback(EvalCallback):
                 save_path = os.path.join(self.best_model_save_path, 'vec_normalize_best.pkl')
                 self.vec_normalize_env.save(save_path)
         return result
+    
+import psutil
+import time
+
+def monitor_memory_usage(interval=5):
+    process = psutil.Process(os.getpid())
+    while True:
+        memory_info = process.memory_info()
+        print(f"RSS: {memory_info.rss / (1024 ** 2):.2f} MB, VMS: {memory_info.vms / (1024 ** 2):.2f} MB")
+        time.sleep(interval)
 
 if __name__ == "__main__":
     base, subdir = get_unique_directory("saved_models/tensorboard", "A2C_100000", ".zip")
