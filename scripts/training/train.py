@@ -11,7 +11,7 @@ import random
 import torch
 from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback, SaveVecNormalizeCallback
-from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, get_unique_image_directory, select_device, set_seed
+from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed
 from models.wrappers.common import RewardTrackingWrapper
 from models.envs.env_working import SchoolMealSelection
 
@@ -27,13 +27,46 @@ def main(args, seed):
 
     # Create and normalize vectorized environments with shared reward dictionary
     env = setup_environment(args, seed, ingredient_df)
+    
+    # Initialize or load the model
+    if args.checkpoint_path and args.checkpoint_path.lower() != 'none':
+        checkpoint_path = os.path.abspath(args.checkpoint_path)
+        print(f"Loading model from checkpoint: {checkpoint_path}")
+        tensorboard_log_dir = os.path.join(args.log_dir, f"{args.log_prefix}_seed_{seed}")
+        
+        if os.path.exists(f"{checkpoint_path}.zip"):
+            pkl_path = f"{checkpoint_path}_vec_normalize.pkl"
+            print(f"Loading VecNormalize from: {pkl_path}")
+            env = VecNormalize.load(pkl_path, env)
+            if args.algo == 'A2C':
+                model = A2C.load(checkpoint_path, env=env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+            elif args.algo == 'PPO':
+                model = PPO.load(checkpoint_path, env=env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+            else:
+                raise ValueError(f"Unsupported algorithm: {args.algo}")
+            reset_num_timesteps = False
+        else:
+            print(f"Checkpoint path does not exist: {checkpoint_path}")
+            return
+        
+    else:
+        # Set up TensorBoard logging directory
+        log_dir, log_prefix = get_unique_directory(args.log_dir, f"{args.log_prefix}_seed_{seed}", ".zip")
+        tensorboard_log_dir = os.path.join(log_dir, log_prefix)
+        
+        # Choose the RL algorithm (A2C or PPO)
+        if args.algo == 'A2C':
+            model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+        elif args.algo == 'PPO':
+            model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+        else:
+            raise ValueError(f"Unsupported algorithm: {args.algo}")
+        reset_num_timesteps = True
+        
 
-    # Set up TensorBoard logging directory
-    tensorboard_log_dir = os.path.join(args.log_dir, f"{args.log_prefix}_seed{seed}")
 
-    # Create unique directories for saving models
-    save_dir, save_prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed{seed}")
-    best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed{seed}")
+
+    best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed_{seed}", ".zip")
     best_model_path = os.path.join(best_dir, best_prefix)
     
     # Configure logger for TensorBoard and stdout
@@ -42,56 +75,35 @@ def main(args, seed):
     # Accessing the current formatters to update max_length
     for handler in new_logger.output_formats:
         if isinstance(handler, HumanOutputFormat):
-            handler.max_length = 128
+            handler.max_length = 50
+        
 
     # Set up callbacks for saving checkpoints, evaluating models, and logging additional information
-    checkpoint_callback = SaveVecNormalizeCallback(save_freq=args.save_freq, save_path=save_dir, name_prefix=save_prefix, vec_normalize_env=env)
+    checkpoint_callback = SaveVecNormalizeCallback(save_freq=args.save_freq, save_path=args.save_dir, name_prefix=f"{args.save_prefix}_seed_{seed}", vec_normalize_env=env)
     eval_callback = SaveVecNormalizeEvalCallback(vec_normalize_env=env, eval_env=env, best_model_save_path=best_model_path, eval_freq=args.eval_freq, log_path=tensorboard_log_dir, deterministic=True, render=False)
     info_logger_callback = InfoLoggerCallback()
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
     
-
-    checkpoint_path = os.path.abspath(os.path.join('saved_models', 'checkpoints','SchoolMealSelection-v1_A2C_20000_1env_nutrients_groups_environment_seed3243222545_20000_steps'))
-    pkl_path = os.path.abspath(os.path.join('saved_models', 'checkpoints','SchoolMealSelection-v1_A2C_20000_1env_nutrients_groups_environment_seed3243222545_19000_vec_normalize.pkl'))
-    if os.path.exists(checkpoint_path):
-        # Load the model and VecNormalize from the checkpoint
-        print(f"Loading model from checkpoint: {checkpoint_path}")
-        env = VecNormalize.load(pkl_path, env)
-        if args.algo == 'A2C':
-            model = A2C.load(checkpoint_path, env=env, device=device)
-        elif args.algo == 'PPO':
-            model = PPO.load(checkpoint_path, env=env, device=device)
-    else:
-        # Choose the RL algorithm (A2C or PPO)
-        if args.algo == 'A2C':
-            model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
-        elif args.algo == 'PPO':
-            model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
-        else:
-            raise ValueError(f"Unsupported algorithm: {args.algo}")
-
-    # Set the logger for the model and start training
+    # Continue training from the checkpoint
     model.set_logger(new_logger)
-    model.learn(total_timesteps=args.total_timesteps, callback=callback)
-
+    model.learn(total_timesteps=args.total_timesteps, callback=callback, reset_num_timesteps=reset_num_timesteps)
+    
     # Save the final model and VecNormalize statistics
-    final_save = os.path.join(save_dir, f"{save_prefix}_final.zip")
+    dir, prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed_{seed}_final", ".zip")
+    final_save = os.path.join(dir, prefix)
     model.save(final_save)
-    final_vec_normalize = os.path.join(save_dir, f"{save_prefix}_vec_normalize_final.pkl")
+    
+    dir, prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed_{seed}_vec_normalize_final", ".pkl")
+    final_vec_normalize = os.path.join(dir, prefix)
     env.save(final_vec_normalize)
 
     # Access the underlying RewardTrackingWrapper for saving rewards
-    if args.plot_reward_history: 
-        
+    if args.plot_reward_history:
         # Save reward distribution for each environment in the vectorized environment
         for i, env_instance in enumerate(env.envs):
-                
-            reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed{seed}_env{i}")
-            
+            reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed_{seed}_env{i}", '.json')
             env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
-            
-            reward_prefix_instance = get_unique_image_directory(reward_dir, reward_prefix)
-
+            reward_prefix_instance = get_unique_directory(reward_dir, reward_prefix, '.png')
             env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
 
     del model
@@ -115,9 +127,9 @@ if __name__ == "__main__":
     parser.add_argument("--reward_metrics", type=list, default=['nutrients', 'groups', 'environment'], help="Metrics to give reward for")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
-    parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
+    parser.add_argument("--plot_reward_history", type=bool, default=False, help="Save and plot the reward history for the environment")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=20000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=5000, help="Total number of timesteps for training")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
@@ -128,7 +140,7 @@ if __name__ == "__main__":
     parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
     parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
-    parser.add_argument("--seed", type=list, nargs='+', default=generate_random_seeds(1), help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
+    parser.add_argument("--seed", type=str, default="1610340177", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
     parser.add_argument("--checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
 
@@ -146,14 +158,26 @@ if __name__ == "__main__":
     # Set default log and save directories and prefix if not provided
     if args.log_prefix is None:
         args.log_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env_{metric_str}"
+        args.log_prefix = args.log_prefix.replace('-', '_')
     if args.reward_prefix is None:
         args.reward_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}envs_{metric_str}_reward_data"
+        args.reward_prefix = args.reward_prefix.replace('-', '_')
     if args.save_prefix is None:
         args.save_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env_{metric_str}"
+        args.save_prefix = args.save_prefix.replace('-', '_')
     if args.best_prefix is None:
         args.best_prefix = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env_best_{metric_str}"
-    
+        args.best_prefix = args.best_prefix.replace('-', '_')
+        
+    if args.seed is None:
+        if args.checkpoint_path and args.checkpoint_path.lower() != 'none':
+            raise ValueError("Must provide seed when loading from checkpoint. Choose -1 to begin training from random value")
+        else:
+            args.seed = generate_random_seeds(1)
+    elif args.seed == "-1":
+        args.seed = generate_random_seeds(1)
+    else:
+        args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
+        
     for seed in args.seed:
-        if seed == -1:
-            seed = random.randint(0, 2**32 - 1)
         main(args, seed)

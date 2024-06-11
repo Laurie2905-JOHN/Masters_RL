@@ -275,7 +275,7 @@ if __name__ == '__main__':
     
     max_episode_steps = 1000
     
-    from utils.train_utils import setup_environment, get_unique_directory, get_unique_image_directory
+    from utils.train_utils import setup_environment, get_unique_directory
     
     env = setup_environment(args, seed, ingredient_df)
 
@@ -315,6 +315,6 @@ if __name__ == '__main__':
             
             env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
             
-            reward_prefix_instance = get_unique_image_directory(reward_dir, reward_prefix)
+            reward_prefix_instance = get_unique_directory(reward_dir, reward_prefix, '.png')
 
             env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))

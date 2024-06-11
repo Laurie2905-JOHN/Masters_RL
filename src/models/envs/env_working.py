@@ -412,11 +412,11 @@ if __name__ == '__main__':
     
     seed = 42
  
-    num_episodes = 10000
+    num_episodes = 100
     
     max_episode_steps = 1000
     
-    from utils.train_utils import setup_environment, get_unique_directory, get_unique_image_directory
+    from utils.train_utils import setup_environment, get_unique_directory
     
     env = setup_environment(args, seed, ingredient_df)
 
@@ -452,10 +452,10 @@ if __name__ == '__main__':
         # Save reward distribution for each environment in the vectorized environment
         for i, env_instance in enumerate(env.envs):
                 
-            reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}")
+            reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}",'.json')
             
             env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
             
-            reward_prefix_instance = get_unique_image_directory(reward_dir, reward_prefix)
+            reward_dir, reward_prefix_instance = get_unique_directory(reward_dir, reward_prefix, '.png')
 
             env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))

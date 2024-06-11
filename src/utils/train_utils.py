@@ -8,7 +8,7 @@ import torch
 from gymnasium.wrappers import TimeLimit
 # from models.envs.env import SchoolMealSelection
 from models.envs.env_working import SchoolMealSelection
-
+import os
 
 from models.wrappers.common import RewardTrackingWrapper
 
@@ -56,40 +56,30 @@ def setup_environment(args, seed, ingredient_df):
 def generate_random_seeds(n):
     return [random.randint(0, 2**32 - 1) for _ in range(n)]
 
-def get_unique_directory(directory, base_name):
-    """
-    Generate a unique directory name in the given directory by appending a suffix if necessary.
-    """
-    unique_dir = os.path.join(directory, base_name)
-    counter = 1
 
-    while os.path.exists(unique_dir):
-        unique_dir = os.path.join(directory, f"{base_name} ({counter})")
-        counter += 1
-    
-    dir_path = os.path.abspath(unique_dir)
-    base_path = os.path.dirname(dir_path)
-    unique_subdir = os.path.basename(dir_path)
 
-    return base_path, unique_subdir
-
-def get_unique_image_directory(directory, base_name):
+def get_unique_directory(directory, base_name, file_extension):
     """
-    Generate a unique filename with a .png extension in the given directory by appending a suffix if necessary.
+    Generate a unique filename with a given extension in the given directory by appending a suffix if necessary.
     """
-    base_name = base_name.rstrip('.png')  # Ensure base_name does not already end with .png
-    unique_filename = os.path.join(directory, base_name + '.png')
+    base_name = base_name.removesuffix('.zip')  # Ensure base_name does not already end with any specified extensions
+    base_name = base_name.removesuffix('.json')
+    base_name = base_name.removesuffix('.png')
+    base_name = base_name.removesuffix('.pkl')
+    unique_filename = os.path.join(directory, base_name + file_extension)
     counter = 1
 
     while os.path.exists(unique_filename):
-        unique_filename = os.path.join(directory, f"{base_name} ({counter}).png")
+        unique_filename = os.path.join(directory, f"{base_name}_({counter}){file_extension}")
         counter += 1
 
     file_path = os.path.abspath(unique_filename)
     base_path = os.path.dirname(file_path)
     unique_file = os.path.basename(file_path)
 
-    return unique_file
+    return base_path, unique_file
+
+
 
 def run_episodes(env, num_episodes, steps_per_episode):
     successful_terminations = 0
@@ -147,6 +137,7 @@ def set_seed(seed, device):
             torch.cuda.manual_seed_all(seed)
 
 
+        
 class InfoLoggerCallback(BaseCallback):
     def __init__(self, verbose=0):
         super(InfoLoggerCallback, self).__init__(verbose)
@@ -163,7 +154,7 @@ class InfoLoggerCallback(BaseCallback):
         return True
 
 class SaveVecNormalizeCallback(BaseCallback):
-    def __init__(self, save_freq, save_path, name_prefix, vec_normalize_env, verbose=0):
+    def __init__(self, save_freq, save_path, name_prefix, vec_normalize_env, verbose=1):
         super(SaveVecNormalizeCallback, self).__init__(verbose)
         self.save_freq = save_freq
         self.save_path = save_path
@@ -173,15 +164,18 @@ class SaveVecNormalizeCallback(BaseCallback):
     def _on_step(self) -> bool:
         if self.n_calls % self.save_freq == 0:
             # Save the model
-            path = os.path.join(self.save_path, f'{self.name_prefix}_{self.n_calls}_steps.zip')
+            # Create unique directories for saving models
+            save_dir, save_prefix = get_unique_directory(self.save_path, f'{self.name_prefix}_{self.n_calls}_steps', '.zip')
+            path = os.path.join(save_dir, f"{save_prefix}")
             self.model.save(path)
-            if self.verbose > 1:
+            if self.verbose >= 1:
                 print(f'Saving model checkpoint to {path}')
 
             # Save VecNormalize statistics
-            vec_normalize_path = os.path.join(self.save_path, f'{self.name_prefix}_{self.n_calls}_vec_normalize.pkl')
+            save_dir, save_prefix = get_unique_directory(self.save_path, f'{self.name_prefix}_{self.n_calls}_steps_vec_normalize', '.pkl')
+            vec_normalize_path = os.path.join(save_dir, f"{save_prefix}")
             self.vec_normalize_env.save(vec_normalize_path)
-            if self.verbose > 1:
+            if self.verbose >= 1:
                 print(f'Saving VecNormalize statistics to {vec_normalize_path}')
 
         return True
@@ -200,7 +194,7 @@ class SaveVecNormalizeEvalCallback(EvalCallback):
         return result
 
 if __name__ == "__main__":
-    base, subdir = get_unique_directory("saved_models/tensorboard", "A2C_100000")
+    base, subdir = get_unique_directory("saved_models/tensorboard", "A2C_100000", ".zip")
     print(f"Base Directory: {base}")
     print(f"Unique Subdirectory: {subdir}")
     print(os.path.abspath('saved_models/best_models'))

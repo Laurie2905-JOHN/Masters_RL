@@ -141,7 +141,7 @@ def plot_results(predictions, ingredient_df, env):
     
     
 class Args:
-    reward_func = 'reward_nutrient_macro_and_groups'
+    reward_metrics=['nutrients', 'groups', 'environment']
     render_mode = None
     num_envs = 1
     plot_reward_history=False
@@ -150,7 +150,7 @@ def main():
     
     args = Args()
     
-    from utils.train_utils import setup_environment, get_unique_directory, get_unique_image_directory
+    from utils.train_utils import setup_environment, get_unique_directory
     
     # Setup environment and other configurations
     ingredient_df = get_data()
@@ -161,13 +161,13 @@ def main():
     env = setup_environment(args, seed, ingredient_df)
 
     # Load normalization statistics
-    norm_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_1000000_3env_best_seed814108005/vec_normalize_best.pkl")
+    norm_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_2000000_1env_best_nutrients_groups_environment_seed2754945570/vec_normalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
     env.training = False
     env.norm_reward = False
 
     # Load the saved agent
-    model_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_1000000_3env_best_seed814108005/best_model.zip")
+    model_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_2000000_1env_best_nutrients_groups_environment_seed2754945570/best_model.zip")
     model = A2C.load(model_path, env=env)
 
     # Number of episodes to evaluate
@@ -187,11 +187,11 @@ def main():
         # Save reward distribution for each environment in the vectorized environment
         for i, env_instance in enumerate(env.envs):
                 
-            reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}")
+            reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}", '.json')
             
             env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
             
-            reward_prefix_instance = get_unique_image_directory(reward_dir, reward_prefix)
+            reward_prefix_instance = get_unique_directory(reward_dir, reward_prefix, '.png')
 
             env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
 
