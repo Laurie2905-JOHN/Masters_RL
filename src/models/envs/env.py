@@ -429,14 +429,14 @@ if __name__ == '__main__':
     class Args:
         reward_metrics = ['nutrients', 'groups', 'environment', 'consumption', 'cost']
         render_mode = None
-        num_envs = 1
+        num_envs = 2
         plot_reward_history = True
 
     ingredient_df = get_data()
 
     args = Args()
     seed = 42
-    num_episodes = 10000
+    num_episodes = 500
     max_episode_steps = 1000
 
     env = setup_environment(args, seed, ingredient_df)
@@ -444,7 +444,7 @@ if __name__ == '__main__':
 
     print("Environment is valid!")
 
-    np.set_printoptions(suppress=True)
+    np.set_printoptions(suppress=True) 
 
     # Start the memory monitoring in a separate thread
     import threading
