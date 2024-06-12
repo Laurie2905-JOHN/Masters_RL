@@ -34,9 +34,8 @@ def set_seed(seed, device):
             torch.cuda.manual_seed_all(seed)
 
 
-
 # Function to set up the environment
-def setup_environment(args, seed, ingredient_df):
+def setup_environment(args, seed, ingredient_df, reward_save_path=None):
     
     def make_env():
         env = SchoolMealSelection(
@@ -47,7 +46,14 @@ def setup_environment(args, seed, ingredient_df):
         
         # Apply the RewardTrackingWrapper if needed
         if args.plot_reward_history:
-            env = RewardTrackingWrapper(env, save_reward=True)
+            if reward_save_path is None:
+                raise ValueError("reward_save_path must be specified when plot_reward_history is True")
+            env = RewardTrackingWrapper(
+                env,
+                save_reward=True,
+                reward_save_path=reward_save_path,
+                save_interval=1000
+                )
         
         # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode
         env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
@@ -55,6 +61,7 @@ def setup_environment(args, seed, ingredient_df):
         return env
 
     env = make_vec_env(make_env, n_envs=args.num_envs, seed=seed)
+    
     return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
     
@@ -160,7 +167,7 @@ class InfoLoggerCallback(BaseCallback):
         return True
 
 class SaveVecNormalizeCallback(BaseCallback):
-    def __init__(self, save_freq, save_path, name_prefix, vec_normalize_env, verbose=1):
+    def __init__(self, save_freq, save_path, name_prefix, vec_normalize_env, verbose=0):
         super(SaveVecNormalizeCallback, self).__init__(verbose)
         self.save_freq = save_freq
         self.save_path = save_path

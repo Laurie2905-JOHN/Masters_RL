@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 import os
 
 class RewardTrackingWrapper(gym.Wrapper):
-    def __init__(self, env, save_reward=False, save_interval=100, save_path="reward_data.json"):
+    def __init__(self, env, save_reward=False, save_interval=1000, reward_save_path=None):
         super(RewardTrackingWrapper, self).__init__(env)
         self.save_reward = save_reward
         self.save_interval = save_interval
-        self.save_path = save_path
+        self.reward_save_path = reward_save_path
         self.step_count = 0
         if self.save_reward:
             self.reward_history = []
@@ -29,19 +29,15 @@ class RewardTrackingWrapper(gym.Wrapper):
                 self.termination_reasons.append(reason)
             
             self.step_count += 1
-            if self.step_count % self.save_interval == 0:
-                self.save_and_clear(self.save_path)
+            if self.step_count % self.save_interval == 0 and self.reward_save_path:
+                self.save_and_clear(self.reward_save_path)
 
         return obs, reward, terminated, truncated, info
 
     def reset(self, **kwargs):
-        if self.save_reward and self.termination_reasons:
-            last_reason = self.termination_reasons[-1]
-            if last_reason is None:
-                self.termination_reasons[-1] = 'end_of_episode'
         return self.env.reset(**kwargs)
 
-    def save_and_clear(self, save_path):
+    def save_and_clear(self, reward_save_path):
         if self.save_reward:
             reason_str = [self._reason_to_string(val) for val in self.termination_reasons]
             reward_distribution = {
@@ -49,17 +45,16 @@ class RewardTrackingWrapper(gym.Wrapper):
                 'reward_details': self.reward_details_history,
                 'termination_reasons': reason_str
             }
-            with open(save_path, 'a') as json_file:
-                json.dump(reward_distribution, json_file, indent=4)
-                json_file.write('\n')  # Ensure new data starts on a new line
+            with open(reward_save_path, 'a') as json_file:
+                json_file.write(json.dumps(reward_distribution) + '\n')
 
             # Clear the in-memory storage
             self.reward_history.clear()
             self.reward_details_history.clear()
             self.termination_reasons.clear()
 
-    def save_reward_distribution(self, save_path):
-        self.save_and_clear(save_path)
+    def save_reward_distribution(self, reward_save_path):
+        self.save_and_clear(reward_save_path)
 
     def plot_reward_distribution(self, load_path, save_plot_path=None):
         if not self.save_reward:
@@ -72,10 +67,13 @@ class RewardTrackingWrapper(gym.Wrapper):
 
         with open(load_path, 'r') as json_file:
             for line in json_file:
-                reward_distribution = json.loads(line)
-                reward_history.extend(reward_distribution['total_reward'])
-                reward_details_history.extend(reward_distribution['reward_details'])
-                termination_reasons.extend(reward_distribution['termination_reasons'])
+                try:
+                    reward_distribution = json.loads(line)
+                    reward_history.extend(reward_distribution['total_reward'])
+                    reward_details_history.extend(reward_distribution['reward_details'])
+                    termination_reasons.extend(reward_distribution['termination_reasons'])
+                except json.JSONDecodeError:
+                    continue
 
         reason_str = termination_reasons
 
@@ -178,3 +176,4 @@ class RewardTrackingWrapper(gym.Wrapper):
             return 'targets_far_off'
         else:
             return 'unknown_reason'
+

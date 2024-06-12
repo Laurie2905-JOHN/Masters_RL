@@ -1,14 +1,10 @@
-#!/usr/bin/env python
-import gymnasium as gym
-from stable_baselines3 import A2C, PPO
-from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
-from stable_baselines3.common.logger import configure, HumanOutputFormat
-from stable_baselines3.common.vec_env import VecNormalize
-from stable_baselines3.common.env_util import make_vec_env
 import os
 import argparse
-import random
-import torch
+import gymnasium as gym
+from stable_baselines3 import A2C, PPO
+from stable_baselines3.common.vec_env import VecNormalize
+from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
+from stable_baselines3.common.logger import configure, HumanOutputFormat
 from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback, SaveVecNormalizeCallback
 from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed, monitor_memory_usage
@@ -24,9 +20,15 @@ def main(args, seed):
 
     # Load data required for environment setup
     ingredient_df = get_data()
+    
+    if args.plot_reward_history:
+        reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed_{seed}_env", '.json')
+        reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
+    else:
+        reward_save_path = None
 
     # Create and normalize vectorized environments with shared reward dictionary
-    env = setup_environment(args, seed, ingredient_df)
+    env = setup_environment(args, seed, ingredient_df, reward_save_path)
     
     # Initialize or load the model
     if args.checkpoint_path and args.checkpoint_path.lower() != 'none':
@@ -62,10 +64,7 @@ def main(args, seed):
         else:
             raise ValueError(f"Unsupported algorithm: {args.algo}")
         reset_num_timesteps = True
-        
-
-
-
+ 
     best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed_{seed}", ".zip")
     best_model_path = os.path.join(best_dir, best_prefix)
     
@@ -89,7 +88,6 @@ def main(args, seed):
     monitoring_thread = threading.Thread(target=monitor_memory_usage, args=(3,), daemon=True)
     monitoring_thread.start()
     
-    
     model.set_logger(new_logger)
     model.learn(total_timesteps=args.total_timesteps, callback=callback, reset_num_timesteps=reset_num_timesteps)
     
@@ -104,18 +102,19 @@ def main(args, seed):
 
     # Access the underlying RewardTrackingWrapper for saving rewards
     if args.plot_reward_history:
-        # Save reward distribution for each environment in the vectorized environment
-        for i, env_instance in enumerate(env.envs):
-            reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed_{seed}_env{i}", '.json')
-            env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
-            reward_prefix_instance = get_unique_directory(reward_dir, reward_prefix, '.png')
-            env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
-
-    del model
+        # Save reward distribution
+        # Plotting data from all envs though as they agregate to the same file
+        reward_prefix = reward_prefix.split(".")[0]
+        dir, pref = get_unique_directory(args.reward_dir, f"{reward_prefix}_plot", '.png')
+        plot_path = os.path.abspath(os.path.join(dir, pref))
+        env.envs[0].plot_reward_distribution(reward_save_path, plot_path)
+            
+    del model, env
 
     # Load the model and VecNormalize to verify they have saved correctly
     try:
-        env = setup_environment(args, seed, ingredient_df)
+        env = setup_environment(args, seed, ingredient_df, reward_save_path)
+        
         env = VecNormalize.load(final_vec_normalize, env)
 
         if args.algo == 'A2C':
@@ -124,17 +123,17 @@ def main(args, seed):
             model = PPO.load(final_save, env=env)
     except Exception as e:
         print(f"Error loading model: {e}")
-
+        
 # Entry point of the script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
     parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v1', help="Name of the environment")
-    parser.add_argument("--reward_metrics", type=list, default=['nutrients', 'groups', 'environment'], help="Metrics to give reward for")
+    parser.add_argument("--reward_metrics", type=list, default=['nutrients', 'groups', 'environment', 'cost', 'consumption'], help="Metrics to give reward for")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
-    parser.add_argument("--num_envs", type=int, default=2, help="Number of parallel environments")
-    parser.add_argument("--plot_reward_history", type=bool, default=False, help="Save and plot the reward history for the environment")
-    parser.add_argument("--render_mode", type=str, default="episode", help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=100000, help="Total number of timesteps for training")
+    parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
+    parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
+    parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
+    parser.add_argument("--total_timesteps", type=int, default=20000, help="Total number of timesteps for training")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
@@ -145,7 +144,7 @@ if __name__ == "__main__":
     parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
     parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
-    parser.add_argument("--seed", type=str, default="1610340177", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
+    parser.add_argument("--seed", type=str, default="1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
     parser.add_argument("--checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
     parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
@@ -186,3 +185,5 @@ if __name__ == "__main__":
         
     for seed in args.seed:
         main(args, seed)
+        
+
