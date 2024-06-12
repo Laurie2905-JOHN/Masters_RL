@@ -8,8 +8,8 @@ python "scripts/training/train.py" \
   --save_freq=1000 \
   --eval_freq=1000 \
   --device="cuda" \
-  --checkpoint_path="saved_models/checkpoints/SchoolMealSelection_v1_A2C_10000_1env_nutrients_groups_environment_seed_1610340177_15000_steps" \
-  --seed="[1610340177]"
+  # --checkpoint_path="saved_models/checkpoints/SchoolMealSelection_v1_A2C_10000_1env_nutrients_groups_environment_seed_1610340177_15000_steps" \
+  # --seed="[1610340177]"
 
 
 

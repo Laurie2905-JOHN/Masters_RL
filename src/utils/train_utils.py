@@ -5,13 +5,14 @@ import random
 from stable_baselines3.common.vec_env import VecNormalize
 from stable_baselines3.common.env_util import make_vec_env
 import torch
-from gymnasium.wrappers import TimeLimit
 # from models.envs.env import SchoolMealSelection
 from models.envs.env_working import SchoolMealSelection
 import os
 
 from models.wrappers.common import RewardTrackingWrapper
 
+import gymnasium as gym
+from gymnasium.wrappers import TimeLimit
 
 # Function to select the appropriate device (CPU or GPU)
 def select_device(args):
@@ -32,6 +33,8 @@ def set_seed(seed, device):
         if device == "cuda":
             torch.cuda.manual_seed_all(seed)
 
+
+
 # Function to set up the environment
 def setup_environment(args, seed, ingredient_df):
     
@@ -45,6 +48,9 @@ def setup_environment(args, seed, ingredient_df):
         # Apply the RewardTrackingWrapper if needed
         if args.plot_reward_history:
             env = RewardTrackingWrapper(env, save_reward=True)
+        
+        # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode
+        env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
         
         return env
 
