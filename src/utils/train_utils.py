@@ -35,7 +35,7 @@ def set_seed(seed, device):
 
 
 # Function to set up the environment
-def setup_environment(args, seed, ingredient_df, reward_save_path=None):
+def setup_environment(args, seed, ingredient_df, reward_save_interval=2500, reward_save_path=None):
     
     def make_env():
         env = SchoolMealSelection(
@@ -52,7 +52,7 @@ def setup_environment(args, seed, ingredient_df, reward_save_path=None):
                 env,
                 save_reward=True,
                 reward_save_path=reward_save_path,
-                save_interval=1000
+                save_interval=reward_save_interval
                 )
         
         # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode

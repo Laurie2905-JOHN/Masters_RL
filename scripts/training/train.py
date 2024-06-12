@@ -28,7 +28,7 @@ def main(args, seed):
         reward_save_path = None
 
     # Create and normalize vectorized environments with shared reward dictionary
-    env = setup_environment(args, seed, ingredient_df, reward_save_path)
+    env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path)
     
     # Initialize or load the model
     if args.checkpoint_path and args.checkpoint_path.lower() != 'none':
@@ -131,10 +131,10 @@ if __name__ == "__main__":
     parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v1', help="Name of the environment")
     parser.add_argument("--reward_metrics", type=list, default=['nutrients', 'groups', 'environment', 'cost', 'consumption'], help="Metrics to give reward for")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
-    parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
+    parser.add_argument("--num_envs", type=int, default=2, help="Number of parallel environments")
     parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=20000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=500000, help="Total number of timesteps for training")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
@@ -149,7 +149,9 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
     parser.add_argument("--checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
     parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
-    parser.add_argument("--memory_monitor", type=bool, default=False, help="Monitor memory usage during training")
+    parser.add_argument("--memory_monitor", type=bool, default=True, help="Monitor memory usage during training")
+    parser.add_argument("--reward_save_interval", type=int, default=2500, help="Number of timestep between saving reward data")
+    
     args = parser.parse_args()
     
     metric_str = ""
