@@ -132,7 +132,7 @@ if __name__ == "__main__":
     parser.add_argument("--reward_metrics", type=list, default=['nutrients', 'groups', 'environment', 'cost', 'consumption'], help="Metrics to give reward for")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=2, help="Number of parallel environments")
-    parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
+    parser.add_argument("--plot_reward_history", type=bool, default=False, help="Save and plot the reward history for the environment")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
     parser.add_argument("--total_timesteps", type=int, default=500000, help="Total number of timesteps for training")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")

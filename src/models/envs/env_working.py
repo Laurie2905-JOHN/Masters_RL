@@ -391,6 +391,7 @@ if __name__ == '__main__':
         render_mode = None
         num_envs = 1
         plot_reward_history = False
+        max_episode_steps = 1000
 
     ingredient_df = get_data()
     
@@ -404,37 +405,27 @@ if __name__ == '__main__':
     
     print("Environment is valid!")
 
-    # np.set_printoptions(suppress=True)
+    np.set_printoptions(suppress=True)
 
-    # # Start the memory monitoring in a separate thread
-    # import threading
-    # monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
-    # monitoring_thread.start()
+    # Start the memory monitoring in a separate thread
+    import threading
+    monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
+    monitoring_thread.start()
 
-    # for episode in range(num_episodes):
-    #     obs = env.reset()
-    #     if episode % 100 == 0:
-    #         print(f"Episode {episode + 1}")
+    for episode in range(num_episodes):
+        obs = env.reset()
+        if episode % 100 == 0:
+            print(f"Episode {episode + 1}")
 
-    #     for step in range(max_episode_steps):
-    #         action = env.action_space.sample()
-    #         obs, rewards, dones, infos = env.step(action)
+        for step in range(max_episode_steps):
+            action = env.action_space.sample()
+            obs, rewards, dones, infos = env.step(action)
             
-    #         # VecEnv will return arrays of values
-    #         terminated = dones[0]
-    #         truncated = infos[0].get('TimeLimit.truncated', False)
-    #         targets_met = infos[0].get('all_targets_met', False)
+            # VecEnv will return arrays of values
+            terminated = dones[0]
+            truncated = infos[0].get('TimeLimit.truncated', False)
+            targets_met = infos[0].get('all_targets_met', False)
             
 
-    #         if terminated or truncated:
-    #             break
-
-    # # Access the underlying RewardTrackingWrapper for saving rewards
-    # if args.plot_reward_history: 
-    #     reward_dir = os.path.abspath(os.path.join('saved_models', 'reward'))
-    #     reward_prefix = "test"
-    #     for i, env_instance in enumerate(env.envs):
-    #         reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}",'.json')
-    #         env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
-    #         reward_dir, reward_prefix_instance = get_unique_directory(reward_dir, reward_prefix, '.png')
-    #         env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
+            if terminated or truncated:
+                break
