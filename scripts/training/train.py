@@ -83,10 +83,11 @@ def main(args, seed):
     info_logger_callback = InfoLoggerCallback()
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
     
-    # Start the memory monitoring in a separate thread
-    import threading
-    monitoring_thread = threading.Thread(target=monitor_memory_usage, args=(3,), daemon=True)
-    monitoring_thread.start()
+    if args.memory_monitor:
+        # Start the memory monitoring in a separate thread
+        import threading
+        monitoring_thread = threading.Thread(target=monitor_memory_usage, args=(3,), daemon=True)
+        monitoring_thread.start()
     
     model.set_logger(new_logger)
     model.learn(total_timesteps=args.total_timesteps, callback=callback, reset_num_timesteps=reset_num_timesteps)
@@ -148,6 +149,7 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
     parser.add_argument("--checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
     parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
+    parser.add_argument("--memory_monitor", type=bool, default=False, help="Monitor memory usage during training")
     args = parser.parse_args()
     
     metric_str = ""
