@@ -31,8 +31,8 @@ def main(args, seed):
     env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path)
     
     # Initialize or load the model
-    if args.checkpoint_path and args.checkpoint_path.lower() != 'none':
-        checkpoint_path = os.path.abspath(args.checkpoint_path)
+    if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':
+        checkpoint_path = os.path.abspath(args.pretrained_checkpoint_path)
         print(f"Loading model from checkpoint: {checkpoint_path}")
         tensorboard_log_dir = os.path.join(args.log_dir, f"{args.log_prefix}_seed_{seed}")
         reset_num_timesteps = False
@@ -114,7 +114,7 @@ def main(args, seed):
 
     # Load the model and VecNormalize to verify they have saved correctly
     try:
-        env = setup_environment(args, seed, ingredient_df, reward_save_path)
+        env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path)
         
         env = VecNormalize.load(final_vec_normalize, env)
 
@@ -129,29 +129,29 @@ def main(args, seed):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
     parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v1', help="Name of the environment")
-    parser.add_argument("--reward_metrics", type=list, default=['nutrients', 'groups', 'environment', 'cost', 'consumption'], help="Metrics to give reward for")
+    parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=2, help="Number of parallel environments")
-    parser.add_argument("--plot_reward_history", type=bool, default=False, help="Save and plot the reward history for the environment")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=500000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=20000, help="Total number of timesteps for training")
+    parser.add_argument("--reward_metrics", type=list, default=['nutrients', 'groups', 'environment', 'cost', 'consumption'], help="Metrics to give reward for")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
     parser.add_argument("--save_prefix", type=str, default=None, help="Prefix for saved model files")
+    parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")
     parser.add_argument("--best_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'best_models')), help="Directory for best model")
     parser.add_argument("--best_prefix", type=str, default=None, help="Prefix for saving best model")
     parser.add_argument("--reward_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'reward')), help="Directory to save reward data")
     parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
-    parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")
+    parser.add_argument("--reward_save_interval", type=int, default=1000, help="Number of timestep between saving reward data")
+    parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
     parser.add_argument("--seed", type=str, default="-1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
-    parser.add_argument("--checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
-    parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
-    parser.add_argument("--memory_monitor", type=bool, default=True, help="Monitor memory usage during training")
-    parser.add_argument("--reward_save_interval", type=int, default=2500, help="Number of timestep between saving reward data")
-    
+    parser.add_argument("--memory_monitor", type=bool, default=False, help="Monitor memory usage during training")
+    parser.add_argument("--pretrained_checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
+
     args = parser.parse_args()
     
     metric_str = ""
@@ -178,7 +178,7 @@ if __name__ == "__main__":
         args.best_prefix = args.best_prefix.replace('-', '_')
         
     if args.seed is None:
-        if args.checkpoint_path and args.checkpoint_path.lower() != 'none':
+        if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':
             raise ValueError("Must provide seed when loading from checkpoint. Choose -1 to begin training from random value")
         else:
             args.seed = generate_random_seeds(1)
