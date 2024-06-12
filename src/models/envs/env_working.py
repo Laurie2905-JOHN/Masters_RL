@@ -146,8 +146,6 @@ class SchoolMealSelection(gym.Env):
         )
 
         self.current_selection = np.zeros(self.n_ingredients)
-
-        self.termination_reasons = []
         
         self.termination_reason = None
         
@@ -165,7 +163,6 @@ class SchoolMealSelection(gym.Env):
         step_penalty = -1  # Negative reward for each step taken
         reward = 0
         terminated = False
-        
         
         
         # Calculate the total values for each nutritional category for the selected ingredients
@@ -331,14 +328,12 @@ class SchoolMealSelection(gym.Env):
         reward, info, terminated = self.calculate_reward()  # Use the stored reward function
 
         obs = self._get_obs()
-
-        if terminated:            
-            self.termination_reasons.append(self.termination_reason)
             
-        if self.render_mode == 'human':
-            self.render(step=len(self.termination_reasons))
+        if self.render_mode is not None:
+            pass
             
         info = self._get_info()
+        
         return obs, reward, terminated, False, info
     
     def _get_obs(self):
@@ -378,17 +373,11 @@ class SchoolMealSelection(gym.Env):
         if self.render_mode == 'step':
             if step is not None:
                 print(f"Step: {step}")
+        if self.render_mode == "episode":
+            print(f"Episode: {self.episode_count}")
 
     def close(self):
         pass
-
-from gymnasium.envs.registration import register
-
-register(
-    id='SchoolMealSelection-v1',
-    entry_point='models.envs.env_working:SchoolMealSelection',
-    max_episode_steps=1000,
-)
 
 
 if __name__ == '__main__':
@@ -415,36 +404,37 @@ if __name__ == '__main__':
     
     print("Environment is valid!")
 
-    np.set_printoptions(suppress=True)
+    # np.set_printoptions(suppress=True)
 
-    # Start the memory monitoring in a separate thread
-    import threading
-    monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
-    monitoring_thread.start()
+    # # Start the memory monitoring in a separate thread
+    # import threading
+    # monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
+    # monitoring_thread.start()
 
-    for episode in range(num_episodes):
-        obs = env.reset()
-        if episode % 100 == 0:
-            print(f"Episode {episode + 1}")
+    # for episode in range(num_episodes):
+    #     obs = env.reset()
+    #     if episode % 100 == 0:
+    #         print(f"Episode {episode + 1}")
 
-        for step in range(max_episode_steps):
-            action = env.action_space.sample()
-            obs, rewards, dones, infos = env.step(action)
+    #     for step in range(max_episode_steps):
+    #         action = env.action_space.sample()
+    #         obs, rewards, dones, infos = env.step(action)
             
-            # VecEnv will return arrays of values
-            terminated = dones[0]
-            truncated = infos[0].get('TimeLimit.truncated', False)
-            targets_met = infos[0].get('all_targets_met', False)
-                
-            if terminated or truncated:
-                break
+    #         # VecEnv will return arrays of values
+    #         terminated = dones[0]
+    #         truncated = infos[0].get('TimeLimit.truncated', False)
+    #         targets_met = infos[0].get('all_targets_met', False)
+            
 
-    # Access the underlying RewardTrackingWrapper for saving rewards
-    if args.plot_reward_history: 
-        reward_dir = os.path.abspath(os.path.join('saved_models', 'reward'))
-        reward_prefix = "test"
-        for i, env_instance in enumerate(env.envs):
-            reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}",'.json')
-            env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
-            reward_dir, reward_prefix_instance = get_unique_directory(reward_dir, reward_prefix, '.png')
-            env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
+    #         if terminated or truncated:
+    #             break
+
+    # # Access the underlying RewardTrackingWrapper for saving rewards
+    # if args.plot_reward_history: 
+    #     reward_dir = os.path.abspath(os.path.join('saved_models', 'reward'))
+    #     reward_prefix = "test"
+    #     for i, env_instance in enumerate(env.envs):
+    #         reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}",'.json')
+    #         env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
+    #         reward_dir, reward_prefix_instance = get_unique_directory(reward_dir, reward_prefix, '.png')
+    #         env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))

@@ -131,10 +131,10 @@ if __name__ == "__main__":
     parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v1', help="Name of the environment")
     parser.add_argument("--reward_metrics", type=list, default=['nutrients', 'groups', 'environment'], help="Metrics to give reward for")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
-    parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
+    parser.add_argument("--num_envs", type=int, default=2, help="Number of parallel environments")
     parser.add_argument("--plot_reward_history", type=bool, default=False, help="Save and plot the reward history for the environment")
-    parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=5000, help="Total number of timesteps for training")
+    parser.add_argument("--render_mode", type=str, default="episode", help="Render mode for the environment")
+    parser.add_argument("--total_timesteps", type=int, default=100000, help="Total number of timesteps for training")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=str, default="1610340177", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
     parser.add_argument("--checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
-
+    parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
     args = parser.parse_args()
     
     metric_str = ""
