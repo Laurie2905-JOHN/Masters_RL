@@ -5,10 +5,10 @@ import psutil
 
 # List of different number of environments to test
 num_envs_list = []
-for i in range(1, 50):
+for i in range(10, 50):
     num_envs_list.append(i)
     
-num_repeats = 10
+num_repeats = 2
 
 # Results storage
 results = []
@@ -18,13 +18,13 @@ base_args = [
     "python", "scripts/training/train.py",
     "--env_name", "SchoolMealSelection-v1",
     "--algo", "A2C",
-    "--total_timesteps", "150000",
+    "--total_timesteps", "15000",
     "--save_freq", "1000",
     "--eval_freq", "1000",
     "--seed", "1",
     "--max_episode_steps", "1000",
     "--memory_monitor", "True",
-    "--reward_save_interval", "2500"
+    "--reward_save_interval", "100",
     "--save_prefix", "test_" + str(time.time())
 ]
 
