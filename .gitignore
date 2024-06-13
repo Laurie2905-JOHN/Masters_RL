@@ -165,13 +165,13 @@ cython_debug/
 saved_models/*
 
 # Do not ignore the best_models directory
-!saved_models/best_models/
-
-# Do not ignore tensorboard
-!saved_models/tensorboard/
+# !saved_models/best_models/
 
 # Do not ignore the hpc_output directory
 !saved_models/hpc_output/
+
+# Do not ignore evaluation_models
+!saved_models/evaluation_models
 
 # Filetypes
 *.dat
