@@ -20,154 +20,160 @@ def evaluate_model(model, env, num_episodes=10):
             obs, reward, done, info = env.step(action)
             info = info[0]
 
-            if done:    
+            if done:
                 episode_predictions.append((
-                    obs, action, reward,
-                    info['nutrient_averages']['calories'],
-                    info['nutrient_averages']['fat'],
-                    info['nutrient_averages']['saturates'],
-                    info['nutrient_averages']['carbs'],
-                    info['nutrient_averages']['sugar'],
-                    info['nutrient_averages']['fibre'],
-                    info['nutrient_averages']['protein'],
-                    info['nutrient_averages']['salt'],
-                    info['current_selection']
+                    info['nutrient_averages'],           # Dictionary of nutrient averages
+                    info['ingredient_group_count'],      # Dictionary of ingredient group counts
+                    info['ingredient_environment_count'],# Dictionary of environment counts
+                    info['consumption_average'],         # Dictionary of consumption averages
+                    info['cost'],                        # Cost
+                    info['reward'],                      # Reward dictionary
+                    info['current_selection']            # Current selection array
                 ))
         
         predictions.append(episode_predictions)
     
     return predictions
 
-def plot_results(predictions, ingredient_df, env):
+def average_dicts(dicts):
+    keys = dicts[0].keys()
+    return {key: np.mean([d[key] for d in dicts]) for key in keys}
+
+def plot_results(predictions, ingredient_df, num_episodes):
     """Plot the results from the predictions."""
-    observations, _, rewards, average_calories, average_fat, average_saturates, average_carbs, average_sugar, average_fibre, average_protein, average_salt, current_selection = zip(*[pred for episode in predictions for pred in episode])
+    # Flatten the predictions list
+    flattened_predictions = [pred for episode in predictions for pred in episode]
 
-    # Ensure rewards are not None and convert to numpy arrays
-    rewards = np.array(rewards).flatten()
-    
-    observations = np.array(observations)
-    average_calories = np.array(average_calories)
-    average_fat = np.array(average_fat)
-    average_saturates = np.array(average_saturates)
-    average_carbs = np.array(average_carbs)
-    average_sugar = np.array(average_sugar)
-    average_fibre = np.array(average_fibre)
-    average_protein = np.array(average_protein)
-    average_salt = np.array(average_salt)
-    current_selection = np.array(current_selection)
+    # Unpack the flattened predictions
+    nutrient_averages, ingredient_group_counts, ingredient_environment_counts, consumption_averages, costs, rewards, current_selections = zip(*flattened_predictions)
 
-    print("Average Calories:", average_calories)
-    print("Current Selection:", current_selection)
+    # Aggregate the dictionaries by averaging their values
+    avg_nutrient_averages = average_dicts(nutrient_averages)
+    avg_ingredient_group_counts = average_dicts(ingredient_group_counts)
+    avg_ingredient_environment_counts = average_dicts(ingredient_environment_counts)
+    avg_consumption_averages = average_dicts(consumption_averages)
+    avg_cost = np.mean(costs)
+    avg_consumption_averages['avg_cost'] = avg_cost
 
-    # Create subplots
-    fig, axs = plt.subplots(2, 1, figsize=(14, 8))
-    font_size = 8
-
-    # Ensure actions are in correct shape and select non-zero values
-    current_selection = current_selection.reshape(-1, current_selection.shape[-1])
-    non_zero_indices = np.nonzero(current_selection[0])[0]
-    non_zero_values = current_selection[0, non_zero_indices]
-
-    selected_ingredients = ingredient_df['Category7'].iloc[non_zero_indices]
-
-    bars = axs[0].bar(selected_ingredients.values, non_zero_values, color='purple', width=0.5)
-    axs[0].set_xlabel('Ingredient')
-    axs[0].set_ylabel('Grams of Ingredient')
-    axs[0].set_title('Selected Ingredients')
-    axs[0].set_xticks(np.arange(len(selected_ingredients)))
-    axs[0].set_xticklabels(selected_ingredients.values, rotation=45, ha='right', fontsize=font_size)
-    
-    # Add actual values on top of the bars
-    for bar, actual in zip(bars, non_zero_values):
-        height = bar.get_height()
-
-        axs[0].annotate(f'{actual:.2f} g', 
-                        xy=(bar.get_x() + bar.get_width() / 2, height),
-                        xytext=(0, 3),  # 3 points vertical offset
-                        textcoords="offset points",
-                        ha='center', va='bottom')
-
-    # Calculate percentages of target values
-    nutritional_values = {
-        'Calories (kcal)': (average_calories, 530, 'max'),
-        'Fat (g)': (average_fat, 20.6, 'max'),
-        'Saturates (g)': (average_saturates, 6.5, 'max'),
-        'Carbs (g)': (average_carbs, 70.6, 'min'),
-        'Sugar (g)': (average_sugar, 15.5, 'max'),
-        'Fibre (g)': (average_fibre, 4.2, 'min'),
-        'Protein (g)': (average_protein, 7.5, 'min'),
-        'Salt (g)': (average_salt, 0.499, 'max')
+    # Define targets and types in a single dictionary
+    targets = {
+        'nutrients': {
+            'calories': (530, 'range'), 'fat': (20.6, 'range'), 'saturates': (6.5, 'max'),
+            'carbs': (70.6, 'range'), 'sugar': (15.5, 'max'), 'fibre': (4.2, 'min'),
+            'protein': (7.5, 'min'), 'salt': (0.499, 'max')
+        },
+        'ingredient_groups': {
+            'fruit': (1, 'min'), 'veg': (1, 'min'), 'non_processed_meat': (1, 'min'),
+            'processed_meat': (1, 'min'), 'carbs': (1, 'min'), 'dairy': (1, 'min'),
+            'bread': (1, 'min'), 'confectionary': (0, 'max')
+        },
+        'ingredient_environment': {
+            'animal_welfare': (1, 'min'), 'rainforest': (1, 'min'), 'water': (1, 'min'),
+            'CO2_rating': (1, 'min'), 'CO2_g': (500, 'max')
+        },
+        'consumption': {
+            'average_mean_consumption': (0, 'min'), 'average_cv_ingredients': (0, 'min'),
+            'avg_cost': (2, 'max')
+        }
     }
 
-    labels = list(nutritional_values.keys())
-    actuals = [nutritional_values[key][0].mean() for key in labels]
-    targets = [nutritional_values[key][1] for key in labels]
-    target_types = [nutritional_values[key][2] for key in labels]
+    # Create subplots for each category
+    fig = plt.figure(figsize=(16, 8))
+    gs = fig.add_gridspec(4, 2)
+    axs = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1]), fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[1, 1]),
+           fig.add_subplot(gs[2, 0]), fig.add_subplot(gs[2, 1]), fig.add_subplot(gs[3, 0]), fig.add_subplot(gs[3, 1])]
+    font_size = 8
 
-    percentages = [(actual / target) * 100 for actual, target in zip(actuals, targets)]
-    colors = ['red' if (target_type == 'max' and actual > 1.05 * target) or (target_type == 'min' and actual < 0.95 * target) else 'blue' for actual, target, target_type in zip(actuals, targets, target_types)]
+    def plot_bars(ax, data, title, targets=None, rotation=0):
+        labels = list(data.keys())
+        values = list(data.values())
+        colors = ['red' if (targets and ((targets[label][1] == 'max' and value > targets[label][0]) or 
+                                         (targets[label][1] == 'min' and value < targets[label][0]) or 
+                                         (targets[label][1] == 'range' and (value < targets[label][0] * 0.9 or value > targets[label][0] * 1.1))))
+                  else 'blue' for label, value in zip(labels, values)]
 
-    x = np.arange(len(labels))
-    width = 0.35
+        bars = ax.bar(labels, values, color=colors, width=0.5)
+        ax.set_ylabel('Value')
+        ax.set_title(f"{title}{num_episodes} Episodes")
+        ax.set_xticks(np.arange(len(labels)))
+        ax.set_xticklabels([label.replace('_', ' ').capitalize() for label in labels], rotation=rotation, ha='center', fontsize=font_size)
+        # Set y-axis limit to allow space for annotations
+        ax.set_ylim(0, max(values) * 1.3)
+        for bar, value, label in zip(bars, values, labels):
+            height = bar.get_height()
+            if targets and (
+                (targets[label][1] == 'max' and value > targets[label][0]) or 
+                (targets[label][1] == 'min' and value < targets[label][0]) or 
+                (targets[label][1] == 'range' and (value < targets[label][0] * 0.9 or value > targets[label][0] * 1.1))
+            ):
+                text_color = 'red'
+            else:
+                text_color = 'black'
+            ax.annotate(f'{value:.2f}', xy=(bar.get_x() + bar.get_width() / 2, height), 
+                        xytext=(0, 3), textcoords="offset points", ha='center', 
+                        va='bottom', color=text_color, clip_on=True)
 
-    labels = [lab.split(" ")[0] for lab in labels]
-    bars = axs[1].bar(x, percentages, width, color=colors)
-    
-    # Add actual values on top of the bars
-    for bar, actual in zip(bars, actuals):
-        height = bar.get_height()
-        if bar == bars[0]:
-            unit = "kcal"
-        else:
-            unit = "g"
-        axs[1].annotate(f'{actual:.2f} {unit}', 
-                        xy=(bar.get_x() + bar.get_width() / 2, height),
-                        xytext=(0, 3),  # 3 points vertical offset
-                        textcoords="offset points",
-                        ha='center', va='bottom')
+    # Plot each metric category
+    plot_bars(axs[0], avg_nutrient_averages, 'Nutrient Average Over ', targets['nutrients'])
+    plot_bars(axs[1], avg_ingredient_group_counts, 'Ingredient Group Count Average Over ', targets['ingredient_groups'], rotation=25)
+    plot_bars(axs[2], avg_ingredient_environment_counts, 'Ingredient Environment Count Average Over ', targets['ingredient_environment'])
+    plot_bars(axs[3], avg_consumption_averages, 'Consumption and Cost Averages Over ', targets['consumption'])
 
-    axs[1].set_xlabel('Nutritional Information')
-    axs[1].set_ylabel('Percentage of Target (%)')
-    axs[1].set_xticks(x)
-    axs[1].set_xticklabels(labels)
-    axs[1].set_title('Nutrients Percentage of Target Values (actual values on top of bar)')
-    # Add legend
-    handles = [plt.Rectangle((0,0),1,1, color='blue', ec='k'), plt.Rectangle((0,0),1,1, color='red', ec='k')]
-    labels = ['On Target', 'Off Target']
-    axs[1].legend(handles, labels)
+    for i in range(4):
+        current_selection = np.array(current_selections[i])
+        non_zero_indices = np.nonzero(current_selection)
+        non_zero_values = current_selection[non_zero_indices]
+        selected_ingredients = ingredient_df['Category7'].iloc[non_zero_indices]
 
-    plt.tight_layout()
+        bars = axs[4 + i].bar(selected_ingredients.values, non_zero_values, color='blue', width=0.5)
+        axs[4 + i].set_ylabel('Grams of Ingredient')
+        axs[4 + i].set_title(f'Selected Ingredients: Episode {i+1}')
+        axs[4 + i].set_xticks(np.arange(len(selected_ingredients)))
+        axs[4 + i].set_xticklabels(selected_ingredients.values, rotation = 25, ha='center', fontsize=font_size)
+        
+        # Set y-axis limit to allow space for annotations
+        axs[4 + i].set_ylim(0, max(non_zero_values) * 1.3)
+        
+        for bar, actual in zip(bars, non_zero_values):
+            height = bar.get_height()
+            axs[4 + i].annotate(f'{actual:.2f} g', xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', clip_on=True)
+            
+    plt.tight_layout(pad=2.0)
+    plt.subplots_adjust(hspace=0.9, wspace=0.1)
     plt.show()
+
+
     
     
 class Args:
-    reward_metrics=['nutrients', 'groups', 'environment']
+    reward_metrics = ['nutrients', 'groups', 'environment', 'cost', 'consumption']
     render_mode = None
     num_envs = 1
-    plot_reward_history=False
+    plot_reward_history = False
+    max_episode_steps = 1000
 
 def main():
-    
     args = Args()
-    
+
     from utils.train_utils import setup_environment, get_unique_directory
+    from utils.process_data import get_data  # Ensure this import is correct
     
     # Setup environment and other configurations
     ingredient_df = get_data()
-    
-    seed = 43
-    
+
+    seed = 3
+
     # Create the environment using the setup function
     env = setup_environment(args, seed, ingredient_df)
 
     # Load normalization statistics
-    norm_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_2000000_1env_best_nutrients_groups_environment_seed2754945570/vec_normalize_best.pkl")
+    norm_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection_v1_A2C_20000000_10env_nutrients_groups_environment_cost_consumption_seed_321275131/vec_normalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
     env.training = False
     env.norm_reward = False
 
     # Load the saved agent
-    model_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection-v1_A2C_2000000_1env_best_nutrients_groups_environment_seed2754945570/best_model.zip")
+    model_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection_v1_A2C_20000000_10env_nutrients_groups_environment_cost_consumption_seed_321275131/best_model.zip")
     model = A2C.load(model_path, env=env)
 
     # Number of episodes to evaluate
@@ -177,23 +183,7 @@ def main():
     predictions = evaluate_model(model, env, num_episodes)
 
     # Plot the results
-    plot_results(predictions, ingredient_df, env)
-    
-    # Access the underlying RewardTrackingWrapper for saving rewards
-    if args.plot_reward_history: 
-        
-        reward_dir = os.path.abspath(os.path.join('saved_models', 'reward'))
-        reward_prefix = "test_trained"       
-        # Save reward distribution for each environment in the vectorized environment
-        for i, env_instance in enumerate(env.envs):
-                
-            reward_dir, reward_prefix = get_unique_directory(reward_dir, f"{reward_prefix}_seed{seed}_env{i}", '.json')
-            
-            env_instance.save_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix)))
-            
-            reward_prefix_instance = get_unique_directory(reward_dir, reward_prefix, '.png')
-
-            env_instance.plot_reward_distribution(os.path.abspath(os.path.join(reward_dir, reward_prefix_instance)))
+    plot_results(predictions, ingredient_df, num_episodes)
 
 if __name__ == "__main__":
     main()
