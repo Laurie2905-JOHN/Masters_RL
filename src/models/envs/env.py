@@ -439,7 +439,7 @@ if __name__ == '__main__':
     num_episodes = 500
     max_episode_steps = 1000
 
-    env = setup_environment(args, seed, ingredient_df)
+    env = setup_environment(args, seed, ingredient_df, eval=False)
     check_env(env.unwrapped.envs[0].unwrapped)
 
     print("Environment is valid!")

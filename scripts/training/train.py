@@ -28,7 +28,7 @@ def main(args, seed):
         reward_save_path = None
 
     # Create and normalize vectorized environments with shared reward dictionary
-    env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path)
+    env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path, eval=False)
     
     # Initialize or load the model
     if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':
@@ -75,7 +75,7 @@ def main(args, seed):
             raise ValueError(f"Unsupported algorithm: {args.algo}")
         reset_num_timesteps = True
  
-    best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed_{seed}", ".zip")
+    best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed_{seed}", "")
     best_model_path = os.path.join(best_dir, best_prefix)
     
     # Configure logger for TensorBoard and stdout
@@ -124,7 +124,7 @@ def main(args, seed):
 
     # Load the model and VecNormalize to verify they have saved correctly
     try:
-        env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path)
+        env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path, eval=False)
         
         env = VecNormalize.load(final_vec_normalize, env)
 
@@ -193,7 +193,7 @@ if __name__ == "__main__":
         else:
             args.seed = generate_random_seeds(1)
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(8)
+        args.seed = generate_random_seeds(1)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
         

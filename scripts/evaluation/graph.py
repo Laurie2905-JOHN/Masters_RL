@@ -6,7 +6,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 import os
 from utils.process_data import get_data
 
-def evaluate_model(model, env, num_episodes=10):
+def evaluate_model(model, env, num_episodes=10, max_episode_steps=1000, determinstic=True):
     """Evaluate the trained model and collect predictions."""
     predictions = []
 
@@ -14,13 +14,16 @@ def evaluate_model(model, env, num_episodes=10):
         obs = env.reset()
         done, state = False, None
         episode_predictions = []
-
+        counter = 0
+        
         while not done:
-            action, state = model.predict(obs, state=state, deterministic=True)
+            counter += 1
+            action, state = model.predict(obs, state=state, deterministic=determinstic)
             obs, reward, done, info = env.step(action)
             info = info[0]
 
             if done:
+                print(f"Episode {episode + 1} ended at step {counter} with done={done}.")
                 episode_predictions.append((
                     info['nutrient_averages'],           # Dictionary of nutrient averages
                     info['ingredient_group_count'],      # Dictionary of ingredient group counts
@@ -30,10 +33,13 @@ def evaluate_model(model, env, num_episodes=10):
                     info['reward'],                      # Reward dictionary
                     info['current_selection']            # Current selection array
                 ))
-        
+                break
+
         predictions.append(episode_predictions)
     
     return predictions
+
+
 
 def average_dicts(dicts):
     keys = dicts[0].keys()
@@ -118,8 +124,9 @@ def plot_results(predictions, ingredient_df, num_episodes):
     plot_bars(axs[1], avg_ingredient_group_counts, 'Ingredient Group Count Average Over ', targets['ingredient_groups'], rotation=25)
     plot_bars(axs[2], avg_ingredient_environment_counts, 'Ingredient Environment Count Average Over ', targets['ingredient_environment'])
     plot_bars(axs[3], avg_consumption_averages, 'Consumption and Cost Averages Over ', targets['consumption'])
-
-    for i in range(4):
+    num_plots = min(len(current_selections), 4)
+    
+    for i in range(num_plots):
         current_selection = np.array(current_selections[i])
         non_zero_indices = np.nonzero(current_selection)
         non_zero_values = current_selection[non_zero_indices]
@@ -129,7 +136,7 @@ def plot_results(predictions, ingredient_df, num_episodes):
         axs[4 + i].set_ylabel('Grams of Ingredient')
         axs[4 + i].set_title(f'Selected Ingredients: Episode {i+1}')
         axs[4 + i].set_xticks(np.arange(len(selected_ingredients)))
-        axs[4 + i].set_xticklabels(selected_ingredients.values, rotation = 25, ha='center', fontsize=font_size)
+        axs[4 + i].set_xticklabels(selected_ingredients.values, rotation = 15, ha='center', fontsize=font_size)
         
         # Set y-axis limit to allow space for annotations
         axs[4 + i].set_ylim(0, max(non_zero_values) * 1.3)
@@ -137,13 +144,17 @@ def plot_results(predictions, ingredient_df, num_episodes):
         for bar, actual in zip(bars, non_zero_values):
             height = bar.get_height()
             axs[4 + i].annotate(f'{actual:.2f} g', xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', clip_on=True)
-            
+    
+
+    # Hide any additional subplots (if they exist)
+    for j in range(num_plots + 4, len(axs)):
+        fig.delaxes(axs[j])
+        
     plt.tight_layout(pad=2.0)
-    plt.subplots_adjust(hspace=0.9, wspace=0.1)
+    plt.subplots_adjust(hspace=1.1, wspace=0.1)
     plt.show()
 
 
-    
     
 class Args:
     reward_metrics = ['nutrients', 'groups', 'environment', 'cost', 'consumption']
@@ -161,26 +172,27 @@ def main():
     # Setup environment and other configurations
     ingredient_df = get_data()
 
-    seed = 3
+    seed = 7859985245
 
     # Create the environment using the setup function
-    env = setup_environment(args, seed, ingredient_df)
+    env = setup_environment(args, seed, ingredient_df, eval=True)
 
     # Load normalization statistics
-    norm_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection_v1_A2C_20000000_10env_nutrients_groups_environment_cost_consumption_seed_321275131/vec_normalize_best.pkl")
+    norm_path = os.path.abspath("saved_models/evaluation/best_models/SchoolMealSelection_v1_A2C_1000000_16env_best_nutrients_groups_environment_cost_consumption_seed_785998524/vec_normalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
+    
     env.training = False
     env.norm_reward = False
 
     # Load the saved agent
-    model_path = os.path.abspath("saved_models/evaluation_models/SchoolMealSelection_v1_A2C_20000000_10env_nutrients_groups_environment_cost_consumption_seed_321275131/best_model.zip")
+    model_path = os.path.abspath("saved_models/evaluation/best_models/SchoolMealSelection_v1_A2C_1000000_16env_best_nutrients_groups_environment_cost_consumption_seed_785998524/best_model.zip")
     model = A2C.load(model_path, env=env)
 
     # Number of episodes to evaluate
-    num_episodes = 10
+    num_episodes = 1
 
     # Evaluate the model
-    predictions = evaluate_model(model, env, num_episodes)
+    predictions = evaluate_model(model, env, num_episodes, determinstic=True)
 
     # Plot the results
     plot_results(predictions, ingredient_df, num_episodes)

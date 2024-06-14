@@ -35,7 +35,7 @@ def set_seed(seed, device):
 
 
 # Function to set up the environment
-def setup_environment(args, seed, ingredient_df, reward_save_interval=2500, reward_save_path=None):
+def setup_environment(args, seed, ingredient_df, reward_save_interval=2500, reward_save_path=None, eval=False):
     
     def make_env():
         env = SchoolMealSelection(
@@ -61,6 +61,9 @@ def setup_environment(args, seed, ingredient_df, reward_save_interval=2500, rewa
         return env
 
     env = make_vec_env(make_env, n_envs=args.num_envs, seed=seed)
+    
+    if eval:
+        return env
     
     return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
