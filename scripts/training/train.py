@@ -40,8 +40,18 @@ def main(args, seed):
             pkl_path = f"{checkpoint_path}_vec_normalize.pkl"
             print(f"Loading VecNormalize from: {pkl_path}")
             env = VecNormalize.load(pkl_path, env)
-            if args.algo == 'A2C':
-                model = A2C.load(checkpoint_path, env=env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+            # Choose the RL algorithm (A2C or PPO)
+            if args.algo == 'A2C':            
+                model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed,
+                            n_steps=187,
+                            learning_rate=0.0005912355088135612,
+                            gamma=0.914611121556763,
+                            ent_coef=1.1687248843875689e-07,
+                            vf_coef=0.23542395352035467,
+                            max_grad_norm=0.9557079404640634,
+                            gae_lambda=0.987139450643294,
+                            rms_prop_eps=0.0005660771819479684,
+                            use_rms_prop=True)
             elif args.algo == 'PPO':
                 model = PPO.load(checkpoint_path, env=env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
             else:
@@ -183,7 +193,7 @@ if __name__ == "__main__":
         else:
             args.seed = generate_random_seeds(1)
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(1)
+        args.seed = generate_random_seeds(8)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
         

@@ -6,7 +6,7 @@ def main(algo, n_trials, timeout, n_jobs, n_gpus):
     if algo == 'PPO':
         optimize_ppo(n_trials=n_trials, timeout=timeout, n_jobs=n_jobs, n_gpus=n_gpus)
     elif algo == 'A2C':
-        optimize_a2c(n_trials=n_trials, timeout=timeout, n_jobs=n_jobs, n_gpus=n_gpus)
+        optimize_a2c(n_trials=n_trials, timeout=timeout, n_jobs=n_jobs)
     else:
         raise ValueError("Unsupported algorithm specified.")
 

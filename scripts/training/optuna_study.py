@@ -38,14 +38,14 @@ def ppo_objective(trial, n_gpus):
     model = PPO('MlpPolicy', env, device=f'cuda:{trial.number % n_gpus}', **params, verbose=0)
 
     # Train the model
-    model.learn(total_timesteps=150000)
+    model.learn(total_timesteps=1000000)
 
     # Evaluate the model
     mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=10)
 
     return mean_reward
 
-def a2c_objective(trial, n_gpus):
+def a2c_objective(trial):
     n_steps = trial.suggest_int('n_steps', 16, 2048)
     n_envs = 8
     possible_batch_sizes = [bs for bs in range(32, 257) if (n_steps * n_envs) % bs == 0]
@@ -74,14 +74,14 @@ def a2c_objective(trial, n_gpus):
     model = A2C('MlpPolicy', env, device='cpu', **params, verbose=0)
 
     # Train the model
-    model.learn(total_timesteps=150000)
+    model.learn(total_timesteps=1000000)
 
     # Evaluate the model
     mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=10)
 
     return mean_reward
 
-def optimize_ppo(n_trials=1000, timeout=28800, n_jobs=16, n_gpus=4):
+def optimize_ppo(n_trials=1000, timeout=43200, n_jobs=16, n_gpus=4):
     # Create Optuna study for PPO
     ppo_study = optuna.create_study(direction='maximize')
 
@@ -93,13 +93,13 @@ def optimize_ppo(n_trials=1000, timeout=28800, n_jobs=16, n_gpus=4):
     best_params_ppo = ppo_study.best_params
     print("Best parameters for PPO:", best_params_ppo)
 
-def optimize_a2c(n_trials=1000, timeout=28800, n_jobs=16, n_gpus=4):
+def optimize_a2c(n_trials=1000, timeout=43200, n_jobs=16):
     # Create Optuna study for A2C
     a2c_study = optuna.create_study(direction='maximize')
 
     # Optimize using joblib for parallel execution
     with joblib.parallel_backend('loky', n_jobs=n_jobs):
-        a2c_study.optimize(lambda trial: a2c_objective(trial, n_gpus), n_trials=n_trials, timeout=timeout)
+        a2c_study.optimize(lambda trial: a2c_objective(trial), n_trials=n_trials, timeout=timeout)
 
     # Save the best parameters for A2C
     best_params_a2c = a2c_study.best_params
