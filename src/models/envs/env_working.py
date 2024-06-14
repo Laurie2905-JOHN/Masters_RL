@@ -9,7 +9,7 @@ from utils.process_data import get_data
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients=10, action_scaling_factor=21.25, num_people=1000, render_mode=None, initial_ingredients=None, reward_metrics=None):
+    def __init__(self, ingredient_df, max_ingredients=8, action_scaling_factor=21.25, num_people=1000, render_mode=None, initial_ingredients=None, reward_metrics=None):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
@@ -75,8 +75,22 @@ class SchoolMealSelection(gym.Env):
             'bread': 1,  # Bread should be provided as well as a portion of starchy food
             'confectionary': 0  # No confectionary should be provided
         }
+        
+        self.ingredient_group_portion_targets = {
+            'fruit': (40, 110),
+            'veg': (40, 110),
+            'non_processed_meat': (70, 150),
+            'processed_meat': (70, 150),
+            'carbs': (25, 300),
+            'dairy': (20, 200),
+            'bread': (40, 90),
+            'confectionary': (0, 0)
+            }
+        
         # Count of ingredient groups
         self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count_targets.keys()}
+        # Count of ingredient group portions
+        self.ingredient_group_portion = {k: 0 for k in self.ingredient_group_portion_targets.keys()}
 
         # Environment
         # A - E ratings - converted to a mapping 1 - 5
@@ -180,16 +194,23 @@ class SchoolMealSelection(gym.Env):
         non_zero_mask = self.current_selection != 0
     
         # Calculate the total values for each nutritional category for the selected ingredients
-        self.ingredient_group_count = {
-            'fruit': sum(self.Group_A_fruit * non_zero_mask),
-            'veg': sum(self.Group_A_veg * non_zero_mask),
-            'non_processed_meat': sum(self.Group_B * non_zero_mask),
-            'processed_meat': sum(self.Group_C * non_zero_mask),
-            'carbs': sum(self.Group_D * non_zero_mask),
-            'dairy': sum(self.Group_E * non_zero_mask),
-            'bread': sum(self.Bread * non_zero_mask),
-            'confectionary': sum(self.Confectionary * non_zero_mask),
+        non_zero_values = {
+            'fruit': self.Group_A_fruit * non_zero_mask,
+            'veg': self.Group_A_veg * non_zero_mask,
+            'non_processed_meat': self.Group_B * non_zero_mask,
+            'processed_meat': self.Group_C * non_zero_mask,
+            'carbs': self.Group_D * non_zero_mask,
+            'dairy': self.Group_E * non_zero_mask,
+            'bread': self.Bread * non_zero_mask,
+            'confectionary': self.Confectionary * non_zero_mask,
         }
+
+        # Count ingredient group counts
+        self.ingredient_group_count = {key: sum(values) for key, values in non_zero_values.items()}
+
+        # Calculate the ingredient group portion sizes
+        self.ingredient_group_portion = {key: sum(values * self.current_selection) for key, values in non_zero_values.items()}
+
         
         # Calculate environmental counts
         self.ingredient_environment_count = {
@@ -202,6 +223,7 @@ class SchoolMealSelection(gym.Env):
         
         # Calculate the total cost of the selected ingredients
         self.menu_cost = sum(self.Cost_per_1g * self.current_selection)
+        
         
         # Calculate the consumption stats
         self.consumption_average = {
@@ -384,25 +406,27 @@ if __name__ == '__main__':
     from utils.process_data import get_data
     from gymnasium.utils.env_checker import check_env
     from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage
-
+    reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test', '.json')
+    
     # Define arguments
     class Args:
         reward_metrics = ['nutrients', 'groups', 'environment', 'consumption', 'cost']
         render_mode = None
         num_envs = 1
-        plot_reward_history = False
+        plot_reward_history = True
         max_episode_steps = 1000
-
+        
     ingredient_df = get_data()
     
     args = Args()
-    seed = 42
+    seed = 2
     num_episodes = 10000
-    max_episode_steps = 1000
     
-    env = setup_environment(args, seed, ingredient_df, eval=False)
+    
+    reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
+    env = setup_environment(args, seed, ingredient_df, reward_save_path=reward_save_path, eval=False)
+    
     check_env(env.unwrapped.envs[0].unwrapped)
-    
     print("Environment is valid!")
 
     np.set_printoptions(suppress=True)
@@ -415,9 +439,9 @@ if __name__ == '__main__':
     for episode in range(num_episodes):
         obs = env.reset()
         if episode % 100 == 0:
-            print(f"Episode {episode + 1}")
+            print(f"Episode {episode}")
 
-        for step in range(max_episode_steps):
+        for step in range(args.max_episode_steps):
             action = env.action_space.sample()
             obs, rewards, dones, infos = env.step(action)
             
@@ -429,3 +453,12 @@ if __name__ == '__main__':
 
             if terminated or truncated:
                 break
+    
+        # Access the underlying RewardTrackingWrapper for saving rewards
+    if args.plot_reward_history:
+        # Save reward distribution
+        # Plotting data from all envs though as they agregate to the same file
+        reward_prefix = reward_prefix.split(".")[0]
+        dir, pref = get_unique_directory(reward_dir, f"{reward_prefix}_plot", '.png')
+        plot_path = os.path.abspath(os.path.join(dir, pref))
+        env.envs[0].plot_reward_distribution(reward_save_path, plot_path)

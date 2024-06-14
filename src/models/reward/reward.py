@@ -42,13 +42,18 @@ def nutrient_reward(self, nutrient_rewards):
 
 def group_count_reward(self, ingredient_group_count_rewards):
     
-    all_group_targets_met = True
+    def _is_within_portion_range(self, group):
+        portion = self.ingredient_group_portion[group]
+        min_target, max_target = self.ingredient_group_portion_targets[group]
+        return min_target <= portion <= max_target
     
+    all_group_targets_met = True
+
     # Special handling for meat groups
     total_meat_count = self.ingredient_group_count['non_processed_meat'] + self.ingredient_group_count['processed_meat']
     total_meat_target = self.ingredient_group_count_targets['non_processed_meat'] + self.ingredient_group_count_targets['processed_meat']
-    
-    if total_meat_count == total_meat_target:
+
+    if total_meat_count == total_meat_target and _is_within_portion_range(self, 'non_processed_meat') and _is_within_portion_range(self, 'processed_meat'):
         ingredient_group_count_rewards['non_processed_meat'] += 100
         ingredient_group_count_rewards['processed_meat'] += 100
     else:
@@ -57,23 +62,24 @@ def group_count_reward(self, ingredient_group_count_rewards):
         meat_distance_reward = meat_distance * 10
         ingredient_group_count_rewards['non_processed_meat'] += meat_distance_reward
         ingredient_group_count_rewards['processed_meat'] += meat_distance_reward
-    
+
     # Loop through other groups to calculate rewards
     for group, value in self.ingredient_group_count.items():
         if group in ['non_processed_meat', 'processed_meat']:
             continue
-            
+
         target = self.ingredient_group_count_targets[group]
-        
-        if target == value:
+
+        if target == value and _is_within_portion_range(self, group):
             ingredient_group_count_rewards[group] += 100
         else:
             all_group_targets_met = False
             distance = abs(target - value)
             distance_reward = distance * 10
             ingredient_group_count_rewards[group] += distance_reward
-    
+
     return ingredient_group_count_rewards, all_group_targets_met
+
 
 def environment_count_reward(self, ingredient_environment_count_rewards):
 
@@ -125,11 +131,11 @@ def consumption_reward(self, consumption_reward):
     consumption_targets_met = True
 
     # Shape the reward based on the average consumption
-    consumption_reward['average_mean_consumption'] = self.consumption_average['average_mean_consumption'] * 15  # Adjust the multiplier as needed
+    consumption_reward['average_mean_consumption'] = self.consumption_average['average_mean_consumption'] * 3.75  # Adjust the multiplier as needed
 
     # Shape the reward based on coefficient of variation
     # Assuming a lower CV is better, we use an inverse relation for the reward
-    consumption_reward['cv_penalty'] = self.consumption_average['average_cv_ingredients'] * 10  # Adjust the multiplier as needed
+    consumption_reward['cv_penalty'] = self.consumption_average['average_cv_ingredients'] * 6.5  # Adjust the multiplier as needed
 
     return consumption_reward, consumption_targets_met
 
