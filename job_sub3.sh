@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -l select=1:ncpus=16:mem=64gb:ngpus=0
 #PBS -l walltime=24:00:00
-#PBS -N A2C_Optuna_Optimization
+#PBS -N A2C_Optuna_Optimization_TuneReward2
 #PBS -o /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/a2c_optimization.log
 #PBS -e /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/a2c_optimization_error.log
 

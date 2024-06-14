@@ -4,7 +4,7 @@ import argparse
 
 def clear_directory(directory_list):
     # Warning message
-    print("WARNING: This will permanently delete all files and subdirectories in: saved_models/tensorboard, saved_models/best_models, saved_models/checkpoints, saved_models/hpc_output, saved_models/reward}")
+    print(f"WARNING: This will permanently delete all files and subdirectories in: {directory_list}")
     confirmation = input("Are you sure you want to continue? (yes/no): ")
     # Proceed based on user input
     if confirmation.lower() == 'yes':
@@ -32,8 +32,8 @@ def clear_directory(directory_list):
             print("Operation cancelled.")
 
 if __name__ == "__main__":
-    directory_list = ["saved_models/tensorboard", "saved_models/best_models", "saved_models/checkpoints", "saved_models/hpc_output", "saved_models/reward"]
-    # directory_list = ["saved_models/tensorboard", "saved_models/best_models", "saved_models/checkpoints", "saved_models/hpc_output", "saved_models/reward"]
     
+    # directory_list = ["saved_models/tensorboard", "saved_models/best_models", "saved_models/checkpoints", "saved_models/hpc_output", "saved_models/reward"]
+    directory_list = ["saved_models/tensorboard", "saved_models/reward", "saved_models/best_models", "saved_models/checkpoints"]
     clear_directory(directory_list)
 

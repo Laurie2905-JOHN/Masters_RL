@@ -193,7 +193,7 @@ if __name__ == "__main__":
         else:
             args.seed = generate_random_seeds(1)
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(1)
+        args.seed = generate_random_seeds(5)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
         
