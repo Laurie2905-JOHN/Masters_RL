@@ -419,8 +419,8 @@ if __name__ == '__main__':
     ingredient_df = get_data()
     
     args = Args()
-    seed = 2
-    num_episodes = 10000
+    seed = None
+    num_episodes = 1000
     
     
     reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))

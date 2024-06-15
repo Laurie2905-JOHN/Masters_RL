@@ -42,10 +42,17 @@ def nutrient_reward(self, nutrient_rewards):
 def group_count_reward(self, ingredient_group_count_rewards):
 
     def _is_within_portion_range(group):
-        # Normalize by the number of ingredients in the group
-        portion = self.ingredient_group_portion[group] / self.ingredient_group_count[group]
-        min_target, max_target = self.ingredient_group_portion_targets[group]
-        return min_target <= portion <= max_target
+        
+        if self.ingredient_group_count[group] != 0:
+            # Normalize by the number of ingredients in the group
+            portion = self.ingredient_group_portion[group] / self.ingredient_group_count[group]
+            min_target, max_target = self.ingredient_group_portion_targets[group]
+            
+            return min_target <= portion <= max_target
+        
+        else:
+            
+            return True
 
     all_group_targets_met = True
     any_group_exceeded = False
@@ -98,7 +105,7 @@ def group_count_reward(self, ingredient_group_count_rewards):
                 ingredient_group_count_rewards[group] -= 50
         else:
             all_group_targets_met = False
-            ingredient_group_count_rewards[group] -= 100
+            ingredient_group_count_rewards[group] -= 110
 
     # Apply negative reward if any group exceeded the target and not all targets are met
     if not all_group_targets_met and any_group_exceeded:
