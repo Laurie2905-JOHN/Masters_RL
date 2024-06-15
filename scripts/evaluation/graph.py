@@ -164,8 +164,13 @@ def main():
     seed = 7859985245
 
     env = setup_environment(args, seed, ingredient_df, eval=True)
-
-    norm_path = os.path.abspath("saved_models/evaluation/best_models/SchoolMealSelection_v1_A2C_1000000_16env_best_nutrients_groups_environment_cost_consumption_seed_785998524/vec_normalize_best.pkl")
+    
+    filename = "SchoolMealSelection_v1_A2C_1000000_16env_best_nutrients_groups_environment_cost_consumption_seed_3379026565"
+    filename = "SchoolMealSelection-v1_A2C_2000000_1env_best_nutrients_groups_environment_seed2754945570"
+    
+    
+    
+    norm_path = os.path.abspath(f"saved_models/evaluation/best_models/{filename}/vec_normalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
     
     env.training = False
@@ -175,11 +180,11 @@ def main():
     def dummy_lr_schedule(_):
         return 1e-3
 
-    model_path = os.path.abspath("saved_models/evaluation/best_models/SchoolMealSelection_v1_A2C_1000000_16env_best_nutrients_groups_environment_cost_consumption_seed_785998524/best_model.zip")
+    model_path = os.path.abspath(f"saved_models/evaluation/best_models/{filename}/best_model.zip")
     custom_objects = {'lr_schedule': dummy_lr_schedule}
     model = A2C.load(model_path, env=env, custom_objects=custom_objects)
 
-    num_episodes = 1
+    num_episodes = 10
 
     predictions = evaluate_model(model, env, num_episodes, deterministic=True)
 
