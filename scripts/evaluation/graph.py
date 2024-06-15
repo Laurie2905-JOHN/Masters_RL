@@ -43,9 +43,9 @@ def average_dicts(dicts):
     keys = dicts[0].keys()
     return {key: np.mean([d[key] for d in dicts]) for key in keys}
 
-def get_meat_color(ingredient_group_counts):
-    meat_counter = sum(ingredient_group_counts.get(key, 0) for key in ['non_processed_meat', 'processed_meat'])
-    return 'green' if meat_counter >= 1 else 'red'
+def get_protein_color(ingredient_group_counts):
+    protein_counter = sum(ingredient_group_counts.get(key, 0) for key in ['non_processed_protein', 'processed_protein'])
+    return 'green' if protein_counter >= 1 else 'red'
 
 def plot_results(predictions, ingredient_df, num_episodes):
     """Plot the results from the predictions."""
@@ -67,8 +67,8 @@ def plot_results(predictions, ingredient_df, num_episodes):
             'protein': (7.5, 'min'), 'salt': (0.499, 'max')
         },
         'ingredient_groups': {
-            'fruit': (1, 'min'), 'veg': (1, 'min'), 'non_processed_meat': (1, 'min'),
-            'processed_meat': (1, 'min'), 'carbs': (1, 'min'), 'dairy': (1, 'min'),
+            'fruit': (1, 'min'), 'veg': (1, 'min'), 'non_processed_protein': (1, 'min'),
+            'processed_protein': (1, 'min'), 'carbs': (1, 'min'), 'dairy': (1, 'min'),
             'bread': (1, 'min'), 'confectionary': (0, 'max')
         },
         'ingredient_environment': {
@@ -92,10 +92,10 @@ def plot_results(predictions, ingredient_df, num_episodes):
         labels = list(data.keys())
         values = list(data.values())
         
-        meat_color = get_meat_color(avg_ingredient_group_counts)
+        protein_color = get_protein_color(avg_ingredient_group_counts)
         
         colors = [
-            meat_color if label in ['non_processed_meat', 'processed_meat'] 
+            protein_color if label in ['non_processed_protein', 'processed_protein'] 
             else ('red' if (targets and ((targets[label][1] == 'max' and value > targets[label][0]) or 
                                         (targets[label][1] == 'min' and value < targets[label][0]) or 
                                         (targets[label][1] == 'range' and (value <= targets[label][0] * 0.9 or value >= targets[label][0] * 1.1))))
@@ -165,10 +165,10 @@ def main():
 
     env = setup_environment(args, seed, ingredient_df, eval=True)
     
-    filename = "new_3"    
+    filename = "1"    
     
     
-    norm_path = os.path.abspath(f"saved_models/evaluation/best_models/{filename}/vec_normalize_best.pkl")
+    norm_path = os.path.abspath(f"saved_models/evaluation/best_models/new_reward/{filename}/vec_normalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
     
     env.training = False
@@ -178,7 +178,7 @@ def main():
     def dummy_lr_schedule(_):
         return 1e-3
 
-    model_path = os.path.abspath(f"saved_models/evaluation/best_models/{filename}/best_model.zip")
+    model_path = os.path.abspath(f"saved_models/evaluation/best_models/new_reward/{filename}/best_model.zip")
     custom_objects = {'lr_schedule': dummy_lr_schedule}
     model = A2C.load(model_path, env=env, custom_objects=custom_objects)
 

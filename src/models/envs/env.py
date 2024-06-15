@@ -71,8 +71,8 @@ class SchoolMealSelection(gym.Env):
         self.ingredient_group_count_targets = {
             'fruit': 1,  # 1 fruit a day per meal
             'veg': 1,  # 1 veg per day per meal
-            'non_processed_meat': 1,  # Portion of non processed meat has to be provided accept if a portion of processed meat is provided. This current env is one day meal selection.
-            'processed_meat': 1,  # Processed meat, see above ^
+            'non_processed_protein': 1,  # Portion of non processed protein has to be provided accept if a portion of processed protein is provided. This current env is one day meal selection.
+            'processed_protein': 1,  # Processed protein, see above ^
             'carbs': 1,  # Starchy food , a portion of this should be provided every day
             'dairy': 1,  # Dairy, a portion of this should be provided every day
             'bread': 1,  # Bread should be provided as well as a portion of starchy food
@@ -190,8 +190,8 @@ class SchoolMealSelection(gym.Env):
         self.ingredient_group_count = {
             'fruit': sum(self.Group_A_fruit * non_zero_mask),
             'veg': sum(self.Group_A_veg * non_zero_mask),
-            'non_processed_meat': sum(self.Group_B * non_zero_mask),
-            'processed_meat': sum(self.Group_C * non_zero_mask),
+            'non_processed_protein': sum(self.Group_B * non_zero_mask),
+            'processed_protein': sum(self.Group_C * non_zero_mask),
             'carbs': sum(self.Group_D * non_zero_mask),
             'dairy': sum(self.Group_E * non_zero_mask),
             'bread': sum(self.Bread * non_zero_mask),

@@ -58,26 +58,26 @@ def group_count_reward(self, ingredient_group_count_rewards):
     any_group_exceeded = False
     group_exceeded = []
 
-    # Special handling for meat groups
-    meat_groups = ['non_processed_meat', 'processed_meat']
-    total_meat_count = sum(self.ingredient_group_count[group] for group in meat_groups)
-    total_meat_target = sum(self.ingredient_group_count_targets[group] for group in meat_groups)
+    # Special handling for protein groups
+    protein_groups = ['non_processed_protein', 'processed_protein']
+    total_protein_count = sum(self.ingredient_group_count[group] for group in protein_groups)
+    total_protein_target = sum(self.ingredient_group_count_targets[group] for group in protein_groups)
 
-    if total_meat_count >= total_meat_target:
-        if all(_is_within_portion_range(group) for group in meat_groups):
-            for group in meat_groups:
+    if total_protein_count >= total_protein_target:
+        if all(_is_within_portion_range(group) for group in protein_groups):
+            for group in protein_groups:
                 ingredient_group_count_rewards[group] += 50
         else:
             all_group_targets_met = False
-            for group in meat_groups:
+            for group in protein_groups:
                 ingredient_group_count_rewards[group] -= 25
 
-        if total_meat_count > total_meat_target:
+        if total_protein_count > total_protein_target:
             any_group_exceeded = True
-            group_exceeded.append('meat')
+            group_exceeded.append('protein')
     else:
         all_group_targets_met = False
-        for group in meat_groups:
+        for group in protein_groups:
             ingredient_group_count_rewards[group] -= 50
 
     # Handle confectionary group
@@ -88,7 +88,7 @@ def group_count_reward(self, ingredient_group_count_rewards):
 
     # Loop through other groups to calculate rewards
     for group, value in self.ingredient_group_count.items():
-        if group in meat_groups + ['confectionary']:
+        if group in protein_groups + ['confectionary']:
             continue
 
         target = self.ingredient_group_count_targets[group]
@@ -110,9 +110,9 @@ def group_count_reward(self, ingredient_group_count_rewards):
     # Apply negative reward if any group exceeded the target and not all targets are met
     if not all_group_targets_met and any_group_exceeded:
         for group in group_exceeded:
-            if group == 'meat':
-                for meat_group in meat_groups:
-                    ingredient_group_count_rewards[meat_group] -= 50
+            if group == 'protein':
+                for protein_group in protein_groups:
+                    ingredient_group_count_rewards[protein_group] -= 50
             else:
                 ingredient_group_count_rewards[group] -= 100
 

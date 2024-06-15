@@ -45,7 +45,7 @@ class SchoolMealSelection(gym.Env):
         self.Group_A_fruit = ingredient_df['Group A fruit'].values
         self.Group_B = ingredient_df['Group B'].values
         self.Oily_Fish = ingredient_df['Oily Fish'].values
-        self.Red_Meat = ingredient_df['Red Meat'].values
+        self.Red_protein = ingredient_df['Red protein'].values
         self.Group_C = ingredient_df['Group C'].values
         self.Group_D = ingredient_df['Group D'].values
         self.Group_E = ingredient_df['Group E'].values

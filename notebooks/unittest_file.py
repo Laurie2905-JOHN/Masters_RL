@@ -8,32 +8,32 @@ class TestGroupCountReward(unittest.TestCase):
     def setUp(self):
         # Setting up default values for the tests
         self.ingredient_group_portion = {
-            'non_processed_meat': 300,
-            'processed_meat': 200,
+            'non_processed_protein': 300,
+            'processed_protein': 200,
             'confectionary': 150,
             'vegetables': 500,
             'fruits': 300
         }
         
         self.ingredient_group_count = {
-            'non_processed_meat': 3,
-            'processed_meat': 2,
+            'non_processed_protein': 3,
+            'processed_protein': 2,
             'confectionary': 1,
             'vegetables': 5,
             'fruits': 3
         }
         
         self.ingredient_group_portion_targets = {
-            'non_processed_meat': (100, 150),
-            'processed_meat': (80, 120),
+            'non_processed_protein': (100, 150),
+            'processed_protein': (80, 120),
             'confectionary': (50, 60),
             'vegetables': (80, 100),
             'fruits': (90, 110)
         }
         
         self.ingredient_group_count_targets = {
-            'non_processed_meat': 3,
-            'processed_meat': 2,
+            'non_processed_protein': 3,
+            'processed_protein': 2,
             'confectionary': 1,
             'vegetables': 5,
             'fruits': 3
@@ -43,8 +43,8 @@ class TestGroupCountReward(unittest.TestCase):
         ingredient_group_count_rewards = {group: 0 for group in self.ingredient_group_count}
         
         expected_rewards = {
-            'non_processed_meat': 50,
-            'processed_meat': 50,
+            'non_processed_protein': 50,
+            'processed_protein': 50,
             'confectionary': 100,
             'vegetables': 100,
             'fruits': 100
@@ -55,14 +55,14 @@ class TestGroupCountReward(unittest.TestCase):
         self.assertEqual(rewards, expected_rewards)
         self.assertTrue(all_targets_met)
     
-    def test_meat_target_not_met(self):
-        self.ingredient_group_count['non_processed_meat'] = 2
+    def test_protein_target_not_met(self):
+        self.ingredient_group_count['non_processed_protein'] = 2
         
         ingredient_group_count_rewards = {group: 0 for group in self.ingredient_group_count}
         
         expected_rewards = {
-            'non_processed_meat': -50,
-            'processed_meat': -50,
+            'non_processed_protein': -50,
+            'processed_protein': -50,
             'confectionary': 100,
             'vegetables': 100,
             'fruits': 100
@@ -73,14 +73,14 @@ class TestGroupCountReward(unittest.TestCase):
         self.assertEqual(rewards, expected_rewards)
         self.assertFalse(all_targets_met)
     
-    def test_meat_target_exceeded(self):
-        self.ingredient_group_count['non_processed_meat'] = 4
+    def test_protein_target_exceeded(self):
+        self.ingredient_group_count['non_processed_protein'] = 4
         
         ingredient_group_count_rewards = {group: 0 for group in self.ingredient_group_count}
         
         expected_rewards = {
-            'non_processed_meat': -25,
-            'processed_meat': -25,
+            'non_processed_protein': -25,
+            'processed_protein': -25,
             'confectionary': 100,
             'vegetables': 100,
             'fruits': 100
@@ -97,8 +97,8 @@ class TestGroupCountReward(unittest.TestCase):
         ingredient_group_count_rewards = {group: 0 for group in self.ingredient_group_count}
         
         expected_rewards = {
-            'non_processed_meat': 50,
-            'processed_meat': 50,
+            'non_processed_protein': 50,
+            'processed_protein': 50,
             'confectionary': -100,
             'vegetables': 100,
             'fruits': 100
@@ -115,8 +115,8 @@ class TestGroupCountReward(unittest.TestCase):
         ingredient_group_count_rewards = {group: 0 for group in self.ingredient_group_count}
         
         expected_rewards = {
-            'non_processed_meat': 50,
-            'processed_meat': 50,
+            'non_processed_protein': 50,
+            'processed_protein': 50,
             'confectionary': 100,
             'vegetables': -100,
             'fruits': 100
@@ -133,8 +133,8 @@ class TestGroupCountReward(unittest.TestCase):
         ingredient_group_count_rewards = {group: 0 for group in self.ingredient_group_count}
         
         expected_rewards = {
-            'non_processed_meat': 50,
-            'processed_meat': 50,
+            'non_processed_protein': 50,
+            'processed_protein': 50,
             'confectionary': 100,
             'vegetables': 0,
             'fruits': 100
@@ -146,8 +146,8 @@ class TestGroupCountReward(unittest.TestCase):
         self.assertFalse(all_targets_met)
 
     def test_combination_of_targets(self):
-        self.ingredient_group_count['non_processed_meat'] = 4
-        self.ingredient_group_count['processed_meat'] = 3
+        self.ingredient_group_count['non_processed_protein'] = 4
+        self.ingredient_group_count['processed_protein'] = 3
         self.ingredient_group_count['confectionary'] = 2
         self.ingredient_group_count['vegetables'] = 4
         self.ingredient_group_count['fruits'] = 2
@@ -155,8 +155,8 @@ class TestGroupCountReward(unittest.TestCase):
         ingredient_group_count_rewards = {group: 0 for group in self.ingredient_group_count}
         
         expected_rewards = {
-            'non_processed_meat': -50,
-            'processed_meat': -50,
+            'non_processed_protein': -50,
+            'processed_protein': -50,
             'confectionary': -100,
             'vegetables': -100,
             'fruits': -100
