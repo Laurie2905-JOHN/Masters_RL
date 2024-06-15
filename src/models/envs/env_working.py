@@ -9,7 +9,7 @@ from utils.process_data import get_data
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients=8, action_scaling_factor=21.25, num_people=1000, render_mode=None, initial_ingredients=None, reward_metrics=None):
+    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=21.25, num_people=1000, render_mode=None, initial_ingredients=None, reward_metrics=None):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
@@ -68,8 +68,8 @@ class SchoolMealSelection(gym.Env):
         self.ingredient_group_count_targets = {
             'fruit': 1,  # 1 fruit a day per meal
             'veg': 1,  # 1 veg per day per meal
-            'non_processed_meat': 1,  # Portion of non processed meat has to be provided accept if a portion of processed meat is provided. This current env is one day meal selection.
-            'processed_meat': 1,  # Processed meat, see above ^
+            'non_processed_meat': 0.5,  # Portion of non processed meat has to be provided accept if a portion of processed meat is provided. This current env is one day meal selection.
+            'processed_meat': 0.5,  # Processed meat, see above ^
             'carbs': 1,  # Starchy food , a portion of this should be provided every day
             'dairy': 1,  # Dairy, a portion of this should be provided every day
             'bread': 1,  # Bread should be provided as well as a portion of starchy food
@@ -406,7 +406,7 @@ if __name__ == '__main__':
     from utils.process_data import get_data
     from gymnasium.utils.env_checker import check_env
     from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage
-    reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test', '.json')
+    reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '.json')
     
     # Define arguments
     class Args:
