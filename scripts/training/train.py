@@ -139,7 +139,7 @@ def main(args, seed):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
     parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v1', help="Name of the environment")
-    parser.add_argument("--max_episode_steps", type=int, default=20000, help="Max episode steps")
+    parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
