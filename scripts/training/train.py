@@ -134,7 +134,10 @@ def main(args, seed):
             model = PPO.load(final_save, env=env)
     except Exception as e:
         print(f"Error loading model: {e}")
-        
+
+def str_to_list(value):
+    return value.split(',')
+
 # Entry point of the script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
@@ -144,7 +147,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_envs", type=int, default=1, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
     parser.add_argument("--total_timesteps", type=int, default=40000, help="Total number of timesteps for training")
-    parser.add_argument("--reward_metrics", type=list, default=['nutrients', 'groups', 'environment', 'cost', 'consumption'], help="Metrics to give reward for")
+    parser.add_argument("--reward_metrics", type=str, default='nutrients,groups,environment,cost,consumption', help="Metrics to give reward for (comma-separated list)")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
     parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
@@ -155,7 +158,7 @@ if __name__ == "__main__":
     parser.add_argument("--reward_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'reward')), help="Directory to save reward data")
     parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
     parser.add_argument("--reward_save_interval", type=int, default=1000, help="Number of timestep between saving reward data")
-    parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
+    parser.add_argument("--plot_reward_history", type=bool, default=False, help="Save and plot the reward history for the environment")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
     parser.add_argument("--seed", type=str, default="-1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
@@ -163,6 +166,8 @@ if __name__ == "__main__":
     parser.add_argument("--pretrained_checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
 
     args = parser.parse_args()
+    
+    args.reward_metrics = str_to_list(args.reward_metrics)
     
     metric_str = ""
     
@@ -193,7 +198,7 @@ if __name__ == "__main__":
         else:
             args.seed = generate_random_seeds(1)
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(1)
+        args.seed = generate_random_seeds(2)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
         

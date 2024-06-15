@@ -1,18 +1,35 @@
 #!/bin/bash
 
-python "scripts/training/train.py" \
-  --algo="A2C" \
-  --env_name="SchoolMealSelection-v1" \
-  --num_envs=1 \
-  --total_timesteps=20000 \
-  --save_freq=1000 \
-  --eval_freq=1000 \
-  --device="cpu" \
-  --memory_monitor="True" \
-  --reward_metrics="['nutrients', 'groups', 'environment', 'cost', 'consumption]" \
-  # --seed="[1610340177]"
-  # --checkpoint_path="saved_models/checkpoints/SchoolMealSelection_v1_A2C_10000_1env_nutrients_groups_environment_seed_1610340177_15000_steps" \
-  
+# List of reward metrics to test
+metrics=("nutrients" "groups" "environment" "cost" "consumption")
 
+# Function to join array elements with a comma
+join_by() {
+  local IFS="$1"
+  shift
+  echo "$*"
+}
 
+# Loop through each combination of metrics
+for i in ${!metrics[@]}; do
+  current_metrics=(${metrics[@]:0:$(($i + 1))})
+  metrics_str=$(join_by , "${current_metrics[@]}")
+  prefix_str=$(join_by _ "${current_metrics[@]}")
 
+  echo "Testing with reward metrics: $metrics_str"
+
+  python "scripts/training/train.py" \
+    --algo="A2C" \
+    --env_name="SchoolMealSelection-v1" \
+    --num_envs=16 \
+    --total_timesteps=2000000 \
+    --save_freq=1000 \
+    --eval_freq=1000 \
+    --device="cpu" \
+    --memory_monitor="False" \
+    --reward_metrics="$metrics_str" \
+    --save_prefix="$prefix_str" \
+    --log_prefix="$prefix_str" \
+    --best_prefix="$prefix_str" \
+    --reward_prefix="$prefix_str"
+done
