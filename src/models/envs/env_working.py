@@ -390,7 +390,7 @@ class SchoolMealSelection(gym.Env):
         self.target_not_met_counters.update(self.reward_dict['targets_not_met'])
 
         # Check if all values in the counter dictionary have reached 10,000
-        if all(value >= 10000 for value in self.target_not_met_counters.values()):
+        if all(value >= 100000 for value in self.target_not_met_counters.values()):
             # Reset all values to zero
             self.target_not_met_counters = Counter({key: 0 for key in self.target_not_met_counters.keys()})
 
