@@ -4,12 +4,12 @@ import numpy as np
 from models.reward.reward import nutrient_reward, group_count_reward, environment_count_reward, cost_reward, consumption_reward, termination_reason
 import os
 from utils.process_data import get_data
-
+from collections import Counter
         
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=21.25, num_people=1000, render_mode=None, initial_ingredients=None, reward_metrics=None):
+    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=21.25, num_people=1000, render_mode=None, initial_ingredients=None, reward_metrics=None, verbose=0):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
@@ -17,7 +17,8 @@ class SchoolMealSelection(gym.Env):
         self.action_scaling_factor = action_scaling_factor
         self.reward_metrics = reward_metrics if reward_metrics else ['nutrients', 'groups', 'environment', 'cost', 'consumption']
         self.num_people = num_people
-
+        self.verbose = verbose
+        
         # Nutritional values
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values.astype(np.float32) / 100
         self.Fat_g = ingredient_df['Fat_g'].values.astype(np.float32) / 100
@@ -161,7 +162,7 @@ class SchoolMealSelection(gym.Env):
 
         self.current_selection = np.zeros(self.n_ingredients)
         
-        self.termination_reason = None
+        self.termination = 0
 
         # Create an empty reward dictionary
         self.reward_dict = {
@@ -172,6 +173,9 @@ class SchoolMealSelection(gym.Env):
             'consumption_rewards': {},
             'targets_not_met': {}
         }
+        
+        # Initialize the counters for targets not met
+        self.target_not_met_counters = Counter()
         
     def calculate_reward(self):
         
@@ -318,7 +322,7 @@ class SchoolMealSelection(gym.Env):
         
         self.ingredient_environment_count = {k: 0 for k in self.ingredient_environment_count.keys()}
         
-        self.termination_reason = None
+        self.termination = 0
         
         # Create an empty reward dictionary
         self.reward_dict = {
@@ -382,10 +386,11 @@ class SchoolMealSelection(gym.Env):
         return obs
 
     def _get_info(self):
+        # Update the counter dictionary for targets not met
+        self.target_not_met_counters.update(self.reward_dict['targets_not_met'])
+
         # Compute nonzero indices once
         nonzero_indices = np.nonzero(self.current_selection)
-        
-        self.reward_dict['targets_not_met']
 
         # Construct the info dictionary
         info = {
@@ -397,9 +402,11 @@ class SchoolMealSelection(gym.Env):
             'reward': self.reward_dict,
             'current_selection': self.current_selection[nonzero_indices],
             'selected_ingredients': self.ingredient_df['Category7'].iloc[nonzero_indices],
-            'termination_reason': self.termination_reason
+            'termination_reason': self.termination,
+            'targets_not_met_count': dict(self.target_not_met_counters)
         }
         return info
+
 
 
     def render(self, step=None):
@@ -419,22 +426,22 @@ class SchoolMealSelection(gym.Env):
 if __name__ == '__main__':
     from utils.process_data import get_data
     from gymnasium.utils.env_checker import check_env
-    from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage
+    from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage, plot_reward_distribution
     reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '.json')
     
     # Define arguments
     class Args:
         reward_metrics = ['nutrients', 'groups', 'environment', 'consumption', 'cost']
         render_mode = None
-        num_envs = 1
+        num_envs = 8
         plot_reward_history = True
         max_episode_steps = 1000
-        
+        verbose = 2
     ingredient_df = get_data()
     
     args = Args()
     seed = None
-    num_episodes = 1000
+    num_episodes = 500
     
     
     reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
@@ -467,7 +474,7 @@ if __name__ == '__main__':
 
             if terminated or truncated:
                 break
-    
+    env.close()
         # Access the underlying RewardTrackingWrapper for saving rewards
     if args.plot_reward_history:
         # Save reward distribution
@@ -475,4 +482,4 @@ if __name__ == '__main__':
         reward_prefix = reward_prefix.split(".")[0]
         dir, pref = get_unique_directory(reward_dir, f"{reward_prefix}_plot", '.png')
         plot_path = os.path.abspath(os.path.join(dir, pref))
-        env.envs[0].plot_reward_distribution(reward_save_path, plot_path)
+        plot_reward_distribution(reward_save_path, plot_path)
