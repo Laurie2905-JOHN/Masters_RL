@@ -6,11 +6,10 @@ from stable_baselines3.common.vec_env import VecNormalize
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure, HumanOutputFormat
 from utils.process_data import get_data
-from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback, SaveVecNormalizeCallback
+from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback
 from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed, monitor_memory_usage
-from models.wrappers.common import RewardTrackingWrapper
-from models.envs.env_working import SchoolMealSelection
 
+    
 # Main training function
 def main(args, seed):
     device = select_device(args)
@@ -30,52 +29,63 @@ def main(args, seed):
     # Create and normalize vectorized environments with shared reward dictionary
     env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path, eval=False)
     
+    args.pretrained_checkpoint_path = "saved_models/checkpoints/SchoolMealSelection_v1_A2C_10000_8env_nutrients_groups_environment_cost_consumption_seed_1_10000_steps"
+    
     # Initialize or load the model
     if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':
         checkpoint_path = os.path.abspath(args.pretrained_checkpoint_path)
         print(f"Loading model from checkpoint: {checkpoint_path}")
         tensorboard_log_dir = os.path.join(args.log_dir, f"{args.log_prefix}_seed_{seed}")
         reset_num_timesteps = False
-        if os.path.exists(f"{checkpoint_path}.zip"):
-            pkl_path = f"{checkpoint_path}_vec_normalize.pkl"
+
+        # Automatically determine the pickle path
+        checkpoint_dir = os.path.dirname(checkpoint_path)
+        checkpoint_name = os.path.basename(checkpoint_path)
+        parts = checkpoint_name.split("_")
+        steps = parts[-2]
+        pretrained = "_model_pretrained"
+        pkl_name = f"{'_'.join(parts[:-2])}_vecnormalize_{steps}_steps.pkl"
+        pkl_path = os.path.join(checkpoint_dir, pkl_name)
+        
+        if os.path.exists(pkl_path):
             print(f"Loading VecNormalize from: {pkl_path}")
             env = VecNormalize.load(pkl_path, env)
-            # Choose the RL algorithm (A2C or PPO)
-            if args.algo == 'A2C':            
-                model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed,
-                            n_steps=187,
-                            learning_rate=0.0005912355088135612,
-                            gamma=0.914611121556763,
-                            ent_coef=1.1687248843875689e-07,
-                            vf_coef=0.23542395352035467,
-                            max_grad_norm=0.9557079404640634,
-                            gae_lambda=0.987139450643294,
-                            rms_prop_eps=0.0005660771819479684,
-                            use_rms_prop=True)
-            elif args.algo == 'PPO':
-                model = PPO.load(checkpoint_path, env=env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
-            else:
-                raise ValueError(f"Unsupported algorithm: {args.algo}")
-            
         else:
-            print(f"Checkpoint path does not exist: {checkpoint_path}")
+            print(f"VecNormalize file does not exist: {pkl_path}")
             return
-        
+
+        # Choose the RL algorithm (A2C or PPO)
+        if args.algo == 'A2C':            
+            model = A2C('MlpPolicy', env, verbose=args.verbose, tensorboard_log=tensorboard_log_dir, device=device, seed=seed,
+                        n_steps=187,
+                        learning_rate=0.0005912355088135612,
+                        gamma=0.914611121556763,
+                        ent_coef=1.1687248843875689e-07,
+                        vf_coef=0.23542395352035467,
+                        max_grad_norm=0.9557079404640634,
+                        gae_lambda=0.987139450643294,
+                        rms_prop_eps=0.0005660771819479684,
+                        use_rms_prop=True)
+        elif args.algo == 'PPO':
+            model = PPO.load(checkpoint_path, env=env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+        else:
+            raise ValueError(f"Unsupported algorithm: {args.algo}")
+            
     else:
         # Set up TensorBoard logging directory
         log_dir, log_prefix = get_unique_directory(args.log_dir, f"{args.log_prefix}_seed_{seed}", ".zip")
         tensorboard_log_dir = os.path.join(log_dir, log_prefix)
-        
+        pretrained = ""
         # Choose the RL algorithm (A2C or PPO)
         if args.algo == 'A2C':
-            model = A2C('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+            model = A2C('MlpPolicy', env, verbose=args.verbose, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
         elif args.algo == 'PPO':
-            model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+            model = PPO('MlpPolicy', env, verbose=args.verbose, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
         else:
             raise ValueError(f"Unsupported algorithm: {args.algo}")
         reset_num_timesteps = True
  
-    best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed_{seed}", "")
+    best_dir, best_prefix = get_unique_directory(args.best_dir, f"{args.best_prefix}_seed_{seed}{pretrained}", "")
     best_model_path = os.path.join(best_dir, best_prefix)
     
     # Configure logger for TensorBoard and stdout
@@ -85,12 +95,39 @@ def main(args, seed):
     for handler in new_logger.output_formats:
         if isinstance(handler, HumanOutputFormat):
             handler.max_length = 50
-        
-
+    
+    
+    save_dir, save_prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed_{seed}{pretrained}", "")
+    
     # Set up callbacks for saving checkpoints, evaluating models, and logging additional information
-    checkpoint_callback = SaveVecNormalizeCallback(save_freq=args.save_freq, save_path=args.save_dir, name_prefix=f"{args.save_prefix}_seed_{seed}", vec_normalize_env=env)
-    eval_callback = SaveVecNormalizeEvalCallback(vec_normalize_env=env, eval_env=env, best_model_save_path=best_model_path, eval_freq=args.eval_freq, log_path=tensorboard_log_dir, deterministic=True, render=False)
+    checkpoint_callback = CheckpointCallback(
+        save_freq=max(args.save_freq // args.num_envs, 1),
+        save_path=save_dir, name_prefix=save_prefix,
+        save_vecnormalize=True,
+        save_replay_buffer=True,
+        verbose=args.verbose
+    )
+    
+    # Create the custom callback
+    save_vec_normalize_callback = SaveVecNormalizeEvalCallback(
+        vec_normalize_env=env,
+        save_path=best_model_path,
+    )
+
+    # Set up the evaluation callback with the custom callback
+    eval_callback = EvalCallback(
+        eval_env=env,
+        best_model_save_path=best_model_path,
+        callback_on_new_best=save_vec_normalize_callback,
+        eval_freq=max(args.eval_freq // args.num_envs, 1),
+        deterministic=True,
+        log_path=tensorboard_log_dir,
+        render=False,
+        verbose=args.verbose
+    )
+        
     info_logger_callback = InfoLoggerCallback()
+    
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
     
     if args.memory_monitor:
@@ -102,36 +139,33 @@ def main(args, seed):
     model.set_logger(new_logger)
     model.learn(total_timesteps=args.total_timesteps, callback=callback, reset_num_timesteps=reset_num_timesteps)
     
-    # Save the final model and VecNormalize statistics
-    dir, prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed_{seed}_final", ".zip")
-    final_save = os.path.join(dir, prefix)
-    model.save(final_save)
-    
-    dir, prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed_{seed}_vec_normalize_final", ".pkl")
-    final_vec_normalize = os.path.join(dir, prefix)
-    env.save(final_vec_normalize)
-
-    # Access the underlying RewardTrackingWrapper for saving rewards
-    if args.plot_reward_history:
-        # Save reward distribution
-        # Plotting data from all envs though as they agregate to the same file
-        reward_prefix = reward_prefix.split(".")[0]
-        dir, pref = get_unique_directory(args.reward_dir, f"{reward_prefix}_plot", '.png')
-        plot_path = os.path.abspath(os.path.join(dir, pref))
-        env.envs[0].plot_reward_distribution(reward_save_path, plot_path)
-            
-    del model, env
 
     # Load the model and VecNormalize to verify they have saved correctly
     try:
-        env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path, eval=False)
         
+        # Save the final model and VecNormalize statistics
+        dir, prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed_{seed}_final", ".zip")
+        final_save = os.path.join(dir, prefix)
+        model.save(final_save)
+
+        dir, prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed_{seed}_vec_normalize_final", ".pkl")
+        final_vec_normalize = os.path.join(dir, prefix)
+        env.save(final_vec_normalize)
+    
+        env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path, eval=False)
         env = VecNormalize.load(final_vec_normalize, env)
 
         if args.algo == 'A2C':
             model = A2C.load(final_save, env=env)
         elif args.algo == 'PPO':
             model = PPO.load(final_save, env=env)
+
+        print("Model and VecNormalize loaded successfully.")
+
+        # Delete the saved files after verification
+        os.remove(final_save)
+        os.remove(final_vec_normalize)
+
     except Exception as e:
         print(f"Error loading model: {e}")
 
@@ -146,7 +180,7 @@ if __name__ == "__main__":
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=8, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=500000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=10000, help="Total number of timesteps for training")
     parser.add_argument("--reward_metrics", type=str, default='nutrients,groups,environment,cost,consumption', help="Metrics to give reward for (comma-separated list)")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
@@ -160,10 +194,11 @@ if __name__ == "__main__":
     parser.add_argument("--reward_save_interval", type=int, default=1000, help="Number of timestep between saving reward data")
     parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
-    parser.add_argument("--seed", type=str, default="-1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
+    parser.add_argument("--seed", type=str, default="1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
     parser.add_argument("--memory_monitor", type=bool, default=False, help="Monitor memory usage during training")
     parser.add_argument("--pretrained_checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
+    parser.add_argument("--verbose", type=int, default=2, help="Verbosity level: 0 for no output, 1 for info messages, 2 for debug messages")
 
     args = parser.parse_args()
     
@@ -197,12 +232,11 @@ if __name__ == "__main__":
             raise ValueError("Must provide seed when loading from checkpoint. Choose -1 to begin training from random value")
         else:
             args.seed = generate_random_seeds(1)
+            
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(1)
+        args.seed = generate_random_seeds(2)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
         
     for seed in args.seed:
         main(args, seed)
-        
-

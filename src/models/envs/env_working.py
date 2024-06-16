@@ -384,6 +384,8 @@ class SchoolMealSelection(gym.Env):
     def _get_info(self):
         # Compute nonzero indices once
         nonzero_indices = np.nonzero(self.current_selection)
+        
+        self.reward_dict['targets_not_met']
 
         # Construct the info dictionary
         info = {

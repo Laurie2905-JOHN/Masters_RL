@@ -8,7 +8,6 @@ import torch
 # from models.envs.env import SchoolMealSelection
 from models.envs.env_working import SchoolMealSelection
 import os
-
 from models.wrappers.common import RewardTrackingWrapper
 
 import gymnasium as gym
@@ -168,46 +167,24 @@ class InfoLoggerCallback(BaseCallback):
                     if isinstance(sub_value, (int, float, np.number)):
                         self.logger.record(f'info/{key}/{sub_key}', sub_value)
         return True
+    
 
-class SaveVecNormalizeCallback(BaseCallback):
-    def __init__(self, save_freq, save_path, name_prefix, vec_normalize_env, verbose=0):
-        super(SaveVecNormalizeCallback, self).__init__(verbose)
-        self.save_freq = save_freq
+
+class SaveVecNormalizeEvalCallback(BaseCallback):
+    def __init__(self, save_path, vec_normalize_env, verbose=0):
+        super(SaveVecNormalizeEvalCallback, self).__init__(verbose)
         self.save_path = save_path
-        self.name_prefix = name_prefix
         self.vec_normalize_env = vec_normalize_env
 
     def _on_step(self) -> bool:
-        if self.n_calls % self.save_freq == 0:
-            # Save the model
-            # Create unique directories for saving models
-            save_dir, save_prefix = get_unique_directory(self.save_path, f'{self.name_prefix}_{self.num_timesteps}_steps', '.zip')
-            path = os.path.join(save_dir, f"{save_prefix}")
-            self.model.save(path)
-            if self.verbose >= 1:
-                print(f'Saving model checkpoint to {path}')
-
-            # Save VecNormalize statistics
-            save_dir, save_prefix = get_unique_directory(self.save_path, f'{self.name_prefix}_{self.num_timesteps}_steps_vec_normalize', '.pkl')
-            vec_normalize_path = os.path.join(save_dir, f"{save_prefix}")
-            self.vec_normalize_env.save(vec_normalize_path)
-            if self.verbose >= 1:
-                print(f'Saving VecNormalize statistics to {vec_normalize_path}')
-
+        # Save the VecNormalize statistics
+        if self.vec_normalize_env is not None:
+            save_path = os.path.join(self.save_path, 'vec_normalize_best.pkl')
+            self.vec_normalize_env.save(save_path)
+            if self.verbose > 0:
+                print(f"Saved VecNormalize to {save_path}")
         return True
 
-class SaveVecNormalizeEvalCallback(EvalCallback):
-    def __init__(self, vec_normalize_env, *args, **kwargs):
-        self.vec_normalize_env = vec_normalize_env
-        super(SaveVecNormalizeEvalCallback, self).__init__(*args, **kwargs)
-
-    def _on_step(self) -> bool:
-        result = super(SaveVecNormalizeEvalCallback, self)._on_step()
-        if self.best_model_save_path is not None and self.n_calls % self.eval_freq == 0:
-            if self.vec_normalize_env is not None:
-                save_path = os.path.join(self.best_model_save_path, 'vec_normalize_best.pkl')
-                self.vec_normalize_env.save(save_path)
-        return result
     
 import psutil
 import time
