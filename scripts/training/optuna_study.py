@@ -4,11 +4,11 @@ import numpy as np
 from stable_baselines3 import PPO, A2C
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.evaluation import evaluate_policy
-from utils.process_data import get_data  
-from models.envs.env_working import SchoolMealSelection  
+from utils.process_data import get_data
+from models.envs.env_working import SchoolMealSelection
 import joblib
 
-def ppo_objective(trial, n_gpus):
+def ppo_objective(trial, n_gpus, num_seeds=5):
     n_steps = trial.suggest_int('n_steps', 16, 2048)
     n_envs = 8
     possible_batch_sizes = [bs for bs in range(32, 257) if (n_steps * n_envs) % bs == 0]
@@ -29,23 +29,26 @@ def ppo_objective(trial, n_gpus):
         'n_epochs': trial.suggest_int('n_epochs', 1, 10),
     }
 
-    # Create the environment
     ingredient_df = get_data()  # Replace with your method to get the ingredient data
     env_fn = lambda: SchoolMealSelection(ingredient_df)
-    env = make_vec_env(env_fn, n_envs=n_envs)
+    rewards = []
 
-    # Initialize the PPO model
-    model = PPO('MlpPolicy', env, device=f'cuda:{trial.number % n_gpus}', **params, verbose=0)
+    for seed in range(num_seeds):
+        # Set the seed
+        np.random.seed(seed)
+        env = make_vec_env(env_fn, n_envs=n_envs)
+        model = PPO('MlpPolicy', env, device=f'cuda:{trial.number % n_gpus}', seed=seed, **params, verbose=0)
 
-    # Train the model
-    model.learn(total_timesteps=1000000)
+        # Train the model
+        model.learn(total_timesteps=1000000)
 
-    # Evaluate the model
-    mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=10)
+        # Evaluate the model
+        mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=10)
+        rewards.append(mean_reward)
 
-    return mean_reward
+    return np.mean(rewards)
 
-def a2c_objective(trial):
+def a2c_objective(trial, num_seeds=5):
     n_steps = trial.suggest_int('n_steps', 16, 2048)
     n_envs = 8
     possible_batch_sizes = [bs for bs in range(32, 257) if (n_steps * n_envs) % bs == 0]
@@ -65,44 +68,45 @@ def a2c_objective(trial):
         'use_rms_prop': trial.suggest_categorical('use_rms_prop', [True, False]),
     }
 
-    # Create the environment
     ingredient_df = get_data()  # Replace with your method to get the ingredient data
     env_fn = lambda: SchoolMealSelection(ingredient_df)
-    env = make_vec_env(env_fn, n_envs=n_envs)
+    rewards = []
 
-    # Initialize the A2C model
-    model = A2C('MlpPolicy', env, device='cpu', **params, verbose=0)
+    for seed in range(num_seeds):
+        # Set the seed
+        np.random.seed(seed)
+        env = make_vec_env(env_fn, n_envs=n_envs)
+        model = A2C('MlpPolicy', env, device='cpu', seed=seed, **params, verbose=0)
 
-    # Train the model
-    model.learn(total_timesteps=1000000)
+        # Train the model
+        model.learn(total_timesteps=1000000)
 
-    # Evaluate the model
-    mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=10)
+        # Evaluate the model
+        mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=10)
+        rewards.append(mean_reward)
 
-    return mean_reward
+    return np.mean(rewards)
 
-def optimize_ppo(n_trials=1000, timeout=43200, n_jobs=16, n_gpus=4):
+def optimize_ppo(n_trials=1000, timeout=43200, n_jobs=16, n_gpus=4, num_seeds=5):
     # Create Optuna study for PPO
     ppo_study = optuna.create_study(direction='maximize')
 
     # Optimize using joblib for parallel execution
     with joblib.parallel_backend('loky', n_jobs=n_jobs):
-        ppo_study.optimize(lambda trial: ppo_objective(trial, n_gpus), n_trials=n_trials, timeout=timeout)
+        ppo_study.optimize(lambda trial: ppo_objective(trial, n_gpus, num_seeds), n_trials=n_trials, timeout=timeout)
 
     # Save the best parameters for PPO
     best_params_ppo = ppo_study.best_params
     print("Best parameters for PPO:", best_params_ppo)
 
-def optimize_a2c(n_trials=1000, timeout=43200, n_jobs=16):
+def optimize_a2c(n_trials=1000, timeout=43200, n_jobs=16, num_seeds=5):
     # Create Optuna study for A2C
     a2c_study = optuna.create_study(direction='maximize')
 
     # Optimize using joblib for parallel execution
     with joblib.parallel_backend('loky', n_jobs=n_jobs):
-        a2c_study.optimize(lambda trial: a2c_objective(trial), n_trials=n_trials, timeout=timeout)
+        a2c_study.optimize(lambda trial: a2c_objective(trial, num_seeds), n_trials=n_trials, timeout=timeout)
 
     # Save the best parameters for A2C
     best_params_a2c = a2c_study.best_params
     print("Best parameters for A2C:", best_params_a2c)
-
-

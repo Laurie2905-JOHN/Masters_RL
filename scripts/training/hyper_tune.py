@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_trials', type=int, default=1000, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=259200, help="Timeout for optimization in seconds")
     parser.add_argument('--n_jobs', type=int, default=4, help="Number of parallel jobs for Optuna")
-    parser.add_argument('--n_gpus', type=int, default=1, help="Number of GPUs to use")
+    parser.add_argument('--n_gpus', type=int, default=0, help="Number of GPUs to use")
 
     args = parser.parse_args()
     main(args.algo, args.n_trials, args.timeout, args.n_jobs, args.n_gpus)
