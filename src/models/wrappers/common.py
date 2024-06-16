@@ -83,16 +83,24 @@ class RewardTrackingWrapper(gym.Wrapper):
             'ingredient_group_count_rewards': {},
             'ingredient_environment_count_rewards': {},
             'cost_rewards': {},
-            'consumption_rewards': {}
+            'consumption_rewards': {},
+            'targets_not_met': [],
         }
 
         for entry in reward_details_history:
             for category, rewards in entry.items():
                 if category in flattened_reward_histories:
-                    for key, value in rewards.items():
-                        if key not in flattened_reward_histories[category]:
-                            flattened_reward_histories[category][key] = []
-                        flattened_reward_histories[category][key].append(value)
+                    if category == 'targets_not_met':
+                        flattened_reward_histories[category].extend(rewards)
+                    else:
+                        for key, value in rewards.items():
+                            if key not in flattened_reward_histories[category]:
+                                flattened_reward_histories[category][key] = []
+                            flattened_reward_histories[category][key].append(value)
+
+        # Count occurrences of each string in 'targets_not_met'
+        targets_not_met_counts = {target: flattened_reward_histories['targets_not_met'].count(target)
+                                  for target in set(flattened_reward_histories['targets_not_met'])}
 
         # Dictionary for shorter labels
         label_mapping = {
@@ -100,10 +108,11 @@ class RewardTrackingWrapper(gym.Wrapper):
             'ingredient_group_count_rewards': 'Ingredient Group',
             'ingredient_environment_count_rewards': 'Environment',
             'cost_rewards': 'Cost',
-            'consumption_rewards': 'Consumption'
+            'consumption_rewards': 'Consumption',
+            'targets_not_met': 'Targets Not Met'
         }
 
-        num_rewards = sum(len(rewards) for rewards in flattened_reward_histories.values()) + 2
+        num_rewards = sum(len(rewards) for rewards in flattened_reward_histories.values() if isinstance(rewards, dict)) + 3
         col = 7
         row = num_rewards // col
         if num_rewards % col != 0:
@@ -134,11 +143,25 @@ class RewardTrackingWrapper(gym.Wrapper):
 
         index = 2
         for category, rewards in flattened_reward_histories.items():
-            for key, values in rewards.items():
-                short_label = label_mapping.get(category, category)
-                axes[index].hist(values, bins=50, alpha=0.75)
-                axes[index].set_xlabel(f'{short_label} - {key.replace("_", " ").capitalize()}')
+            if isinstance(rewards, dict):
+                for key, values in rewards.items():
+                    short_label = label_mapping.get(category, category)
+                    axes[index].hist(values, bins=50, alpha=0.75)
+                    axes[index].set_xlabel(f'{short_label} - {key.replace("_", " ").capitalize()}')
+                    axes[index].set_ylabel('Frequency')
+                    index += 1
+            elif category == 'targets_not_met':
+                bars = axes[index].bar(
+                    [target.replace('_', ' ').capitalize() for target in targets_not_met_counts.keys()],
+                    targets_not_met_counts.values()
+                )
+                axes[index].set_xlabel('Targets Not Met')
                 axes[index].set_ylabel('Frequency')
+                axes[index].set_title('Targets Not Met Frequency')
+                axes[index].tick_params(axis='x', rotation=45)
+                for bar in bars:
+                    yval = bar.get_height()
+                    axes[index].text(bar.get_x() + bar.get_width() / 2, yval + 0.05, int(yval), ha='center', va='bottom')
                 index += 1
 
         for ax in axes[num_rewards:]:
@@ -176,4 +199,3 @@ class RewardTrackingWrapper(gym.Wrapper):
             return 'targets_far_off'
         else:
             return 'unknown_reason'
-

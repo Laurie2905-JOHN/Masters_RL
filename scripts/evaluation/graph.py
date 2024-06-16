@@ -31,7 +31,7 @@ def evaluate_model(model, env, num_episodes=10, deterministic=True):
                     info['consumption_average'],
                     info['cost'],
                     info['reward'],
-                    info['current_selection']
+                    info['current_selection'],
                     info['selected_ingredients']
                 ))
                 break
@@ -47,7 +47,7 @@ def get_protein_color(ingredient_group_counts):
     protein_counter = sum(ingredient_group_counts.get(key, 0) for key in ['non_processed_protein', 'processed_protein'])
     return 'green' if protein_counter >= 1 else 'red'
 
-def plot_results(predictions, ingredient_df, num_episodes):
+def plot_results(predictions, num_episodes):
     """Plot the results from the predictions."""
     flattened_predictions = [pred for episode in predictions for pred in episode]
 
@@ -62,8 +62,8 @@ def plot_results(predictions, ingredient_df, num_episodes):
 
     targets = {
         'nutrients': {
-            'calories': (530, 'range'), 'fat': (20.6, 'range'), 'saturates': (6.5, 'max'),
-            'carbs': (70.6, 'range'), 'sugar': (15.5, 'max'), 'fibre': (4.2, 'min'),
+            'calories': (530, 'range'), 'fat': (20.6, 'max'), 'saturates': (6.5, 'max'),
+            'carbs': (70.6, 'min'), 'sugar': (15.5, 'max'), 'fibre': (4.2, 'min'),
             'protein': (7.5, 'min'), 'salt': (0.499, 'max')
         },
         'ingredient_groups': {
@@ -123,12 +123,13 @@ def plot_results(predictions, ingredient_df, num_episodes):
     
     for i in range(num_plots):
         current_selection = np.array(current_selections[i])
-
-        bars = axs[4 + i].bar(selected_ingredients.values, current_selection, color='blue', width=0.5)
+        selected_ingredient = np.array(selected_ingredients[i])
+        
+        bars = axs[4 + i].bar(selected_ingredient, current_selection, color='blue', width=0.5)
         axs[4 + i].set_ylabel('Grams of Ingredient')
         axs[4 + i].set_title(f'Selected Ingredients: Episode {i+1}')
-        axs[4 + i].set_xticks(np.arange(len(selected_ingredients)))
-        axs[4 + i].set_xticklabels(selected_ingredients.values, rotation=15, ha='center', fontsize=font_size)
+        axs[4 + i].set_xticks(np.arange(len(selected_ingredient)))
+        axs[4 + i].set_xticklabels(selected_ingredient, rotation=15, ha='center', fontsize=font_size)
         
         axs[4 + i].set_ylim(0, max(current_selection) * 1.3)
         
@@ -183,7 +184,7 @@ def main():
 
     predictions = evaluate_model(model, env, num_episodes, deterministic=True)
 
-    plot_results(predictions, ingredient_df, num_episodes)
+    plot_results(predictions, num_episodes)
 
 if __name__ == "__main__":
     main()

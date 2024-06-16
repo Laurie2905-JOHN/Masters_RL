@@ -192,9 +192,22 @@ def termination_reason(
     terminated = False
     reward = 0
     self.termination_reason = 0  # Default to no termination
+    targets_not_met = []  # List to hold targets not met
+
+    # Check each target and add to the list if not met
+    if not nutrition_targets_met:
+        targets_not_met.append("Nutrition")
+    if not group_targets_met:
+        targets_not_met.append("Group")
+    if not environment_targets_met:
+        targets_not_met.append("Environment")
+    if not cost_targets_met:
+        targets_not_met.append("Cost")
+    if not consumption_targets_met:
+        targets_not_met.append("Consumption")
 
     # Check if all targets are met
-    if all([nutrition_targets_met, group_targets_met, environment_targets_met, cost_targets_met, consumption_targets_met]):
+    if not targets_not_met:
         terminated = True
         self.termination_reason = 2  # All targets met
         reward += 1e8
@@ -206,4 +219,4 @@ def termination_reason(
             self.termination_reason = -1  # A target is far off
             reward -= 1000
 
-    return terminated, reward
+    return terminated, reward, targets_not_met

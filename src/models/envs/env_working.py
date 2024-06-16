@@ -162,14 +162,15 @@ class SchoolMealSelection(gym.Env):
         self.current_selection = np.zeros(self.n_ingredients)
         
         self.termination_reason = None
-        
+
         # Create an empty reward dictionary
         self.reward_dict = {
             'nutrient_rewards': {},
             'ingredient_group_count_rewards': {},
             'ingredient_environment_count_rewards': {},
             'cost_rewards': {},
-            'consumption_rewards': {}
+            'consumption_rewards': {},
+            'targets_not_met': {}
         }
         
     def calculate_reward(self):
@@ -178,6 +179,8 @@ class SchoolMealSelection(gym.Env):
         reward = 0
         terminated = False
         
+        # Identify non-dairy ingredients as measured sugars are excluding dairy sugars
+        non_dairy_mask = self.ingredient_df['Category7'] != 'Group E'
         
         # Calculate the total values for each nutritional category for the selected ingredients
         self.nutrient_averages = {
@@ -185,7 +188,7 @@ class SchoolMealSelection(gym.Env):
             'fat': sum(self.Fat_g * self.current_selection),
             'saturates': sum(self.Saturates_g * self.current_selection),
             'carbs': sum(self.Carbs_g * self.current_selection),
-            'sugar': sum(self.Sugars_g * self.current_selection),
+            'sugar': sum(self.Sugars_g * self.current_selection * non_dairy_mask), # Exclude dairy sugars
             'fibre': sum(self.Fibre_g * self.current_selection),
             'protein': sum(self.Protein_g * self.current_selection),
             'salt': sum(self.Salt_g * self.current_selection)
@@ -227,9 +230,7 @@ class SchoolMealSelection(gym.Env):
         
         # Calculate the consumption stats
         self.consumption_average = {
-            # 'food_waste_percentage': estimated_food_waste_percentage(self), 
             'average_mean_consumption': sum(non_zero_mask * self.Mean_g_per_day) / self.max_ingredients,
-            # 'average_sd_ingredients': sum(non_zero_mask * self.StandardDeviation) / self.max_ingredients,
             'average_cv_ingredients': sum(non_zero_mask * self.Coefficient_of_Variation) / self.max_ingredients
         }
     
@@ -239,8 +240,9 @@ class SchoolMealSelection(gym.Env):
         ingredient_environment_count_rewards = {k: 0 for k in self.ingredient_environment_count.keys()}
         cost_rewards = {'from_target': 0}
         
-        consumption_rewards = {'average_mean_consumption': 0,
-                               'cv_penalty': 0
+        consumption_rewards = {
+                                'average_mean_consumption': 0,
+                                'cv_penalty': 0
                               }
         
         # Initialize target met flags for the case if metrics are not requested
@@ -270,7 +272,7 @@ class SchoolMealSelection(gym.Env):
             consumption_rewards, consumption_targets_met = consumption_reward(self, consumption_rewards)
 
         # Determine if the episode is terminated based on the calculated rewards
-        terminated, reward = termination_reason(
+        terminated, reward, targets_not_met = termination_reason(
             self,
             nutrition_targets_met,
             group_targets_met,
@@ -287,7 +289,8 @@ class SchoolMealSelection(gym.Env):
             'ingredient_group_count_rewards': ingredient_group_count_rewards,
             'ingredient_environment_count_rewards': ingredient_environment_count_rewards,
             'cost_rewards': cost_rewards,
-            'consumption_rewards': consumption_rewards
+            'consumption_rewards': consumption_rewards,
+            'targets_not_met': targets_not_met
         }
 
         # Calculate total reward
@@ -323,7 +326,8 @@ class SchoolMealSelection(gym.Env):
             'ingredient_group_count_rewards': {},
             'ingredient_environment_count_rewards': {},
             'cost_rewards': {},
-            'consumption_rewards': {}
+            'consumption_rewards': {},
+            'targets_not_met': {}
         }
 
         observation = self._get_obs()
@@ -390,7 +394,7 @@ class SchoolMealSelection(gym.Env):
             'cost': self.menu_cost,
             'reward': self.reward_dict,
             'current_selection': self.current_selection[nonzero_indices],
-            'selected_ingredients': ingredient_df['Category7'].iloc[nonzero_indices],
+            'selected_ingredients': self.ingredient_df['Category7'].iloc[nonzero_indices],
             'termination_reason': self.termination_reason
         }
         return info

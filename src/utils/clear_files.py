@@ -12,7 +12,7 @@ def clear_directory(directory_list):
             directory_path = os.path.abspath(directory)
             # Check if the directory exists
             if not os.path.exists(directory_path):
-                print(f"The directory {directory_path} does not exisyest.")
+                print(f"The directory {directory_path} does not exist.")
                 continue
             
             # List all files and directories in the specified path
