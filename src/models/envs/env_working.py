@@ -250,10 +250,12 @@ class SchoolMealSelection(gym.Env):
         consumption_targets_met = True
         nutrition_targets_met = True
         
+        # List to keep track of values far from target
+        nutrient_far_flag_list = []
 
         # Calculate rewards for each selected metric
         if 'nutrients' in self.reward_metrics:
-            nutrient_rewards, nutrition_targets_met, nutrient_far_flag_list = nutrient_reward(self, nutrient_rewards)
+            nutrient_rewards, nutrition_targets_met, nutrient_far_flag_list = nutrient_reward(self, nutrient_rewards, nutrient_far_flag_list)
 
         if 'groups' in self.reward_metrics:
             ingredient_group_count_rewards, group_targets_met = group_count_reward(self, ingredient_group_count_rewards)

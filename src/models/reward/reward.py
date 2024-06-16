@@ -1,13 +1,10 @@
 import numpy as np
 
 # Function to calculate the reward for the nutrients
-def nutrient_reward(self, nutrient_rewards):
+def nutrient_reward(self, nutrient_rewards, nutrient_far_flag_list):
     
     # Flag for if all nutrient targets are met
     all_nutrient_targets_met = True
-    
-    # List to keep track of values far from target
-    nutrient_far_flag_list = []
     
     # Loop through values and calculate rewards
     for nutrient, average_value in self.nutrient_averages.items():
@@ -190,56 +187,23 @@ def termination_reason(
         nutrient_far_flag_list,
         reward
     ):
+    
+    # Initialize variables
+    terminated = False
+    reward = 0
+    self.termination_reason = 0  # Default to no termination
 
-    # Implement termination conditions
-    if all([nutrition_targets_met, group_targets_met, environment_targets_met, cost_targets_met, consumption_targets_met]): 
-        # If all targets are met terminate the episode
+    # Check if all targets are met
+    if all([nutrition_targets_met, group_targets_met, environment_targets_met, cost_targets_met, consumption_targets_met]):
         terminated = True
         self.termination_reason = 2  # All targets met
-        reward += 10000
-    elif nutrient_far_flag_list.count(True) > 4:
-        # If 4 of the metrics are far away or the food wastage is high terminate the episode as no learning opportunity
-        terminated = True
-        self.termination_reason = -1  # A target is far off
-        reward -= 1000
-    else:
-        terminated = False
-        self.termination_reason = 0  # No termination
-    
+        reward += 1e8
+
+    # Check if the list is non-empty and more than 4 nutrient metrics are far off
+    elif nutrient_far_flag_list:  # This ensures the list is not empty
+        if nutrient_far_flag_list.count(True) > 4:
+            terminated = True
+            self.termination_reason = -1  # A target is far off
+            reward -= 1000
+
     return terminated, reward
-
-
-# def estimated_food_waste_percentage(self):
-    
-#     threshold = 0
-#     total_food_waste = 0  # Initialize total food waste
-
-#     # Mask for non-zero values in the current selection
-#     non_zero_indices = np.where(self.current_selection > 0)[0]
-
-#     # Generate random values from a normal distribution for each person and each non-zero ingredient
-#     consumption_values = np.random.normal(
-#         loc=self.Mean_g_per_day[non_zero_indices][:, np.newaxis],
-#         scale=self.StandardDeviation[non_zero_indices][:, np.newaxis],
-#         size=(len(non_zero_indices), self.num_people)
-#     )
-
-#     # Replace negative values with zero for realistic consumption values
-#     consumption_values = np.where(consumption_values < threshold, 0, consumption_values)
-
-#     # Calculate the total expected consumption for each ingredient
-#     total_expected_consumption = np.sum(consumption_values, axis=1)
-
-#     # Calculate the expected food waste for each ingredient
-#     ingredient_food_waste = self.current_selection[non_zero_indices] * self.num_people - total_expected_consumption
-
-#     # Sum up the food waste for all ingredients
-#     total_food_waste = np.sum(ingredient_food_waste)
-    
-#     # Sum up the total selection for ingredients
-#     total_selection = np.sum(self.current_selection)
-    
-#     # Calculate the percentage of food waste
-#     food_waste_percentage = total_food_waste / total_selection
-
-#     return food_waste_percentage
