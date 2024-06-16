@@ -7,7 +7,7 @@ from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback,
 from stable_baselines3.common.logger import configure, HumanOutputFormat
 from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback
-from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed, monitor_memory_usage
+from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed, monitor_memory_usage, plot_reward_distribution
 
     
 # Main training function
@@ -125,9 +125,9 @@ def main(args, seed):
         vec_normalize_env=env,
         save_path=best_model_path,
     )
-
+    
     # Set up the evaluation callback with the custom callback
-    eval_callback = EvalCallback(
+    checkpoint_callback = EvalCallback(
         eval_env=env,
         best_model_save_path=best_model_path,
         callback_on_new_best=save_vec_normalize_callback,
@@ -137,10 +137,10 @@ def main(args, seed):
         render=False,
         verbose=args.verbose
     )
-        
+
     info_logger_callback = InfoLoggerCallback()
     
-    callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
+    callback = CallbackList([checkpoint_callback, info_logger_callback])
     
     if args.memory_monitor:
         # Start the memory monitoring in a separate thread
@@ -149,8 +149,11 @@ def main(args, seed):
         monitoring_thread.start()
     
     model.set_logger(new_logger)
+    
     model.learn(total_timesteps=args.total_timesteps, callback=callback, reset_num_timesteps=reset_num_timesteps)
+    
     env.close()
+    
     # Access the underlying RewardTrackingWrapper for saving rewards
     if args.plot_reward_history:
         # Save reward distribution
@@ -158,7 +161,7 @@ def main(args, seed):
         reward_prefix = reward_prefix.split(".")[0]
         dir, pref = get_unique_directory(args.reward_dir, f"{reward_prefix}_plot", '.png')
         plot_path = os.path.abspath(os.path.join(dir, pref))
-        env.plot_reward_distribution(reward_save_path, plot_path)
+        plot_reward_distribution(reward_save_path, plot_path)
 
     # Load the model and VecNormalize to verify they have saved correctly
     try:
@@ -199,7 +202,7 @@ if __name__ == "__main__":
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=8, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=1000000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=2000000, help="Total number of timesteps for training")
     parser.add_argument("--reward_metrics", type=str, default='nutrients,groups,environment,cost,consumption', help="Metrics to give reward for (comma-separated list)")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
@@ -211,7 +214,7 @@ if __name__ == "__main__":
     parser.add_argument("--reward_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'reward')), help="Directory to save reward data")
     parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
     parser.add_argument("--reward_save_interval", type=int, default=8000, help="Number of timestep between saving reward data")
-    parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
+    parser.add_argument("--plot_reward_history", type=bool, default=False, help="Save and plot the reward history for the environment")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
     parser.add_argument("--seed", type=str, default="-1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
@@ -253,7 +256,7 @@ if __name__ == "__main__":
             args.seed = generate_random_seeds(1)
             
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(2)
+        args.seed = generate_random_seeds(3)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
         

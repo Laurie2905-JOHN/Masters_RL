@@ -358,7 +358,7 @@ class SchoolMealSelection(gym.Env):
             self.current_selection[excess_indices[self.max_ingredients:]] = 0
 
         reward, info, terminated = self.calculate_reward()  # Use the stored reward function
-
+        
         obs = self._get_obs()
             
         if self.render_mode is not None:
@@ -388,6 +388,14 @@ class SchoolMealSelection(gym.Env):
     def _get_info(self):
         # Update the counter dictionary for targets not met
         self.target_not_met_counters.update(self.reward_dict['targets_not_met'])
+
+        # Check if all values in the counter dictionary have reached 10,000
+        if all(value >= 10000 for value in self.target_not_met_counters.values()):
+            # Reset all values to zero
+            self.target_not_met_counters = Counter({key: 0 for key in self.target_not_met_counters.keys()})
+
+        # Compute nonzero indices once
+        nonzero_indices = np.nonzero(self.current_selection)
 
         # Compute nonzero indices once
         nonzero_indices = np.nonzero(self.current_selection)
