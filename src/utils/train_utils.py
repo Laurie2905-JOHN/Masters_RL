@@ -49,9 +49,8 @@ def setup_environment(args, seed, ingredient_df, reward_save_interval=2500, rewa
                 raise ValueError("reward_save_path must be specified when plot_reward_history is True")
             env = RewardTrackingWrapper(
                 env,
-                save_reward=True,
-                reward_save_path=reward_save_path,
-                save_interval=reward_save_interval
+                reward_save_interval,
+                reward_save_path,
                 )
         
         # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode

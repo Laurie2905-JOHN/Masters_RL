@@ -23,13 +23,14 @@ def main(args, seed):
     if args.plot_reward_history:
         reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed_{seed}_env", '.json')
         reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
+        args.reward_save_interval = max(args.reward_save_interval // args.num_envs, 1)
     else:
         reward_save_path = None
 
     # Create and normalize vectorized environments with shared reward dictionary
     env = setup_environment(args, seed, ingredient_df, args.reward_save_interval, reward_save_path, eval=False)
     
-    args.pretrained_checkpoint_path = "saved_models/checkpoints/SchoolMealSelection_v1_A2C_10000_8env_nutrients_groups_environment_cost_consumption_seed_1_10000_steps"
+    # args.pretrained_checkpoint_path = "saved_models/checkpoints/SchoolMealSelection_v1_A2C_10000_8env_nutrients_groups_environment_cost_consumption_seed_2830227159_10000_steps"
     
     # Initialize or load the model
     if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':
@@ -78,7 +79,18 @@ def main(args, seed):
         pretrained = ""
         # Choose the RL algorithm (A2C or PPO)
         if args.algo == 'A2C':
-            model = A2C('MlpPolicy', env, verbose=args.verbose, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
+            
+            model = A2C('MlpPolicy', env, verbose=args.verbose, tensorboard_log=tensorboard_log_dir, device=device, seed=seed,
+                        n_steps=187,
+                        learning_rate=0.0005912355088135612,
+                        gamma=0.914611121556763,
+                        ent_coef=1.1687248843875689e-07,
+                        vf_coef=0.23542395352035467,
+                        max_grad_norm=0.9557079404640634,
+                        gae_lambda=0.987139450643294,
+                        rms_prop_eps=0.0005660771819479684,
+                        use_rms_prop=True)
+            
         elif args.algo == 'PPO':
             model = PPO('MlpPolicy', env, verbose=args.verbose, tensorboard_log=tensorboard_log_dir, device=device, seed=seed)
         else:
@@ -139,10 +151,17 @@ def main(args, seed):
     model.set_logger(new_logger)
     model.learn(total_timesteps=args.total_timesteps, callback=callback, reset_num_timesteps=reset_num_timesteps)
     
+    # Access the underlying RewardTrackingWrapper for saving rewards
+    if args.plot_reward_history:
+        # Save reward distribution
+        # Plotting data from all envs though as they agregate to the same file
+        reward_prefix = reward_prefix.split(".")[0]
+        dir, pref = get_unique_directory(args.reward_dir, f"{reward_prefix}_plot", '.png')
+        plot_path = os.path.abspath(os.path.join(dir, pref))
+        env.envs[0].plot_reward_distribution(reward_save_path, plot_path)
 
     # Load the model and VecNormalize to verify they have saved correctly
     try:
-        
         # Save the final model and VecNormalize statistics
         dir, prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed_{seed}_final", ".zip")
         final_save = os.path.join(dir, prefix)
@@ -180,7 +199,7 @@ if __name__ == "__main__":
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=8, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=10000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=5000, help="Total number of timesteps for training")
     parser.add_argument("--reward_metrics", type=str, default='nutrients,groups,environment,cost,consumption', help="Metrics to give reward for (comma-separated list)")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
@@ -194,7 +213,7 @@ if __name__ == "__main__":
     parser.add_argument("--reward_save_interval", type=int, default=1000, help="Number of timestep between saving reward data")
     parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
-    parser.add_argument("--seed", type=str, default="1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
+    parser.add_argument("--seed", type=str, default="-1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
     parser.add_argument("--memory_monitor", type=bool, default=False, help="Monitor memory usage during training")
     parser.add_argument("--pretrained_checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
@@ -234,7 +253,7 @@ if __name__ == "__main__":
             args.seed = generate_random_seeds(1)
             
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(2)
+        args.seed = generate_random_seeds(1)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
         
