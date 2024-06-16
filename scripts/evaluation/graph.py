@@ -32,9 +32,9 @@ def evaluate_model(model, env, num_episodes=10, deterministic=True):
                     info['cost'],
                     info['reward'],
                     info['current_selection']
+                    info['selected_ingredients']
                 ))
                 break
-
         predictions.append(episode_predictions)
     
     return predictions
@@ -51,7 +51,7 @@ def plot_results(predictions, ingredient_df, num_episodes):
     """Plot the results from the predictions."""
     flattened_predictions = [pred for episode in predictions for pred in episode]
 
-    nutrient_averages, ingredient_group_counts, ingredient_environment_counts, consumption_averages, costs, rewards, current_selections = zip(*flattened_predictions)
+    nutrient_averages, ingredient_group_counts, ingredient_environment_counts, consumption_averages, costs, _, current_selections, selected_ingredients = zip(*flattened_predictions)
 
     avg_nutrient_averages = average_dicts(nutrient_averages)
     avg_ingredient_group_counts = average_dicts(ingredient_group_counts)
@@ -123,19 +123,16 @@ def plot_results(predictions, ingredient_df, num_episodes):
     
     for i in range(num_plots):
         current_selection = np.array(current_selections[i])
-        non_zero_indices = np.nonzero(current_selection)
-        non_zero_values = current_selection[non_zero_indices]
-        selected_ingredients = ingredient_df['Category7'].iloc[non_zero_indices]
 
-        bars = axs[4 + i].bar(selected_ingredients.values, non_zero_values, color='blue', width=0.5)
+        bars = axs[4 + i].bar(selected_ingredients.values, current_selection, color='blue', width=0.5)
         axs[4 + i].set_ylabel('Grams of Ingredient')
         axs[4 + i].set_title(f'Selected Ingredients: Episode {i+1}')
         axs[4 + i].set_xticks(np.arange(len(selected_ingredients)))
         axs[4 + i].set_xticklabels(selected_ingredients.values, rotation=15, ha='center', fontsize=font_size)
         
-        axs[4 + i].set_ylim(0, max(non_zero_values) * 1.3)
+        axs[4 + i].set_ylim(0, max(current_selection) * 1.3)
         
-        for bar, actual in zip(bars, non_zero_values):
+        for bar, actual in zip(bars, current_selection):
             height = bar.get_height()
             axs[4 + i].annotate(f'{actual:.2f} g', xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', clip_on=True)
     
