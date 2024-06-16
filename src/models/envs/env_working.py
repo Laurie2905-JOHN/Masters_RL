@@ -130,7 +130,7 @@ class SchoolMealSelection(gym.Env):
         # Cost data
         self.Cost_per_1g = ingredient_df['Cost_100g'].values.astype(np.float32) / 100
         self.menu_cost = 0.0
-        self.target_cost_per_meal = 2.0  # Estimated target cost per meal
+        self.target_cost_per_meal = 2  # Estimated target cost per meal
 
         self.render_mode = render_mode
         self.initial_ingredients = initial_ingredients if initial_ingredients is not None else []
@@ -378,6 +378,10 @@ class SchoolMealSelection(gym.Env):
         return obs
 
     def _get_info(self):
+        # Compute nonzero indices once
+        nonzero_indices = np.nonzero(self.current_selection)
+
+        # Construct the info dictionary
         info = {
             'nutrient_averages': self.nutrient_averages,
             'ingredient_group_count': self.ingredient_group_count,
@@ -385,10 +389,12 @@ class SchoolMealSelection(gym.Env):
             'consumption_average': self.consumption_average,
             'cost': self.menu_cost,
             'reward': self.reward_dict,
-            'current_selection': self.current_selection,
+            'current_selection': self.current_selection[nonzero_indices],
+            'selected_ingredients': ingredient_df['Category7'].iloc[nonzero_indices],
             'termination_reason': self.termination_reason
         }
         return info
+
 
     def render(self, step=None):
         if self.render_mode == 'human':
