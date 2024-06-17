@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -l select=1:ncpus=16:mem=16gb:ngpus=0
-#PBS -l walltime=3:00:00
+#PBS -l walltime=4:00:00
 #PBS -N New_Reward3
 #PBS -o /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/train_hyperparam_newReward.log
 #PBS -e /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/train_hyperparam_newReward_error.log
@@ -23,4 +23,5 @@ python "scripts/training/train.py" \
   --device="cpu" \
   --memory_monitor=False \
   --plot_reward_history=True \
-  --log_prefix="1000_newReward"
+  --reward_metrics="nutrients,environment,cost" \
+
