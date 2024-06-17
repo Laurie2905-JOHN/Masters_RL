@@ -127,7 +127,7 @@ def main(args, seed):
     )
     
     # Set up the evaluation callback with the custom callback
-    checkpoint_callback = EvalCallback(
+    eval_callback = EvalCallback(
         eval_env=env,
         best_model_save_path=best_model_path,
         callback_on_new_best=save_vec_normalize_callback,
@@ -140,7 +140,7 @@ def main(args, seed):
 
     info_logger_callback = InfoLoggerCallback()
     
-    callback = CallbackList([checkpoint_callback, info_logger_callback])
+    callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
     
     if args.memory_monitor:
         # Start the memory monitoring in a separate thread
@@ -202,7 +202,7 @@ if __name__ == "__main__":
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=8, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=2000000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=2000, help="Total number of timesteps for training")
     parser.add_argument("--reward_metrics", type=str, default='nutrients,groups,environment,cost,consumption', help="Metrics to give reward for (comma-separated list)")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
@@ -214,7 +214,7 @@ if __name__ == "__main__":
     parser.add_argument("--reward_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'reward')), help="Directory to save reward data")
     parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
     parser.add_argument("--reward_save_interval", type=int, default=8000, help="Number of timestep between saving reward data")
-    parser.add_argument("--plot_reward_history", type=bool, default=False, help="Save and plot the reward history for the environment")
+    parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
     parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
     parser.add_argument("--seed", type=str, default="-1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
