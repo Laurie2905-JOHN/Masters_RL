@@ -150,7 +150,8 @@ class Args:
     num_envs = 1
     plot_reward_history = False
     max_episode_steps = 1000
-
+    verbose = 2
+    
 def main():
     args = Args()
 
@@ -163,10 +164,10 @@ def main():
 
     env = setup_environment(args, seed, ingredient_df, eval=True)
     
-    filename = "1"    
+    filename = "SchoolMealSelection_v1_A2C_2000000_8env_best_nutrients_groups_environment_cost_consumption_seed_4280382068"    
     
     
-    norm_path = os.path.abspath(f"saved_models/evaluation/best_models/new_reward/{filename}/vec_normalize_best.pkl")
+    norm_path = os.path.abspath(f"saved_models/evaluation/best_models/{filename}/vec_normalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
     
     env.training = False
@@ -175,8 +176,9 @@ def main():
     # Dummy learning rate schedule function
     def dummy_lr_schedule(_):
         return 1e-3
+    
 
-    model_path = os.path.abspath(f"saved_models/evaluation/best_models/new_reward/{filename}/best_model.zip")
+    model_path = os.path.abspath(f"saved_models/evaluation/best_models/{filename}/best_model.zip")
     custom_objects = {'lr_schedule': dummy_lr_schedule}
     model = A2C.load(model_path, env=env, custom_objects=custom_objects)
 
