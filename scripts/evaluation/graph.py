@@ -5,6 +5,7 @@ from stable_baselines3 import A2C, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 import os
 from utils.process_data import get_data
+import random 
 
 def evaluate_model(model, env, num_episodes=10, deterministic=True):
     """Evaluate the trained model and collect predictions."""
@@ -143,9 +144,9 @@ def plot_results(predictions, num_episodes):
     plt.tight_layout(pad=2.0)
     plt.subplots_adjust(hspace=1.1, wspace=0.1)
     plt.show()
-
+# "nutrients,groups,environment,cost,consumption"
 class Args:
-    reward_metrics = ['nutrients', 'groups', 'environment', 'cost', 'consumption']
+    reward_metrics = "nutrients,groups,environment,cost,consumption"
     render_mode = None
     num_envs = 1
     plot_reward_history = False
@@ -159,15 +160,20 @@ def main():
     from utils.process_data import get_data  # Ensure this import is correct
     
     ingredient_df = get_data()
-
-    seed = 7859985245
+    
+    basepath = os.path.abspath(f"saved_models/evaluation/best_models/sparse_reward/")
+    
+    filename = "SchoolMealSelection_v1_A2C_1000000_8env_best_nutrients_groups_environment_cost_consumption_seed_4082949944"    
+    
+    if len(filename.split("_")) < 2:
+        seed = random.randint(0, 1000)
+    else: 
+        seed = int(filename.split("_")[-1])
 
     env = setup_environment(args, seed, ingredient_df, eval=True)
     
-    filename = "SchoolMealSelection_v1_A2C_2000000_8env_best_nutrients_groups_environment_cost_consumption_seed_4280382068"    
-    
-    
-    norm_path = os.path.abspath(f"saved_models/evaluation/best_models/{filename}/vec_normalize_best.pkl")
+
+    norm_path = os.path.join(basepath, filename, "vec_normalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
     
     env.training = False
@@ -178,7 +184,8 @@ def main():
         return 1e-3
     
 
-    model_path = os.path.abspath(f"saved_models/evaluation/best_models/{filename}/best_model.zip")
+    model_path = os.path.join(basepath, filename, "best_model.zip")
+    
     custom_objects = {'lr_schedule': dummy_lr_schedule}
     model = A2C.load(model_path, env=env, custom_objects=custom_objects)
 

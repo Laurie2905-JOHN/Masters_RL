@@ -32,8 +32,7 @@ class RewardTrackingWrapper(gym.Wrapper):
         if self.step_count % self.save_interval == 0 and self.reward_save_path or self.step_count==1:
             self.save_and_clear()
             if self.verbose > 0:
-                print(f"Step: {self.step_count}")
-                print(f"File updated and saved to: {self.reward_save_path}")
+                print(f"File updated and saved to: {self.reward_save_path} at episode {self.episode_count} total step {self.step_count}")
 
         return obs, reward, terminated, truncated, info
 

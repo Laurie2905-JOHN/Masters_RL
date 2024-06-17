@@ -1,7 +1,7 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-from models.reward.reward import nutrient_reward, group_count_reward, environment_count_reward, cost_reward, consumption_reward, termination_reason
+from models.reward.reward_sparse import nutrient_reward, group_count_reward, environment_count_reward, cost_reward, consumption_reward, termination_reason
 import os
 from utils.process_data import get_data
 from collections import Counter
@@ -9,14 +9,13 @@ from collections import Counter
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=21.25, num_people=1000, render_mode=None, initial_ingredients=None, reward_metrics=None, verbose=0):
+    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=20, render_mode=None, initial_ingredients=None, reward_metrics=None, verbose=0):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
         self.max_ingredients = max_ingredients
         self.action_scaling_factor = action_scaling_factor
         self.reward_metrics = reward_metrics if reward_metrics else ['nutrients', 'groups', 'environment', 'cost', 'consumption']
-        self.num_people = num_people
         self.verbose = verbose
         
         # Nutritional values
@@ -137,6 +136,8 @@ class SchoolMealSelection(gym.Env):
         self.initial_ingredients = initial_ingredients if initial_ingredients is not None else []
         self.n_ingredients = len(ingredient_df)
         self.episode_count = 1
+        # Initialize the step counter
+        self.nsteps = 0
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(self.n_ingredients,), dtype=np.float32)
         
@@ -185,7 +186,7 @@ class SchoolMealSelection(gym.Env):
         
         # Identify non-dairy ingredients as measured sugars are excluding dairy sugars
         non_dairy_mask = self.ingredient_df['Category7'] != 'Group E'
-        
+
         # Calculate the total values for each nutritional category for the selected ingredients
         self.nutrient_averages = {
             'calories': sum(self.caloric_values * self.current_selection),
@@ -312,6 +313,9 @@ class SchoolMealSelection(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         
+        # Reset the step counter
+        self.nsteps = 0
+        
         self.current_selection = np.zeros(self.n_ingredients, dtype=np.float32)
 
         self.episode_count += 1
@@ -345,11 +349,15 @@ class SchoolMealSelection(gym.Env):
 
     def step(self, action):
         
+        self.nsteps += 1
+        
         action = np.clip(action, -1, 1)  # Ensure actions are within bounds
 
         change = action * self.action_scaling_factor
+    
         
         self.current_selection = np.maximum(0, self.current_selection + change)
+        
 
         num_selected_ingredients = np.sum(self.current_selection > 0)
 
@@ -386,19 +394,29 @@ class SchoolMealSelection(gym.Env):
         return obs
 
     def _get_info(self):
-        # Update the counter dictionary for targets not met
-        self.target_not_met_counters.update(self.reward_dict['targets_not_met'])
 
-        # Check if all values in the counter dictionary have reached 10,000
-        if all(value >= 100000 for value in self.target_not_met_counters.values()):
-            # Reset all values to zero
-            self.target_not_met_counters = Counter({key: 0 for key in self.target_not_met_counters.keys()})
-
+        # # Check if all values in the counter dictionary have reached 10,000
+        # if all(value >= 100000 for value in self.target_not_met_counters.values()):
+        #     # Reset all values to zero
+        #     self.target_not_met_counters = Counter({key: 0 for key in self.target_not_met_counters.keys()})
+        
+        current_meal_plan = {}
+        
         # Compute nonzero indices once
         nonzero_indices = np.nonzero(self.current_selection)
+        
+        if self.verbose > 0:
+            
+            if len(nonzero_indices[0]) != 0:
+                # Iterate through the relevant entries and populate the current_meal_plan
+                for idx in nonzero_indices[0]:
+                    category_value = self.ingredient_df['Category7'].iloc[idx]
+                    current_meal_plan[category_value] = self.current_selection[idx]
+            
+            # Update the counter dictionary for targets not met
+            self.target_not_met_counters.update(self.reward_dict['targets_not_met'])
 
-        # Compute nonzero indices once
-        nonzero_indices = np.nonzero(self.current_selection)
+        
 
         # Construct the info dictionary
         info = {
@@ -413,6 +431,12 @@ class SchoolMealSelection(gym.Env):
             'termination_reason': self.termination,
             'targets_not_met_count': dict(self.target_not_met_counters)
         }
+
+        info['current_meal_plan'] = current_meal_plan
+        
+        # if current_meal_plan != {}:
+        #     print(f"Current meal plan: {current_meal_plan}")
+        #     print(f"Current selection: {nonzero_indices}")
         return info
 
 
@@ -441,48 +465,47 @@ if __name__ == '__main__':
     class Args:
         reward_metrics = ['nutrients', 'groups', 'environment', 'consumption', 'cost']
         render_mode = None
-        num_envs = 8
+        num_envs = 1
         plot_reward_history = True
         max_episode_steps = 1000
         verbose = 2
+        action_scaling_factor = 1
+        memory_monitor = False
     ingredient_df = get_data()
     
     args = Args()
-    seed = None
+    seed = 10
     num_episodes = 500
     
     
     reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
-    env = setup_environment(args, seed, ingredient_df, reward_save_path=reward_save_path, eval=False)
+    env = setup_environment(args, seed, ingredient_df, reward_save_interval=8000, reward_save_path=reward_save_path, eval=False)
     
     check_env(env.unwrapped.envs[0].unwrapped)
     print("Environment is valid!")
 
     np.set_printoptions(suppress=True)
 
-    # Start the memory monitoring in a separate thread
-    import threading
-    monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
-    monitoring_thread.start()
+    if args.memory_monitor:
+        # Start the memory monitoring in a separate thread
+        import threading
+        monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
+        monitoring_thread.start()
 
     for episode in range(num_episodes):
         obs = env.reset()
+
         if episode % 100 == 0:
             print(f"Episode {episode}")
 
         for step in range(args.max_episode_steps):
             action = env.action_space.sample()
             obs, rewards, dones, infos = env.step(action)
-            
-            # VecEnv will return arrays of values
-            terminated = dones[0]
-            truncated = infos[0].get('TimeLimit.truncated', False)
-            targets_met = infos[0].get('all_targets_met', False)
-            
-
-            if terminated or truncated:
+            if dones:
+                print(f"Final meal plan (episode: {episode}):" , infos[0]['current_meal_plan'])
                 break
     env.close()
+    
         # Access the underlying RewardTrackingWrapper for saving rewards
     if args.plot_reward_history:
         # Save reward distribution
