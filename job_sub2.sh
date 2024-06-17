@@ -1,9 +1,9 @@
 #!/bin/bash
-#PBS -l select=1:ncpus=16:mem=32gb:ngpus=1
+#PBS -l select=1:ncpus=16:mem=32gb:ngpus=0
 #PBS -l walltime=8:00:00
-#PBS -N PPO_Optuna_Optimization
-#PBS -o /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/ppo_optimization.log
-#PBS -e /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/ppo_optimization_error.log
+#PBS -N test2
+#PBS -o /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/test2.log
+#PBS -e /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/test2_error.log
 
 cd $PBS_O_WORKDIR
 
@@ -12,5 +12,35 @@ module load anaconda3/personal
 
 source activate MasterEnv
 
-# Run the Python script with PPO algorithm for Optuna optimization
-python "/rds/general/user/lej23/home/fyp/Masters_RL/scripts/training/hyper_tune.py" --algo PPO --n_trials 1000 --timeout 86400 --n_jobs 16 --n_gpus 1
+    python "scripts/training/train.py" \
+    --algo="A2C" \
+    --env_name="SchoolMealSelection-v1" \
+    --num_envs=16 \
+    --total_timesteps=3000000 \
+    --save_freq=10000 \
+    --eval_freq=1000 \
+    --device="cpu" \
+    --memory_monitor="False" \
+    --reward_metrics="nutrients" \
+
+    python "scripts/training/train.py" \
+    --algo="A2C" \
+    --env_name="SchoolMealSelection-v1" \
+    --num_envs=16 \
+    --total_timesteps=3000000 \
+    --save_freq=10000 \
+    --eval_freq=1000 \
+    --device="cpu" \
+    --memory_monitor="False" \
+    --reward_metrics="nutrients,environment,cost,consumption" \
+
+    python "scripts/training/train.py" \
+    --algo="A2C" \
+    --env_name="SchoolMealSelection-v1" \
+    --num_envs=16 \
+    --total_timesteps=3000000 \
+    --save_freq=10000 \
+    --eval_freq=1000 \
+    --device="cpu" \
+    --memory_monitor="False" \
+    --reward_metrics="groups,environment,cost,consumption" \

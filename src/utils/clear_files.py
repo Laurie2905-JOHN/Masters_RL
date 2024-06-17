@@ -28,8 +28,6 @@ def clear_directory(directory_list):
                 else:
                     os.remove(item_path)
             print(f"All contents of {directory_path} have been deleted.")
-        else:
-            print("Operation cancelled.")
 
 if __name__ == "__main__":
     
