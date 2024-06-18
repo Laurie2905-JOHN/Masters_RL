@@ -173,4 +173,4 @@ saved_models/*
 
 # Filetypes
 *.dat
-*.csv
+# *.csv
