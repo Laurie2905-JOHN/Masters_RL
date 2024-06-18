@@ -203,9 +203,9 @@ if __name__ == "__main__":
     parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v1', help="Name of the environment")
     parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
-    parser.add_argument("--num_envs", type=int, default=8, help="Number of parallel environments")
+    parser.add_argument("--num_envs", type=int, default=12, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=5000000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=2000000, help="Total number of timesteps for training")
     parser.add_argument("--reward_metrics", type=str, default='nutrients,groups,environment,cost,consumption', help="Metrics to give reward for (comma-separated list)")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
@@ -259,7 +259,7 @@ if __name__ == "__main__":
             args.seed = generate_random_seeds(1)
             
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(3)
+        args.seed = generate_random_seeds(8)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
         
