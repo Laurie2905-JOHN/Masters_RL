@@ -206,56 +206,60 @@ def monitor_memory_usage(interval=5):
         time.sleep(interval)
 
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-from collections import defaultdict, Counter
+def process_and_aggregate(store, start, stop):
+    df_rewards = store.select('rewards', start=start, stop=stop)
+    reward_history = df_rewards['total_reward'].tolist()
+
+    targets_not_met_counts = Counter()
+    flattened_reward_histories = defaultdict(list)
+
+    for column in df_rewards.columns:
+        if column == 'total_reward':
+            continue
+        if column == 'targets_not_met':
+            for rewards in df_rewards[column].dropna():
+                if isinstance(rewards, str):
+                    rewards_list = rewards.split(',')
+                    targets_not_met_counts.update(rewards_list)
+        else:
+            for rewards in df_rewards[column].dropna():
+                flattened_reward_histories[column].append(rewards)
+
+    return reward_history, flattened_reward_histories, targets_not_met_counts
+
+
 
 def plot_reward_distribution(load_path, save_plot_path=None, chunk_size=10000):
     # Initialize the necessary containers
-    reward_history = []
-    reward_details_history = []
-    flattened_reward_histories = defaultdict(lambda: defaultdict(list))
-    
-    targets_not_met_counts = Counter()
+    total_reward_history = []
+    total_flattened_reward_histories = defaultdict(list)
+    total_targets_not_met_counts = Counter()
 
     # Read the HDF5 file in chunks
     with pd.HDFStore(load_path) as store:
         total_rows = store.get_storer('rewards').nrows
+
         for start in range(0, total_rows, chunk_size):
-            df_rewards = store.select('rewards', start=start, stop=start+chunk_size)
+            reward_history, flattened_reward_histories, targets_not_met_counts = process_and_aggregate(store, start, start + chunk_size)
 
-            reward_history.extend(df_rewards['total_reward'].tolist())
-            reward_details_history.extend(df_rewards['reward_details'].apply(json.loads).tolist())
-
-            for entry in reward_details_history:
-                for category, rewards in entry.items():
-                    if category == 'targets_not_met':
-                        targets_not_met_counts.update(rewards)
-                    else:
-                        if category not in ['targets_not_met', 'termination_reward']:
-                            for key, value in rewards.items():
-                                flattened_reward_histories[category][key].append(value)
-                        else:
-                            flattened_reward_histories[category][category].append(rewards)
-
-            reward_details_history.clear()  # Clear to avoid accumulating old data
-
-
+            total_reward_history.extend(reward_history)
+            for category, values in flattened_reward_histories.items():
+                total_flattened_reward_histories[category].extend(values)
+            total_targets_not_met_counts.update(targets_not_met_counts)
 
     # Dictionary for shorter labels
-    label_mapping = {
-        'nutrient_rewards': 'Nutrient',
-        'ingredient_group_count_rewards': 'Ingredient Group',
-        'ingredient_environment_count_rewards': 'Environment',
-        'cost_rewards': 'Cost',
-        'consumption_rewards': 'Consumption',
-        'termination_reward': 'Termination',
-        'targets_not_met': 'Targets Not Met'
-    }
+    # label_mapping = {
+    #     'nutrient_rewards': 'Nutrient',
+    #     'ingredient_group_count_rewards': 'Ingredient Group',
+    #     'ingredient_environment_count_rewards': 'Environment',
+    #     'cost_rewards': 'Cost',
+    #     'consumption_rewards': 'Consumption',
+    #     'termination_reward': 'Termination',
+    #     'targets_not_met': 'Targets Not Met'
+    # }
 
     # Determine the layout of the plot
-    num_rewards = sum(len(rewards) for rewards in flattened_reward_histories.values()) + 2
+    num_rewards = len(total_flattened_reward_histories) + 2
     col = 7
     row = num_rewards // col
     if num_rewards % col != 0:
@@ -265,25 +269,26 @@ def plot_reward_distribution(load_path, save_plot_path=None, chunk_size=10000):
     axes = np.ravel(axes)
 
     # Plot the total reward distribution
-    axes[0].hist(reward_history, bins=50, alpha=0.75)
+    axes[0].hist(total_reward_history, bins=50, alpha=0.75)
     axes[0].set_xlabel('Total reward')
     axes[0].set_ylabel('Frequency')
     axes[0].set_title('Total Reward Distribution')
 
     index = 1
     # Plot the distributions of other reward categories
-    for category, rewards in flattened_reward_histories.items():
-        for key, values in rewards.items():
-            short_label = label_mapping.get(category, category)
-            axes[index].hist(values, bins=50, alpha=0.75)
-            axes[index].set_xlabel(f'{short_label} - {key.replace("_", " ").capitalize()}')
-            axes[index].set_ylabel('Frequency')
-            index += 1
+    for category, values in total_flattened_reward_histories.items():
+        # short_label = label_mapping.get(category, category)
+        axes[index].hist(values, bins=50, alpha=0.75)
+        axes[index].set_xlabel(f'{category.replace("_", " ").capitalize()}')
+        axes[index].set_ylabel('Frequency')
+        index += 1
+
+    del total_flattened_reward_histories
 
     # Plot the counts of targets not met
     bars = axes[index].bar(
-        [target.replace('_', ' ').capitalize() for target in targets_not_met_counts.keys()],
-        targets_not_met_counts.values()
+        [target.replace('_', ' ').capitalize() for target in total_targets_not_met_counts.keys()],
+        total_targets_not_met_counts.values()
     )
     axes[index].set_xlabel('Targets Not Met')
     axes[index].set_ylabel('Frequency')
@@ -304,6 +309,16 @@ def plot_reward_distribution(load_path, save_plot_path=None, chunk_size=10000):
         plt.savefig(save_plot_path)
     else:
         plt.show()
+
+if __name__ == "__main__":
+    base, subdir = get_unique_directory("saved_models/tensorboard", "A2C_100000", ".zip")
+    print(f"Base Directory: {base}")
+    print(f"Unique Subdirectory: {subdir}")
+    print(os.path.abspath('saved_models/best_models'))
+
+
+
+
 
             
 if __name__ == "__main__":
