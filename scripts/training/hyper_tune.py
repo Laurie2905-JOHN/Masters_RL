@@ -12,7 +12,7 @@ def main(algo, n_trials, timeout, n_jobs, n_gpus):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
+    parser.add_argument('--algo', type=str, default="A2C", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--n_trials', type=int, default=1000, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=259200, help="Timeout for optimization in seconds")
     parser.add_argument('--n_jobs', type=int, default=4, help="Number of parallel jobs for Optuna")

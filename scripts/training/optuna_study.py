@@ -1,4 +1,6 @@
 import optuna
+import optuna_distributed
+from dask.distributed import Client
 import gymnasium as gym
 import numpy as np
 from stable_baselines3 import PPO, A2C
@@ -6,7 +8,6 @@ from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.evaluation import evaluate_policy
 from utils.process_data import get_data
 from models.envs.env_working import SchoolMealSelection
-import joblib
 
 def ppo_objective(trial, n_gpus, num_seeds=5):
     n_steps = trial.suggest_int('n_steps', 16, 2048)
@@ -82,31 +83,45 @@ def a2c_objective(trial, num_seeds=5):
         model.learn(total_timesteps=1000000)
 
         # Evaluate the model
-        mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=10)
+        mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=15)
         rewards.append(mean_reward)
 
     return np.mean(rewards)
 
-def optimize_ppo(n_trials=1000, timeout=43200, n_jobs=16, n_gpus=4, num_seeds=5):
-    # Create Optuna study for PPO
-    ppo_study = optuna.create_study(direction='maximize')
-
-    # Optimize using joblib for parallel execution
-    with joblib.parallel_backend('loky', n_jobs=n_jobs):
-        ppo_study.optimize(lambda trial: ppo_objective(trial, n_gpus, num_seeds), n_trials=n_trials, timeout=timeout)
-
-    # Save the best parameters for PPO
-    best_params_ppo = ppo_study.best_params
+def optimize_ppo(study_name, storage_url, n_trials=1000, timeout=43200, n_gpus=4, num_seeds=5):
+    client = None  # Use Dask client if available, e.g., Client("<your.cluster.scheduler.address>")
+    base_study = optuna.create_study(study_name=study_name, direction='maximize', storage=storage_url, load_if_exists=True)
+    study = optuna_distributed.from_study(base_study, client=client)
+    study.optimize(lambda trial: ppo_objective(trial, n_gpus, num_seeds), n_trials=n_trials, timeout=timeout)
+    best_params_ppo = study.best_params
     print("Best parameters for PPO:", best_params_ppo)
 
-def optimize_a2c(n_trials=1000, timeout=43200, n_jobs=16, num_seeds=5):
-    # Create Optuna study for A2C
-    a2c_study = optuna.create_study(direction='maximize')
-
-    # Optimize using joblib for parallel execution
-    with joblib.parallel_backend('loky', n_jobs=n_jobs):
-        a2c_study.optimize(lambda trial: a2c_objective(trial, num_seeds), n_trials=n_trials, timeout=timeout)
-
-    # Save the best parameters for A2C
-    best_params_a2c = a2c_study.best_params
+def optimize_a2c(study_name, storage_url, n_trials=1000, timeout=43200, num_seeds=5):
+    client = None  # Use Dask client if available, e.g., Client("<your.cluster.scheduler.address>")
+    base_study = optuna.create_study(study_name=study_name, direction='maximize', storage=storage_url, load_if_exists=True)
+    study = optuna_distributed.from_study(base_study, client=client)
+    study.optimize(lambda trial: a2c_objective(trial, num_seeds), n_trials=n_trials, timeout=timeout)
+    best_params_a2c = study.best_params
     print("Best parameters for A2C:", best_params_a2c)
+
+import argparse
+
+def main(algo, study_name, storage_url, n_trials, timeout, n_gpus):
+    if algo == 'PPO':
+        optimize_ppo(study_name=study_name, storage_url=storage_url, n_trials=n_trials, timeout=timeout, n_gpus=n_gpus)
+    elif algo == 'A2C':
+        optimize_a2c(study_name=study_name, storage_url=storage_url, n_trials=n_trials, timeout=timeout)
+    else:
+        raise ValueError("Unsupported algorithm specified.")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--algo', type=str, default="A2C", help="Algorithm to optimize: PPO or A2C")
+    parser.add_argument('--study_name', type=str, required=True, help="Name of the Optuna study")
+    parser.add_argument('--storage_url', type=str, required=True, help="URL of the Optuna RDB storage")
+    parser.add_argument('--n_trials', type=int, default=1000, help="Number of trials for optimization")
+    parser.add_argument('--timeout', type=int, default=259200, help="Timeout for optimization in seconds")
+    parser.add_argument('--n_gpus', type=int, default=1, help="Number of GPUs to use")
+
+    args = parser.parse_args()
+    main(args.algo, args.study_name, args.storage_url, args.n_trials, args.timeout, args.n_gpus)
