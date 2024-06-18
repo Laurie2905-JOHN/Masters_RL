@@ -212,10 +212,8 @@ class SchoolMealSelection(gym.Env):
 
         reward = 0
         terminated = False
-
-        non_dairy_mask = self.ingredient_df['Category7'] != 'Group E'
         
-        self.nutrient_averages = self._calculate_nutrient_averages(non_dairy_mask)
+        self.nutrient_averages = self._calculate_nutrient_averages()
         non_zero_mask = self.current_selection != 0
         non_zero_values = self._calculate_non_zero_values(non_zero_mask)
         
@@ -236,13 +234,13 @@ class SchoolMealSelection(gym.Env):
 
         return reward, info, terminated
 
-    def _calculate_nutrient_averages(self, non_dairy_mask):
+    def _calculate_nutrient_averages(self):
         return {
             'calories': sum(self.caloric_values * self.current_selection),
             'fat': sum(self.Fat_g * self.current_selection),
             'saturates': sum(self.Saturates_g * self.current_selection),
             'carbs': sum(self.Carbs_g * self.current_selection),
-            'sugar': sum(self.Sugars_g * self.current_selection * non_dairy_mask),
+            'sugar': sum(self.Sugars_g * self.current_selection),
             'fibre': sum(self.Fibre_g * self.current_selection),
             'protein': sum(self.Protein_g * self.current_selection),
             'salt': sum(self.Salt_g * self.current_selection)
@@ -512,7 +510,7 @@ if __name__ == '__main__':
     from utils.process_data import get_data
     from gymnasium.utils.env_checker import check_env
     from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage, plot_reward_distribution
-    reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '.json')
+    reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '')
 
     class Args:
         reward_metrics = ['nutrients', 'groups', 'environment', 'consumption', 'cost']
@@ -520,15 +518,15 @@ if __name__ == '__main__':
         num_envs = 1
         plot_reward_history = True
         max_episode_steps = 1000
-        verbose = 1
+        verbose = 0
         action_scaling_factor = 10
-        memory_monitor = False
+        memory_monitor = True
         gamma = 0.99
 
     ingredient_df = get_data()
     args = Args()
     seed = 10
-    num_episodes = 100000
+    num_episodes = 10000
     reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
     env = setup_environment(args, seed, ingredient_df, args.gamma, reward_save_interval=8000, reward_save_path=reward_save_path, eval=False)
 

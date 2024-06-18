@@ -16,6 +16,14 @@ from gymnasium.wrappers import TimeLimit
 import mmap
 import json
 import matplotlib.pyplot as plt
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import defaultdict, Counter
+import dask.dataframe as dd
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from collections import defaultdict, Counter
 
 # Function to select the appropriate device (CPU or GPU)
 def select_device(args):
@@ -198,43 +206,42 @@ def monitor_memory_usage(interval=5):
         time.sleep(interval)
 
 
-def plot_reward_distribution(load_path, save_plot_path=None):
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from collections import defaultdict, Counter
 
-    def process_line(line):
-        try:
-            reward_distribution = json.loads(line)
-            return reward_distribution
-        except json.JSONDecodeError:
-            return None
-
+def plot_reward_distribution(load_path, save_plot_path=None, chunk_size=10000):
+    # Initialize the necessary containers
     reward_history = []
     reward_details_history = []
-
-    with open(load_path, 'r+b') as f:
-        mm = mmap.mmap(f.fileno(), 0)
-        for line in iter(mm.readline, b""):
-            reward_distribution = process_line(line.decode('utf-8'))
-            if reward_distribution:
-                reward_history.extend(reward_distribution['total_reward'])
-                reward_details_history.extend(reward_distribution['reward_details'])
-        mm.close()
-
-    # Flatten reward details
     flattened_reward_histories = defaultdict(lambda: defaultdict(list))
-    targets_not_met = []
+    
+    targets_not_met_counts = Counter()
 
-    for entry in reward_details_history:
-        for category, rewards in entry.items():
-            if category == 'targets_not_met':
-                targets_not_met.extend(rewards)
-            else:
-                if category not in ['targets_not_met', 'termination_reward']:
-                    for key, value in rewards.items():
-                        flattened_reward_histories[category][key].append(value)
-                else:
-                    flattened_reward_histories[category][category].append(rewards)
-    # Count occurrences of each string in 'targets_not_met'
-    targets_not_met_counts = Counter(targets_not_met)
+    # Read the HDF5 file in chunks
+    with pd.HDFStore(load_path) as store:
+        total_rows = store.get_storer('rewards').nrows
+        for start in range(0, total_rows, chunk_size):
+            df_rewards = store.select('rewards', start=start, stop=start+chunk_size)
+
+            reward_history.extend(df_rewards['total_reward'].tolist())
+            reward_details_history.extend(df_rewards['reward_details'].apply(json.loads).tolist())
+
+            for entry in reward_details_history:
+                for category, rewards in entry.items():
+                    if category == 'targets_not_met':
+                        targets_not_met_counts.update(rewards)
+                    else:
+                        if category not in ['targets_not_met', 'termination_reward']:
+                            for key, value in rewards.items():
+                                flattened_reward_histories[category][key].append(value)
+                        else:
+                            flattened_reward_histories[category][category].append(rewards)
+
+            reward_details_history.clear()  # Clear to avoid accumulating old data
+
+
 
     # Dictionary for shorter labels
     label_mapping = {
@@ -247,6 +254,7 @@ def plot_reward_distribution(load_path, save_plot_path=None):
         'targets_not_met': 'Targets Not Met'
     }
 
+    # Determine the layout of the plot
     num_rewards = sum(len(rewards) for rewards in flattened_reward_histories.values()) + 2
     col = 7
     row = num_rewards // col
@@ -256,12 +264,14 @@ def plot_reward_distribution(load_path, save_plot_path=None):
     fig, axes = plt.subplots(row, col, figsize=(col * 4, row * 3))
     axes = np.ravel(axes)
 
+    # Plot the total reward distribution
     axes[0].hist(reward_history, bins=50, alpha=0.75)
     axes[0].set_xlabel('Total reward')
     axes[0].set_ylabel('Frequency')
     axes[0].set_title('Total Reward Distribution')
 
     index = 1
+    # Plot the distributions of other reward categories
     for category, rewards in flattened_reward_histories.items():
         for key, values in rewards.items():
             short_label = label_mapping.get(category, category)
@@ -270,6 +280,7 @@ def plot_reward_distribution(load_path, save_plot_path=None):
             axes[index].set_ylabel('Frequency')
             index += 1
 
+    # Plot the counts of targets not met
     bars = axes[index].bar(
         [target.replace('_', ' ').capitalize() for target in targets_not_met_counts.keys()],
         targets_not_met_counts.values()
@@ -282,15 +293,18 @@ def plot_reward_distribution(load_path, save_plot_path=None):
         yval = bar.get_height()
         axes[index].text(bar.get_x() + bar.get_width() / 2, yval + 0.05, int(yval), ha='center', va='bottom')
 
+    # Hide any unused subplots
     for ax in axes[num_rewards:]:
         ax.set_visible(False)
 
     plt.tight_layout()
 
+    # Save or show the plot
     if save_plot_path:
         plt.savefig(save_plot_path)
     else:
         plt.show()
+
             
 if __name__ == "__main__":
     base, subdir = get_unique_directory("saved_models/tensorboard", "A2C_100000", ".zip")

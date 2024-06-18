@@ -16,8 +16,6 @@ def get_data(filename='small_data.csv'):
         # Process the data and report the number of rows and ingredients per row
         num_rows = len(data) - 1
         
-        print(f"Successfully read {num_rows+1} lines from the file. Loaded {num_rows} ingredients.")
-        
         keys = data[0].replace('\n','').replace('\ufeff','').split(',')
         
         ingredients_df = pd.DataFrame(columns=keys)
@@ -39,13 +37,14 @@ def get_data(filename='small_data.csv'):
                                    for ingredient in ingredients
                                  ]
             
-            
             ingredients_df.loc[len(ingredients_df.index)] = cleaned_ingredients
             
             # Construct the full path to the processed data file
             processed_file_path = os.path.join(base_dir, '..', '..', 'data', 'processed_data.csv')
             
             ingredients_df.to_csv(processed_file_path, index=False)
+            
+        print(f"Successfully read {num_rows+1} lines from the file. Loaded {num_rows} ingredients.")
         
         return ingredients_df
     
@@ -53,7 +52,7 @@ def get_data(filename='small_data.csv'):
         print(f"Error: The file at path '{data_file_path}' was not found.")
     except IOError as e:
         print(f"Error: An IOError occurred. {e}")
-    except Exception as e:
+    except Exception as e:  
         print(f"An unexpected error occurred: {e}")
 
 
@@ -98,4 +97,4 @@ def convert_to_correct_type(value):
 
 # Example usage
 if __name__ == "__main__":
-    get_data()
+    get_data(filename='small_data.csv')
