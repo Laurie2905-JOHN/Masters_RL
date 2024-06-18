@@ -528,13 +528,13 @@ if __name__ == '__main__':
     seed = 10
     num_episodes = 1000
     reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
-    env = setup_environment(args, seed, ingredient_df, args.gamma, reward_save_interval=8000, reward_save_path=reward_save_path, eval=False)
+    env = setup_environment(args, seed, ingredient_df, reward_save_path=reward_save_path, eval=False)
 
     check_env(env.unwrapped.envs[0].unwrapped)
     print("Environment is valid!")
     del env
 
-    env = setup_environment(args, seed, ingredient_df, args.gamma, reward_save_interval=8000, reward_save_path=reward_save_path, eval=False)
+    env = setup_environment(args, seed, ingredient_df, reward_save_path=reward_save_path, eval=False)
     np.set_printoptions(suppress=True)
 
     if args.memory_monitor:

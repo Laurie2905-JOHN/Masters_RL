@@ -139,10 +139,8 @@ class RewardCalculator:
         failed_targets = sum([not target for target in targets_met])
 
         # Check if more than half of the targets are failed
-        if main_class.episode_count > 200:
-            if main_class.nsteps > 500 and failed_targets > 4:
-                terminated = True
-                termination_reward -= 1000
-
+        if main_class.nsteps > 100 and failed_targets > 4:
+            terminated = True
+            termination_reward -= 1000
 
         return terminated, termination_reward, targets_not_met

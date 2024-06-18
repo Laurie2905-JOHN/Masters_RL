@@ -2,7 +2,7 @@ import os
 from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 import numpy as np
 import random
-from stable_baselines3.common.vec_env import VecNormalize
+from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv, SubprocVecEnv
 from stable_baselines3.common.env_util import make_vec_env
 import torch
 # from models.envs.env import SchoolMealSelection
@@ -46,7 +46,7 @@ def set_seed(seed, device):
 
 
 # Function to set up the environment
-def setup_environment(args, seed, ingredient_df, gamma,  reward_save_interval=2500, reward_save_path=None, eval=False):
+def setup_environment(args, seed, ingredient_df, reward_save_path=None, eval=False):
     
     def make_env():
         env = SchoolMealSelection(
@@ -62,7 +62,7 @@ def setup_environment(args, seed, ingredient_df, gamma,  reward_save_interval=25
                 raise ValueError("reward_save_path must be specified when plot_reward_history is True")
             env = RewardTrackingWrapper(
                 env,
-                reward_save_interval,
+                args.reward_save_interval,
                 reward_save_path,
                 )
 
@@ -76,7 +76,16 @@ def setup_environment(args, seed, ingredient_df, gamma,  reward_save_interval=25
     if eval:
         return env
     
-    return VecNormalize(env, gamma, norm_obs=True, norm_reward=True, clip_obs=10.)
+    return VecNormalize(
+        env, 
+        norm_obs=args.vecnorm_norm_obs, 
+        norm_reward=args.vecnorm_norm_reward, 
+        clip_obs=args.vecnorm_clip_obs, 
+        clip_reward=args.vecnorm_clip_reward, 
+        gamma=args.gamma, 
+        epsilon=args.vecnorm_epsilon, 
+        norm_obs_keys=args.vecnorm_norm_obs_keys
+    )
 
     
     
@@ -229,8 +238,12 @@ def process_and_aggregate(store, start, stop):
 
 
 
-def plot_reward_distribution(load_path, save_plot_path=None, chunk_size=10000):
-    # Initialize the necessary containers
+def plot_reward_distribution(load_path, save_plot_path=None, chunk_size=10000, start_portion=0.0, end_portion=1.0):
+    # Validate the input portions
+    if not (0.0 <= start_portion < end_portion <= 1.0):
+        raise ValueError("start_portion must be >= 0.0 and < end_portion, and end_portion must be <= 1.0.")
+    
+# Initialize the necessary containers
     total_reward_history = []
     total_flattened_reward_histories = defaultdict(list)
     total_targets_not_met_counts = Counter()
@@ -239,24 +252,17 @@ def plot_reward_distribution(load_path, save_plot_path=None, chunk_size=10000):
     with pd.HDFStore(load_path) as store:
         total_rows = store.get_storer('rewards').nrows
 
-        for start in range(0, total_rows, chunk_size):
-            reward_history, flattened_reward_histories, targets_not_met_counts = process_and_aggregate(store, start, start + chunk_size)
+        # Calculate the starting and ending points based on the specified portions
+        start_point = int(total_rows * start_portion)
+        end_point = int(total_rows * end_portion)
+
+        for start in range(start_point, end_point, chunk_size):
+            reward_history, flattened_reward_histories, targets_not_met_counts = process_and_aggregate(store, start, min(start + chunk_size, end_point))
 
             total_reward_history.extend(reward_history)
             for category, values in flattened_reward_histories.items():
                 total_flattened_reward_histories[category].extend(values)
             total_targets_not_met_counts.update(targets_not_met_counts)
-
-    # Dictionary for shorter labels
-    # label_mapping = {
-    #     'nutrient_rewards': 'Nutrient',
-    #     'ingredient_group_count_rewards': 'Ingredient Group',
-    #     'ingredient_environment_count_rewards': 'Environment',
-    #     'cost_rewards': 'Cost',
-    #     'consumption_rewards': 'Consumption',
-    #     'termination_reward': 'Termination',
-    #     'targets_not_met': 'Targets Not Met'
-    # }
 
     # Determine the layout of the plot
     num_rewards = len(total_flattened_reward_histories) + 2
@@ -268,6 +274,12 @@ def plot_reward_distribution(load_path, save_plot_path=None, chunk_size=10000):
     fig, axes = plt.subplots(row, col, figsize=(col * 4, row * 3))
     axes = np.ravel(axes)
 
+    # Calculate the percentage of data displayed
+    data_percentage = (end_portion - start_portion) * 100
+    
+    # Set the figure title
+    fig.suptitle(f'Data Percentage Displayed: {data_percentage:.2f}%', fontsize=16)
+
     # Plot the total reward distribution
     axes[0].hist(total_reward_history, bins=50, alpha=0.75)
     axes[0].set_xlabel('Total reward')
@@ -277,7 +289,6 @@ def plot_reward_distribution(load_path, save_plot_path=None, chunk_size=10000):
     index = 1
     # Plot the distributions of other reward categories
     for category, values in total_flattened_reward_histories.items():
-        # short_label = label_mapping.get(category, category)
         axes[index].hist(values, bins=50, alpha=0.75)
         axes[index].set_xlabel(f'{category.replace("_", " ").capitalize()}')
         axes[index].set_ylabel('Frequency')
