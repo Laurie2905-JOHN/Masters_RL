@@ -1,6 +1,5 @@
 import optuna
 import optuna_distributed
-from dask.distributed import Client
 import gymnasium as gym
 import numpy as np
 from stable_baselines3 import PPO, A2C
@@ -8,12 +7,12 @@ from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.evaluation import evaluate_policy
 from utils.process_data import get_data
 from models.envs.env_working import SchoolMealSelection
+import argparse
 
-def ppo_objective(trial, n_gpus, num_seeds=5):
+def ppo_objective(trial, n_envs, n_gpus, num_seeds=5):
     n_steps = trial.suggest_int('n_steps', 16, 2048)
-    n_envs = 8
     possible_batch_sizes = [bs for bs in range(32, 257) if (n_steps * n_envs) % bs == 0]
-    
+
     if not possible_batch_sizes:
         possible_batch_sizes = [n_steps * n_envs]
 
@@ -49,11 +48,10 @@ def ppo_objective(trial, n_gpus, num_seeds=5):
 
     return np.mean(rewards)
 
-def a2c_objective(trial, num_seeds=5):
+def a2c_objective(trial, n_envs, num_seeds=5):
     n_steps = trial.suggest_int('n_steps', 16, 2048)
-    n_envs = 8
     possible_batch_sizes = [bs for bs in range(32, 257) if (n_steps * n_envs) % bs == 0]
-    
+
     if not possible_batch_sizes:
         possible_batch_sizes = [n_steps * n_envs]
 
@@ -88,40 +86,40 @@ def a2c_objective(trial, num_seeds=5):
 
     return np.mean(rewards)
 
-def optimize_ppo(study_name, storage_url, n_trials=1000, timeout=43200, n_gpus=4, num_seeds=5):
-    client = None  # Use Dask client if available, e.g., Client("<your.cluster.scheduler.address>")
-    base_study = optuna.create_study(study_name=study_name, direction='maximize', storage=storage_url, load_if_exists=True)
-    study = optuna_distributed.from_study(base_study, client=client)
-    study.optimize(lambda trial: ppo_objective(trial, n_gpus, num_seeds), n_trials=n_trials, timeout=timeout)
+def optimize_ppo(study_name, n_trials=1000, timeout=43200, n_envs=4, n_gpus=4, num_seeds=5, n_jobs=1):
+    study = optuna_distributed.from_study(optuna.create_study(study_name=study_name, direction='maximize'))
+    study.optimize(lambda trial: ppo_objective(trial, n_envs, n_gpus, num_seeds), n_trials=n_trials, timeout=timeout, n_jobs=n_jobs)
     best_params_ppo = study.best_params
     print("Best parameters for PPO:", best_params_ppo)
 
-def optimize_a2c(study_name, storage_url, n_trials=1000, timeout=43200, num_seeds=5):
-    client = None  # Use Dask client if available, e.g., Client("<your.cluster.scheduler.address>")
-    base_study = optuna.create_study(study_name=study_name, direction='maximize', storage=storage_url, load_if_exists=True)
-    study = optuna_distributed.from_study(base_study, client=client)
-    study.optimize(lambda trial: a2c_objective(trial, num_seeds), n_trials=n_trials, timeout=timeout)
+def optimize_a2c(study_name, n_trials=1000, timeout=43200, n_envs=4, num_seeds=5, n_jobs=1):
+    study = optuna_distributed.from_study(optuna.create_study(study_name=study_name, direction='maximize'))
+    study.optimize(lambda trial: a2c_objective(trial, n_envs, num_seeds), n_trials=n_trials, timeout=timeout, n_jobs=n_jobs)
     best_params_a2c = study.best_params
     print("Best parameters for A2C:", best_params_a2c)
 
-import argparse
-
-def main(algo, study_name, storage_url, n_trials, timeout, n_gpus):
+def main(algo, study_name, n_trials, timeout, n_envs, n_gpus, n_jobs):
     if algo == 'PPO':
-        optimize_ppo(study_name=study_name, storage_url=storage_url, n_trials=n_trials, timeout=timeout, n_gpus=n_gpus)
+        optimize_ppo(study_name=study_name, n_trials=n_trials, timeout=timeout, n_envs=n_envs, n_gpus=n_gpus, n_jobs=n_jobs)
     elif algo == 'A2C':
-        optimize_a2c(study_name=study_name, storage_url=storage_url, n_trials=n_trials, timeout=timeout)
+        optimize_a2c(study_name=study_name, n_trials=n_trials, timeout=timeout, n_envs=n_envs, n_jobs=n_jobs)
     else:
         raise ValueError("Unsupported algorithm specified.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--algo', type=str, default="A2C", help="Algorithm to optimize: PPO or A2C")
-    parser.add_argument('--study_name', type=str, required=True, help="Name of the Optuna study")
-    parser.add_argument('--storage_url', type=str, required=True, help="URL of the Optuna RDB storage")
+    parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--n_trials', type=int, default=1000, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=259200, help="Timeout for optimization in seconds")
+    parser.add_argument('--n_envs', type=int, default=4, help="Number of environments to use per trial")
     parser.add_argument('--n_gpus', type=int, default=1, help="Number of GPUs to use")
-
+    parser.add_argument('--n_jobs', type=int, default=-1, help="Number of parallel jobs")
+    
     args = parser.parse_args()
-    main(args.algo, args.study_name, args.storage_url, args.n_trials, args.timeout, args.n_gpus)
+    
+    if args.study_name is None:
+        args.study_name = f"{args.algo}_study"
+        
+    main(args.algo, args.study_name, args.n_trials, args.timeout, args.n_envs, args.n_gpus, args.n_jobs)
+
