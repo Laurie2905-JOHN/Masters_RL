@@ -132,8 +132,16 @@ class RewardCalculator:
             terminated = True
             termination_reward += 1000
 
-        if main_class.nsteps > 100 and not all([nutrition_targets_met, group_targets_met, environment_targets_met, cost_targets_met, consumption_targets_met]):
+        # List of all targets
+        targets_met = [nutrition_targets_met, group_targets_met, environment_targets_met, cost_targets_met, consumption_targets_met]
+
+        # Count the number of failed targets
+        failed_targets = sum([not target for target in targets_met])
+
+        # Check if more than half of the targets are failed
+        if main_class.nsteps > 500 and failed_targets > len(targets_met) / 2:
             terminated = True
             termination_reward -= 1000
+
 
         return terminated, termination_reward, targets_not_met

@@ -29,7 +29,7 @@ def main(args, seed):
     # Create and normalize vectorized environments with shared reward dictionary
     # Do not need to divide by num_envs here as the RewardTrackingWrapper will handle this unlike callbacks
     env = setup_environment(args, seed, ingredient_df, args.gamma, args.reward_save_interval, reward_save_path, eval=False)
-    
+
     # args.pretrained_checkpoint_path = "saved_models/checkpoints/SchoolMealSelection_v1_A2C_10000_8env_nutrients_groups_environment_cost_consumption_seed_2830227159_10000_steps"
     
     # Initialize or load the model
@@ -133,6 +133,7 @@ def main(args, seed):
         eval_env=env,
         best_model_save_path=best_model_path,
         callback_on_new_best=save_vec_normalize_callback,
+        n_eval_episodes = 15,
         eval_freq=max(args.eval_freq // args.num_envs, 1),
         deterministic=True,
         log_path=tensorboard_log_dir,

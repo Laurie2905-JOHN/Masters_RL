@@ -57,14 +57,14 @@ def setup_environment(args, seed, ingredient_df, gamma,  reward_save_interval=25
                 reward_save_interval,
                 reward_save_path,
                 )
-        
+
         # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode
         env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
         
         return env
 
     env = make_vec_env(make_env, n_envs=args.num_envs, seed=seed)
-    
+
     if eval:
         return env
     

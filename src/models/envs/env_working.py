@@ -337,6 +337,7 @@ class SchoolMealSelection(gym.Env):
 
 
     def reset(self, seed=None, options=None):
+        
         super().reset(seed=seed)
 
         self.nsteps = 0
@@ -361,6 +362,7 @@ class SchoolMealSelection(gym.Env):
         }
 
         observation = self._get_obs()
+        
         info = self._get_info()
 
         if self.render_mode == 'human':
@@ -527,7 +529,6 @@ if __name__ == '__main__':
     args = Args()
     seed = 10
     num_episodes = 100000
-
     reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
     env = setup_environment(args, seed, ingredient_df, args.gamma, reward_save_interval=8000, reward_save_path=reward_save_path, eval=False)
 
