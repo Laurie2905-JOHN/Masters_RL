@@ -170,7 +170,7 @@ def main():
     else: 
         seed = int(filename.split("_")[-1])
 
-    env = setup_environment(args, seed, ingredient_df, eval=True)
+    env = setup_environment(args, seed, ingredient_df, gamma, eval=True)
     
 
     norm_path = os.path.join(basepath, filename, "vec_normalize_best.pkl")

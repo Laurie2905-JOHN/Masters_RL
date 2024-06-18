@@ -1,13 +1,13 @@
 import os
 import pandas as pd
 
-def get_data():
+def get_data(filename='small_data.csv'):
     try:
         # Define the base directory where your script is located
         base_dir = os.path.dirname(__file__)
         
         # Construct the full path to the data.csv file
-        data_file_path = os.path.join(base_dir,'..','..', 'data', 'data.csv')
+        data_file_path = os.path.join(base_dir,'..','..', 'data', f'{filename}')
         
         # Attempt to open and read the data.csv file
         with open(data_file_path, 'r') as file:

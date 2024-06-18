@@ -22,7 +22,7 @@ def nutrient_reward(self, nutrient_rewards, nutrient_far_flag_list):
             if self.verbose > 0:
                 if len(nutrient_far_flag_list) > 7 and nutrient_far_flag_list.count(True) > 4:
                     info = self._get_info()
-                    print(f"At episode {self.episode_count} step {self.nsteps}: \n Four Nutrients are Far off: {nutrient_name_and_reason} with Selected Ingredients and Quantities: {info['current_meal_plan']}.")
+                    print(f"\nAt episode {self.episode_count} step {self.nsteps}: \n Four Nutrients Far off: {nutrient_name_and_reason} with Selected Ingredients and Quantities: {info['current_meal_plan']}.")
 
                     
             all_nutrient_targets_met = False

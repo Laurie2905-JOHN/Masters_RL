@@ -38,7 +38,7 @@ def set_seed(seed, device):
 
 
 # Function to set up the environment
-def setup_environment(args, seed, ingredient_df, reward_save_interval=2500, reward_save_path=None, eval=False):
+def setup_environment(args, seed, ingredient_df, gamma,  reward_save_interval=2500, reward_save_path=None, eval=False):
     
     def make_env():
         env = SchoolMealSelection(
@@ -68,7 +68,7 @@ def setup_environment(args, seed, ingredient_df, reward_save_interval=2500, rewa
     if eval:
         return env
     
-    return VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
+    return VecNormalize(env, gamma, norm_obs=True, norm_reward=True, clip_obs=10.)
 
     
     
@@ -209,7 +209,6 @@ def plot_reward_distribution(load_path, save_plot_path=None):
 
     reward_history = []
     reward_details_history = []
-    termination_reasons = Counter()
 
     with open(load_path, 'r+b') as f:
         mm = mmap.mmap(f.fileno(), 0)
@@ -218,10 +217,7 @@ def plot_reward_distribution(load_path, save_plot_path=None):
             if reward_distribution:
                 reward_history.extend(reward_distribution['total_reward'])
                 reward_details_history.extend(reward_distribution['reward_details'])
-                termination_reasons.update(reward_distribution['termination_reasons'])
         mm.close()
-
-    reason_str = termination_reasons
 
     # Flatten reward details
     flattened_reward_histories = defaultdict(lambda: defaultdict(list))
@@ -232,9 +228,11 @@ def plot_reward_distribution(load_path, save_plot_path=None):
             if category == 'targets_not_met':
                 targets_not_met.extend(rewards)
             else:
-                for key, value in rewards.items():
-                    flattened_reward_histories[category][key].append(value)
-
+                if category not in ['targets_not_met', 'termination_reward']:
+                    for key, value in rewards.items():
+                        flattened_reward_histories[category][key].append(value)
+                else:
+                    flattened_reward_histories[category][category].append(rewards)
     # Count occurrences of each string in 'targets_not_met'
     targets_not_met_counts = Counter(targets_not_met)
 
@@ -245,10 +243,11 @@ def plot_reward_distribution(load_path, save_plot_path=None):
         'ingredient_environment_count_rewards': 'Environment',
         'cost_rewards': 'Cost',
         'consumption_rewards': 'Consumption',
+        'termination_reward': 'Termination',
         'targets_not_met': 'Targets Not Met'
     }
 
-    num_rewards = sum(len(rewards) for rewards in flattened_reward_histories.values()) + 3
+    num_rewards = sum(len(rewards) for rewards in flattened_reward_histories.values()) + 2
     col = 7
     row = num_rewards // col
     if num_rewards % col != 0:
@@ -257,25 +256,12 @@ def plot_reward_distribution(load_path, save_plot_path=None):
     fig, axes = plt.subplots(row, col, figsize=(col * 4, row * 3))
     axes = np.ravel(axes)
 
-    bars = axes[0].bar(
-        [reason.replace('_', ' ').capitalize() for reason in termination_reasons.keys()],
-        termination_reasons.values()
-    )
-    axes[0].set_xlabel('Termination Reason')
+    axes[0].hist(reward_history, bins=50, alpha=0.75)
+    axes[0].set_xlabel('Total reward')
     axes[0].set_ylabel('Frequency')
-    axes[0].set_title('Termination Reason Frequency')
-    axes[0].tick_params(axis='x', rotation=45)
+    axes[0].set_title('Total Reward Distribution')
 
-    for bar in bars:
-        yval = bar.get_height()
-        axes[0].text(bar.get_x() + bar.get_width() / 2, yval + 0.05, int(yval), ha='center', va='bottom')
-
-    axes[1].hist(reward_history, bins=50, alpha=0.75)
-    axes[1].set_xlabel('Total reward')
-    axes[1].set_ylabel('Frequency')
-    axes[1].set_title('Total Reward Distribution')
-
-    index = 2
+    index = 1
     for category, rewards in flattened_reward_histories.items():
         for key, values in rewards.items():
             short_label = label_mapping.get(category, category)
