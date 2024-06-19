@@ -176,6 +176,13 @@ saved_models/hpc_output/*
 
 # Filetypes
 *.dat
+*.txt
+*.db
+*.pkl
+*.csv
 
 # Ignore specific file
 data/processed_data.csv
+
+# Ignore all files and directories under saved_models/**/**/trials/
+saved_models/**/**/trials/*

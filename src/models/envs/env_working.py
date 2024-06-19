@@ -6,10 +6,17 @@ from models.reward.reward_sparse import RewardCalculator
 import os
 import random
 
+from gymnasium.envs.registration import register
+
+register(
+    id='SchoolMealSelection-v0',
+    entry_point='models.envs.env_working:SchoolMealSelection',
+)
+
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=20, render_mode=None, reward_metrics=None, verbose=0):
+    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=10, render_mode=None, reward_metrics=None, verbose=0, seed = None):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
@@ -17,6 +24,7 @@ class SchoolMealSelection(gym.Env):
         self.action_scaling_factor = action_scaling_factor
         self.reward_metrics = reward_metrics if reward_metrics else ['nutrients', 'groups', 'environment', 'cost', 'consumption']
         self.verbose = verbose
+        self.seed = seed
 
         # Initialize nutrient values
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values.astype(np.float32) / 100
@@ -416,12 +424,15 @@ class SchoolMealSelection(gym.Env):
             'targets_not_met_count': dict(self.target_not_met_counters),
             'current_meal_plan': self._current_meal_plan()
         }
+        
+        if self.verbose > 1:
+            print(f"Info: {info}")
 
         return info
 
-    def render(self, step=None):
-        if self.render_mode == 'step' and step is not None:
-            print(f"Step: {step}")
+    def render(self):
+        if self.render_mode == 'step':
+            print(f"Step: {self.nsteps}")
         if self.render_mode == "human":
             print(f"Episode: {self.episode_count}")
 
@@ -447,6 +458,10 @@ class SchoolMealSelection(gym.Env):
         # Ensure the length of current_selection matches self.n_ingredients
         if len(self.current_selection) != self.n_ingredients:
             raise ValueError("The length of current_selection must be equal to self.n_ingredients.")
+        
+        # Set the seed if provided
+        if self.seed is not None:
+            random.seed(self.seed)
         
         # Initialize a list to store indices
         selected_indices = []
@@ -522,19 +537,34 @@ if __name__ == '__main__':
         action_scaling_factor = 10
         memory_monitor = True
         gamma = 0.99
-
-    ingredient_df = get_data()
+        max_ingredients = 6
+        action_scaling_factor = 10
+        reward_save_interval = 1000
+        vecnorm_norm_obs = True
+        vecnorm_norm_reward = True
+        vecnorm_clip_obs = 10
+        vecnorm_clip_reward = 10
+        vecnorm_epsilon = 1e-8
+        vecnorm_norm_obs_keys = None
+        ingredient_df = get_data()
+        seed = 10
+        
     args = Args()
-    seed = 10
-    num_episodes = 1000
-    reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
-    env = setup_environment(args, seed, ingredient_df, reward_save_path=reward_save_path, eval=False)
 
+    num_episodes = 1000
+    
+    reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
+    
+    env = setup_environment(args, reward_save_path=reward_save_path, eval=False)
+    
     check_env(env.unwrapped.envs[0].unwrapped)
+    
     print("Environment is valid!")
+    
     del env
 
-    env = setup_environment(args, seed, ingredient_df, reward_save_path=reward_save_path, eval=False)
+    env = setup_environment(args, reward_save_path=reward_save_path, eval=False)
+    
     np.set_printoptions(suppress=True)
 
     if args.memory_monitor:
@@ -542,17 +572,26 @@ if __name__ == '__main__':
         monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
         monitoring_thread.start()
 
-    obs = env.reset()
     for episode in range(num_episodes):
         if episode % 100 == 0:
-            print(f"Episode {episode+1}")
-        for step in range(args.max_episode_steps):
+            print(f"Episode {episode + 1}")
+        obs = env.reset()  # Reset the environment at the start of each episode
+        done = False
+        n_steps = 0
+        while not done:
             action = env.action_space.sample()
-            obs, rewards, dones, infos = env.step(action)
-            if dones:
-                print(f"Final meal plan (episode: {episode}):", final_meal_plan(env, ingredient_df, infos[0]['terminal_observation']))
-                break
-    env.close()
+            obs, rewards, done, infos = env.step(action)
+            n_steps += 1
+            if n_steps % 1 == 0:
+                print(f"Step: {n_steps}")
+            if done:
+                print(f"Final meal plan (episode: {episode} at {n_steps}):", final_meal_plan(env, args.ingredient_df, infos[0].get('terminal_observation', obs)))
+                # Optionally print additional info at the end of each episode
+                print(f"Episode {episode + 1} completed in {n_steps} steps.")
+
+    env.close()  # Ensure the environment is closed properly
+
+
 
     if args.plot_reward_history:
         reward_prefix = reward_prefix.split(".")[0]

@@ -1,4 +1,5 @@
 import os
+import gymnasium as gym
 from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 import numpy as np
 import random
@@ -9,17 +10,16 @@ import torch
 from models.envs.env_working import SchoolMealSelection
 import os
 from models.wrappers.common import RewardTrackingWrapper
+
 import psutil
 import time
 from collections import Counter, defaultdict
 from gymnasium.wrappers import TimeLimit
-import mmap
-import json
+from stable_baselines3.common.monitor import Monitor
 import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict, Counter
-import dask.dataframe as dd
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -46,15 +46,21 @@ def set_seed(seed, device):
 
 
 # Function to set up the environment
-def setup_environment(args, seed, ingredient_df, reward_save_path=None, eval=False):
+def setup_environment(args, reward_save_path=None, eval=False):
     
+    env_kwargs = {
+                "ingredient_df": args.ingredient_df,
+                "max_ingredients": args.max_ingredients,
+                "action_scaling_factor": args.action_scaling_factor,
+                "render_mode": args.render_mode,
+                "reward_metrics": args.reward_metrics,
+                "seed": args.seed,
+                "verbose": args.verbose
+                }
+        
     def make_env():
-        env = SchoolMealSelection(
-            ingredient_df=ingredient_df,
-            render_mode=args.render_mode,
-            reward_metrics=args.reward_metrics,
-            verbose=args.verbose
-        )
+        
+        env = gym.make("SchoolMealSelection-v0", **env_kwargs)
         
         # Apply the RewardTrackingWrapper if needed
         if args.plot_reward_history:
@@ -65,13 +71,14 @@ def setup_environment(args, seed, ingredient_df, reward_save_path=None, eval=Fal
                 args.reward_save_interval,
                 reward_save_path,
                 )
-
-        # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode
+            
+        # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
         env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
-        
+        env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
+  
         return env
 
-    env = make_vec_env(make_env, n_envs=args.num_envs, seed=seed)
+    env = make_vec_env(make_env, n_envs=args.num_envs, seed=args.seed)
 
     if eval:
         return env
