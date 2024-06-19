@@ -63,11 +63,11 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps) -> 
 
     model = PPO("MlpPolicy", env=env, seed=None, verbose=0, device='auto', tensorboard_log=path, **sampled_hyperparams)
 
-    stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=1, min_evals=1, verbose=1)
+    stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=50, verbose=1)
     
     eval_callback = TrialEvalCallback(
         env, trial, best_model_save_path=path, log_path=path,
-        n_eval_episodes=2, eval_freq=100, deterministic=True, callback_after_eval=stop_callback
+        n_eval_episodes=5, eval_freq=10000, deterministic=True, callback_after_eval=stop_callback
     )
     
     if 'ingredient_df' in env_kwargs:
@@ -166,13 +166,13 @@ if __name__ == "__main__":
     parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
-    parser.add_argument('--n_trials', type=int, default=128, help="Number of trials for optimization")
+    parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=43200, help="Timeout for optimization in seconds")
     parser.add_argument('--n_jobs', type=int, default=8, help="Number of jobs to assign")
     parser.add_argument('--num_timesteps', type=int, default=1000000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_study1001"
+        args.study_name = f"{args.algo}_study_final1"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)
