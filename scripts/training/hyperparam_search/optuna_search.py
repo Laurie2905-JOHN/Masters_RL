@@ -10,19 +10,19 @@ import optuna
 from optuna.pruners import MedianPruner
 from optuna.samplers import TPESampler
 from optuna.visualization import plot_optimization_history, plot_param_importances, plot_parallel_coordinate
-from stable_baselines3 import PPO
+from stable_baselines3 import PPO, A2C
 from stable_baselines3.common.callbacks import StopTrainingOnNoModelImprovement
-from stable_baselines3.common.evaluation import evaluate_policy
 from gymnasium.wrappers import TimeLimit
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.env_util import make_vec_env
 from utils.optuna_utils.sample_params.ppo import sample_ppo_params
+from utils.optuna_utils.sample_params.a2c import sample_a2c_params
 from models.envs.env_working import SchoolMealSelection
 from utils.optuna_utils.trial_eval_callback import TrialEvalCallback
 from utils.process_data import get_data
 from gymnasium.wrappers import TimeLimit, NormalizeObservation, NormalizeReward
 
-def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps) -> float:
+def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> float:
     # Prevent Resource Contention: When multiple trials start simultaneously, they might contend for limited computational resources
     time.sleep(random.random() * 16)
 
@@ -34,8 +34,6 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps) -> 
         "max_ingredients": max_ingredients, 
         "action_scaling_factor": action_scaling_factor
     }
-
-    sampled_hyperparams = sample_ppo_params(trial)
     
     
     path = os.path.abspath(f"{study_path}/trials/trial_{str(trial.number)}")
@@ -61,8 +59,15 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps) -> 
     # Wrap the environment with DummyVecEnv for parallel environments
     env = make_vec_env(make_env, n_envs=1, seed=None)
 
-    model = PPO("MlpPolicy", env=env, seed=None, verbose=0, device='auto', tensorboard_log=path, **sampled_hyperparams)
-
+    if algo == "PPO":
+        sampled_hyperparams = sample_ppo_params(trial)
+        model = PPO("MlpPolicy", env=env, seed=None, verbose=0, device='auto', tensorboard_log=path, **sampled_hyperparams)
+    elif algo == "A2C":
+        sampled_hyperparams = sample_a2c_params(trial)
+        model = A2C("MlpPolicy", env=env, seed=None, verbose=0, device='cpu', tensorboard_log=path, **sampled_hyperparams)
+    else:
+        raise ValueError("Invalid algorithm")
+    
     stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=50, verbose=1)
     
     eval_callback = TrialEvalCallback(
@@ -127,7 +132,7 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
     )
 
     try:
-        study.optimize(lambda trial: objective(trial, INGREDIENT_DF, study_path, num_timesteps=num_timesteps), 
+        study.optimize(lambda trial: objective(trial, INGREDIENT_DF, study_path, num_timesteps=num_timesteps, algo=algo), 
                        n_jobs=n_jobs, n_trials=n_trials, timeout=timeout, show_progress_bar=True)
     except KeyboardInterrupt:
         pass
@@ -163,7 +168,7 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
+    parser.add_argument('--algo', type=str, default="A2C", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
@@ -173,6 +178,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_study_final1"
+        args.study_name = f"{args.algo}_study"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)
