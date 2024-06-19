@@ -11,14 +11,16 @@ from utils.train_utils import generate_random_seeds, setup_environment, get_uniq
 import json
 
 # Main training function
-def main(args, seed):
+def main(args):
+    
     device = select_device(args)
-    set_seed(seed, device)
+    
+    set_seed(args.seed, device)
 
     print(f"Using device: {device}")
 
     # Load data required for environment setup
-    ingredient_df = get_data()
+    args.ingredient_df = get_data()
 
     if args.plot_reward_history:
         reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed_{seed}_env", '.json')
@@ -27,7 +29,7 @@ def main(args, seed):
         reward_save_path = None
 
     # Create and normalize vectorized environments with shared reward dictionary
-    env = setup_environment(args, seed, ingredient_df, reward_save_path, eval=False)
+    env = setup_environment(args, reward_save_path, eval=False)
 
     if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':
         checkpoint_path = os.path.abspath(args.pretrained_checkpoint_path)
@@ -131,13 +133,22 @@ def main(args, seed):
 
     save_vec_normalize_callback = SaveVecNormalizeEvalCallback(
         vec_normalize_env=env,
-        save_path=best_model_path,
+        save_path=best_model_path, 
     )
+    
+    stop_training_on_no_model_improvement = StopTrainingOnNoModelImprovement(max_no_improvement_evals=(args.total_timesteps // args.eval_freq) * 0.1, # Stop training if no improvement in 10% of total training time
+                                                                             min_evals=(args.total_timesteps // args.eval_freq) * 0.2, # Minimum 20% of total evals before callback starts
+                                                                             verbose=args.verbose)
+    
+    stop_training_on_reward_threshold = StopTrainingOnRewardThreshold(reward_threshold=1000, # max reward is 1000 for this environment
+                                                                      verbose=args.verbose)
+    
+    callback_on_new_best = CallbackList([stop_training_on_no_model_improvement, stop_training_on_reward_threshold, save_vec_normalize_callback])
 
     eval_callback = EvalCallback(
         eval_env=env,
         best_model_save_path=best_model_path,
-        callback_on_new_best=save_vec_normalize_callback,
+        callback_on_new_best=callback_on_new_best,
         n_eval_episodes=15,
         eval_freq=max(args.eval_freq // args.num_envs, 1),
         deterministic=True,
@@ -176,7 +187,7 @@ def main(args, seed):
         final_vec_normalize = os.path.join(dir, prefix)
         env.save(final_vec_normalize)
 
-        env = setup_environment(args, seed, ingredient_df, reward_save_path, eval=False)
+        env = setup_environment(args, reward_save_path, eval=False)
         
         env = VecNormalize.load(final_vec_normalize, env)
 
@@ -228,6 +239,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
     parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v1', help="Name of the environment")
     parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
+    parser.add_argument("--max_ingredients", type=int, default=6, help="Max number of ingredients in plan")
+    parser.add_argument("--action_scaling_factor", type=int, default=20, help="Max number of ingredients in plan")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=12, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
@@ -246,7 +259,7 @@ if __name__ == "__main__":
     parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
     parser.add_argument("--reward_save_interval", type=int, default=8000, help="Number of timestep between saving reward data")
     parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
-    parser.add_argument("--eval_freq", type=int, default=500, help="Frequency of evaluations")
+    parser.add_argument("--eval_freq", type=int, default=10000, help="Frequency of evaluations")
     parser.add_argument("--seed", type=str, default="-1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
     parser.add_argument("--memory_monitor", type=bool, default=True, help="Monitor memory usage during training")
@@ -333,5 +346,8 @@ if __name__ == "__main__":
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
 
-    for seed in args.seed:
-        main(args, seed)
+    original_seed_list = args.seed
+
+    for seed in original_seed_list:
+        args.seed = seed
+        main(args)
