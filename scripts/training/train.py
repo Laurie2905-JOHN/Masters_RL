@@ -3,7 +3,7 @@ import argparse
 import gymnasium as gym
 from stable_baselines3 import A2C, PPO
 from stable_baselines3.common.vec_env import VecNormalize
-from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
+from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback, StopTrainingOnNoModelImprovement, StopTrainingOnRewardThreshold
 from stable_baselines3.common.logger import configure, HumanOutputFormat
 from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback
@@ -231,7 +231,7 @@ if __name__ == "__main__":
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=12, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=1000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=10000000, help="Total number of timesteps for training")
     parser.add_argument("--reward_metrics", type=str, default='nutrients,groups,environment,cost,consumption', help="Metrics to give reward for (comma-separated list)")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
@@ -329,7 +329,7 @@ if __name__ == "__main__":
             args.seed = generate_random_seeds(1)
 
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(1)
+        args.seed = generate_random_seeds(5)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
 
