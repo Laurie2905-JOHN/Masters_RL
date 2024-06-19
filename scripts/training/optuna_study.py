@@ -110,18 +110,18 @@ def trial_complete_callback(study, trial):
     print(f"Trial {trial.number} completed with value: {trial.value} and parameters: {trial.params}")
 
 def optimize_ppo(study_name, storage, n_trials=1000, timeout=43200, n_envs=4, num_timesteps=1000000, num_seeds=5):
-    study = optuna.create_study(study_name=study_name, direction='maximize', storage=storage, load_if_exists=False)
+    study = optuna.create_study(study_name=study_name, direction='maximize', storage=storage, load_if_exists=True)
     try:
-        study.optimize(lambda trial: ppo_objective(trial, n_envs, num_timesteps, num_seeds), n_trials=n_trials, timeout=timeout, callbacks=[trial_complete_callback])
+        study.optimize(lambda trial: ppo_objective(trial, n_envs, num_timesteps, num_seeds), n_trials=n_trials, timeout=timeout, show_progress_bar=True,  callbacks=[trial_complete_callback])
     except Exception as e:
         print(f"Optimization stopped due to: {e}")
     best_params_ppo = study.best_params
     print("Best parameters for PPO:", best_params_ppo)
 
 def optimize_a2c(study_name, storage, n_trials=1000, timeout=43200, n_envs=4, num_timesteps=1000000, num_seeds=5):
-    study = optuna.create_study(study_name=study_name, direction='maximize', storage=storage, load_if_exists=False)
+    study = optuna.create_study(study_name=study_name, direction='maximize', storage=storage, load_if_exists=True)
     try:
-        study.optimize(lambda trial: a2c_objective(trial, n_envs, num_timesteps, num_seeds), n_trials=n_trials, timeout=timeout, callbacks=[trial_complete_callback])
+        study.optimize(lambda trial: a2c_objective(trial, n_envs, num_timesteps, num_seeds), n_trials=n_trials, timeout=timeout, show_progress_bar=True, callbacks=[trial_complete_callback])
     except Exception as e:
         print(f"Optimization stopped due to: {e}")
     best_params_a2c = study.best_params
@@ -139,14 +139,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
-    parser.add_argument('--storage', type=str, default="sqlite:///example_PPO.db", help="Database URL for Optuna storage")
+    parser.add_argument('--storage', type=str, default="sqlite:///example_PPO2.db", help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=1000, help="Number of trials for optimization")
-    parser.add_argument('--timeout', type=int, default=43200, help="Timeout for optimization in seconds")
+    parser.add_argument('--timeout', type=int, default=86400, help="Timeout for optimization in seconds")
     parser.add_argument('--n_envs', type=int, default=4, help="Number of environments to use per trial")
     parser.add_argument('--num_timesteps', type=int, default=1000000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_study"
+        args.study_name = f"{args.algo}_study3"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_envs, args.num_timesteps)
