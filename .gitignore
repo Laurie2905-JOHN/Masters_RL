@@ -176,7 +176,6 @@ saved_models/hpc_output/*
 
 # Filetypes
 *.dat
-*.db
 
 # Ignore specific file
 data/processed_data.csv
