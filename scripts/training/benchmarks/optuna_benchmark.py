@@ -148,7 +148,7 @@ if __name__ == "__main__":
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=8, help="Number of trials for optimization")
-    parser.add_argument('--timeout', type=int, default=7200, help="Timeout for optimization in seconds")
+    parser.add_argument('--timeout', type=int, default=14400, help="Timeout for optimization in seconds")
     parser.add_argument('--num_timesteps', type=int, default=20000, help="Number of timesteps for model training")
     parser.add_argument('--n_jobs_list', type=int, nargs='+', default=[1, 2, 4, 8], help="List of n_jobs values to benchmark")
     args = parser.parse_args()
