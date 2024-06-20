@@ -12,8 +12,8 @@ class RewardTrackingWrapper(gym.Wrapper):
         self.reward_history = []
         self.reward_details_history = []
 
-    def step(self, action):
-        obs, reward, terminated, truncated, info = self.env.step(action)
+    def step(self, actions):
+        obs, reward, terminated, truncated, info = self.env.step(actions)
         self.reward_history.append(float(reward))
         reward_dict = info.get('reward', {}).copy()
         reward_dict_flat = self.flatten_dict(reward_dict)
