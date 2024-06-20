@@ -35,28 +35,19 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         "action_scaling_factor": action_scaling_factor
     }
     
-    
     path = os.path.abspath(f"{study_path}/trials/trial_{str(trial.number)}")
     
     if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)
     
     def make_env():
-        
         env = gym.make("SchoolMealSelection-v0", **env_kwargs)
-            
-        # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
         env = TimeLimit(env, max_episode_steps=1000)
-        
-        # Normalize observations and rewards
         env = NormalizeObservation(env)
         env = NormalizeReward(env)
-        
-        env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
-        
+        env = Monitor(env)
         return env     
     
-    # Wrap the environment with DummyVecEnv for parallel environments
     env = make_vec_env(make_env, n_envs=1, seed=None)
 
     if algo == "PPO":
@@ -80,7 +71,6 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
 
     params = env_kwargs | sampled_hyperparams
     
-
     try:
         model.learn(num_timesteps, eval_callback)
         env.close()
@@ -111,13 +101,14 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
     INGREDIENT_DF = get_data()
 
     study_path = f"saved_models/optuna/{study_name}"
-    os.makedirs(study_path, exist_ok=True)  # Ensure the study path directory exists
+    os.makedirs(study_path, exist_ok=True)
     
-    db_dir = os.path.join(study_path, "db")
-    os.makedirs(db_dir, exist_ok=True)  # Ensure the directory exists
+    db_dir = os.path.join(study_path, "journal_storage")
+    os.makedirs(db_dir, exist_ok=True)
     
-    if storage is None:
-        storage = f"sqlite:///{os.path.join(db_dir, f'{study_name}.db')}"
+    storage = optuna.storages.JournalStorage(
+        optuna.storages.JournalFileStorage(os.path.join(db_dir, "journal.log"))
+    )
 
     sampler = TPESampler(n_startup_trials=10, multivariate=True)
     pruner = MedianPruner(n_startup_trials=10, n_warmup_steps=10)
@@ -173,11 +164,11 @@ if __name__ == "__main__":
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=43200, help="Timeout for optimization in seconds")
-    parser.add_argument('--n_jobs', type=int, default=8, help="Number of jobs to assign")
+    parser.add_argument('--n_jobs', type=int, default=2, help="Number of jobs to assign")
     parser.add_argument('--num_timesteps', type=int, default=1000000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_gpu_test1"
+        args.study_name = f"{args.algo}_StorageTest"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)

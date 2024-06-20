@@ -21,9 +21,9 @@ from models.envs.env_working import SchoolMealSelection
 from utils.optuna_utils.trial_eval_callback import TrialEvalCallback
 from utils.process_data import get_data
 from gymnasium.wrappers import TimeLimit, NormalizeObservation, NormalizeReward
+import time
 
 def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> float:
-    # Prevent Resource Contention: When multiple trials start simultaneously, they might contend for limited computational resources
     time.sleep(random.random() * 16)
 
     max_ingredients = trial.suggest_categorical("max_ingredients", [5, 6, 7, 8])
@@ -35,28 +35,19 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         "action_scaling_factor": action_scaling_factor
     }
     
-    
     path = os.path.abspath(f"{study_path}/trials/trial_{str(trial.number)}")
     
     if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)
     
     def make_env():
-        
         env = gym.make("SchoolMealSelection-v0", **env_kwargs)
-            
-        # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
         env = TimeLimit(env, max_episode_steps=1000)
-        
-        # Normalize observations and rewards
         env = NormalizeObservation(env)
         env = NormalizeReward(env)
-        
-        env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
-        
+        env = Monitor(env)
         return env     
     
-    # Wrap the environment with DummyVecEnv for parallel environments
     env = make_vec_env(make_env, n_envs=1, seed=None)
 
     if algo == "PPO":
@@ -68,18 +59,17 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     else:
         raise ValueError("Invalid algorithm")
     
-    stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=50, verbose=1)
+    # stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=5, min_evals=5, verbose=1)
     
     eval_callback = TrialEvalCallback(
         env, trial, best_model_save_path=path, log_path=path,
-        n_eval_episodes=5, eval_freq=10000, deterministic=True, callback_after_eval=stop_callback
+        n_eval_episodes=3, eval_freq=5000, deterministic=True
     )
     
     if 'ingredient_df' in env_kwargs:
         del env_kwargs['ingredient_df']
 
     params = env_kwargs | sampled_hyperparams
-    
 
     try:
         model.learn(num_timesteps, eval_callback)
@@ -107,77 +97,63 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
 
     return reward
 
-def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
+def benchmark(algo, study_name, storage, n_trials, timeout, num_timesteps, n_jobs_list):
     INGREDIENT_DF = get_data()
-
     study_path = f"saved_models/optuna/{study_name}"
-    os.makedirs(study_path, exist_ok=True)  # Ensure the study path directory exists
+    os.makedirs(study_path, exist_ok=True)
     
     db_dir = os.path.join(study_path, "db")
-    os.makedirs(db_dir, exist_ok=True)  # Ensure the directory exists
+    os.makedirs(db_dir, exist_ok=True)
     
     if storage is None:
         storage = f"sqlite:///{os.path.join(db_dir, f'{study_name}.db')}"
+    
+    results = []
+    
+    for n_jobs in n_jobs_list:
+        print(f"Running with n_jobs={n_jobs}...")
+        start_time = time.time()
+        
+        sampler = TPESampler(n_startup_trials=10, multivariate=True)
+        pruner = MedianPruner(n_startup_trials=10, n_warmup_steps=10)
 
-    sampler = TPESampler(n_startup_trials=10, multivariate=True)
-    pruner = MedianPruner(n_startup_trials=10, n_warmup_steps=10)
+        study = optuna.create_study(
+            study_name=study_name,
+            storage=storage,
+            sampler=sampler,
+            pruner=pruner,
+            load_if_exists=True,
+            direction="maximize",
+        )
 
-    study = optuna.create_study(
-        study_name=study_name,
-        storage=storage,
-        sampler=sampler,
-        pruner=pruner,
-        load_if_exists=True,
-        direction="maximize",
-    )
+        try:
+            study.optimize(lambda trial: objective(trial, INGREDIENT_DF, study_path, num_timesteps=num_timesteps, algo=algo), 
+                           n_jobs=n_jobs, n_trials=n_trials, timeout=timeout, show_progress_bar=True)
+        except KeyboardInterrupt:
+            pass
 
-    try:
-        study.optimize(lambda trial: objective(trial, INGREDIENT_DF, study_path, num_timesteps=num_timesteps, algo=algo), 
-                       n_jobs=n_jobs, n_trials=n_trials, timeout=timeout, show_progress_bar=True)
-    except KeyboardInterrupt:
-        pass
-
-    print("Number of finished trials: ", len(study.trials))
-
-    trial = study.best_trial
-    print(f"Best trial: {trial.number}")
-    print("Value: ", trial.value)
-
-    print("Params: ")
-    for key, value in trial.params.items():
-        if key != "ingredient_df":
-            print(f"    {key}: {value}")
-
-    study.trials_dataframe().to_csv(f"{study_path}/report.csv")
-
-    with open(f"{study_path}/study.pkl", "wb+") as f:
-        pkl.dump(study, f)
-
-    try:
-        fig1 = plot_optimization_history(study)
-        fig2 = plot_param_importances(study)
-        fig3 = plot_parallel_coordinate(study)
-
-        fig1.show()
-        fig2.show()
-        fig3.show()
-
-    except (ValueError, ImportError, RuntimeError) as e:
-        print("Error during plotting")
-        print(e)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        results.append((n_jobs, elapsed_time))
+        
+        print(f"n_jobs={n_jobs}, elapsed_time={elapsed_time:.2f} seconds")
+    
+    print("Benchmark results:")
+    for n_jobs, elapsed_time in results:
+        print(f"n_jobs={n_jobs}: {elapsed_time:.2f} seconds")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
-    parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
-    parser.add_argument('--timeout', type=int, default=43200, help="Timeout for optimization in seconds")
-    parser.add_argument('--n_jobs', type=int, default=8, help="Number of jobs to assign")
-    parser.add_argument('--num_timesteps', type=int, default=1000000, help="Number of timesteps for model training")
+    parser.add_argument('--n_trials', type=int, default=8, help="Number of trials for optimization")
+    parser.add_argument('--timeout', type=int, default=7200, help="Timeout for optimization in seconds")
+    parser.add_argument('--num_timesteps', type=int, default=20000, help="Number of timesteps for model training")
+    parser.add_argument('--n_jobs_list', type=int, nargs='+', default=[1, 2, 4, 8], help="List of n_jobs values to benchmark")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_gpu_test1"
+        args.study_name = f"{args.algo}_benchmark_test"
         
-    main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)
+    benchmark(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.num_timesteps, args.n_jobs_list)
