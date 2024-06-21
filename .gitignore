@@ -176,10 +176,10 @@ saved_models/optuna/*
 
 # Filetypes
 *.dat
-*.txt
-*.db
+# *.txt
+# *.db
 *.pkl
-*.csv
+# *.csv
 
 # Ignore specific file
 data/processed_data.csv
