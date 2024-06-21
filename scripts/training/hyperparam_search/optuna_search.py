@@ -20,29 +20,8 @@ from utils.optuna_utils.sample_params.a2c import sample_a2c_params
 from models.envs.env_working import SchoolMealSelection
 from utils.optuna_utils.trial_eval_callback import TrialEvalCallback
 from utils.process_data import get_data
-from gymnasium.wrappers import TimeLimit, NormalizeObservation, NormalizeReward
-
-import gymnasium as gym
-import numpy as np
-from gymnasium.spaces import Dict as SpaceDict, Box
-
-class NormalizeDictObservation(gym.ObservationWrapper):
-    def __init__(self, env):
-        super(NormalizeDictObservation, self).__init__(env)
-        assert isinstance(env.observation_space, SpaceDict), "Observation space must be a dictionary"
-        self.observation_space = env.observation_space
-
-    def observation(self, observation):
-        normalized_observation = {}
-        for key, value in observation.items():
-            if isinstance(self.observation_space.spaces[key], Box):
-                # Normalize observations to the range [0, 1]
-                low = self.observation_space.spaces[key].low
-                high = self.observation_space.spaces[key].high
-                normalized_observation[key] = (value - low) / (high - low)
-            else:
-                normalized_observation[key] = value
-        return normalized_observation
+from gymnasium.wrappers import TimeLimit, NormalizeReward
+from models.wrappers.common import NormalizeDictObservation
 
 
 def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> float:
@@ -190,16 +169,16 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', type=str, default="A2C", help="Algorithm to optimize: PPO or A2C")
+    parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=1, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=86400, help="Timeout for optimization in seconds")
     parser.add_argument('--n_jobs', type=int, default=1, help="Number of jobs to assign")
-    parser.add_argument('--num_timesteps', type=int, default=1000, help="Number of timesteps for model training")
+    parser.add_argument('--num_timesteps', type=int, default=10000000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_parralel"
+        args.study_name = f"{args.algo}_study1"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)
