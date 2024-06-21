@@ -7,7 +7,7 @@ TRAIN_SCRIPT="scripts/training/train.py"
 COMMON_ARGS="
   --algo="A2C" \
   --num_envs=8 \
-  --total_timesteps=3000000 \
+  --total_timesteps=30000000 \
   --save_freq=10000 \
   --eval_freq=10000 "
 
