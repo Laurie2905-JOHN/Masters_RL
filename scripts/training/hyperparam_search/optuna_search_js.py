@@ -173,6 +173,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_parralel"
+        args.study_name = f"{args.algo}_parralel1"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)

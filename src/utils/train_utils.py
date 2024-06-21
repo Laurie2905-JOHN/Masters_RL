@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict, Counter
 
+
 def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
     """
     Linear learning rate schedule.

@@ -5,6 +5,7 @@ import os
 import gymnasium as gym
 import numpy as np
 from gymnasium.spaces import Dict as SpaceDict, Box
+import gc
 
 class NormalizeDictObservation(gym.ObservationWrapper):
     def __init__(self, env):
@@ -12,14 +13,6 @@ class NormalizeDictObservation(gym.ObservationWrapper):
         assert isinstance(env.observation_space, SpaceDict), "Observation space must be a dictionary"
         self.observation_space = env.observation_space
 
-<<<<<<< Updated upstream
-import gymnasium as gym
-import numpy as np
-import pandas as pd
-import os
-import gc
-
-=======
     def observation(self, observation):
         normalized_observation = {}
         for key, value in observation.items():
@@ -33,7 +26,6 @@ import gc
                 normalized_observation[key] = value
         return normalized_observation
     
->>>>>>> Stashed changes
 class RewardTrackingWrapper(gym.Wrapper):
     def __init__(self, env, save_interval, reward_save_path):
         super(RewardTrackingWrapper, self).__init__(env)

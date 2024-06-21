@@ -22568,3 +22568,8 @@
 {"op_code": 7, "worker_id": "e2e29413-cc20-4114-8692-e27c0f6caf9a-140085853205568", "trial_id": 247, "step": 40, "intermediate_value": -84.8321394}
 {"op_code": 7, "worker_id": "1ce93c88-82a4-46be-b681-6105f24ad0dd-140515723744320", "trial_id": 248, "step": 6, "intermediate_value": -323.354767}
 {"op_code": 7, "worker_id": "e2e29413-cc20-4114-8692-e27c0f6caf9a-140085853205568", "trial_id": 247, "step": 41, "intermediate_value": -84.55488580000001}
+{"op_code": 7, "worker_id": "1ce93c88-82a4-46be-b681-6105f24ad0dd-140515723744320", "trial_id": 248, "step": 7, "intermediate_value": -322.6322278}
+{"op_code": 7, "worker_id": "e2e29413-cc20-4114-8692-e27c0f6caf9a-140085853205568", "trial_id": 247, "step": 42, "intermediate_value": -84.836602}
+{"op_code": 7, "worker_id": "1ce93c88-82a4-46be-b681-6105f24ad0dd-140515723744320", "trial_id": 248, "step": 8, "intermediate_value": -316.6925286}
+{"op_code": 6, "worker_id": "e2e29413-cc20-4114-8692-e27c0f6caf9a-140085853205568", "trial_id": 247, "state": 3, "values": null, "datetime_complete": "2024-06-21T21:43:36.192020"}
+{"op_code": 6, "worker_id": "1ce93c88-82a4-46be-b681-6105f24ad0dd-140515723744320", "trial_id": 248, "state": 3, "values": null, "datetime_complete": "2024-06-21T21:43:39.935640"}
