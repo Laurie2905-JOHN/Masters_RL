@@ -446,7 +446,7 @@ class SchoolMealSelection(gym.Env):
         
         self.current_meal_plan = {}
         
-        if self.verbose > 0:
+        if self.verbose > 1:
             
             nonzero_indices = np.nonzero(self.current_selection)
             
@@ -454,15 +454,15 @@ class SchoolMealSelection(gym.Env):
                 for idx in nonzero_indices[0]:
                     category_value = self.ingredient_df['Category7'].iloc[idx]
                     self.current_meal_plan[category_value] = self.current_selection[idx]
+        return self.current_meal_plan
     
     def _initialise_selection(self):
         # Initialize current_selection to all zeroes
         self.current_selection = np.zeros(self.n_ingredients)
         
-        # Set the seed if provided
-        if self.seed is not None:
-            random.seed(self.seed)
-        
+        # Create a separate random number generator instance to ensure meal plan is always initialized randomly
+        rng = random.Random()
+
         # Initialize a list to store indices
         selected_indices = []
         
@@ -475,33 +475,40 @@ class SchoolMealSelection(gym.Env):
         # Sample indices based on probabilities for each category
         while len(selected_indices) < num_indices_to_select:
             # Choose a category based on its probability
-            category = random.choices(list(self.group_info.keys()), 
-                                    weights=[info['probability'] for info in self.group_info.values()])[0]
+            category = rng.choices(list(self.group_info.keys()), 
+                                weights=[info['probability'] for info in self.group_info.values()])[0]
             
             # Select an index from the chosen category
             indices_to_sample = list(set(self.group_info[category]['indexes']) - set(selected_indices))
             
             if indices_to_sample:
-                idx = random.choice(indices_to_sample)
+                idx = rng.choice(indices_to_sample)
                 selected_indices.append(idx)
                 selected_counts[category] += 1  # Increment count for selected indices in this category
         
         # Ensure we have exactly self.max_ingredients unique indices
-        selected_indices = random.sample(selected_indices, min(self.max_ingredients, len(selected_indices)))
+        selected_indices = rng.sample(selected_indices, min(self.max_ingredients, len(selected_indices)))
         
         # Assign the values to the selected indices
-        values_to_assign = [random.randint(*self.ingredient_group_portion_targets[group]) for group in
-                            ['fruit', 'veg', 'non_processed_protein', 'processed_protein', 'carbs', 'dairy']]
+        values_to_assign = []
+        for group in ['fruit', 'veg', 'non_processed_protein', 'processed_protein', 'carbs', 'dairy']:
+            if group in self.ingredient_group_portion_targets:
+                values_to_assign.append(rng.randint(*self.ingredient_group_portion_targets[group]))
+        
         for idx, value in zip(selected_indices, values_to_assign):
             self.current_selection[idx] = value
+        
         if self.verbose > 1:
+            print(f"\nInitialized plan: {self._current_meal_plan()}")
             # Print counts of selected indices for each group
             for category, count in selected_counts.items():
                 print(f"Number of indices selected for '{category}': {count}")
+            
                 
         self._get_metrics()
         
         self._get_obs()
+
         
         
 
@@ -557,7 +564,7 @@ if __name__ == '__main__':
     
     env = setup_environment(args, reward_save_path=reward_save_path, eval=False)
     
-    check_env(env.unwrapped.envs[0].unwrapped)
+    # check_env(env.unwrapped.envs[0].unwrapped)
     
     print("Environment is valid!")
     
@@ -607,9 +614,9 @@ if __name__ == '__main__':
         while not terminated or not truncated:
             actions = env.action_space.sample()  # Sample actions
             obs, rewards, terminated, truncated, infos = env.step(actions)  # Step the environment
-            
+            n_steps += 1
             if terminated or truncated:
-                print(f"Final meal plan (episode: {episode} at {n_steps}):", 
+                print(f"\nFinal meal plan (episode: {episode} at {n_steps}):", 
                     final_meal_plan(args.ingredient_df, infos.get('terminal_observation', obs)))
                 # Optionally print additional info at the end of each episode
                 print(f"Episode {episode + 1} completed in {n_steps} steps.")

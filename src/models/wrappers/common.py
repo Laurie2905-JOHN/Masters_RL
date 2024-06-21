@@ -3,6 +3,12 @@ import numpy as np
 import pandas as pd
 import os
 
+import gymnasium as gym
+import numpy as np
+import pandas as pd
+import os
+import gc
+
 class RewardTrackingWrapper(gym.Wrapper):
     def __init__(self, env, save_interval, reward_save_path):
         super(RewardTrackingWrapper, self).__init__(env)
@@ -11,10 +17,8 @@ class RewardTrackingWrapper(gym.Wrapper):
         self.step_count = 0
         self.reward_history = []
         self.reward_details_history = []
-        # self.counter = 0
+
     def step(self, actions):
-        # import time
-        # start = time.time()
         obs, reward, terminated, truncated, info = self.env.step(actions)
         self.reward_history.append(float(reward))
         reward_dict = info.get('reward', {}).copy()
@@ -22,11 +26,8 @@ class RewardTrackingWrapper(gym.Wrapper):
         reward_dict_flat = self.convert_specific_values_to_str(reward_dict_flat)
         self.reward_details_history.append(reward_dict_flat)
         self.step_count += 1
-        # end = time.time()
-        
-        # self.counter += end - start
+
         if self.step_count % self.save_interval == 0 or self.step_count == 1:
-            # print(self.counter)
             self.save_and_clear()
 
         return obs, reward, terminated, truncated, info
@@ -79,6 +80,14 @@ class RewardTrackingWrapper(gym.Wrapper):
         # Clear the in-memory storage
         self.reward_history.clear()
         self.reward_details_history.clear()
+
+        # Explicitly delete dataframes to free up memory
+        del df_rewards
+        del df_reward_details
+        del df_combined
+
+        # Explicitly call garbage collection
+        gc.collect()
 
     def close(self):
         self.save_and_clear()
