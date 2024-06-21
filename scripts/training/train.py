@@ -105,10 +105,7 @@ def main(args):
                 'normalize_advantage': args.ppo_normalize_advantage,
                 'use_sde': args.ppo_use_sde,
                 'sde_sample_freq': args.ppo_sde_sample_freq,
-                'rollout_buffer_class': args.ppo_rollout_buffer_class,
-                'rollout_buffer_kwargs': args.ppo_rollout_buffer_kwargs,
                 'target_kl': args.ppo_target_kl,
-                'stats_window_size': args.ppo_stats_window_size,
                 'policy_kwargs': args.policy_kwargs,
             }
             model = PPO('MultiInputPolicy', env, **common_hyperparams, **ppo_hyperparams)
@@ -280,7 +277,7 @@ if __name__ == "__main__":
     parser.add_argument("--a2c_rms_prop_eps", type=float, default=1e-5, help="Epsilon parameter for RMSProp optimizer")
     parser.add_argument("--a2c_use_rms_prop", type=bool, default=True, help="Whether to use RMSProp optimizer")
     parser.add_argument("--a2c_use_sde", type=bool, default=False, help="Whether to use generalized State Dependent Exploration (gSDE) instead of action noise exploration")
-    parser.add_argument("--a2c_sde_sample_freq", type=int, default=10, help="Sample a new noise matrix every n steps when using gSDE")
+    parser.add_argument("--a2c_sde_sample_freq", type=int, default=-1, help="Sample a new noise matrix every n steps when using gSDE")
     parser.add_argument("--a2c_normalize_advantage", type=bool, default=False, help="Whether to normalize or not the advantage")
     parser.add_argument("--a2c_gae_lambda", type=float, default=1, help="Factor for trade-off of bias vs variance for Generalized Advantage Estimator. Equivalent to classic advantage when set to 1.")
     parser.add_argument("--a2c_net_arch_width", type=int, default=512, help="Define policy network width")

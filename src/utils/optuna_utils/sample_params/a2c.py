@@ -22,8 +22,6 @@ def sample_a2c_params(trial: optuna.Trial) -> Dict[str, Any]:
     use_rms_prop = trial.suggest_categorical('use_rms_prop', [True, False])
     use_sde = trial.suggest_categorical('use_sde', [True, False])
     sde_sample_freq = trial.suggest_int('sde_sample_freq', 1, 100)
-    # rollout_buffer_class = trial.suggest_categorical('rollout_buffer_class', ['DefaultRolloutBuffer', 'CustomRolloutBuffer'])
-    # rollout_buffer_kwargs = trial.suggest_categorical('rollout_buffer_kwargs', [{'size': 100}, {'size': 200}])
     normalize_advantage = trial.suggest_categorical('normalize_advantage', [True, False])
 
     # Orthogonal initialization
