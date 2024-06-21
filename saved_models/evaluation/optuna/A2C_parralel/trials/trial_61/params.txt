@@ -1,0 +1,2 @@
+{'max_ingredients': 6, 'action_scaling_factor': 20, 'n_steps': 5, 'gamma': 0.9217799515630796, 'learning_rate': 2.122544716333237e-05, 'ent_coef': 4.5647637753790144e-08, 'vf_coef': 0.09658370738186599, 'max_grad_norm': 0.3, 'gae_lambda': 1.0, 'rms_prop_eps': 0.0002907947184289081, 'use_rms_prop': False, 'normalize_advantage': False, 'policy_kwargs': {'net_arch': {'pi': [256, 256], 'vf': [256, 256]}, 'activation_fn': <class 'torch.nn.modules.activation.LeakyReLU'>, 'ortho_init': True}}
+Reward: 1.575493
