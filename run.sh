@@ -1,47 +1,95 @@
 #!/bin/bash
 
-# # List of reward metrics to test
-# metrics=("nutrients" "groups" "environment" "cost" "consumption")
+# Define the training script path
+TRAIN_SCRIPT="scripts/training/train.py"
 
-# # Function to join array elements with a comma
-# join_by() {
-#   local IFS="$1"
-#   shift
-#   echo "$*"
-# }
+# Define common training parameters
+COMMON_ARGS="
+  --algo=A2C \
+  --env_name=SchoolMealSelection-v0 \
+  --num_envs=8 \
+  --total_timesteps=3000000 \
+  --save_freq=10000 \
+  --eval_freq=10000 \
+  --device=cpu \
+  --memory_monitor=False"
 
-# # Loop through each combination of metrics
-# for i in ${!metrics[@]}; do
-#   current_metrics=(${metrics[@]:0:$(($i + 1))})
-#   metrics_str=$(join_by , "${current_metrics[@]}")
-#   prefix_str=$(join_by _ "${current_metrics[@]}")
+# Top 1 trial hyperparameters
+TRIAL_1_ARGS="
+  --max_ingredients=5 \
+  --action_scaling_factor=20 \
+  --a2c_n_steps=5 \
+  --gamma=0.9547360275466239 \
+  --a2c_learning_rate=2.8218185699201902e-05 \
+  --lr_schedule=constant \
+  --a2c_ent_coef=0.030208648711824906 \
+  --a2c_vf_coef=0.15426769757392855 \
+  --a2c_max_grad_norm=0.5 \
+  --ppo_gae_lambda=0.98 \
+  --a2c_rms_prop_eps=0.0017596548252099434 \
+  --a2c_use_rms_prop=False \
+  --a2c_normalize_advantage=False \
+  --ortho_init=True \
+  --activation_fn=elu \
+  --net_arch_width=512 \
+  --net_arch_depth=2 \
+  --best_prefix=trial_1 \
+  --log_prefix=trial_1"
 
-#   echo "Testing with reward metrics: $metrics_str"
+# Top 2 trial hyperparameters
+TRIAL_2_ARGS="
+  --max_ingredients=5 \
+  --action_scaling_factor=20 \
+  --a2c_n_steps=5 \
+  --gamma=0.9788085126384909 \
+  --a2c_learning_rate=2.6233912248483233e-05 \
+  --lr_schedule=constant \
+  --a2c_ent_coef=0.036300713827071895 \
+  --a2c_vf_coef=0.1998798052828619 \
+  --a2c_max_grad_norm=0.5 \
+  --ppo_gae_lambda=0.8 \
+  --a2c_rms_prop_eps=0.02044690735884977 \
+  --a2c_use_rms_prop=False \
+  --a2c_normalize_advantage=False \
+  --ortho_init=True \
+  --activation_fn=elu \
+  --net_arch_width=512 \
+  --net_arch_depth=3 \
+  --best_prefix=trial_2 \
+  --log_prefix=trial_2"
 
-#   python "scripts/training/train.py" \
-#     --algo="A2C" \
-#     --env_name="SchoolMealSelection-v1" \
-#     --num_envs=16 \
-#     --total_timesteps=2000000 \
-#     --save_freq=1000 \
-#     --eval_freq=1000 \
-#     --device="cpu" \
-#     --memory_monitor="False" \
-#     --reward_metrics="$metrics_str" \
-#     --save_prefix="$prefix_str" \
-#     --log_prefix="$prefix_str" \
-#     --best_prefix="$prefix_str" \
-#     --reward_prefix="$prefix_str"
-# done
+# Top 3 trial hyperparameters
+TRIAL_3_ARGS="
+  --max_ingredients=5 \
+  --action_scaling_factor=20 \
+  --a2c_n_steps=5 \
+  --gamma=0.9754888085075119 \
+  --a2c_learning_rate=4.467579173460465e-05 \
+  --lr_schedule=constant \
+  --a2c_ent_coef=0.09151807272195268 \
+  --a2c_vf_coef=0.15722260514193426 \
+  --a2c_max_grad_norm=0.5 \
+  --ppo_gae_lambda=0.8 \
+  --a2c_rms_prop_eps=0.07775725378306704 \
+  --a2c_use_rms_prop=False \
+  --a2c_normalize_advantage=False \
+  --ortho_init=True \
+  --activation_fn=elu \
+  --net_arch_width=512 \
+  --net_arch_depth=3 \
+  --best_prefix=trial_3 \
+  --log_prefix=trial_3"
 
+# Run training for Top 1 trial
+echo "Running training for Top 1 trial..."
+python $TRAIN_SCRIPT $COMMON_ARGS $TRIAL_1_ARGS
 
-  python "scripts/training/train.py" \
-    --algo="A2C" \
-    --env_name="SchoolMealSelection-v1" \
-    --num_envs=16 \
-    --total_timesteps=3000000 \
-    --save_freq=10000 \
-    --eval_freq=1000 \
-    --device="cpu" \
-    --memory_mo4nitor="False" \
-    --reward_metrics="nutrients,groups" \
+# Run training for Top 2 trial
+echo "Running training for Top 2 trial..."
+python $TRAIN_SCRIPT $COMMON_ARGS $TRIAL_2_ARGS
+
+# Run training for Top 3 trial
+echo "Running training for Top 3 trial..."
+python $TRAIN_SCRIPT $COMMON_ARGS $TRIAL_3_ARGS
+
+echo "All training runs completed."

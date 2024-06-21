@@ -371,24 +371,21 @@ class SchoolMealSelection(gym.Env):
 
         return self._get_obs(), self._get_info()
 
-    def step(self, actions):
+    def step(self, action):
         self.nsteps += 1
         
-        actions = np.clip(actions, -1, 1)
+        action = np.clip(action, -1, 1)
         
-        print("Step action:", actions)
+        if self.verbose > 1:
+            # Ensure the action is an array and has the correct shape
+            if not isinstance(action, np.ndarray) or action.shape != (self.n_ingredients,):
+                raise ValueError(f"Expected action to be an np.ndarray of shape {(self.n_ingredients,)}, but got {type(action)} with shape {action.shape}")
+    
+            if action.shape != self.action_space.shape:
+                raise ValueError(f"Action shape {action.shape} is not equal to action space shape {self.action_space.shape}")
+            
+        change = action * self.action_scaling_factor
         
-        # print("Output action:", action)
-        # print("Output action type:", type(action))
-        
-        #  # Ensure the action is an array and has the correct shape
-        # if not isinstance(action, np.ndarray) or action.shape != (self.n_ingredients,):
-        #     raise ValueError(f"Expected action to be an np.ndarray of shape {(self.n_ingredients,)}, but got {type(action)} with shape {action.shape}")
-  
-        # if action.shape != self.action_space.shape:
-        #     raise ValueError(f"Action shape {action.shape} is not equal to action space shape {self.action_space.shape}")
-        
-        change = actions * self.action_scaling_factor
         self.current_selection = np.maximum(0, self.current_selection + change)
 
         num_selected_ingredients = np.sum(self.current_selection > 0)
@@ -432,9 +429,6 @@ class SchoolMealSelection(gym.Env):
             'targets_not_met_count': dict(self.target_not_met_counters),
             'current_meal_plan': self._current_meal_plan()
         }
-        
-        if self.verbose > 1:
-            print(f"Info: {info}")
 
         return info
 
@@ -510,14 +504,10 @@ class SchoolMealSelection(gym.Env):
         
         
 
-def final_meal_plan(env, ingredient_df, terminal_observation, threshold=0.1):
-    terminal_observation = env.unnormalize_obs(terminal_observation, env.obs_rms)
-    n_ingredients = len(ingredient_df)
-    current_selection = terminal_observation[len(terminal_observation) - n_ingredients:]
-    current_meal_plan = {}
+def final_meal_plan(ingredient_df, terminal_observation):
     
-    # Apply thresholding
-    current_selection[current_selection < threshold] = 0.0
+    current_selection = terminal_observation['current_selection']
+    current_meal_plan = {}
     
     nonzero_indices = np.nonzero(current_selection)
     if len(nonzero_indices[0]) != 0:
@@ -531,6 +521,8 @@ def final_meal_plan(env, ingredient_df, terminal_observation, threshold=0.1):
 if __name__ == '__main__':
     from utils.process_data import get_data
     from gymnasium.utils.env_checker import check_env
+    from gymnasium.wrappers import TimeLimit, NormalizeObservation, NormalizeReward
+    from stable_baselines3.common.monitor import Monitor
     from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage, plot_reward_distribution, set_seed
     reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '')
 
@@ -540,7 +532,7 @@ if __name__ == '__main__':
         num_envs = 1
         plot_reward_history = False
         max_episode_steps = 1000
-        verbose = 0
+        verbose = 2
         action_scaling_factor = 10
         memory_monitor = True
         gamma = 0.99
@@ -583,16 +575,18 @@ if __name__ == '__main__':
 
     
     def make_env():
+        
         env = gym.make("SchoolMealSelection-v0", **env_kwargs)
-        from stable_baselines3.common.monitor import Monitor
-        from gymnasium.wrappers import TimeLimit
-    # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
-        env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
+            
+        # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
+        env = TimeLimit(env, max_episode_steps=1000)
+        
         env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
-        # env = setup_environment(args, reward_save_path=reward_save_path, eval=False)
-        return env
-    from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv, SubprocVecEnv
-    env = SubprocVecEnv([make_env])
+        
+        return env     
+    
+    env = make_env()
+    
     np.set_printoptions(suppress=True)
 
     if args.memory_monitor:
@@ -603,22 +597,24 @@ if __name__ == '__main__':
     for episode in range(num_episodes):
         if episode % 100 == 0:
             print(f"Episode {episode + 1}")
-        obs = env.reset()  # Reset the environment at the start of each episode
-        done = False
+
+        terminated = False
+        truncated = False
         n_steps = 0
-        while not done:
-            actions = env.action_space.sample()
-            print("Input Action:", actions)
-            obs, rewards, done, infos = env.step(actions)
-            n_steps += 1
-            if n_steps % 1 == 0:
-                print(f"Step: {n_steps}")
-            if done:
-                print(f"Final meal plan (episode: {episode} at {n_steps}):", final_meal_plan(env, args.ingredient_df, infos[0].get('terminal_observation', obs)))
+        obs = env.reset()  # Reset the environment at the start of each episode
+
+        while not terminated or not truncated:
+            actions = env.action_space.sample()  # Sample actions
+            obs, rewards, terminated, truncated, infos = env.step(actions)  # Step the environment
+            
+            if terminated or truncated:
+                print(f"Final meal plan (episode: {episode} at {n_steps}):", 
+                    final_meal_plan(args.ingredient_df, infos.get('terminal_observation', obs)))
                 # Optionally print additional info at the end of each episode
                 print(f"Episode {episode + 1} completed in {n_steps} steps.")
+                break  # Break the loop when the episode is done
 
-    env.close()  # Ensure the environment is closed properly
+        env.close()  # Ensure the environment is closed properlyy
 
     if args.plot_reward_history:
         reward_prefix = reward_prefix.split(".")[0]

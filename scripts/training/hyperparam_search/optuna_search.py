@@ -61,10 +61,10 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
 
     if algo == "PPO":
         sampled_hyperparams = sample_ppo_params(trial)
-        model = PPO("MlpPolicy", env=env, seed=None, verbose=0, device='cuda', tensorboard_log=path, **sampled_hyperparams)
+        model = PPO("MultiInputPolicy", env=env, seed=None, verbose=0, device='cuda', tensorboard_log=path, **sampled_hyperparams)
     elif algo == "A2C":
         sampled_hyperparams = sample_a2c_params(trial)
-        model = A2C("MlpPolicy", env=env, seed=None, verbose=0, device='cpu', tensorboard_log=path, **sampled_hyperparams)
+        model = A2C("MultiInputPolicy", env=env, seed=None, verbose=0, device='cpu', tensorboard_log=path, **sampled_hyperparams)
     else:
         raise ValueError("Invalid algorithm")
     

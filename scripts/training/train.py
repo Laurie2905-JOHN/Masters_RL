@@ -87,7 +87,7 @@ def main(args):
                 'rollout_buffer_kwargs': args.a2c_rollout_buffer_kwargs,
                 'normalize_advantage': args.a2c_normalize_advantage,
             }
-            model = A2C('MlpPolicy', env, **common_hyperparams, **a2c_hyperparams)
+            model = A2C('MultiInputPolicy', env, **common_hyperparams, **a2c_hyperparams)
         elif args.algo == 'PPO':
             ppo_hyperparams = {
                 'n_steps': args.ppo_n_steps,
@@ -108,7 +108,7 @@ def main(args):
                 'target_kl': args.ppo_target_kl,
                 'stats_window_size': args.ppo_stats_window_size,
             }
-            model = PPO('MlpPolicy', env, **common_hyperparams, **ppo_hyperparams)
+            model = PPO('MultiInputPolicy', env, **common_hyperparams, **ppo_hyperparams)
         else:
             raise ValueError(f"Unsupported algorithm: {args.algo}")
         reset_num_timesteps = True
@@ -131,24 +131,24 @@ def main(args):
         verbose=args.verbose
     )
 
-    save_vec_normalize_callback = SaveVecNormalizeEvalCallback(
-        vec_normalize_env=env,
-        save_path=best_model_path, 
-    )
+    # save_vec_normalize_callback = SaveVecNormalizeEvalCallback(
+    #     vec_normalize_env=env,
+    #     save_path=best_model_path, 
+    # )
     
     stop_training_on_no_model_improvement = StopTrainingOnNoModelImprovement(max_no_improvement_evals=(args.total_timesteps // args.eval_freq) * 0.1, # Stop training if no improvement in 10% of total training time
                                                                              min_evals=(args.total_timesteps // args.eval_freq) * 0.2, # Minimum 20% of total evals before callback starts
                                                                              verbose=args.verbose)
     
-    stop_training_on_reward_threshold = StopTrainingOnRewardThreshold(reward_threshold=1000, # max reward is 1000 for this environment
-                                                                      verbose=args.verbose)
+    # stop_training_on_reward_threshold = StopTrainingOnRewardThreshold(reward_threshold=1000, # max reward is 1000 for this environment
+    #                                                                   verbose=args.verbose)
     
-    callback_on_new_best = CallbackList([stop_training_on_no_model_improvement, stop_training_on_reward_threshold, save_vec_normalize_callback])
+    # callback_on_new_best = CallbackList([stop_training_on_no_model_improvement, stop_training_on_reward_threshold, save_vec_normalize_callback])
 
     eval_callback = EvalCallback(
         eval_env=env,
         best_model_save_path=best_model_path,
-        callback_on_new_best=callback_on_new_best,
+        callback_on_new_best=stop_training_on_no_model_improvement,
         n_eval_episodes=15,
         eval_freq=max(args.eval_freq // args.num_envs, 1),
         deterministic=True,
@@ -342,7 +342,7 @@ if __name__ == "__main__":
             args.seed = generate_random_seeds(1)
 
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(5)
+        args.seed = generate_random_seeds(2)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
 
