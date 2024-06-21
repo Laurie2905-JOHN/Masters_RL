@@ -12,9 +12,9 @@ module load anaconda3/personal
 
 source activate MasterEnv
 
-python "scripts/training/hyperparam_search/optuna_search.py" \
+python "scripts/training/benchmarks/optuna_benchmark.py" \
     --algo="A2C" \
     --study_name="A2C_benchmark" \
-    --n_trials=8 \
+    --n_trials=32 \
     --timeout=14400 \
-    --num_timesteps=20000
+    --num_timesteps=50000

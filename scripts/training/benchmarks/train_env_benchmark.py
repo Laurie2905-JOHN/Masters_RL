@@ -11,6 +11,56 @@ from utils.train_utils import generate_random_seeds, get_unique_directory, selec
 import json
 from stable_baselines3.common.env_util import make_vec_env
 
+
+from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv, SubprocVecEnv
+from stable_baselines3.common.monitor import Monitor
+from gymnasium.wrappers import TimeLimit
+
+# Function to set up the environment
+def setup_environment(args, reward_save_path=None, eval=False):
+    
+    env_kwargs = {
+                "ingredient_df": args.ingredient_df,
+                "max_ingredients": args.max_ingredients,
+                "action_scaling_factor": args.action_scaling_factor,
+                "render_mode": args.render_mode,
+                "reward_metrics": args.reward_metrics,
+                "seed": args.seed,
+                "verbose": args.verbose
+                }
+        
+    def make_env():
+        
+        env = gym.make("SchoolMealSelection-v0", **env_kwargs)
+            
+        # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
+        env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
+        env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
+  
+        return env
+    
+    
+
+    if vec_env == 'subproc':
+        env = make_vec_env(make_env,vec_env_cls=SubprocVecEnv, n_envs=args.num_envs, seed=args.seed)
+    else:
+        # No argument will use Dummyvecenv
+        env = make_vec_env(make_env, n_envs=args.num_envs, seed=args.seed)
+
+    if eval:
+        return env
+    
+    return VecNormalize(
+        env, 
+        norm_obs=args.vecnorm_norm_obs, 
+        norm_reward=args.vecnorm_norm_reward, 
+        clip_obs=args.vecnorm_clip_obs, 
+        clip_reward=args.vecnorm_clip_reward, 
+        gamma=args.gamma, 
+        epsilon=args.vecnorm_epsilon, 
+        norm_obs_keys=args.vecnorm_norm_obs_keys
+    )
+    
 # Main training function
 def main(args, vec_env):
     
@@ -374,51 +424,4 @@ if __name__ == "__main__":
         for vec_env in ['subproc', 'dummy']:
             main(args, vec_env)
 
-from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv, SubprocVecEnv
-from stable_baselines3.common.monitor import Monitor
-from gymnasium.wrappers import TimeLimit
 
-# Function to set up the environment
-def setup_environment(args, reward_save_path=None, eval=False):
-    
-    env_kwargs = {
-                "ingredient_df": args.ingredient_df,
-                "max_ingredients": args.max_ingredients,
-                "action_scaling_factor": args.action_scaling_factor,
-                "render_mode": args.render_mode,
-                "reward_metrics": args.reward_metrics,
-                "seed": args.seed,
-                "verbose": args.verbose
-                }
-        
-    def make_env():
-        
-        env = gym.make("SchoolMealSelection-v0", **env_kwargs)
-            
-        # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
-        env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
-        env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
-  
-        return env
-    
-    
-
-    if vec_env == 'subproc':
-        env = make_vec_env(make_env,vec_env_cls=SubprocVecEnv, n_envs=args.num_envs, seed=args.seed)
-    else:
-        # No argument will use Dummyvecenv
-        env = make_vec_env(make_env, n_envs=args.num_envs, seed=args.seed)
-
-    if eval:
-        return env
-    
-    return VecNormalize(
-        env, 
-        norm_obs=args.vecnorm_norm_obs, 
-        norm_reward=args.vecnorm_norm_reward, 
-        clip_obs=args.vecnorm_clip_obs, 
-        clip_reward=args.vecnorm_clip_reward, 
-        gamma=args.gamma, 
-        epsilon=args.vecnorm_epsilon, 
-        norm_obs_keys=args.vecnorm_norm_obs_keys
-    )

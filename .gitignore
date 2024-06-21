@@ -171,7 +171,7 @@ saved_models/best_models/*
 saved_models/tensorboard/*
 saved_models/hpc_output/*
 !saved_models/optuna/*
-saved_models/evaluation/*
+# saved_models/evaluation/*
 
 
 # Filetypes
@@ -185,4 +185,4 @@ saved_models/evaluation/*
 data/processed_data.csv
 
 # Ignore all files and directories under saved_models/**/**/trials/
-saved_models/**/**/trials/*
+# saved_models/**/**/trials/*

@@ -12,7 +12,7 @@ module load anaconda3/personal
 
 source activate MasterEnv
 
-python "scripts/training/hyperparam_search/optuna_search.py" \
+python "scripts/training/benchmarks/optuna_benchmark.py" \
     --algo="PPO" \
     --study_name="PPO_benchmark" \
     --n_trials=8 \

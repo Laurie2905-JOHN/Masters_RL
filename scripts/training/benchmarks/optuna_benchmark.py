@@ -97,20 +97,20 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
 
     return reward
 
-def benchmark(algo, study_name, storage, n_trials, timeout, num_timesteps, n_jobs_list):
+def benchmark(algo, study_name, n_trials, timeout, num_timesteps, n_jobs_list):
     INGREDIENT_DF = get_data()
-    study_path = f"saved_models/optuna/{study_name}"
-    os.makedirs(study_path, exist_ok=True)
+
     
-    db_dir = os.path.join(study_path, "db")
-    os.makedirs(db_dir, exist_ok=True)
-    
-    if storage is None:
-        storage = f"sqlite:///{os.path.join(db_dir, f'{study_name}.db')}"
     
     results = []
     
     for n_jobs in n_jobs_list:
+        study_path = f"saved_models/optuna/{study_name}_{str(n_jobs)}"
+        os.makedirs(study_path, exist_ok=True)
+    
+        db_dir = os.path.join(study_path, "db")
+        os.makedirs(db_dir, exist_ok=True)
+        
         print(f"Running with n_jobs={n_jobs}...")
         start_time = time.time()
         
@@ -119,7 +119,6 @@ def benchmark(algo, study_name, storage, n_trials, timeout, num_timesteps, n_job
 
         study = optuna.create_study(
             study_name=study_name,
-            storage=storage,
             sampler=sampler,
             pruner=pruner,
             load_if_exists=True,
@@ -146,10 +145,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
-    parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=8, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=14400, help="Timeout for optimization in seconds")
-    parser.add_argument('--num_timesteps', type=int, default=20000, help="Number of timesteps for model training")
+    parser.add_argument('--num_timesteps', type=int, default=50000, help="Number of timesteps for model training")
     parser.add_argument('--n_jobs_list', type=int, nargs='+', default=[1, 2, 4, 8], help="List of n_jobs values to benchmark")
     args = parser.parse_args()
     
