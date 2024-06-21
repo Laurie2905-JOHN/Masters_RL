@@ -149,9 +149,10 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
         fig2 = plot_param_importances(study)
         fig3 = plot_parallel_coordinate(study)
 
-        fig1.show()
-        fig2.show()
-        fig3.show()
+        # Save figures to files in the specified directory
+        fig1.savefig(f"{study_path}/optimization_history.png")
+        fig2.savefig(f"{study_path}/param_importances.png")
+        fig3.savefig(f"{study_path}/parallel_coordinate.png")
 
     except (ValueError, ImportError, RuntimeError) as e:
         print("Error during plotting")
