@@ -3,7 +3,7 @@ import gymnasium as gym
 from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 import numpy as np
 import random
-
+from typing import Union, Callable
 from stable_baselines3.common.env_util import make_vec_env
 import torch
 # from models.envs.env import SchoolMealSelection
@@ -24,6 +24,26 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict, Counter
+
+def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
+    """
+    Linear learning rate schedule.
+
+    :param initial_value: (float or str)
+    :return: (function)
+    """
+    if isinstance(initial_value, str):
+        initial_value = float(initial_value)
+
+    def func(progress_remaining: float) -> float:
+        """
+        Progress will decrease from 1 (beginning) to 0
+        :param progress_remaining: (float)
+        :return: (float)
+        """
+        return progress_remaining * initial_value
+
+    return func
 
 # Function to select the appropriate device (CPU or GPU)
 def select_device(args):

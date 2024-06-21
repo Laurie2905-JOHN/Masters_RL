@@ -5,14 +5,11 @@ TRAIN_SCRIPT="scripts/training/train.py"
 
 # Define common training parameters
 COMMON_ARGS="
-  --algo=A2C \
-  --env_name=SchoolMealSelection-v0 \
+  --algo="A2C" \
   --num_envs=8 \
   --total_timesteps=3000000 \
   --save_freq=10000 \
-  --eval_freq=10000 \
-  --device=cpu \
-  --memory_monitor=False"
+  --eval_freq=10000 "
 
 # Top 1 trial hyperparameters
 TRIAL_1_ARGS="
@@ -29,10 +26,10 @@ TRIAL_1_ARGS="
   --a2c_rms_prop_eps=0.0017596548252099434 \
   --a2c_use_rms_prop=False \
   --a2c_normalize_advantage=False \
-  --ortho_init=True \
-  --activation_fn=elu \
-  --net_arch_width=512 \
-  --net_arch_depth=2 \
+  --a2c_ortho_init=True \
+  --a2c_activation_fn=elu \
+  --a2c_net_arch_width=512 \
+  --a2c_net_arch_depth=2 \
   --best_prefix=trial_1 \
   --log_prefix=trial_1"
 
@@ -51,10 +48,10 @@ TRIAL_2_ARGS="
   --a2c_rms_prop_eps=0.02044690735884977 \
   --a2c_use_rms_prop=False \
   --a2c_normalize_advantage=False \
-  --ortho_init=True \
-  --activation_fn=elu \
-  --net_arch_width=512 \
-  --net_arch_depth=3 \
+  --a2c_=True \
+  --a2c_activation_fn=elu \
+  --a2c_net_arch_width=512 \
+  --a2c_net_arch_depth=3 \
   --best_prefix=trial_2 \
   --log_prefix=trial_2"
 
@@ -73,10 +70,10 @@ TRIAL_3_ARGS="
   --a2c_rms_prop_eps=0.07775725378306704 \
   --a2c_use_rms_prop=False \
   --a2c_normalize_advantage=False \
-  --ortho_init=True \
-  --activation_fn=elu \
-  --net_arch_width=512 \
-  --net_arch_depth=3 \
+  --a2c_ortho_init=True \
+  --a2c_activation_fn=elu \
+  --a2c_net_arch_width=512 \
+  --a2c_net_arch_depth=3 \
   --best_prefix=trial_3 \
   --log_prefix=trial_3"
 

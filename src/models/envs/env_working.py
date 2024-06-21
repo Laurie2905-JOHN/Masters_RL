@@ -306,7 +306,7 @@ class SchoolMealSelection(gym.Env):
         self.reward_dict['consumption_reward'] = {'average_mean_consumption': 0, 'cv_penalty': 0},
         self.reward_dict['targets_not_met'] = []
         self.reward_dict['termination_reward'] = 0
-        self.reward_dict['step_penalty'] = -1
+        self.reward_dict['step_penalty'] = 0
 
     def _evaluate_rewards(self):
         group_targets_met = True
@@ -348,6 +348,7 @@ class SchoolMealSelection(gym.Env):
                 if metric == 'targets_not_met':
                     pass
                 
+        self.reward_dict['step_penalty'] = -1
         
         return terminated
 

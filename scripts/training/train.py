@@ -7,8 +7,9 @@ from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback,
 from stable_baselines3.common.logger import configure, HumanOutputFormat
 from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback
-from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed, monitor_memory_usage, plot_reward_distribution
+from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed, monitor_memory_usage, plot_reward_distribution, linear_schedule
 import json
+from torch import nn
 
 # Main training function
 def main(args):
@@ -75,7 +76,7 @@ def main(args):
         if args.algo == 'A2C':
             a2c_hyperparams = {
                 'n_steps': args.a2c_n_steps,
-                'learning_rate': args.a2c_learning_rate,
+                'learning_rate': args.learning_rate,
                 'ent_coef': args.a2c_ent_coef,
                 'vf_coef': args.a2c_vf_coef,
                 'max_grad_norm': args.a2c_max_grad_norm,
@@ -83,10 +84,11 @@ def main(args):
                 'use_rms_prop': args.a2c_use_rms_prop,
                 'use_sde': args.a2c_use_sde,
                 'sde_sample_freq': args.a2c_sde_sample_freq,
-                'rollout_buffer_class': args.a2c_rollout_buffer_class,
-                'rollout_buffer_kwargs': args.a2c_rollout_buffer_kwargs,
                 'normalize_advantage': args.a2c_normalize_advantage,
+                "gae_lambda": args.a2c_gae_lambda,
+                'policy_kwargs': args.policy_kwargs,
             }
+            print(f'Training with A2C algorithm and hyper params are {a2c_hyperparams}')
             model = A2C('MultiInputPolicy', env, **common_hyperparams, **a2c_hyperparams)
         elif args.algo == 'PPO':
             ppo_hyperparams = {
@@ -107,6 +109,7 @@ def main(args):
                 'rollout_buffer_kwargs': args.ppo_rollout_buffer_kwargs,
                 'target_kl': args.ppo_target_kl,
                 'stats_window_size': args.ppo_stats_window_size,
+                'policy_kwargs': args.policy_kwargs,
             }
             model = PPO('MultiInputPolicy', env, **common_hyperparams, **ppo_hyperparams)
         else:
@@ -262,10 +265,11 @@ if __name__ == "__main__":
     parser.add_argument("--eval_freq", type=int, default=10000, help="Frequency of evaluations")
     parser.add_argument("--seed", type=str, default="-1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
     parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
-    parser.add_argument("--memory_monitor", type=bool, default=True, help="Monitor memory usage during training")
+    parser.add_argument("--memory_monitor", type=bool, default=False, help="Monitor memory usage during training")
     parser.add_argument("--pretrained_checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
     parser.add_argument("--verbose", type=int, default=1, help="Verbosity level: 0 for no output, 1 for info messages, 2 for debug messages")
     parser.add_argument("--gamma", type=float, default=0.99, help="Discount of future rewards")
+    parser.add_argument("--lr_schedule", type=str, default='constant', choices=['constant', 'linear'], help="Learning rate schedule")
 
     # A2C specific hyperparameters
     parser.add_argument("--a2c_n_steps", type=int, default=5, help="The number of steps to run for each environment per update")
@@ -276,11 +280,15 @@ if __name__ == "__main__":
     parser.add_argument("--a2c_rms_prop_eps", type=float, default=1e-5, help="Epsilon parameter for RMSProp optimizer")
     parser.add_argument("--a2c_use_rms_prop", type=bool, default=True, help="Whether to use RMSProp optimizer")
     parser.add_argument("--a2c_use_sde", type=bool, default=False, help="Whether to use generalized State Dependent Exploration (gSDE) instead of action noise exploration")
-    parser.add_argument("--a2c_sde_sample_freq", type=int, default=-1, help="Sample a new noise matrix every n steps when using gSDE")
-    parser.add_argument("--a2c_rollout_buffer_class", default=None, help="Rollout buffer class to use")
-    parser.add_argument("--a2c_rollout_buffer_kwargs", default=None, help="Keyword arguments to pass to the rollout buffer on creation")
+    parser.add_argument("--a2c_sde_sample_freq", type=int, default=10, help="Sample a new noise matrix every n steps when using gSDE")
     parser.add_argument("--a2c_normalize_advantage", type=bool, default=False, help="Whether to normalize or not the advantage")
+    parser.add_argument("--a2c_gae_lambda", type=float, default=1, help="Factor for trade-off of bias vs variance for Generalized Advantage Estimator. Equivalent to classic advantage when set to 1.")
+    parser.add_argument("--a2c_net_arch_width", type=int, default=512, help="Define policy network width")
+    parser.add_argument("--a2c_net_arch_depth", type=int, default=2, help="Define policy network depth")
+    parser.add_argument("--a2c_activation_fn", type=str, default='relu', choices=["tanh", "relu", "elu", "leaky_relu"], help="Activation function for policy network")
+    parser.add_argument("--a2c_ortho_init", type=bool, default=True, help="Orthogonal initialization")
 
+            
     # PPO specific hyperparameters
     parser.add_argument("--ppo_n_steps", type=int, default=2048, help="The number of steps to run for each environment per update")
     parser.add_argument("--ppo_batch_size", type=int, default=64, help="Minibatch size")
@@ -334,6 +342,31 @@ if __name__ == "__main__":
         args.best_prefix = f"{no_name}_env_best"
     if args.hyperparams_prefix is None:
         args.hyperparams_prefix = no_name
+    
+    if args.algo == 'A2C':
+        learning_rate = args.a2c_learning_rate
+        net_arch = dict(pi=[args.a2c_net_arch_width] * args.a2c_net_arch_depth, vf=[args.a2c_net_arch_width] * args.a2c_net_arch_depth)
+        activation_fn = {"tanh": nn.Tanh, "relu": nn.ReLU, "elu": nn.ELU, "leaky_relu": nn.LeakyReLU}[args.a2c_activation_fn]
+        ortho_init = args.a2c_ortho_init
+    elif args.algo == 'PPO':
+        learning_rate = args.ppo_learning_rate
+        net_arch = dict(pi=[args.ppo_net_arch_width] * args.ppo_net_arch_depth, vf=[args.ppo_net_arch_width] * args.ppo_net_arch_depth)
+        activation_fn = {"tanh": nn.Tanh, "relu": nn.ReLU, "elu": nn.ELU, "leaky_relu": nn.LeakyReLU}[args.ppo_activation_fn]
+        ortho_init = args.ppo_ortho_init
+    
+    # Adjust learning rate if schedule is linear
+    if args.lr_schedule == "linear":
+        args.learning_rate = linear_schedule(learning_rate)
+    else:
+        args.learning_rate = learning_rate
+    
+
+    # Define policy kwargs
+    args.policy_kwargs = dict(
+                            net_arch=net_arch,
+                            activation_fn=activation_fn,
+                            ortho_init=ortho_init,
+                        )
 
     if args.seed is None:
         if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':

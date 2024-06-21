@@ -22,6 +22,29 @@ from utils.optuna_utils.trial_eval_callback import TrialEvalCallback
 from utils.process_data import get_data
 from gymnasium.wrappers import TimeLimit, NormalizeObservation, NormalizeReward
 
+import gymnasium as gym
+import numpy as np
+from gymnasium.spaces import Dict as SpaceDict, Box
+
+class NormalizeDictObservation(gym.ObservationWrapper):
+    def __init__(self, env):
+        super(NormalizeDictObservation, self).__init__(env)
+        assert isinstance(env.observation_space, SpaceDict), "Observation space must be a dictionary"
+        self.observation_space = env.observation_space
+
+    def observation(self, observation):
+        normalized_observation = {}
+        for key, value in observation.items():
+            if isinstance(self.observation_space.spaces[key], Box):
+                # Normalize observations to the range [0, 1]
+                low = self.observation_space.spaces[key].low
+                high = self.observation_space.spaces[key].high
+                normalized_observation[key] = (value - low) / (high - low)
+            else:
+                normalized_observation[key] = value
+        return normalized_observation
+
+
 def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> float:
     # Prevent Resource Contention: When multiple trials start simultaneously, they might contend for limited computational resources
     time.sleep(random.random() * 16)
@@ -41,20 +64,18 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)
     
+    # Example usage within your make_env function
     def make_env():
-        
         env = gym.make("SchoolMealSelection-v0", **env_kwargs)
-            
-        # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
         env = TimeLimit(env, max_episode_steps=1000)
         
         # Normalize observations and rewards
-        env = NormalizeObservation(env)
+        env = NormalizeDictObservation(env)
         env = NormalizeReward(env)
         
-        env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
+        env = Monitor(env)  # wrap it with monitor env again to explicitly take the change into account
         
-        return env     
+        return env   
     
     # Wrap the environment with DummyVecEnv for parallel environments
     env = make_vec_env(make_env, n_envs=1, seed=None)
@@ -168,16 +189,16 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
+    parser.add_argument('--algo', type=str, default="A2C", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=43200, help="Timeout for optimization in seconds")
-    parser.add_argument('--n_jobs', type=int, default=8, help="Number of jobs to assign")
-    parser.add_argument('--num_timesteps', type=int, default=1000000, help="Number of timesteps for model training")
+    parser.add_argument('--n_jobs', type=int, default=1, help="Number of jobs to assign")
+    parser.add_argument('--num_timesteps', type=int, default=10000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_gpu_test1"
+        args.study_name = f"{args.algo}_test"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)

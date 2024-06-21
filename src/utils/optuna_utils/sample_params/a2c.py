@@ -1,26 +1,7 @@
-from typing import Dict, Any, Union, Callable
+from typing import Dict, Any
 import optuna
 from torch import nn
-
-def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
-    """
-    Linear learning rate schedule.
-
-    :param initial_value: (float or str)
-    :return: (function)
-    """
-    if isinstance(initial_value, str):
-        initial_value = float(initial_value)
-
-    def func(progress_remaining: float) -> float:
-        """
-        Progress will decrease from 1 (beginning) to 0
-        :param progress_remaining: (float)
-        :return: (float)
-        """
-        return progress_remaining * initial_value
-
-    return func
+from utils.train_utils import linear_schedule
 
 def sample_a2c_params(trial: optuna.Trial) -> Dict[str, Any]:
     """
@@ -39,6 +20,10 @@ def sample_a2c_params(trial: optuna.Trial) -> Dict[str, Any]:
     gae_lambda = trial.suggest_categorical("gae_lambda", [0.8, 0.9, 0.92, 0.95, 0.98, 0.99, 1.0])
     rms_prop_eps = trial.suggest_float("rms_prop_eps", 1e-5, 1e-1, log=True)
     use_rms_prop = trial.suggest_categorical('use_rms_prop', [True, False])
+    use_sde = trial.suggest_categorical('use_sde', [True, False])
+    sde_sample_freq = trial.suggest_int('sde_sample_freq', 1, 100)
+    # rollout_buffer_class = trial.suggest_categorical('rollout_buffer_class', ['DefaultRolloutBuffer', 'CustomRolloutBuffer'])
+    # rollout_buffer_kwargs = trial.suggest_categorical('rollout_buffer_kwargs', [{'size': 100}, {'size': 200}])
     normalize_advantage = trial.suggest_categorical('normalize_advantage', [True, False])
 
     # Orthogonal initialization
@@ -66,6 +51,8 @@ def sample_a2c_params(trial: optuna.Trial) -> Dict[str, Any]:
         "gae_lambda": gae_lambda,
         "rms_prop_eps": rms_prop_eps,
         "use_rms_prop": use_rms_prop,
+        "use_sde": use_sde,
+        "sde_sample_freq": sde_sample_freq,
         "normalize_advantage": normalize_advantage,
         "policy_kwargs": dict(
             net_arch=net_arch,
@@ -73,3 +60,4 @@ def sample_a2c_params(trial: optuna.Trial) -> Dict[str, Any]:
             ortho_init=ortho_init,
         ),
     }
+
