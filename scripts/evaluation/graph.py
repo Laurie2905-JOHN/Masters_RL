@@ -32,8 +32,9 @@ def evaluate_model(model, env, num_episodes=10, deterministic=True):
                     info['consumption_average'],
                     info['cost'],
                     info['reward'],
-                    info['current_selection'],
-                    info['selected_ingredients']
+                    info['group_portions'],
+                    info['targets_not_met_count'],
+                    info['current_meal_plan']
                 ))
                 break
         predictions.append(episode_predictions)
@@ -52,14 +53,13 @@ def plot_results(predictions, num_episodes):
     """Plot the results from the predictions."""
     flattened_predictions = [pred for episode in predictions for pred in episode]
 
-    nutrient_averages, ingredient_group_counts, ingredient_environment_counts, consumption_averages, costs, _, current_selections, selected_ingredients = zip(*flattened_predictions)
-
+    nutrient_averages, ingredient_group_counts, ingredient_environment_counts, consumption_averages, costs, _, _, _, current_meal_plan = zip(*flattened_predictions)
     avg_nutrient_averages = average_dicts(nutrient_averages)
     avg_ingredient_group_counts = average_dicts(ingredient_group_counts)
     avg_ingredient_environment_counts = average_dicts(ingredient_environment_counts)
     avg_consumption_averages = average_dicts(consumption_averages)
-    avg_cost = np.mean(costs)
-    avg_consumption_averages['avg_cost'] = avg_cost
+    avg_cost = average_dicts(costs)
+    avg_consumption_averages['avg_cost'] = avg_cost['menu_cost']
 
     targets = {
         'nutrients': {
@@ -120,11 +120,12 @@ def plot_results(predictions, num_episodes):
     plot_bars(axs[1], avg_ingredient_group_counts, 'Ingredient Group Count Average Over ', targets['ingredient_groups'], rotation=25)
     plot_bars(axs[2], avg_ingredient_environment_counts, 'Ingredient Environment Count Average Over ', targets['ingredient_environment'])
     plot_bars(axs[3], avg_consumption_averages, 'Consumption and Cost Averages Over ', targets['consumption'])
-    num_plots = min(len(current_selections), 4)
+    num_plots = min(len(current_meal_plan), 4)
     
     for i in range(num_plots):
-        current_selection = np.array(current_selections[i])
-        selected_ingredient = np.array(selected_ingredients[i])
+        selected_ingredient = np.array(list(current_meal_plan[i].keys()))
+        current_selection = np.array(list(current_meal_plan[i].values()))
+        
         
         bars = axs[4 + i].bar(selected_ingredient, current_selection, color='blue', width=0.5)
         axs[4 + i].set_ylabel('Grams of Ingredient')
@@ -144,14 +145,20 @@ def plot_results(predictions, num_episodes):
     plt.tight_layout(pad=2.0)
     plt.subplots_adjust(hspace=1.1, wspace=0.1)
     plt.show()
-# "nutrients,groups,environment,cost,consumption"
+
+
 class Args:
+    env_name = "SchoolMealSelection-v0"
     reward_metrics = "nutrients,groups,environment,cost,consumption"
     render_mode = None
     num_envs = 1
     plot_reward_history = False
     max_episode_steps = 1000
     verbose = 2
+    ingredient_df = get_data('medium_data.csv')
+    max_ingredients = 6
+    action_scaling_factor = 20
+    seed = 1994152466
     
 def main():
     args = Args()
@@ -159,19 +166,16 @@ def main():
     from utils.train_utils import setup_environment, get_unique_directory
     from utils.process_data import get_data  # Ensure this import is correct
     
-    ingredient_df = get_data()
-    
-    basepath = os.path.abspath(f"saved_models/evaluation/best_models/sparse_reward/")
-    
-    filename = "SchoolMealSelection_v1_A2C_1000000_8env_best_nutrients_groups_environment_cost_consumption_seed_4082949944"    
-    
-    if len(filename.split("_")) < 2:
-        seed = random.randint(0, 1000)
-    else: 
-        seed = int(filename.split("_")[-1])
+    basepath = os.path.abspath(f"saved_models/evaluation/best_models")
 
-    env = setup_environment(args, seed, ingredient_df, eval=True)
-    
+    filename = "SchoolMealSelection_v1_A2C_30000000_8env_nutrients_groups_environment_cost_consumption_seed_1994152466"    
+
+    # if len(filename.split("_")) < 2:
+    #     seed = random.randint(0, 1000)
+    # else: 
+    #     seed = int(filename.split("_")[-1])
+
+    env = setup_environment(args, eval=True)
 
     norm_path = os.path.join(basepath, filename, "vec_normalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
@@ -189,7 +193,7 @@ def main():
     custom_objects = {'lr_schedule': dummy_lr_schedule}
     model = A2C.load(model_path, env=env, custom_objects=custom_objects)
 
-    num_episodes = 4
+    num_episodes = 20
 
     predictions = evaluate_model(model, env, num_episodes, deterministic=True)
 

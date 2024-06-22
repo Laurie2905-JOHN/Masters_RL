@@ -76,12 +76,13 @@ def setup_environment(args, reward_save_path=None, eval=False):
                 "render_mode": args.render_mode,
                 "reward_metrics": args.reward_metrics,
                 "seed": args.seed,
-                "verbose": args.verbose
+                "verbose": args.verbose,
+                "perfect_initialize": args.perfect_initialize
                 }
         
     def make_env():
         
-        env = gym.make("SchoolMealSelection-v0", **env_kwargs)
+        env = gym.make(args.env_name, **env_kwargs)
         
         # Apply the RewardTrackingWrapper if needed
         if args.plot_reward_history:
@@ -217,6 +218,11 @@ class InfoLoggerCallback(BaseCallback):
                 for sub_key, sub_value in value.items():
                     if isinstance(sub_value, (int, float, np.number)):
                         self.logger.record(f'info/{key}/{sub_key}', sub_value)
+                    elif isinstance(sub_value, dict):
+                        for sub_sub_key, sub_sub_value in sub_value.items():
+                            if isinstance(sub_sub_value, (int, float, np.number)):
+                                self.logger.record(f'info/{key}/{sub_key}/{sub_sub_key}', sub_sub_value)
+                                
         return True
 
 

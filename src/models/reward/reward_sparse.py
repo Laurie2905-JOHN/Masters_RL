@@ -29,7 +29,6 @@ class RewardCalculator:
                 portion = main_class.ingredient_group_portion[group] / main_class.ingredient_group_count[group]
                 min_target, max_target = main_class.ingredient_group_portion_targets[group]
                 return min_target <= portion <= max_target
-            return True
 
         all_group_targets_met = True
         any_group_exceeded = False
@@ -39,55 +38,53 @@ class RewardCalculator:
         total_protein_count = sum(main_class.ingredient_group_count[group] for group in protein_groups)
         total_protein_target = sum(main_class.ingredient_group_count_targets[group] for group in protein_groups)
 
-        if total_protein_count >= total_protein_target:
-            if not all(_is_within_portion_range(group) for group in protein_groups):
-                all_group_targets_met = False
-                for group in protein_groups:
-                    main_class.reward_dict['ingredient_group_count_reward'][group] -= 0
-            if total_protein_count > total_protein_target:
-                any_group_exceeded = True
-                group_exceeded.append('protein')
-        else:
-            all_group_targets_met = False
-            for group in protein_groups:
-                main_class.reward_dict['ingredient_group_count_reward'][group] -= 0
-
-        if main_class.ingredient_group_count['confectionary'] == main_class.ingredient_group_count_targets['confectionary']:
-            main_class.reward_dict['ingredient_group_count_reward']['confectionary'] += 0
-        else:
-            main_class.reward_dict['ingredient_group_count_reward']['confectionary'] -= 0
-
-        for group, value in main_class.ingredient_group_count.items():
-            if group in protein_groups + ['confectionary']:
-                continue
-            target = main_class.ingredient_group_count_targets[group]
-            if value >= target and _is_within_portion_range(group):
-                main_class.reward_dict['ingredient_group_count_reward'][group] += 0
-                if value > target:
-                    any_group_exceeded = True
-                    group_exceeded.append(group)
+        def update_reward(group, condition_met, exceeded=False):
+            if condition_met:
+                if group == 'protein':
+                    main_class.reward_dict['ingredient_group_count_reward']['non_processed_protein'] -= 0.5
+                    main_class.reward_dict['ingredient_group_count_reward']['processed_protein'] -= 0.5
+                else:
+                    main_class.reward_dict['ingredient_group_count_reward'][group] += 1
             else:
                 all_group_targets_met = False
-                main_class.reward_dict['ingredient_group_count_reward'][group] -= 0
+                # main_class.reward_dict['ingredient_group_count_reward'][group] -= 1
+                # if exceeded:
+                #     any_group_exceeded = True
+                #     group_exceeded.append(group)
 
-        if not all_group_targets_met:
-            for group in main_class.reward_dict['ingredient_group_count_reward']:
-                main_class.reward_dict['ingredient_group_count_reward'][group] -= 1
-            if any_group_exceeded:
-                for group in group_exceeded:
-                    if 'protein' == group:
-                        main_class.reward_dict['ingredient_group_count_reward']['non_processed_protein'] -= 0.5
-                        main_class.reward_dict['ingredient_group_count_reward']['processed_protein'] -= 0.5
-                    else:
-                        main_class.reward_dict['ingredient_group_count_reward'][group] -= 1
+        # Handle protein groups
+        protein_condition_met = total_protein_count >= total_protein_target and all(_is_within_portion_range(group) for group in protein_groups)
+        update_reward('protein', protein_condition_met, total_protein_count > total_protein_target)
 
-        
+        # Handle confectionary
+        confectionary_condition_met = main_class.ingredient_group_count['confectionary'] == main_class.ingredient_group_count_targets['confectionary']
+        update_reward('confectionary', confectionary_condition_met)
+
+        # Handle other groups
+        for group, value in main_class.ingredient_group_count.items():
+            if group not in protein_groups + ['confectionary']:
+                target_met = value >= main_class.ingredient_group_count_targets[group] and _is_within_portion_range(group)
+                update_reward(group, target_met, value > main_class.ingredient_group_count_targets[group])
+
+        # Apply penalties if not all targets met
+        # if not all_group_targets_met:
+        #     for group in main_class.reward_dict['ingredient_group_count_reward']:
+        #         main_class.reward_dict['ingredient_group_count_reward'][group] -= 1
+        #     if any_group_exceeded:
+        #         for group in group_exceeded:
+        #             if group == 'protein':
+        #                 main_class.reward_dict['ingredient_group_count_reward']['non_processed_protein'] -= 0.5
+        #                 main_class.reward_dict['ingredient_group_count_reward']['processed_protein'] -= 0.5
+        #             else:
+        #                 main_class.reward_dict['ingredient_group_count_reward'][group] -= 1
+
         return main_class.reward_dict['ingredient_group_count_reward'], all_group_targets_met
+
 
     @staticmethod
     def environment_count_reward(main_class):
         environment_target_met = main_class.ingredient_environment_count['CO2_g'] <= main_class.target_CO2_g_per_meal
-        main_class.reward_dict['ingredient_environment_count_reward']['CO2_g'] = 1 if environment_target_met else -1
+        main_class.reward_dict['ingredient_environment_count_reward']['CO2_g'] = 1 if environment_target_met else 0
 
         
         return main_class.reward_dict['ingredient_environment_count_reward'], environment_target_met
@@ -96,7 +93,7 @@ class RewardCalculator:
     def cost_reward(main_class):
         cost_difference = main_class.menu_cost - main_class.target_cost_per_meal
         cost_targets_met = cost_difference <= 0
-        main_class.reward_dict['cost_reward']['from_target'] = -1 if not cost_targets_met else 1
+        main_class.reward_dict['cost_reward']['from_target'] = 0 if not cost_targets_met else 1
 
         
         return main_class.reward_dict['cost_reward'], cost_targets_met

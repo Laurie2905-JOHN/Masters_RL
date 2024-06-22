@@ -21,7 +21,11 @@ def main(args):
     print(f"Using device: {device}")
 
     # Load data required for environment setup
-    args.ingredient_df = get_data()
+    try:
+        args.ingredient_df = get_data()
+    except Exception as e:
+        print(f"Error loading data: {e}")
+        return
 
     if args.plot_reward_history:
         reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed_{seed}_env", '.json')
@@ -119,7 +123,34 @@ def main(args):
     new_logger = configure(tensorboard_log_dir, format_strings=["stdout", "tensorboard"])
     for handler in new_logger.output_formats:
         if isinstance(handler, HumanOutputFormat):
-            handler.max_length = 50
+            handler.max_length = 100
+            
+        # Save hyperparameters as JSON
+    hyperparams = {
+        'algo': args.algo,
+        'common_hyperparams': str(common_hyperparams),
+    }
+    if args.algo == 'A2C':
+        hyperparams.update(a2c_hyperparams)
+    elif args.algo == 'PPO':
+        hyperparams.update(ppo_hyperparams)
+
+    # Add VecNormalize parameters to hyperparams
+    vecnormalize_params = {
+        'vecnorm_norm_obs': args.vecnorm_norm_obs,
+        'vecnorm_norm_reward': args.vecnorm_norm_reward,
+        'vecnorm_clip_obs': args.vecnorm_clip_obs,
+        'vecnorm_clip_reward': args.vecnorm_clip_reward,
+        'vecnorm_epsilon': args.vecnorm_epsilon,
+        'vecnorm_norm_obs_keys': args.vecnorm_norm_obs_keys,
+    }
+    hyperparams['vecnormalize_params'] = vecnormalize_params
+    
+    hyperparams_dir, hyperparams_prefix = get_unique_directory(args.hyperparams_dir, f"{args.hyperparams_prefix}_seed_{seed}_hyperparameters", ".json")
+    
+    hyperparams_path = os.path.join(hyperparams_dir, f"{hyperparams_prefix}")
+    with open(hyperparams_path, 'w') as f:
+        json.dump({k: str(v) for k, v in hyperparams.items()}, f, indent=4)
 
     save_dir, save_prefix = get_unique_directory(args.save_dir, f"{args.save_prefix}_seed_{seed}{pretrained}", "")
 
@@ -136,8 +167,8 @@ def main(args):
     #     save_path=best_model_path, 
     # )
     
-    stop_training_on_no_model_improvement = StopTrainingOnNoModelImprovement(max_no_improvement_evals=(args.total_timesteps // args.eval_freq) * 0.1, # Stop training if no improvement in 10% of total training time
-                                                                             min_evals=(args.total_timesteps // args.eval_freq) * 0.2, # Minimum 20% of total evals before callback starts
+    stop_training_on_no_model_improvement = StopTrainingOnNoModelImprovement(max_no_improvement_evals=50,
+                                                                             min_evals=50,
                                                                              verbose=args.verbose)
     
     # stop_training_on_reward_threshold = StopTrainingOnRewardThreshold(reward_threshold=1000, # max reward is 1000 for this environment
@@ -203,33 +234,6 @@ def main(args):
 
     except Exception as e:
         print(f"Error loading model: {e}")
-        
-    # Save hyperparameters as JSON
-    hyperparams = {
-        'algo': args.algo,
-        'common_hyperparams': common_hyperparams,
-    }
-    if args.algo == 'A2C':
-        hyperparams.update(a2c_hyperparams)
-    elif args.algo == 'PPO':
-        hyperparams.update(ppo_hyperparams)
-
-    # Add VecNormalize parameters to hyperparams
-    vecnormalize_params = {
-        'vecnorm_norm_obs': args.vecnorm_norm_obs,
-        'vecnorm_norm_reward': args.vecnorm_norm_reward,
-        'vecnorm_clip_obs': args.vecnorm_clip_obs,
-        'vecnorm_clip_reward': args.vecnorm_clip_reward,
-        'vecnorm_epsilon': args.vecnorm_epsilon,
-        'vecnorm_norm_obs_keys': args.vecnorm_norm_obs_keys,
-    }
-    hyperparams['vecnormalize_params'] = vecnormalize_params
-    
-    hyperparams_dir, hyperparams_prefix = get_unique_directory(args.hyperparams_dir, f"{args.hyperparams_prefix}_seed_{seed}_hyperparameters", ".json")
-    
-    hyperparams_path = os.path.join(hyperparams_dir, f"{hyperparams_prefix}")
-    with open(hyperparams_path, 'w') as f:
-        json.dump(hyperparams, f, indent=4)
 
 def str_to_list(value):
     return value.split(',')
@@ -237,14 +241,14 @@ def str_to_list(value):
 # Entry point of the script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
-    parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v1', help="Name of the environment")
+    parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v0', help="Name of the environment")
     parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
     parser.add_argument("--max_ingredients", type=int, default=6, help="Max number of ingredients in plan")
     parser.add_argument("--action_scaling_factor", type=int, default=20, help="Max number of ingredients in plan")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=8, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=10000000, help="Total number of timesteps for training")
+    parser.add_argument("--total_timesteps", type=int, default=1000, help="Total number of timesteps for training")
     parser.add_argument("--reward_metrics", type=str, default='nutrients,groups,environment,cost,consumption', help="Metrics to give reward for (comma-separated list)")
     parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
     parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")

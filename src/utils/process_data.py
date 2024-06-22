@@ -28,6 +28,7 @@ def get_data(filename='small_data.csv'):
         
             ingredients = row.split(',')
             
+            
             if len(ingredients) != 35:
                 ingredients = custom_split(row)
                             
