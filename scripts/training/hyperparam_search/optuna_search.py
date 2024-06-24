@@ -169,16 +169,16 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', type=str, default="A2C", help="Algorithm to optimize: PPO or A2C")
+    parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
-    parser.add_argument('--timeout', type=int, default=86400, help="Timeout for optimization in seconds")
-    parser.add_argument('--n_jobs', type=int, default=2, help="Number of jobs to assign")
-    parser.add_argument('--num_timesteps', type=int, default=1000000, help="Number of timesteps for model training")
+    parser.add_argument('--timeout', type=int, default=140000, help="Timeout for optimization in seconds")
+    parser.add_argument('--n_jobs', type=int, default=1, help="Number of jobs to assign")
+    parser.add_argument('--num_timesteps', type=int, default=3000000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_study_laptop_1mil"
+        args.study_name = f"{args.algo}_study_PPO_large1"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)
