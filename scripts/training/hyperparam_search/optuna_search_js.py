@@ -44,7 +44,7 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     
     def make_env():
         env = gym.make("SchoolMealSelection-v0", **env_kwargs)
-        env = TimeLimit(env, max_episode_steps=1000)
+        env = TimeLimit(env, max_episode_steps=100)
         # Normalize observations and rewards
         env = NormalizeDictObservation(env)
         env = NormalizeReward(env)
@@ -168,11 +168,11 @@ if __name__ == "__main__":
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=86400, help="Timeout for optimization in seconds")
-    parser.add_argument('--n_jobs', type=int, default=1, help="Number of jobs to assign")
-    parser.add_argument('--num_timesteps', type=int, default=10000000, help="Number of timesteps for model training")
+    parser.add_argument('--n_jobs', type=int, default=3, help="Number of jobs to assign")
+    parser.add_argument('--num_timesteps', type=int, default=1000000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_parralel1"
+        args.study_name = f"{args.algo}_parralel_newR"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)
