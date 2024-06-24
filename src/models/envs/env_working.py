@@ -2,7 +2,7 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 from collections import Counter
-from models.reward.reward_very_sparse import RewardCalculator
+from models.reward.reward_sparse_shaped_nutrient import RewardCalculator
 import os
 import random
 from gymnasium.envs.registration import register
@@ -25,13 +25,13 @@ class SchoolMealSelection(gym.Env):
         self.action_scaling_factor = action_scaling_factor
         self.reward_metrics = reward_metrics if reward_metrics else ['nutrients', 'groups', 'environment', 'cost', 'consumption']
         
-        if self.reward_metrics == ['nutrients', 'groups', 'environment', 'cost', 'consumption']:
+        if self.reward_metrics != ['nutrients', 'groups', 'environment', 'cost', 'consumption']:
             raise NotImplementedError("All reward metrics are not implemented yet.")
             
         self.verbose = verbose
         self.seed = seed
         self.perfect_initialize = perfect_initialize
-        print(self.perfect_initialize)
+
         # Initialize nutrient values
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values.astype(np.float32) / 100
         self.Fat_g = ingredient_df['Fat_g'].values.astype(np.float32) / 100
@@ -133,8 +133,10 @@ class SchoolMealSelection(gym.Env):
 
 
         self.render_mode = render_mode
-
-
+        
+        # Combine all indices from all categories
+        self.all_indices = [i for i in range(1, self.n_ingredients)]
+        
         self.episode_count = -1
         self.nsteps = 0
 
@@ -214,9 +216,9 @@ class SchoolMealSelection(gym.Env):
         self._initialize_rewards()
         
         terminated = self._evaluate_rewards()
-        
-        reward += sum(sum(r.values()) for r in self.reward_dict.values() if isinstance(r, dict))
-
+        reward += sum(value for subdict in self.reward_dict.values() if isinstance(subdict, dict) for value in subdict.values() if isinstance(value, (int, float))) + \
+            sum(value for value in self.reward_dict.values() if isinstance(value, (int, float)))
+            
         return reward, terminated
     
     def _get_metrics(self):
@@ -300,26 +302,45 @@ class SchoolMealSelection(gym.Env):
         consumption_targets_met = True
         nutrition_targets_met = True
 
+        terminate = False
+        termination_reasons = []
+
         for metric in self.reward_dict.keys():
             if metric == 'step_penalty':
                 continue
             elif self.reward_to_metric_mapping[metric] in self.reward_metrics:
                 method = self.reward_to_function_mapping[metric]
                 reward_func = getattr(RewardCalculator, method)
-                self.reward_dict[metric], targets_met = reward_func(self)
+                self.reward_dict[metric], targets_met, terminate = reward_func(self)
                 if metric == 'nutrient_reward':
                     nutrition_targets_met = targets_met
+                    nutrition_terminate = terminate
+                    if nutrition_terminate:
+                        termination_reasons.append("nutrition_terminate")
                 elif metric == 'ingredient_group_count_reward':
                     group_targets_met = targets_met
+                    ingredient_group_count_terminate = terminate
+                    if ingredient_group_count_terminate:
+                        termination_reasons.append("ingredient_group_count_terminate")
                 elif metric == 'ingredient_environment_count_reward':
                     environment_targets_met = targets_met
+                    ingredient_environment_count_terminate = terminate
+                    if ingredient_environment_count_terminate:
+                        termination_reasons.append("ingredient_environment_count_terminate")                    
                 elif metric == 'cost_reward':
                     cost_targets_met = targets_met
+                    cost_terminate = terminate
+                    if cost_terminate:
+                        termination_reasons.append("cost_terminate")                    
                 elif metric == 'consumption_reward':
-                    consumption_targets_met = targets_met    
+                    consumption_targets_met = targets_met
+                    consumption_terminate = terminate
+                    if consumption_terminate:
+                        termination_reasons.append("consumption_terminate")    
                 else:
-                    print(f"Metric: {metric} not found in RewardCalculator.")   
-                
+                    print(f"Metric: {metric} not found in RewardCalculator.")
+
+                    
             if metric == 'termination_reward':
                 terminated, self.reward_dict[metric], targets_not_met = RewardCalculator.termination_reason(
                                                                                                         self,
@@ -328,6 +349,7 @@ class SchoolMealSelection(gym.Env):
                                                                                                         environment_targets_met,
                                                                                                         cost_targets_met,
                                                                                                         consumption_targets_met,
+                                                                                                        termination_reasons
                                                                                                     )
                 self.reward_dict['targets_not_met'] = targets_not_met
                 if metric == 'targets_not_met':
@@ -338,6 +360,11 @@ class SchoolMealSelection(gym.Env):
         return terminated
 
     def reset(self, seed=None, options=None):
+        
+        if self.verbose > 1:
+            print(f"\nFinal plan: {self._current_meal_plan()}")
+            # Print portions of selected food groups
+            print(f"\nFinal portion size of groups: {self.ingredient_group_portion}"),
         
         super().reset(seed=seed)
 
@@ -448,8 +475,8 @@ class SchoolMealSelection(gym.Env):
         self.current_selection = np.zeros(self.n_ingredients)
         
         # Create a separate random number generator instance to ensure meal plan is always initialized randomly
-        rng = random.Random(self.seed)
-
+        # rng = random.Random(self.seed)
+        rng = random.Random(None) # Set seed to None to get a random seed even if seed is set
         # Initialize a list to store indices
         selected_indices = []
         
@@ -468,11 +495,8 @@ class SchoolMealSelection(gym.Env):
                     selected_counts[key] += 1
 
         else:
-            # Combine all indices from all categories
-            all_indices = np.concatenate([self.group_info[category]['indexes'] for category in self.group_info])
             # Select unique indices until reaching the required number
-            selected_indices = rng.sample(list(all_indices), num_indices_to_select)
-            
+            selected_indices = rng.sample(self.all_indices, num_indices_to_select)
             # Increment the selected counts for each category
             for idx in selected_indices:
                 for category, info in self.group_info.items():
@@ -528,7 +552,7 @@ if __name__ == '__main__':
     reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '')
 
     class Args:
-        reward_metrics = ['nutrients', 'groups', 'environment', 'consumption', 'cost']
+        reward_metrics = None
         render_mode = None
         num_envs = 1
         plot_reward_history = False
@@ -544,12 +568,12 @@ if __name__ == '__main__':
         vecnorm_norm_reward = True
         vecnorm_clip_obs = 10
         vecnorm_clip_reward = 10
-        vecnorm_epsilon = 1e-8
+        vecnorm_epsilon = 1e-8 
         vecnorm_norm_obs_keys = None
-        ingredient_df = get_data("data.csv")
+        ingredient_df = get_data("small_data.csv")
         seed = None
         env_name = 'SchoolMealSelection-v0'
-        perfect_initialize = False
+        perfect_initialize = True
         
     args = Args()
 
@@ -558,10 +582,10 @@ if __name__ == '__main__':
     reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
     
     env = setup_environment(args, reward_save_path=reward_save_path, eval=False)
-    
+    # If seed is set to none this will error but it is not a problem. Due to the initialisation.
     # check_env(env.unwrapped.envs[0].unwrapped)
     
-    # print("Environment is valid!")
+    print("Environment is valid!")
     
     del env
     
@@ -572,11 +596,11 @@ if __name__ == '__main__':
             "render_mode": args.render_mode,
             "reward_metrics": args.reward_metrics,
             "seed": args.seed,
+            'perfect_initialize': args.perfect_initialize,
             "verbose": args.verbose
             }
-        
-
     
+    # Function to test the env step without normalization
     def make_env():
         
         env = gym.make(args.env_name, **env_kwargs)

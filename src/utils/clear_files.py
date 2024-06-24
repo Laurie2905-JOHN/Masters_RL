@@ -31,7 +31,7 @@ def clear_directory(directory_list):
 
 if __name__ == "__main__":
     
-    directory_list = ["saved_models/tensorboard", "saved_models/best_models", "saved_models/checkpoints", "saved_models/hpc_output", "saved_models/reward"]
+    directory_list = ["saved_models/tensorboard", "saved_models/best_models", "saved_models/checkpoints", "saved_models/hpc_output", "saved_models/reward", "saved_models/hyperparams"]
     # directory_list = ["saved_models/tensorboard", "saved_models/reward", "saved_models/best_models", "saved_models/checkpoints"]
     clear_directory(directory_list)
 

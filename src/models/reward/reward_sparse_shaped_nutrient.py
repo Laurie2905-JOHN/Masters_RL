@@ -6,12 +6,25 @@ class RewardCalculator:
         for nutrient, average_value in main_class.nutrient_averages.items():
             target_min, target_max = main_class.nutrient_target_ranges[nutrient]
             true_flag = target_min <= average_value <= target_max
-            main_class.reward_dict['nutrient_reward'][nutrient] += 1 if true_flag else -1
             if not true_flag:
                 all_nutrient_targets_met = False
                 far_flag = average_value < 0.25 * target_min or average_value > 4 * target_max
+                
+                distance = max(abs(target_min - average_value), abs(target_max - average_value))
+                distance_reward = distance / 100
+                
+                if distance_reward > 10:
+                    main_class.reward_dict['nutrient_reward'][nutrient] -= 10
+                else:
+                    main_class.reward_dict['nutrient_reward'][nutrient] -= distance_reward
+                    
                 if far_flag:
+                    main_class.reward_dict['nutrient_reward'][nutrient] -= 10
                     terminate = True
+            else:
+                main_class.reward_dict['nutrient_reward'][nutrient] += 10
+                
+    
         
         return main_class.reward_dict['nutrient_reward'], all_nutrient_targets_met, terminate
 
