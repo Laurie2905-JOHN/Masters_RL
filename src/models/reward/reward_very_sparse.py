@@ -57,7 +57,7 @@ class RewardCalculator:
         environment_target_met = main_class.ingredient_environment_count['CO2_g'] <= main_class.target_CO2_g_per_meal
         main_class.reward_dict['ingredient_environment_count_reward']['CO2_g'] = 1 if environment_target_met else 0
         
-        if main_class.ingredient_environment_count['CO2_g'] > 2000:
+        if main_class.ingredient_environment_count['CO2_g'] > 1000:
             terminate = True
         else:
             terminate = False

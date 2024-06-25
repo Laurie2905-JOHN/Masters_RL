@@ -17,7 +17,7 @@ register(
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=10, render_mode=None, reward_metrics=None, verbose=0, seed = None, perfect_initialize=True):
+    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=10, render_mode=None, reward_metrics=None, verbose=0, seed = None, perfect_initialize='zero'):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
@@ -470,13 +470,11 @@ class SchoolMealSelection(gym.Env):
         return self.current_meal_plan
     
     def _initialise_selection(self):
-        
-    # Initialize current_selection to all zeroes
+        # Initialize current_selection to all zeroes
         self.current_selection = np.zeros(self.n_ingredients)
         
         # Create a separate random number generator instance to ensure meal plan is always initialized randomly
-        # rng = random.Random(self.seed)
-        rng = random.Random(None) # Set seed to None to get a random seed even if seed is set
+        rng = random.Random(None)  # Set seed to None to get a random seed even if seed is set
         # Initialize a list to store indices
         selected_indices = []
         
@@ -486,15 +484,17 @@ class SchoolMealSelection(gym.Env):
         # Total number of indices to select
         num_indices_to_select = min(self.max_ingredients, self.n_ingredients)
         
-        if self.perfect_initialize:
+        if self.perfect_initialize == 'perfect':
             # Iterate over the target counts for each ingredient group
             for key, value in self.ingredient_group_count_targets.items():
                 # For non-protein groups, select a random index from the group
                 for _ in range(value):
                     selected_indices.append(rng.choice(self.group_info[key]['indexes']))
                     selected_counts[key] += 1
-
-        else:
+        elif self.perfect_initialize == "zero":
+            # If zero initialization is selected, keep current_selection as all zeros
+            pass
+        elif self.perfect_initialize == "probabilistic":
             # Select unique indices until reaching the required number
             selected_indices = rng.sample(self.all_indices, num_indices_to_select)
             # Increment the selected counts for each category
@@ -503,28 +503,28 @@ class SchoolMealSelection(gym.Env):
                     if idx in info['indexes']:
                         selected_counts[category] += 1
                         break
-                    
-        # Ensure we have exactly self.max_ingredients unique indices
-        selected_indices = rng.sample(selected_indices, min(self.max_ingredients, len(selected_indices)))
         
-        # Assign the values to the selected indices
-        values_to_assign = []
-        for group, count in selected_counts.items():
-            if count > 0:
-                # Add the correct number of values based on counts for each group
-                values_to_assign += [rng.randint(*self.ingredient_group_portion_targets[group])] * count
+        if self.perfect_initialize != "zero":
+            # Ensure we have exactly self.max_ingredients unique indices
+            selected_indices = rng.sample(selected_indices, min(self.max_ingredients, len(selected_indices)))
+            
+            # Assign the values to the selected indices
+            values_to_assign = []
+            for group, count in selected_counts.items():
+                if count > 0:
+                    # Add the correct number of values based on counts for each group
+                    values_to_assign += [rng.randint(*self.ingredient_group_portion_targets[group])] * count
 
-        for idx, value in zip(selected_indices, values_to_assign):
-            self.current_selection[idx] = value
+            for idx, value in zip(selected_indices, values_to_assign):
+                self.current_selection[idx] = value
         
         if self.verbose > 1:
             print(f"\nInitialized plan: {self._current_meal_plan()}")
             # Print counts of selected indices for each group
             for category, count in selected_counts.items():
                 print(f"Number of indices selected for '{category}': {count}")
-            
-        self._get_metrics()
         
+        self._get_metrics()
         self._get_obs()
         
         

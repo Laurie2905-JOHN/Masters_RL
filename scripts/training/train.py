@@ -271,7 +271,7 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", type=int, default=0, help="Verbosity level: 0 for no output, 1 for info messages, 2 for debug messages")
     parser.add_argument("--gamma", type=float, default=0.99, help="Discount of future rewards")
     parser.add_argument("--lr_schedule", type=str, default='constant', choices=['constant', 'linear'], help="Learning rate schedule")
-    parser.add_argument("--perfect_initialize", type=bool, default=True, help="Initialization strategy for ingredients")
+    parser.add_argument("--perfect_initialize", type=str, default='zero', choices=['zero', 'perfect', 'probabilistic'], help="Initialization strategy for ingredients")
 
     # A2C specific hyperparameters
     parser.add_argument("--a2c_n_steps", type=int, default=5, help="The number of steps to run for each environment per update")
@@ -377,7 +377,7 @@ if __name__ == "__main__":
             args.seed = generate_random_seeds(1)
 
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(1)
+        args.seed = generate_random_seeds(2)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
 

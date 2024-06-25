@@ -13,18 +13,16 @@ class RewardCalculator:
                 distance = max(abs(target_min - average_value), abs(target_max - average_value))
                 distance_reward = distance / 100
                 
-                if distance_reward > 10:
-                    main_class.reward_dict['nutrient_reward'][nutrient] -= 10
+                if distance_reward > 1:
+                    main_class.reward_dict['nutrient_reward'][nutrient] -= 1
                 else:
                     main_class.reward_dict['nutrient_reward'][nutrient] -= distance_reward
                     
                 if far_flag:
-                    main_class.reward_dict['nutrient_reward'][nutrient] -= 10
+                    main_class.reward_dict['nutrient_reward'][nutrient] -= 2
                     terminate = True
             else:
-                main_class.reward_dict['nutrient_reward'][nutrient] += 10
-                
-    
+                main_class.reward_dict['nutrient_reward'][nutrient] += 2
         
         return main_class.reward_dict['nutrient_reward'], all_nutrient_targets_met, terminate
 
