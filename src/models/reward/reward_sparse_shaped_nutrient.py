@@ -65,23 +65,15 @@ class RewardCalculator:
 
     @staticmethod
     def environment_count_reward(main_class):
-        environment_target_met = main_class.ingredient_environment_count['CO2_g'] <= main_class.target_CO2_g_per_meal
-        main_class.reward_dict['ingredient_environment_count_reward']['CO2_g'] = 1 if environment_target_met else 0
-        
-        if main_class.ingredient_environment_count['CO2_g'] > 2000:
-            terminate = True
-        else:
-            terminate = False
-        
-        
+        environment_target_met = True
+        terminate = False
         return main_class.reward_dict['ingredient_environment_count_reward'], environment_target_met, terminate
 
     @staticmethod
     def cost_reward(main_class):
-        cost_difference = main_class.menu_cost - main_class.target_cost_per_meal
+        cost_difference = main_class.menu_cost['cost'] - main_class.target_cost_per_meal
         cost_targets_met = cost_difference <= 0
-        main_class.reward_dict['cost_reward']['from_target'] = 0 if not cost_targets_met else 1
-        
+        main_class.reward_dict['cost_reward']['cost'] = 0 if not cost_targets_met else 1
         
         if cost_difference > 4:
             terminate = True
@@ -89,6 +81,19 @@ class RewardCalculator:
             terminate = False
         
         return main_class.reward_dict['cost_reward'], cost_targets_met, terminate
+    
+    @staticmethod
+    def co2g_reward(main_class):
+        
+        co2_targets_met = main_class.co2g['CO2_g'] <= main_class.target_CO2_g_per_meal
+        main_class.reward_dict['co2g_reward']['CO2_g'] = 1 if co2_targets_met else 0
+        
+        if main_class.co2g['CO2_g'] > 2000:
+            terminate = True
+        else:
+            terminate = False
+        
+        return main_class.reward_dict['co2g_reward'], co2_targets_met, terminate
 
     @staticmethod
     def consumption_reward(main_class):
@@ -100,21 +105,13 @@ class RewardCalculator:
         return main_class.reward_dict['consumption_reward'][0], consumption_targets_met, terminate
 
     @staticmethod
-    def termination_reason(main_class, nutrition_targets_met, group_targets_met, environment_targets_met, cost_targets_met, consumption_targets_met, termination_reasons):
+    def termination_reason(main_class, targets, termination_reasons):
         terminated = False
         targets_not_met = []
         termination_reward = 0
-        
-        if not nutrition_targets_met:
-            targets_not_met.append("Nutrition")
-        if not group_targets_met:
-            targets_not_met.append("Group")
-        if not environment_targets_met:
-            targets_not_met.append("Environment")
-        if not cost_targets_met:
-            targets_not_met.append("Cost")
-        if not consumption_targets_met:
-            targets_not_met.append("Consumption")
+        for key, value in targets.items():
+            if not value:
+                targets_not_met.append(key)
 
         if not targets_not_met:
             if main_class.verbose > 0:
@@ -122,11 +119,8 @@ class RewardCalculator:
             terminated = True
             termination_reward += 1000
 
-        # List of all targets
-        targets_met = [nutrition_targets_met, group_targets_met, environment_targets_met, cost_targets_met, consumption_targets_met]
-
         # Count the number of failed targets
-        failed_targets = sum([not target for target in targets_met])
+        failed_targets = sum([not target for target in targets])
 
         # Check if more than half of the targets are failed
         if main_class.nsteps > 50 and failed_targets > 4:
