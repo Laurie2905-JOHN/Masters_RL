@@ -34,7 +34,7 @@ class RewardCalculator:
             else:
                 portion = 0
             min_target, max_target = main_class.ingredient_group_portion_targets[group]
-            terminate = portion > 200
+            terminate = portion > 400
             return min_target <= portion <= max_target, terminate
 
         all_group_targets_met = True

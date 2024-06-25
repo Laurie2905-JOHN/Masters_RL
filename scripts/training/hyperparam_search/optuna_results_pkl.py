@@ -1,21 +1,17 @@
 import optuna
+import pickle
 import matplotlib.pyplot as plt
 import os
 from utils.train_utils import get_unique_directory
 
-study_name = "A2C_parralel1"  # Replace with your actual study name
+study_name = "PPO_study1"  # Replace with your actual study name
 
-# Specify the path to the journal file
-journal_file_path = f"saved_models/optuna/{study_name}/journal_storage/journal.log"  # Replace with your actual journal log path
+# Define the path to load the study
+study_file_path = f"saved_models/optuna/{study_name}/study.pkl"
 
-# Create a JournalStorage object
-journal_storage = optuna.storages.JournalStorage(
-    optuna.storages.JournalFileStorage(journal_file_path)
-)
-
-# Load the study
-
-study = optuna.load_study(study_name=study_name, storage=journal_storage)
+# Load the study using pickle
+with open(study_file_path, 'rb') as f:
+    study = pickle.load(f)
 
 # Retrieve the best trial
 best_trial = study.best_trial
@@ -42,7 +38,7 @@ if direction == optuna.study.StudyDirection.MINIMIZE:
 else:
     sorted_trials = sorted(completed_trials, key=lambda x: x.value, reverse=True)
 
-# Select the top 20 trials
+# Select the top 10 trials
 top_trials = sorted_trials[:10]
 
 # Print the top 10 trials
@@ -107,7 +103,7 @@ plt.tight_layout()
 fig.legend(handles=handles, labels=[f'Best Trial {rank + 1}' for rank in range(3)], loc='lower center', ncol=3)
 
 # Save the figure
-base, filename = get_unique_directory(os.path.dirname(journal_file_path), "hyperparam_rewards_trial1", ".png")
+base, filename = get_unique_directory(os.path.dirname(study_file_path), "hyperparam_rewards_trial1", ".png")
 output_path = os.path.join(base, filename)
 plt.savefig(output_path)
 plt.show()
