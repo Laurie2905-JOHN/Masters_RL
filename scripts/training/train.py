@@ -9,11 +9,17 @@ from utils.process_data import get_data
 from utils.train_utils import InfoLoggerCallback, SaveVecNormalizeEvalCallback
 from utils.train_utils import generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed, monitor_memory_usage, plot_reward_distribution, linear_schedule
 import json
+import yaml
 from torch import nn
+
+def ensure_dir_exists(directory, verbose=0):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        if verbose > 1:
+            print(f"Warning: Directory {directory} did not exist and was created.")
 
 # Main training function
 def main(args):
-    
     device = select_device(args)
     
     set_seed(args.seed, device)
@@ -22,10 +28,17 @@ def main(args):
 
     # Load data required for environment setup
     try:
-        args.ingredient_df = get_data()
+        args.ingredient_df = get_data("small_data.csv")
     except Exception as e:
         print(f"Error loading data: {e}")
         return
+
+    # Ensure directories exist
+    ensure_dir_exists(args.reward_dir, args.verbose)
+    ensure_dir_exists(args.log_dir, args.verbose)
+    ensure_dir_exists(args.save_dir, args.verbose)
+    ensure_dir_exists(args.best_dir, args.verbose)
+    ensure_dir_exists(args.hyperparams_dir, args.verbose)
 
     if args.plot_reward_history:
         reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed_{seed}_env", '.json')
@@ -125,7 +138,7 @@ def main(args):
         if isinstance(handler, HumanOutputFormat):
             handler.max_length = 100
             
-        # Save hyperparameters as JSON
+    # Save hyperparameters as JSON
     hyperparams = {
         'algo': args.algo,
         'common_hyperparams': str(common_hyperparams),
@@ -238,101 +251,25 @@ def main(args):
 def str_to_list(value):
     return value.split(',')
 
+def load_hyperparams(filepath):
+    with open(filepath, 'r') as file:
+        return yaml.safe_load(file)
+
 # Entry point of the script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
-    parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v0', help="Name of the environment")
-    parser.add_argument("--max_episode_steps", type=int, default=100, help="Max episode steps")
-    parser.add_argument("--max_ingredients", type=int, default=6, help="Max number of ingredients in plan")
-    parser.add_argument("--action_scaling_factor", type=int, default=2, help="Max number of ingredients in plan")
-    parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
-    parser.add_argument("--num_envs", type=int, default=8, help="Number of parallel environments")
-    parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")
-    parser.add_argument("--total_timesteps", type=int, default=10000000, help="Total number of timesteps for training")
-    parser.add_argument("--reward_metrics", type=str, default='nutrients,groups,environment,cost,consumption', help="Metrics to give reward for (comma-separated list)")
-    parser.add_argument("--log_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'tensorboard')), help="Directory for tensorboard logs")
-    parser.add_argument("--log_prefix", type=str, default=None, help="Filename for tensorboard logs")
-    parser.add_argument("--save_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'checkpoints')), help="Directory to save models and checkpoints")
-    parser.add_argument("--save_prefix", type=str, default=None, help="Prefix for saved model files")
-    parser.add_argument("--save_freq", type=int, default=1000, help="Frequency of saving checkpoints")
-    parser.add_argument("--best_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'best_models')), help="Directory for best model")
-    parser.add_argument("--best_prefix", type=str, default=None, help="Prefix for saving best model")
-    parser.add_argument("--hyperparams_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'hyperparams')), help="Directory for hyperparams")
-    parser.add_argument("--hyperparams_prefix", type=str, default=None, help="Prefix for saving hyperparams")
-    parser.add_argument("--reward_dir", type=str, default=os.path.abspath(os.path.join('saved_models', 'reward')), help="Directory to save reward data")
-    parser.add_argument("--reward_prefix", type=str, default=None, help="Prefix for saved reward data")
-    parser.add_argument("--reward_save_interval", type=int, default=20000, help="Number of timestep between saving reward data")
-    parser.add_argument("--plot_reward_history", type=bool, default=True, help="Save and plot the reward history for the environment")
-    parser.add_argument("--eval_freq", type=int, default=1000, help="Frequency of evaluations")
-    parser.add_argument("--seed", type=str, default="-1", help="Random seed for the environment (use -1 for random, or multiple values for multiple seeds)")
-    parser.add_argument("--device", type=str, choices=['cpu', 'cuda', 'auto'], default='auto', help="Device to use for training (cpu, cuda, or auto)")
-    parser.add_argument("--memory_monitor", type=bool, default=False, help="Monitor memory usage during training")
-    parser.add_argument("--pretrained_checkpoint_path", type=str, default=None, help="Path to checkpoint to resume training")
-    parser.add_argument("--verbose", type=int, default=0, help="Verbosity level: 0 for no output, 1 for info messages, 2 for debug messages")
-    parser.add_argument("--gamma", type=float, default=0.99, help="Discount of future rewards")
-    parser.add_argument("--lr_schedule", type=str, default='constant', choices=['constant', 'linear'], help="Learning rate schedule")
-    parser.add_argument("--perfect_initialize", type=str, default='zero', choices=['zero', 'perfect', 'probabilistic'], help="Initialization strategy for ingredients")
-
-    # A2C specific hyperparameters
-    parser.add_argument("--a2c_n_steps", type=int, default=5, help="The number of steps to run for each environment per update")
-    parser.add_argument("--a2c_learning_rate", type=float, default=7e-4, help="The learning rate for the optimizer")
-    parser.add_argument("--a2c_ent_coef", type=float, default=0.0, help="Entropy coefficient for the loss calculation")
-    parser.add_argument("--a2c_vf_coef", type=float, default=0.5, help="Value function coefficient for the loss calculation")
-    parser.add_argument("--a2c_max_grad_norm", type=float, default=0.5, help="The maximum value for gradient clipping")
-    parser.add_argument("--a2c_rms_prop_eps", type=float, default=1e-5, help="Epsilon parameter for RMSProp optimizer")
-    parser.add_argument("--a2c_use_rms_prop", type=bool, default=True, help="Whether to use RMSProp optimizer")
-    parser.add_argument("--a2c_use_sde", type=bool, default=False, help="Whether to use generalized State Dependent Exploration (gSDE) instead of action noise exploration")
-    parser.add_argument("--a2c_sde_sample_freq", type=int, default=-1, help="Sample a new noise matrix every n steps when using gSDE")
-    parser.add_argument("--a2c_normalize_advantage", type=bool, default=False, help="Whether to normalize or not the advantage")
-    parser.add_argument("--a2c_gae_lambda", type=float, default=1, help="Factor for trade-off of bias vs variance for Generalized Advantage Estimator. Equivalent to classic advantage when set to 1.")
-    parser.add_argument("--a2c_net_arch_width", type=int, default=512, help="Define policy network width")
-    parser.add_argument("--a2c_net_arch_depth", type=int, default=2, help="Define policy network depth")
-    parser.add_argument("--a2c_activation_fn", type=str, default='relu', choices=["tanh", "relu", "elu", "leaky_relu"], help="Activation function for policy network")
-    parser.add_argument("--a2c_ortho_init", type=bool, default=True, help="Orthogonal initialization")
-
-            
-    # PPO specific hyperparameters
-    parser.add_argument("--ppo_n_steps", type=int, default=2048, help="The number of steps to run for each environment per update")
-    parser.add_argument("--ppo_batch_size", type=int, default=64, help="Minibatch size")
-    parser.add_argument("--ppo_n_epochs", type=int, default=10, help="Number of epoch when optimizing the surrogate loss")
-    parser.add_argument("--ppo_learning_rate", type=float, default=3e-4, help="The learning rate for the optimizer")
-    parser.add_argument("--ppo_ent_coef", type=float, default=0.0, help="Entropy coefficient for the loss calculation")
-    parser.add_argument("--ppo_vf_coef", type=float, default=0.5, help="Value function coefficient for the loss calculation")
-    parser.add_argument("--ppo_max_grad_norm", type=float, default=0.5, help="The maximum value for the gradient clipping")
-    parser.add_argument("--ppo_clip_range", type=float, default=0.2, help="Clipping parameter")
-    parser.add_argument("--ppo_clip_range_vf", type=float, default=None, help="Clipping parameter for the value function")
-    parser.add_argument("--ppo_gae_lambda", type=float, default=1.0, help="Factor for trade-off of bias vs variance for Generalized Advantage Estimator")
-    parser.add_argument("--ppo_normalize_advantage", type=bool, default=False, help="Whether to normalize or not the advantage")
-    parser.add_argument("--ppo_use_sde", type=bool, default=False, help="Whether to use generalized State Dependent Exploration (gSDE) instead of action noise exploration")
-    parser.add_argument("--ppo_sde_sample_freq", type=int, default=-1, help="Sample a new noise matrix every n steps when using gSDE")
-    parser.add_argument("--ppo_rollout_buffer_class", default=None, help="Rollout buffer class to use")
-    parser.add_argument("--ppo_rollout_buffer_kwargs", default=None, help="Keyword arguments to pass to the rollout buffer on creation")
-    parser.add_argument("--ppo_target_kl", type=float, default=None, help="Limit the KL divergence between updates")
-    parser.add_argument("--ppo_stats_window_size", type=int, default=100, help="Window size for the rollout logging")
-
-    # VecNormalize parameters
-    parser.add_argument("--vecnorm_gamma", type=bool, default=True, help="discount factor for VecNormalize")
-    parser.add_argument("--vecnorm_norm_obs", type=bool, default=True, help="Whether to normalize observations or not")
-    parser.add_argument("--vecnorm_norm_reward", type=bool, default=True, help="Whether to normalize rewards or not")
-    parser.add_argument("--vecnorm_clip_obs", type=float, default=10.0, help="Max absolute value for observation")
-    parser.add_argument("--vecnorm_clip_reward", type=float, default=10.0, help="Max absolute value for discounted reward")
-    parser.add_argument("--vecnorm_epsilon", type=float, default=1e-8, help="To avoid division by zero")
-    parser.add_argument("--vecnorm_norm_obs_keys", type=str, default=None, help="Which keys from observation dict to normalize")
-
+    parser.add_argument("--hyperparams_path", type=str, default=None, help="Path to the hyperparameters YAML file")
     args = parser.parse_args()
+    
+    if args.hyperparams_path is None:
+        args.hyperparams_path = os.path.abspath("scripts/hyperparams/hyperparams.yaml")
 
-    args.reward_metrics = str_to_list(args.reward_metrics)
+    hyperparams = load_hyperparams(args.hyperparams_path)
 
-    metric_str = ""
-
-    for i, val in enumerate(args.reward_metrics):
-        if i == len(args.reward_metrics) - 1:
-            metric_str += val
-            break
-        else:
-            metric_str += val + "_"
+    # Convert dictionary to an argparse.Namespace object
+    args = argparse.Namespace(**hyperparams)
             
-    no_name = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env_{metric_str}".replace('-', '_')
+    no_name = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env".replace('-', '_')
 
     if args.log_prefix is None:
         args.log_prefix = no_name

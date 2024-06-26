@@ -171,6 +171,7 @@ saved_models/best_models/*
 saved_models/tensorboard/*
 saved_models/hpc_output/*
 saved_models/optuna/*
+saved_models/hyperparams/*
 # saved_models/evaluation/*
 
 

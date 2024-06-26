@@ -6,24 +6,40 @@ import gymnasium as gym
 import numpy as np
 from gymnasium.spaces import Dict as SpaceDict, Box
 import gc
+import gymnasium as gym
+import numpy as np
+from gymnasium import spaces
 
 class NormalizeDictObservation(gym.ObservationWrapper):
     def __init__(self, env):
         super(NormalizeDictObservation, self).__init__(env)
         assert isinstance(env.observation_space, SpaceDict), "Observation space must be a dictionary"
         self.observation_space = env.observation_space
+        
+        # Initialize running statistics for each key in the observation space
+        self.running_mean = {key: np.zeros(space.shape) for key, space in self.observation_space.spaces.items() if isinstance(space, Box)}
+        self.running_var = {key: np.ones(space.shape) for key, space in self.observation_space.spaces.items() if isinstance(space, Box)}
+        self.count = {key: 0 for key, space in self.observation_space.spaces.items() if isinstance(space, Box)}
 
     def observation(self, observation):
         normalized_observation = {}
+        
         for key, value in observation.items():
             if isinstance(self.observation_space.spaces[key], Box):
-                # Normalize observations to the range [0, 1]
-                low = self.observation_space.spaces[key].low
-                high = self.observation_space.spaces[key].high
-                # Avoid division by zero for spaces where low == high
-                normalized_observation[key] = (value - low) / (high - low + 1e-8)
+                # Update running statistics
+                self.count[key] += 1
+                prev_mean = self.running_mean[key].copy()
+                self.running_mean[key] += (value - self.running_mean[key]) / self.count[key]
+                self.running_var[key] += (value - self.running_mean[key]) * (value - prev_mean)
+                
+                # Calculate standard deviation
+                running_std = np.sqrt(self.running_var[key] / self.count[key])
+
+                # Normalize the observation using running mean and std deviation
+                normalized_observation[key] = (value - self.running_mean[key]) / (running_std + 1e-8)
             else:
                 normalized_observation[key] = value
+        
         return normalized_observation
     
 class RewardTrackingWrapper(gym.Wrapper):
@@ -79,20 +95,24 @@ class RewardTrackingWrapper(gym.Wrapper):
         reward_distribution = {
             'total_reward': self.reward_history,
         }
-        
+
         df_rewards = pd.DataFrame(reward_distribution)
         df_reward_details = pd.DataFrame(self.reward_details_history)
         df_combined = pd.concat([df_rewards, df_reward_details], axis=1)
 
         df_combined = self.ensure_float32_dtypes(df_combined)
         
+        # Ensure targets_not_met column exists
+        if 'targets_not_met' not in df_combined.columns:
+            df_combined['targets_not_met'] = ""
+
         # Check if file exists and append or write new
         if os.path.exists(self.reward_save_path):
             with pd.HDFStore(self.reward_save_path) as store:
                 store.append('rewards', df_combined, format='table', data_columns=True)
         else:
             with pd.HDFStore(self.reward_save_path) as store:
-                store.put('rewards', df_combined, format='table', data_columns=True)
+                store.put('rewards', df_combined, format='table', data_columns=True, min_itemsize={'targets_not_met': 26})
 
         # Clear the in-memory storage
         self.reward_history.clear()
@@ -109,3 +129,37 @@ class RewardTrackingWrapper(gym.Wrapper):
     def close(self):
         self.save_and_clear()
         super(RewardTrackingWrapper, self).close()
+
+
+# class BootStrapWrapper(gym.Wrapper):
+#     def __init__(self, env, max_steps, value_estimator, discount_factor=0.99, test_mode=False):
+#         super().__init__(env)
+#         self.env = env
+#         self.max_steps = max_steps
+#         self.value_estimator = value_estimator
+#         self.discount_factor = discount_factor
+#         self.test_mode = test_mode
+
+#     def reset(self, **kwargs):
+#         return self.env.reset(**kwargs)
+
+#     def step(self, action):
+
+#         observation, reward, terminated, truncated, info = self.env.step(action)
+
+#         if not self.test_mode:
+#             if truncated:
+#                 # Estimate the future value of the current state
+#                 future_value = self.value_estimator(observation)
+#                 # Bootstrap the reward with the discounted future value
+#                 reward += self.discount_factor * future_value
+
+#         return observation, reward, terminated, truncated, info
+
+#     def value_estimator(self, observation):
+#         # Placeholder for a method to estimate the value of the current state
+#         # This should be replaced by a real estimation function
+#         # Typically this would access the agent's value network or similar
+#         return 0.0
+
+

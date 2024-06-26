@@ -1,0 +1,82 @@
+env_name: SchoolMealSelection-v0
+max_episode_steps: 100
+max_ingredients: 6
+action_scaling_factor: 20
+
+algo: A2C
+num_envs: 8
+
+render_mode: null
+
+total_timesteps: 10000000
+save_freq: 1000
+
+log_dir: saved_models/tensorboard
+save_dir: saved_models/checkpoints
+best_dir: saved_models/best_models
+hyperparams_dir: saved_models/hyperparams
+
+log_prefix: null
+save_prefix: null
+best_prefix: null
+hyperparams_prefix: null
+
+
+reward_dir: saved_models/reward
+reward_prefix: null
+reward_save_interval: 20000
+plot_reward_history: true
+eval_freq: 1000
+seed: null
+device: auto
+memory_monitor: false
+pretrained_checkpoint_path: null
+verbose: 0
+
+
+gamma: 0.9611849566813905
+lr_schedule: constant
+initialization_strategy: 'probabilistic'
+a2c_n_steps: 100
+a2c_learning_rate: 2.7588161412656076e-05
+a2c_ent_coef: 0.0003636763254215976
+a2c_vf_coef: 0.11804916359256488
+a2c_max_grad_norm: 5
+a2c_rms_prop_eps: 1.3210493147783147e-05
+a2c_use_rms_prop: false
+a2c_use_sde: True
+a2c_sde_sample_freq: 97
+a2c_normalize_advantage: false
+a2c_gae_lambda: 0.98
+a2c_net_arch_width: 256
+a2c_net_arch_depth: 1
+a2c_activation_fn: tanh
+a2c_ortho_init: true
+
+
+ppo_n_steps: 2048
+ppo_batch_size: 64
+ppo_n_epochs: 10
+ppo_learning_rate: 3e-4
+ppo_ent_coef: 0.0
+ppo_vf_coef: 0.5
+ppo_max_grad_norm: 0.5
+ppo_clip_range: 0.2
+ppo_clip_range_vf: null
+ppo_gae_lambda: 1.0
+ppo_normalize_advantage: false
+ppo_use_sde: false
+ppo_sde_sample_freq: -1
+ppo_rollout_buffer_class: null
+ppo_rollout_buffer_kwargs: null
+ppo_target_kl: null
+ppo_stats_window_size: 100
+
+
+vecnorm_gamma: true
+vecnorm_norm_obs: true
+vecnorm_norm_reward: true
+vecnorm_clip_obs: 10.0
+vecnorm_clip_reward: 10.0
+vecnorm_epsilon: 0.00000001
+vecnorm_norm_obs_keys: ['current_selection_value', 'current_selection_index', 'groups', 'cost', 'environment_counts', 'consumption', 'co2g', 'nutrients']

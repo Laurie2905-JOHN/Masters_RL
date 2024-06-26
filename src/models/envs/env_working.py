@@ -17,20 +17,17 @@ register(
 class SchoolMealSelection(gym.Env):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=10, render_mode=None, reward_metrics=None, verbose=0, seed = None, perfect_initialize='zero', max_episode_timesteps=1000):
+    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=10, render_mode=None, verbose=0, seed = None, initialization_strategy='zero', max_episode_steps=1000):
         super(SchoolMealSelection, self).__init__()
 
         self.ingredient_df = ingredient_df
         self.max_ingredients = max_ingredients
         self.action_scaling_factor = action_scaling_factor
-        self.reward_metrics = reward_metrics if reward_metrics else ['nutrients', 'groups', 'environment', 'cost', 'consumption']
-        self.max_episode_timesteps = max_episode_timesteps
-        if self.reward_metrics != ['nutrients', 'groups', 'environment', 'cost', 'consumption']:
-            raise NotImplementedError("All reward metrics are not implemented yet.")
+        self.max_episode_steps = max_episode_steps
             
         self.verbose = verbose
         self.seed = seed
-        self.perfect_initialize = perfect_initialize
+        self.initialization_strategy = initialization_strategy
 
         # Initialize nutrient values
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values.astype(np.float32) / 100
@@ -94,7 +91,7 @@ class SchoolMealSelection(gym.Env):
             'carbs': (25, 300),
             'dairy': (20, 200),
             'bread': (40, 90),
-            'confectionary': (0, 0)
+            'confectionary': (0, 50) # dummy targets to ensure all groups are included and are not assigned a zero value
         }
         
 
@@ -112,7 +109,7 @@ class SchoolMealSelection(gym.Env):
         self.n_ingredients = len(ingredient_df)
 
         # Environmental ratings
-        rating_to_int = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5}
+        rating_to_int = {'A': 1, 'B': 0.5, 'C': 0, 'D': -0.5, 'E': -1}
         self.Animal_Welfare_Rating = np.array([rating_to_int[val] for val in ingredient_df['Animal Welfare Rating'].values], dtype=np.float32)
         self.Rainforest_Rating = np.array([rating_to_int[val] for val in ingredient_df['Rainforest Rating'].values], dtype=np.float32)
         self.Water_Scarcity_Rating = np.array([rating_to_int[val] for val in ingredient_df['Water Scarcity Rating'].values], dtype=np.float32)
@@ -197,17 +194,30 @@ class SchoolMealSelection(gym.Env):
 
     def _initialize_observation_space(self):
 
+        # # Define the observation space
+        # self.observation_space = spaces.Dict({
+        #         'current_selection_value': spaces.Box(low=0, high=500, shape=(self.max_ingredients,), dtype=np.float32),
+        #         'current_selection_index': spaces.MultiDiscrete([self.n_ingredients] * self.max_ingredients),
+        #         'time_feature': spaces.Box(low=0, high=self.max_episode_steps, shape=(1,), dtype=np.float32),
+        #         'nutrients': spaces.Box(low=0, high=2000, shape=(len(self.nutrient_averages),), dtype=np.float32),
+        #         'groups': spaces.MultiDiscrete([self.max_ingredients] * len(self.ingredient_group_count)),
+        #         'environment_counts': spaces.MultiDiscrete([5] * len(self.ingredient_environment_count)),
+        #         'cost': spaces.Box(low=0, high=10, shape=(1,), dtype=np.float32),
+        #         'co2g': spaces.Box(low=0, high=5000, shape=(1,), dtype=np.float32),  # 'CO2_g_per_1g
+        #         'consumption': spaces.Box(low=0, high=100, shape=(len(self.consumption_average),), dtype=np.float32)
+        #     })
+        
         # Define the observation space
         self.observation_space = spaces.Dict({
-            'current_selection_value': spaces.Box(low=0, high=500, shape=(self.max_ingredients,), dtype=np.float32),
-            'current_selection_index': spaces.MultiDiscrete([self.n_ingredients] * self.max_ingredients),
-            'time_left': spaces.Box(low=0, high=self.max_episode_timesteps, shape=(1,), dtype=np.float32),
-            'nutrients': spaces.Box(low=0, high=2000, shape=(len(self.nutrient_averages),), dtype=np.float32),
-            'groups': spaces.MultiDiscrete([self.max_ingredients] * len(self.ingredient_group_count)),
-            'environment_counts': spaces.MultiDiscrete([5] * len(self.ingredient_environment_count)),
-            'cost': spaces.Box(low=0, high=10, shape=(1,), dtype=np.float32),
-            'co2g': spaces.Box(low=0, high=5000, shape=(1,), dtype=np.float32),  # 'CO2_g_per_1g
-            'consumption': spaces.Box(low=0, high=100, shape=(len(self.consumption_average),), dtype=np.float32)
+            'current_selection_value': spaces.Box(low=0, high=500, shape=(self.max_ingredients,), dtype=np.float64),
+            'current_selection_index': spaces.Box(low=0, high=self.n_ingredients, shape=(self.max_ingredients,), dtype=np.float64),
+            'time_feature': spaces.Box(low=0, high=self.max_episode_steps, shape=(1,), dtype=np.float64),
+            'nutrients': spaces.Box(low=0, high=2000, shape=(len(self.nutrient_averages),), dtype=np.float64),
+            'groups': spaces.Box(low=0, high=self.max_ingredients, shape=(len(self.ingredient_group_count),), dtype=np.float64),
+            'environment_counts': spaces.Box(low=-1, high=1, shape=(len(self.ingredient_environment_count),), dtype=np.float64),
+            'cost': spaces.Box(low=0, high=10, shape=(1,), dtype=np.float64),
+            'co2g': spaces.Box(low=0, high=2000, shape=(1,), dtype=np.float64),
+            'consumption': spaces.Box(low=0, high=100, shape=(len(self.consumption_average),), dtype=np.float64)
         })
 
     def _calculate_reward(self):
@@ -366,7 +376,7 @@ class SchoolMealSelection(gym.Env):
             'CO2G': co2g_targets_met
         }
         
-        terminated, self.reward_dict[metric], targets_not_met = RewardCalculator.termination_reason(
+        terminated, self.reward_dict['termination_reward'], targets_not_met = RewardCalculator.termination_reason(
                                                                                                     self,
                                                                                                     targets,
                                                                                                     termination_reasons
@@ -432,20 +442,21 @@ class SchoolMealSelection(gym.Env):
     def _get_obs(self):
         
         _, current_selection_index, current_selection_value = self._current_meal_plan()
-        time_left = self.max_episode_timesteps - self.nsteps
-        
+
+        time_feature = 1 - (self.nsteps / self.max_episode_steps)
+
         obs = {}
         # Assuming current_selection should also be part of the observation dictionary      
-        obs['current_selection_value'] = np.array(current_selection_value, dtype=np.float32)
-        obs['current_selection_index'] = np.array(current_selection_index, dtype=np.int32)
-        obs['time_left'] = np.array([time_left], dtype=np.float32)
-        obs['nutrients'] = np.array(list(self.nutrient_averages.values()), dtype=np.float32)
-        obs['groups'] = np.array(list(self.ingredient_group_count.values()), dtype=np.int32)
-        obs['environment_counts'] = np.array(list(self.ingredient_environment_count.values()), dtype=np.int32)
-        obs['cost'] = np.array(list(self.menu_cost.values()), dtype=np.float32)
-        obs['co2g'] = np.array(list(self.co2g.values()), dtype=np.float32)
-        obs['consumption'] = np.array(list(self.consumption_average.values()), dtype=np.float32)
-        
+        obs['current_selection_value'] = np.array(current_selection_value, dtype=np.float64)
+        obs['current_selection_index'] = np.array(current_selection_index, dtype=np.float64)
+        obs['time_feature'] = np.array([time_feature], dtype=np.float64)
+        obs['nutrients'] = np.array(list(self.nutrient_averages.values()), dtype=np.float64)
+        obs['groups'] = np.array(list(self.ingredient_group_count.values()), dtype=np.float64)
+        obs['environment_counts'] = np.array(list(self.ingredient_environment_count.values()), dtype=np.float64)
+        obs['cost'] = np.array(list(self.menu_cost.values()), dtype=np.float64)
+        obs['co2g'] = np.array(list(self.co2g.values()), dtype=np.float64)
+        obs['consumption'] = np.array(list(self.consumption_average.values()), dtype=np.float64)
+
         return obs
 
 
@@ -480,43 +491,83 @@ class SchoolMealSelection(gym.Env):
     
     def _current_meal_plan(self):
         current_meal_plan = {}
+
+        # Get non-zero indices and values
         nonzero_indices = np.nonzero(self.current_selection)[0]
         nonzero_values = self.current_selection[nonzero_indices]
 
-        if len(nonzero_indices) != 0:
-            for idx in nonzero_indices:
-                category_value = self.ingredient_df['Category7'].iloc[idx]
-                current_meal_plan[category_value] = self.current_selection[idx]
+        # Ensure there is at least one zero value and index
+        zero_indices = np.where(self.current_selection == 0)[0]
+
+        num_selected_ingredients = len(nonzero_indices)
+
+        # Ensure the number of max_ingredients are included
+        if num_selected_ingredients != self.max_ingredients:
+            additional_indices_needed = self.max_ingredients - num_selected_ingredients
+            
+            # Handle cases where there are not enough zero indices
+            if additional_indices_needed > len(zero_indices):
+                raise ValueError("Not enough zero indices to reach the required max_ingredients.")
+
+            additional_indices = np.random.choice(
+                zero_indices,
+                size=additional_indices_needed,
+                replace=False
+            )
+            nonzero_indices = np.concatenate((nonzero_indices, additional_indices))
+            nonzero_values = np.concatenate((nonzero_values, self.current_selection[additional_indices]))
+
+        for idx, value in zip(nonzero_indices, nonzero_values):
+            category_value = self.ingredient_df['Category7'].iloc[idx]
+            current_meal_plan[category_value] = value
 
         return current_meal_plan, nonzero_indices, nonzero_values
-    
+
+
+        
     def _initialise_selection(self):
         # Initialize current_selection to all zeroes
         self.current_selection = np.zeros(self.n_ingredients)
-        
+
         # Create a separate random number generator instance to ensure meal plan is always initialized randomly
-        rng = random.Random(10)  # Set seed to None to get a random seed even if seed is set
+        rng = random.Random(None)  # Set seed to None to get a random seed even if seed is set
         # Initialize a list to store indices
         selected_indices = []
-        
+
         # Dictionary to store count of selected indices per category
         selected_counts = {category: 0 for category in self.ingredient_group_count_targets}
-        
+
         # Total number of indices to select
         num_indices_to_select = min(self.max_ingredients, self.n_ingredients)
-        
-        if self.perfect_initialize == 'perfect':
-            # Iterate over the target counts for each ingredient group
+
+        if self.initialization_strategy == 'perfect':
+            total_target_count = sum(self.ingredient_group_count_targets.values())
+            if total_target_count > num_indices_to_select:
+                raise ValueError(f"Total target counts {total_target_count} exceed max ingredients {num_indices_to_select}")
+
+            # Select indices based on group targets
             for key, value in self.ingredient_group_count_targets.items():
-                # For non-protein groups, select a random index from the group
                 for _ in range(value):
-                    selected_indices.append(rng.choice(self.group_info[key]['indexes']))
+                    selected_index = rng.choice(self.group_info[key]['indexes'])
+                    selected_indices.append(selected_index)
                     selected_counts[key] += 1
-        elif self.perfect_initialize == "zero":
+            
+            if num_indices_to_select < self.max_ingredients:
+                remaining_indices = set(self.all_indices) - set(selected_indices)
+                selected_indices.extend(rng.sample(remaining_indices, num_indices_to_select - total_target_count))
+                # Randomly select remaining indices to reach max_ingredients
+                remaining_count = num_indices_to_select - total_target_count
+                if remaining_count > 0:
+                    remaining_indices = set(self.all_indices) - set(selected_indices)
+                    selected_indices.extend(rng.sample(remaining_indices, remaining_count))
+                raise Warning(f"Total target counts {total_target_count} less than max ingredients {num_indices_to_select} so value was added randomly")
+
+        elif self.initialization_strategy == "zero":
             # If zero initialization is selected, keep current_selection as all zeros
             pass
-        elif self.perfect_initialize == "probabilistic":
-            # Select unique indices until reaching the required number
+
+        elif self.initialization_strategy == "probabilistic":
+            # Ensure we have exactly self.max_ingredients unique indices
             selected_indices = rng.sample(self.all_indices, num_indices_to_select)
             # Increment the selected counts for each category
             for idx in selected_indices:
@@ -524,30 +575,33 @@ class SchoolMealSelection(gym.Env):
                     if idx in info['indexes']:
                         selected_counts[category] += 1
                         break
+
         else:
-            raise ValueError(f"Invalid value for perfect_initialize: {self.perfect_initialize}")
-        
-        if self.perfect_initialize != "zero":
-            # Ensure we have exactly self.max_ingredients unique indices
-            selected_indices = rng.sample(selected_indices, min(self.max_ingredients, len(selected_indices)))
-            
+            raise ValueError(f"Invalid value for initialization strategy: {self.initialization_strategy}")
+
+        if self.initialization_strategy != "zero":
             # Assign the values to the selected indices
             values_to_assign = []
             for group, count in selected_counts.items():
                 if count > 0:
-                    # Add the correct number of values based on counts for each group
-                    values_to_assign += [rng.randint(*self.ingredient_group_portion_targets[group])] * count
+                    # Generate values and ensure none are zero
+                    for _ in range(count):
+                        value = rng.randint(*self.ingredient_group_portion_targets[group])
+                        while value == 0:
+                            value = rng.randint(*self.ingredient_group_portion_targets[group])
+                        values_to_assign.append(value)
 
             for idx, value in zip(selected_indices, values_to_assign):
                 self.current_selection[idx] = value
-        
+
+
         if self.verbose > 1:
             current_meal_plan, _, _ = self._current_meal_plan()
             print(f"\nInitialized plan: {current_meal_plan}")
             # Print counts of selected indices for each group
             for category, count in selected_counts.items():
                 print(f"Number of indices selected for '{category}': {count}")
-        
+
         self._get_metrics()
         self._get_obs()
         
@@ -576,7 +630,6 @@ if __name__ == '__main__':
     reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '')
 
     class Args:
-        reward_metrics = None
         render_mode = None
         num_envs = 2
         plot_reward_history = False
@@ -597,8 +650,8 @@ if __name__ == '__main__':
         ingredient_df = get_data("small_data.csv")
         seed = 10
         env_name = 'SchoolMealSelection-v0'
-        perfect_initialize = 'perfect'
-        vecnorm_norm_obs_keys = ['current_selection_value', 'time_left', 'cost', 'consumption', 'co2g']
+        initialization_strategy = 'perfect'
+        vecnorm_norm_obs_keys = ['current_selection_value', 'current_selection_index', 'groups', 'cost', 'environment_counts', 'consumption', 'co2g', 'nutrients'] # time feature already normalized
     args = Args()
 
     num_episodes = 1000
@@ -611,19 +664,18 @@ if __name__ == '__main__':
 
     print("Environment is valid!")
     
-    del env
+    # del env
     
     env_kwargs = {
             "ingredient_df": args.ingredient_df,
             "max_ingredients": args.max_ingredients,
             "action_scaling_factor": args.action_scaling_factor,
             "render_mode": args.render_mode,
-            "reward_metrics": args.reward_metrics,
             "seed": args.seed,
-            'perfect_initialize': args.perfect_initialize,
+            'initialization_strategy': args.initialization_strategy,
             "verbose": args.verbose
             }
-    
+
     # Function to test the env step without normalization
     def make_env():
         
@@ -631,7 +683,6 @@ if __name__ == '__main__':
             
         # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
         env = TimeLimit(env, max_episode_steps=1000)
-        
         env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
         
         return env     
@@ -645,6 +696,7 @@ if __name__ == '__main__':
         monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
         monitoring_thread.start()
 
+
     for episode in range(num_episodes):
         if episode % 100 == 0:
             print(f"Episode {episode + 1}")
@@ -652,16 +704,15 @@ if __name__ == '__main__':
         terminated = False
         truncated = False
         n_steps = 0
-        obs, info = env.reset()  # Reset the environment at the start of each episode
-
-        while not terminated or not truncated:
+        obs = env.reset()  # Reset the environment at the start of each episode
+        while not terminated and not truncated:
             actions = env.action_space.sample()  # Sample actions
-            obs, rewards, terminated, truncated, infos = env.step(actions)  # Step the environment
             n_steps += 1
-            print(f"Episode {episode + 1} completed in {n_steps} steps.")
-            break  # Break the loop when the episode is done
+            obs, reward, terminated, truncated, get_info = env.step(actions)
 
-        env.close()  # Ensure the environment is closed properlyy
+        print(f"Episode {episode + 1} completed in {n_steps} steps.")
+
+    env.close()  # Ensure the environment is closed properly
 
     if args.plot_reward_history:
         reward_prefix = reward_prefix.split(".")[0]

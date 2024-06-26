@@ -9,13 +9,11 @@ import torch
 # from models.envs.env import SchoolMealSelection
 from models.envs.env_working import SchoolMealSelection
 import os
-from models.wrappers.common import RewardTrackingWrapper
 from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv, SubprocVecEnv
 from stable_baselines3.common.monitor import Monitor
 from gymnasium.wrappers import TimeLimit
 import psutil
 import time
-from collections import Counter, defaultdict
 import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -24,7 +22,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict, Counter
-
+from models.wrappers.common import RewardTrackingWrapper
 
 def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
     """
@@ -74,10 +72,9 @@ def setup_environment(args, reward_save_path=None, eval=False):
                 "max_ingredients": args.max_ingredients,
                 "action_scaling_factor": args.action_scaling_factor,
                 "render_mode": args.render_mode,
-                "reward_metrics": args.reward_metrics,
                 "seed": args.seed,
                 "verbose": args.verbose,
-                "perfect_initialize": args.perfect_initialize
+                "initialization_strategy": args.initialization_strategy
                 }
         
     def make_env():
@@ -93,7 +90,7 @@ def setup_environment(args, reward_save_path=None, eval=False):
                 args.reward_save_interval,
                 reward_save_path,
                 )
-            
+        
         # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
         env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
         env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
@@ -104,7 +101,7 @@ def setup_environment(args, reward_save_path=None, eval=False):
 
     if eval:
         return env
-    
+
     return VecNormalize(
         env, 
         norm_obs=args.vecnorm_norm_obs, 
