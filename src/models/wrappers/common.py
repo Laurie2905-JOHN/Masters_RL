@@ -9,48 +9,14 @@ import gc
 import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
-
-class NormalizeDictObservation(gym.ObservationWrapper):
-    def __init__(self, env):
-        super(NormalizeDictObservation, self).__init__(env)
-        assert isinstance(env.observation_space, SpaceDict), "Observation space must be a dictionary"
-        self.observation_space = env.observation_space
-        
-        # Initialize running statistics for each key in the observation space
-        self.running_mean = {key: np.zeros(space.shape) for key, space in self.observation_space.spaces.items() if isinstance(space, Box)}
-        self.running_var = {key: np.ones(space.shape) for key, space in self.observation_space.spaces.items() if isinstance(space, Box)}
-        self.count = {key: 0 for key, space in self.observation_space.spaces.items() if isinstance(space, Box)}
-
-    def observation(self, observation):
-        normalized_observation = {}
-        
-        for key, value in observation.items():
-            if isinstance(self.observation_space.spaces[key], Box):
-                # Update running statistics
-                self.count[key] += 1
-                prev_mean = self.running_mean[key].copy()
-                self.running_mean[key] += (value - self.running_mean[key]) / self.count[key]
-                self.running_var[key] += (value - self.running_mean[key]) * (value - prev_mean)
-                
-                # Calculate standard deviation
-                running_std = np.sqrt(self.running_var[key] / self.count[key])
-
-                # Normalize the observation using running mean and std deviation
-                normalized_observation[key] = (value - self.running_mean[key]) / (running_std + 1e-8)
-            else:
-                normalized_observation[key] = value
-        
-        return normalized_observation
     
 class RewardTrackingWrapper(gym.Wrapper):
     def __init__(self, env, save_interval, reward_save_path):
         super(RewardTrackingWrapper, self).__init__(env)
         self.save_interval = save_interval
         self.reward_save_path = reward_save_path
-        self.step_count = 0
         self.reward_history = []
         self.reward_details_history = []
-
     def step(self, actions):
         obs, reward, terminated, truncated, info = self.env.step(actions)
         self.reward_history.append(float(reward))
@@ -58,9 +24,9 @@ class RewardTrackingWrapper(gym.Wrapper):
         reward_dict_flat = self.flatten_dict(reward_dict)
         reward_dict_flat = self.convert_specific_values_to_str(reward_dict_flat)
         self.reward_details_history.append(reward_dict_flat)
-        self.step_count += 1
+        nsteps = self.get_wrapper_attr('nsteps')
 
-        if self.step_count % self.save_interval == 0 or self.step_count == 1:
+        if nsteps % self.save_interval == 0 or nsteps == 1:
             self.save_and_clear()
 
         return obs, reward, terminated, truncated, info
