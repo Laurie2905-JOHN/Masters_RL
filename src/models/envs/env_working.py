@@ -52,12 +52,12 @@ class SchoolMealSelection(gym.Env):
         # Define target ranges and initialize rewards
         self.nutrient_target_ranges = {
             'calories': (self.target_calories * 0.95, self.target_calories * 1.05),
-            'fat': (self.target_Fat_g * 0.5, self.target_Fat_g),
+            'fat': (self.target_Fat_g * 0.1, self.target_Fat_g),
             'saturates': (0, self.target_Saturates_g),
-            'carbs': (self.target_Carbs_g, self.target_Carbs_g * 2),
+            'carbs': (self.target_Carbs_g, self.target_Carbs_g * 3),
             'sugar': (0, self.target_Sugars_g),
-            'fibre': (self.target_Fibre_g, self.target_Fibre_g * 2),
-            'protein': (self.target_Protein_g, self.target_Protein_g * 2),
+            'fibre': (self.target_Fibre_g, self.target_Fibre_g * 3),
+            'protein': (self.target_Protein_g, self.target_Protein_g * 3),
             'salt': (0, self.target_Salt_g)
         }
 
@@ -109,11 +109,11 @@ class SchoolMealSelection(gym.Env):
         self.n_ingredients = len(ingredient_df)
 
         # Environmental ratings
-        rating_to_int = {'A': 1, 'B': 0.5, 'C': 0, 'D': -0.5, 'E': -1}
-        self.Animal_Welfare_Rating = np.array([rating_to_int[val] for val in ingredient_df['Animal Welfare Rating'].values], dtype=np.float32)
-        self.Rainforest_Rating = np.array([rating_to_int[val] for val in ingredient_df['Rainforest Rating'].values], dtype=np.float32)
-        self.Water_Scarcity_Rating = np.array([rating_to_int[val] for val in ingredient_df['Water Scarcity Rating'].values], dtype=np.float32)
-        self.CO2_FU_Rating = np.array([rating_to_int[val] for val in ingredient_df['CO2 FU Rating'].values], dtype=np.float32)
+        self.rating_to_int = {'A': 1, 'B': 0.5, 'C': 0, 'D': -0.5, 'E': -1}
+        self.Animal_Welfare_Rating = np.array([self.rating_to_int[val] for val in ingredient_df['Animal Welfare Rating'].values], dtype=np.float32)
+        self.Rainforest_Rating = np.array([self.rating_to_int[val] for val in ingredient_df['Rainforest Rating'].values], dtype=np.float32)
+        self.Water_Scarcity_Rating = np.array([self.rating_to_int[val] for val in ingredient_df['Water Scarcity Rating'].values], dtype=np.float32)
+        self.CO2_FU_Rating = np.array([self.rating_to_int[val] for val in ingredient_df['CO2 FU Rating'].values], dtype=np.float32)
         
         self.co2g = {'CO2_g': 0.0}
         self.CO2_g_per_1g = ingredient_df['CO2_g_per_100g'].values.astype(np.float32) / 100
@@ -159,7 +159,7 @@ class SchoolMealSelection(gym.Env):
             'average_mean_consumption': 0.0,
             'average_cv_ingredients': 0.0
         }
-        
+        self._create_index_value_mapping()
         # Initialize observation space
         self._initialize_observation_space()
 
@@ -169,7 +169,7 @@ class SchoolMealSelection(gym.Env):
         
         # Counter for what targets are met and not met
         self.target_not_met_counters = Counter()
-        
+        self.total_quantity_ratio =  self.current_selection / sum(self.current_selection)
         # Function to reward dictionary key name to reward function mapping
         self.reward_to_function_mapping = {
             'nutrient_reward': 'nutrient_reward',
@@ -191,7 +191,16 @@ class SchoolMealSelection(gym.Env):
             'targets_not_met': 'targets_not_met',
             'termination_reward': 'termination'
         }
+        
+        
+        
 
+    def _create_index_value_mapping(self):
+        # Generate evenly spaced values between 0 and 1
+        new_values = np.linspace(0, 1, self.n_ingredients)
+        # Create a dictionary mapping original indices to new values
+        self.index_value_mapping = {i: new_values[i] for i in range(self.n_ingredients)}
+    
     def _initialize_observation_space(self):
 
         # # Define the observation space
@@ -210,7 +219,7 @@ class SchoolMealSelection(gym.Env):
         # Define the observation space
         self.observation_space = spaces.Dict({
             'current_selection_value': spaces.Box(low=0, high=500, shape=(self.max_ingredients,), dtype=np.float64),
-            'current_selection_index': spaces.Box(low=0, high=self.n_ingredients, shape=(self.max_ingredients,), dtype=np.float64),
+            'current_selection_index': spaces.Box(low=0, high=1, shape=(self.max_ingredients,), dtype=np.float64),
             'time_feature': spaces.Box(low=0, high=self.max_episode_steps, shape=(1,), dtype=np.float64),
             'nutrients': spaces.Box(low=0, high=2000, shape=(len(self.nutrient_averages),), dtype=np.float64),
             'groups': spaces.Box(low=0, high=self.max_ingredients, shape=(len(self.ingredient_group_count),), dtype=np.float64),
@@ -239,16 +248,16 @@ class SchoolMealSelection(gym.Env):
         return reward, terminated
     
     def _get_metrics(self):
-        
+        self.total_quantity_ratio =  self.current_selection / (sum(self.current_selection) + 1e-09)
         self.nutrient_averages = self._calculate_nutrient_averages()
         non_zero_mask = self.current_selection != 0
         non_zero_values = self._calculate_non_zero_values(non_zero_mask)
         self.ingredient_group_count = self._sum_dict_values(non_zero_values)
         self.ingredient_group_portion = self._sum_dict_values(non_zero_values, multiply_with=self.current_selection)
-        self.ingredient_environment_count = self._calculate_ingredient_environment_count(non_zero_mask)
+        self.ingredient_environment_count = self._calculate_ingredient_environment_count()
         self.menu_cost = self._calculate_cost()
         self.co2g = self._calculate_co2g()
-        self.consumption_average = self._calculate_consumption_average(non_zero_mask)
+        self.consumption_average = self._calculate_consumption_average()
 
     def _calculate_nutrient_averages(self):
         return {
@@ -279,18 +288,29 @@ class SchoolMealSelection(gym.Env):
         else:
             return {key: sum(values * multiply_with) for key, values in data.items()}
 
-    def _calculate_ingredient_environment_count(self, non_zero_mask):
+    def _calculate_ingredient_environment_count(self):
+        def _round_to_nearest_rating(value):
+            # Get the list of all values in the dictionary
+            values = list(self.rating_to_int.values())
+            # Find the value in the list that is closest to the input value
+            closest_value = min(values, key=lambda x: abs(x - value))
+            # Find the corresponding key for the closest value
+            for val in self.rating_to_int.values():
+                if val == closest_value:
+                    return closest_value
+                
         return {
-            'animal_welfare': round(sum(self.Animal_Welfare_Rating * non_zero_mask) / self.max_ingredients),
-            'rainforest': round(sum(self.Rainforest_Rating * non_zero_mask) / self.max_ingredients),
-            'water': round(sum(self.Water_Scarcity_Rating * non_zero_mask) / self.max_ingredients),
-            'CO2_rating': round(sum(self.CO2_FU_Rating * non_zero_mask) / self.max_ingredients),
+            'animal_welfare': _round_to_nearest_rating(sum(self.Animal_Welfare_Rating * self.total_quantity_ratio)),
+            'rainforest': _round_to_nearest_rating(sum(self.Rainforest_Rating * self.total_quantity_ratio)),
+            'water': _round_to_nearest_rating(sum(self.Water_Scarcity_Rating * self.total_quantity_ratio)),
+            'CO2_rating': _round_to_nearest_rating(sum(self.CO2_FU_Rating * self.total_quantity_ratio)),
         }
 
-    def _calculate_consumption_average(self, non_zero_mask):
+    def _calculate_consumption_average(self):
+        
         return {
-            'average_mean_consumption': sum(non_zero_mask * self.Mean_g_per_day) / self.max_ingredients,
-            'average_cv_ingredients': sum(non_zero_mask * self.Coefficient_of_Variation) / self.max_ingredients
+            'average_mean_consumption': sum(self.Mean_g_per_day * self.total_quantity_ratio),
+            'average_cv_ingredients': sum(self.Coefficient_of_Variation * self.total_quantity_ratio)
         }
     
     def _calculate_cost(self):
@@ -312,7 +332,7 @@ class SchoolMealSelection(gym.Env):
         self.reward_dict['ingredient_environment_count_reward'] = {k: 0 for k in self.ingredient_environment_count.keys()}
         self.reward_dict['cost_reward'] = {'cost': 0}
         self.reward_dict['co2g_reward'] = {'co2g': 0}
-        self.reward_dict['consumption_reward'] = {'average_mean_consumption': 0, 'cv_penalty': 0},
+        self.reward_dict['consumption_reward'] = {'average_mean_consumption': 0, 'cv_penalty': 0}
         self.reward_dict['targets_not_met'] = []
         self.reward_dict['termination_reward'] = 0
         self.reward_dict['step_penalty'] = 0
@@ -391,9 +411,9 @@ class SchoolMealSelection(gym.Env):
         
         if self.verbose > 1:
             current_meal_plan, _, _ = self._current_meal_plan()
-            print(f"\nFinal plan: {current_meal_plan}")
+            print(f"\nFinal plan (Step: {self.nsteps}): {current_meal_plan}")
             # Print portions of selected food groups
-            print(f"\nFinal portion size of groups: {self.ingredient_group_portion}"),
+            print(f"\nFinal portion size of groups (Step: {self.nsteps}): {self.ingredient_group_portion}"),
         
         super().reset(seed=seed)
 
@@ -439,16 +459,19 @@ class SchoolMealSelection(gym.Env):
 
         return self._get_obs(), reward, terminated, False, self._get_info()
 
+    
     def _get_obs(self):
         
         _, current_selection_index, current_selection_value = self._current_meal_plan()
-
+        
+        mapped_index_value = [self.index_value_mapping[index] for index in current_selection_index]
+        
         time_feature = 1 - (self.nsteps / self.max_episode_steps)
 
         obs = {}
         # Assuming current_selection should also be part of the observation dictionary      
         obs['current_selection_value'] = np.array(current_selection_value, dtype=np.float64)
-        obs['current_selection_index'] = np.array(current_selection_index, dtype=np.float64)
+        obs['current_selection_index'] = np.array(mapped_index_value, dtype=np.float64)
         obs['time_feature'] = np.array([time_feature], dtype=np.float64)
         obs['nutrients'] = np.array(list(self.nutrient_averages.values()), dtype=np.float64)
         obs['groups'] = np.array(list(self.ingredient_group_count.values()), dtype=np.float64)
@@ -605,20 +628,6 @@ class SchoolMealSelection(gym.Env):
         self._get_metrics()
         self._get_obs()
         
-        
-
-# def final_meal_plan(ingredient_df, terminal_observation):
-    
-#     nonzero_indices = terminal_observation['current_selection_index']
-#     non_zero_values = terminal_observation['current_selection_value']
-#     current_meal_plan = {}
-    
-#     if len(nonzero_indices) != 0:
-#         for idx in nonzero_indices:
-#             category_value = ingredient_df['Category7'].iloc[idx]
-#             current_meal_plan[category_value] = non_zero_values[idx]
-    
-#     return current_meal_plan
 
 
 if __name__ == '__main__':
@@ -660,9 +669,9 @@ if __name__ == '__main__':
     
     env = setup_environment(args, reward_save_path=reward_save_path, eval=False)
 
-    check_env(env.envs[0].unwrapped)
+    # check_env(env.envs[0].unwrapped)
 
-    print("Environment is valid!")
+    # print("Environment is valid!")
     
     # del env
     
@@ -708,7 +717,7 @@ if __name__ == '__main__':
         while not terminated and not truncated:
             actions = env.action_space.sample()  # Sample actions
             n_steps += 1
-            obs, reward, terminated, truncated, get_info = env.step(actions)
+            obs, reward, terminated, truncated, info = env.step(actions)
 
         print(f"Episode {episode + 1} completed in {n_steps} steps.")
 

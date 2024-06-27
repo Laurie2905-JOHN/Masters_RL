@@ -28,7 +28,7 @@ def main(args):
 
     # Load data required for environment setup
     try:
-        args.ingredient_df = get_data("small_data.csv")
+        args.ingredient_df = get_data(f"{args.data_name}.csv")
     except Exception as e:
         print(f"Error loading data: {e}")
         return
@@ -311,7 +311,7 @@ if __name__ == "__main__":
         if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':
             raise ValueError("Must provide seed when loading from checkpoint. Choose -1 to begin training from random value")
         else:
-            args.seed = generate_random_seeds(1)
+            args.seed = generate_random_seeds(2)
 
     elif args.seed == "-1":
         args.seed = generate_random_seeds(2)

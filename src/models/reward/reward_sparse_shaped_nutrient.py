@@ -49,15 +49,15 @@ class RewardCalculator:
         # Handle other groups
         for group, value in main_class.ingredient_group_count.items():
             if group != 'confectionary':
-                portion_flag, group_terminate = _is_within_portion_range(group)
+                portion_flag, portion_terminate = _is_within_portion_range(group)
                 target_met = value >= main_class.ingredient_group_count_targets[group] and portion_flag
                 if target_met:
                     main_class.reward_dict['ingredient_group_count_reward'][group] += 1
                 else:
                     all_group_targets_met = False
 
-                # Track if any group causes termination
-                if group_terminate:
+                # Track if any group causes termination by choosing too large of a portion
+                if portion_terminate:
                     terminate = True
 
         return main_class.reward_dict['ingredient_group_count_reward'], all_group_targets_met, terminate
@@ -66,52 +66,57 @@ class RewardCalculator:
     @staticmethod
     def environment_count_reward(main_class):
         environment_target_met = True
+        # Terminate always set to false as there is no termination condition for environment count
         terminate = False
+        for metric, value in main_class.ingredient_environment_count.items():
+            main_class.reward_dict['ingredient_environment_count_reward'][metric] = value
+        
         return main_class.reward_dict['ingredient_environment_count_reward'], environment_target_met, terminate
 
     @staticmethod
     def cost_reward(main_class):
+        terminate = False
         cost_difference = main_class.menu_cost['cost'] - main_class.target_cost_per_meal
         cost_targets_met = cost_difference <= 0
         main_class.reward_dict['cost_reward']['cost'] = 0 if not cost_targets_met else 1
         
-        if cost_difference > 4:
+        if cost_difference < -4:
             terminate = True
-        else:
-            terminate = False
         
         return main_class.reward_dict['cost_reward'], cost_targets_met, terminate
     
     @staticmethod
     def co2g_reward(main_class):
-        
+        terminate = False
         co2_targets_met = main_class.co2g['CO2_g'] <= main_class.target_CO2_g_per_meal
         main_class.reward_dict['co2g_reward']['CO2_g'] = 1 if co2_targets_met else 0
         
         if main_class.co2g['CO2_g'] > 2000:
             terminate = True
-        else:
-            terminate = False
         
         return main_class.reward_dict['co2g_reward'], co2_targets_met, terminate
 
     @staticmethod
     def consumption_reward(main_class):
+        # Cosumption target always met as there is no target, currently not being used
         consumption_targets_met = True
-        main_class.reward_dict['consumption_reward'][0]['average_mean_consumption'] = 0
+        main_class.reward_dict['consumption_reward']['average_mean_consumption'] = 0
 
         terminate = False
             
-        return main_class.reward_dict['consumption_reward'][0], consumption_targets_met, terminate
+        return main_class.reward_dict['consumption_reward'], consumption_targets_met, terminate
 
     @staticmethod
     def termination_reason(main_class, targets, termination_reasons):
         terminated = False
         targets_not_met = []
         termination_reward = 0
+        failed_targets = 0
         for key, value in targets.items():
             if not value:
                 targets_not_met.append(key)
+                # Count the number of failed targets
+                failed_targets += 1
 
         if not targets_not_met:
             if main_class.verbose > 0:
@@ -119,8 +124,7 @@ class RewardCalculator:
             terminated = True
             termination_reward += 1000
 
-        # Count the number of failed targets
-        failed_targets = sum([not target for target in targets])
+        
 
         # Check if more than half of the targets are failed
         if main_class.nsteps > 50 and failed_targets > 4:
@@ -130,7 +134,7 @@ class RewardCalculator:
             terminated = True
             termination_reward -= 1000
             
-        if len(termination_reasons) > 0:
+        if main_class.nsteps > 50 and len(termination_reasons) > 0:
             if main_class.verbose > 1:
                 print('Terminated as metrics are out of bounds')
                 print("Termination triggered due to:", ", ".join(termination_reasons))
