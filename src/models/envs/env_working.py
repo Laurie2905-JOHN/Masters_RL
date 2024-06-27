@@ -97,12 +97,12 @@ class SchoolMealSelection(gym.Env):
 
         # Define group indexes and probabilities together in a dictionary for initialisation after reset
         self.group_info = {
-            'fruit': {'indexes': np.nonzero(self.Group_A_veg)[0], 'probability': 0.95},
-            'veg': {'indexes': np.nonzero(self.Group_A_fruit)[0], 'probability': 0.95},
-            'protein': {'indexes': np.nonzero(self.Group_BC)[0], 'probability': 0.7},
-            'carbs': {'indexes': np.nonzero(self.Group_D)[0], 'probability': 0.95},
-            'dairy': {'indexes': np.nonzero(self.Group_E)[0], 'probability': 0.95},
-            'bread': {'indexes': np.nonzero(self.Bread)[0], 'probability': 0.95},
+            'fruit': {'indexes': np.nonzero(self.Group_A_veg)[0], 'probability': 0.8},
+            'veg': {'indexes': np.nonzero(self.Group_A_fruit)[0], 'probability': 0.8},
+            'protein': {'indexes': np.nonzero(self.Group_BC)[0], 'probability': 0.8},
+            'carbs': {'indexes': np.nonzero(self.Group_D)[0], 'probability': 0.8},
+            'dairy': {'indexes': np.nonzero(self.Group_E)[0], 'probability': 0.8},
+            'bread': {'indexes': np.nonzero(self.Bread)[0], 'probability': 0.8},
             'confectionary': {'indexes': np.nonzero(self.Confectionary)[0], 'probability': 0.01}
         }
         
@@ -169,7 +169,8 @@ class SchoolMealSelection(gym.Env):
         
         # Counter for what targets are met and not met
         self.target_not_met_counters = Counter()
-        self.total_quantity_ratio =  self.current_selection / sum(self.current_selection)
+        self.total_quantity_ratio =  self.current_selection / (sum(self.current_selection) + 1e-09)
+
         # Function to reward dictionary key name to reward function mapping
         self.reward_to_function_mapping = {
             'nutrient_reward': 'nutrient_reward',

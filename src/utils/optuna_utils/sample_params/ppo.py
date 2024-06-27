@@ -61,7 +61,7 @@ def sample_ppo_params(trial: optuna.Trial) -> Dict[str, Any]:
 
     # Define network architecture
     net_arch_width = trial.suggest_categorical("net_arch_width", [8, 16, 32, 64, 128, 256, 512])
-    net_arch_depth = trial.suggest_int("net_arch_depth", 1, 3)
+    net_arch_depth = trial.suggest_int("net_arch_depth", 1, 4)
     net_arch = dict(pi=[net_arch_width] * net_arch_depth, vf=[net_arch_width] * net_arch_depth)
 
     activation_fn = {"tanh": nn.Tanh, "relu": nn.ReLU, "elu": nn.ELU, "leaky_relu": nn.LeakyReLU}[activation_fn]

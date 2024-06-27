@@ -122,7 +122,7 @@ class RewardCalculator:
             if main_class.verbose > 0:
                 print(f"All targets met at episode {main_class.episode_count} step {main_class.nsteps}.")
             terminated = True
-            termination_reward += 1000
+            termination_reward += 100
 
         
 
@@ -132,7 +132,7 @@ class RewardCalculator:
                 print('Terminated as half the targets are not met')
                 print('Failed targets:', targets_not_met)
             terminated = True
-            termination_reward -= 1000
+            termination_reward -= 100
             
         if main_class.nsteps > 50 and len(termination_reasons) > 0:
             if main_class.verbose > 1:
