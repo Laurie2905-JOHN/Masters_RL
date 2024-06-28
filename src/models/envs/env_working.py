@@ -47,8 +47,9 @@ class SchoolMealSelection(gym.Env):
         self.target_Sugars_g = 15.5
         self.target_Fibre_g = 4.2
         self.target_Protein_g = 7.5
-        self.target_Salt_g = 0.499
-
+        # self.target_Salt_g = 0.499
+        self.target_Salt_g = 1 # Temporary target not regulation but data doesnt work with 0.499
+        
         # Define target ranges and initialize rewards
         self.nutrient_target_ranges = {
             'calories': (self.target_calories * 0.95, self.target_calories * 1.05),
@@ -115,10 +116,10 @@ class SchoolMealSelection(gym.Env):
         self.Water_Scarcity_Rating = np.array([self.rating_to_int[val] for val in ingredient_df['Water Scarcity Rating'].values], dtype=np.float32)
         self.CO2_FU_Rating = np.array([self.rating_to_int[val] for val in ingredient_df['CO2 FU Rating'].values], dtype=np.float32)
         
-        self.co2g = {'CO2_g': 0.0}
+        self.co2g = {'co2_g': 0.0}
         self.CO2_g_per_1g = ingredient_df['CO2_g_per_100g'].values.astype(np.float32) / 100
-        self.target_CO2_g_per_meal = 500
-
+        # self.target_CO2_g_per_meal = 500
+        self.target_CO2_g_per_meal = 900 # Temporary target not regulation but data doesnt work with 500
         # Consumption data
         self.Mean_g_per_day = ingredient_df['Mean_g_per_day'].values.astype(np.float32)
         self.StandardDeviation = ingredient_df['StandardDeviation'].values.astype(np.float32)
@@ -321,7 +322,7 @@ class SchoolMealSelection(gym.Env):
         
     def _calculate_co2g(self):
         return {
-            'CO2_g': sum(self.CO2_g_per_1g * self.current_selection),
+            'co2_g': sum(self.CO2_g_per_1g * self.current_selection),
             }
 
 
@@ -434,6 +435,8 @@ class SchoolMealSelection(gym.Env):
         return self._get_obs(), self._get_info()
 
     def step(self, action):
+        
+        terminated = False
 
         self.nsteps += 1
         
@@ -456,7 +459,11 @@ class SchoolMealSelection(gym.Env):
             excess_indices = np.argsort(-self.current_selection)
             self.current_selection[excess_indices[self.max_ingredients:]] = 0
 
-        reward, terminated = self._calculate_reward()
+        if self.nsteps % 25 == 0:
+            reward, terminated = self._calculate_reward()
+        else:
+            reward = sum(value for subdict in self.reward_dict.values() if isinstance(subdict, dict) for value in subdict.values() if isinstance(value, (int, float))) + \
+                sum(value for value in self.reward_dict.values() if isinstance(value, (int, float)))
 
         return self._get_obs(), reward, terminated, False, self._get_info()
 

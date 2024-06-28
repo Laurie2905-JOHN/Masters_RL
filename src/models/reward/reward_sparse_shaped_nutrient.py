@@ -9,20 +9,20 @@ class RewardCalculator:
             if not true_flag:
                 all_nutrient_targets_met = False
                 far_flag = average_value < 0.25 * target_min or average_value > 4 * target_max
-                
+                average_target = (target_min + target_max) / 2
                 distance = max(abs(target_min - average_value), abs(target_max - average_value))
-                distance_reward = distance / 100
+                distance_reward = 1 - (distance / average_target)
                 
-                if distance_reward > 1:
-                    main_class.reward_dict['nutrient_reward'][nutrient] -= 1
+                if distance_reward < 0.1:
+                    main_class.reward_dict['nutrient_reward'][nutrient] = 0.1
                 else:
-                    main_class.reward_dict['nutrient_reward'][nutrient] -= distance_reward
+                    main_class.reward_dict['nutrient_reward'][nutrient] = distance_reward
                     
                 if far_flag:
-                    main_class.reward_dict['nutrient_reward'][nutrient] -= 2
+                    main_class.reward_dict['nutrient_reward'][nutrient] -= -0.1
                     terminate = True
             else:
-                main_class.reward_dict['nutrient_reward'][nutrient] += 2
+                main_class.reward_dict['nutrient_reward'][nutrient] += 1.5
         
         return main_class.reward_dict['nutrient_reward'], all_nutrient_targets_met, terminate
 
@@ -76,22 +76,32 @@ class RewardCalculator:
     @staticmethod
     def cost_reward(main_class):
         terminate = False
-        cost_difference = main_class.menu_cost['cost'] - main_class.target_cost_per_meal
-        cost_targets_met = cost_difference <= 0
-        main_class.reward_dict['cost_reward']['cost'] = 0 if not cost_targets_met else 1
+        cost_targets_met = main_class.menu_cost['cost'] <= main_class.target_cost_per_meal
         
-        if cost_difference < -4:
-            terminate = True
-        
+        if cost_targets_met:
+            main_class.reward_dict['cost_reward']['cost'] += 1.5
+        else:
+            far_flag = main_class.menu_cost['cost'] > main_class.target_cost_per_meal * 3
+            distance_reward = 1 - ( (main_class.menu_cost['cost'] - main_class.target_cost_per_meal) / main_class.target_cost_per_meal)
+            
+            if distance_reward < 0.1:
+                main_class.reward_dict['cost_reward']['cost'] = 0.1
+            else:
+                main_class.reward_dict['cost_reward']['cost'] = distance_reward
+
+            if far_flag:
+                main_class.reward_dict['cost_reward']['cost'] -= 0.1
+                terminate = True
+
         return main_class.reward_dict['cost_reward'], cost_targets_met, terminate
     
     @staticmethod
     def co2g_reward(main_class):
         terminate = False
-        co2_targets_met = main_class.co2g['CO2_g'] <= main_class.target_CO2_g_per_meal
-        main_class.reward_dict['co2g_reward']['CO2_g'] = 1 if co2_targets_met else 0
+        co2_targets_met = main_class.co2g['co2_g'] <= main_class.target_CO2_g_per_meal
+        main_class.reward_dict['co2g_reward']['co2_g'] = 1 if co2_targets_met else 0
         
-        if main_class.co2g['CO2_g'] > 2000:
+        if main_class.co2g['co2_g'] > 2000:
             terminate = True
         
         return main_class.reward_dict['co2g_reward'], co2_targets_met, terminate
@@ -140,6 +150,6 @@ class RewardCalculator:
                 print("Termination triggered due to:", ", ".join(termination_reasons))
             
             terminated = True
-            termination_reward -= 1000
+            termination_reward -= 100
 
         return terminated, termination_reward, targets_not_met
