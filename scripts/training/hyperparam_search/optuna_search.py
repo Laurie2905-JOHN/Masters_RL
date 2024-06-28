@@ -58,12 +58,10 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)
 
-    max_episode_steps = trial.suggest_categorical("max_episode_steps", [100, 1000])
-
     def make_env():
         env = gym.make("SchoolMealSelection-v0", **env_kwargs)
         
-        env = TimeLimit(env, max_episode_steps=max_episode_steps)
+        env = TimeLimit(env, max_episode_steps=100)
         env = Monitor(env)  # Monitoring is added to track statistics and/or save logs
         
         return env
@@ -71,8 +69,8 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     # Wrap the environment with DummyVecEnv for parallel environments
     env = make_vec_env(make_env, n_envs=2, seed=None)
 
-    clip_obs = trial.suggest_categorical("clip_obs", [10, 100, 500])
-    clip_reward = trial.suggest_categorical("clip_reward", [10, 100, 500])
+    clip_obs = trial.suggest_categorical("clip_obs", [5, 10, 50, 100])
+    norm_reward = trial.suggest_categorical("norm_reward", [False, True])
 
     if algo == "PPO":
         sampled_hyperparams = sample_ppo_params(trial)
@@ -85,11 +83,11 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     env = VecNormalize(
         env,
         norm_obs=True,
-        norm_reward=True,
+        norm_reward=norm_reward,
         clip_obs=clip_obs,
-        clip_reward=clip_reward,
+        clip_reward=100,
         gamma=sampled_hyperparams['gamma'],
-        norm_obs_keys=['current_selection_value', 'groups', 'cost', 'environment_counts', 'consumption', 'co2g', 'nutrients']
+        norm_obs_keys=['current_selection_value', 'groups', 'cost', 'consumption', 'co2g', 'nutrients']
     )
 
     if algo == "PPO":
@@ -109,7 +107,7 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     if 'ingredient_df' in env_kwargs:
         del env_kwargs['ingredient_df']
 
-    params = env_kwargs | sampled_hyperparams | {'clip_obs': clip_obs, 'clip_reward': clip_reward, 'max_episode_steps': max_episode_steps}
+    params = env_kwargs | sampled_hyperparams | {'clip_obs': clip_obs, 'clip_reward': clip_reward}
     
 
     try:
@@ -210,6 +208,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_study_PPO_newReward"
+        args.study_name = f"{args.algo}_study_newReward"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)
