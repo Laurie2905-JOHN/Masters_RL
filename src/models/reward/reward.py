@@ -1,173 +1,287 @@
-import numpy as np
+from typing import Dict, Tuple, List
 
-class AdvancedRewardCalculator:
+class RewardCalculator:
     
     @staticmethod
-    def nutrient_reward(nutrient_averages, nutrient_target_ranges, nutrient_rewards, nutrient_far_flag_list, verbose=0):
-        all_nutrient_targets_met = True
+    def _calculate_distance_reward(value: float, target_min: float, target_max: float, distance_factor: float = 1.0) -> Tuple[float, bool]:
+        """
+        Calculate the distance reward based on how far the value is from the target range.
         
-        for nutrient, average_value in nutrient_averages.items():
-            target_min, target_max = nutrient_target_ranges[nutrient]
-            far_flag = average_value < 0.25 * target_min or average_value > 4 * target_max
-            nutrient_far_flag_list.append(far_flag)
+        Args:
+            value: The value to evaluate (can be nutrient, cost, etc.).
+            target_min: The minimum target value.
+            target_max: The maximum target value.
+            distance_factor: A factor to adjust the distance calculation.
+            far_threshold: A factor to determine if the value is far from the target range.
+        
+        Returns:
+            A tuple containing:
+                - The calculated distance reward.
+                - A boolean indicating if the value is far from the target range.
+        """
+        average_target = (target_min + target_max) / 2
+        distance = max(abs(target_min - value), abs(target_max - value)) * distance_factor
+        distance_reward = 1 - (distance / average_target)
+        
+        return distance_reward
+
+    @staticmethod
+    def calculate_cost_reward(main_class) -> Tuple[dict, bool, bool]:
+        """
+        Calculate the cost reward for the given main_class instance.
+        
+        Args:
+            main_class: The main class instance containing cost data.
+        
+        Returns:
+            A tuple containing:
+                - A dictionary with cost rewards.
+                - A boolean indicating if the cost target was met.
+                - A boolean indicating if the process should terminate.
+        """
+        terminate = False
+        cost_target_met = main_class.menu_cost['cost'] <= main_class.target_cost_per_meal
+        
+        if cost_target_met:
+            main_class.reward_dict['cost_reward']['cost'] += 1.5
+        else:
+            target_min = main_class.target_cost_per_meal
+            target_max = main_class.target_cost_per_meal
+            distance_reward = RewardCalculator._calculate_distance_reward(
+                main_class.menu_cost['cost'], target_min, target_max
+            )
+            main_class.reward_dict['cost_reward']['cost'] = max(0.1, distance_reward)
+            cost_difference = main_class.menu_cost['cost'] - main_class.target_cost_per_meal
+            
+            # If the cost is far from the target range, penalize the reward and terminate  
+            far_flag = cost_difference > 3
+            if far_flag:
+                main_class.reward_dict['cost_reward']['cost'] -= 0.1
+                terminate = True
+
+        return main_class.reward_dict['cost_reward'], cost_target_met, terminate
+
+    @staticmethod
+    def calculate_nutrient_reward(main_class) -> Tuple[dict, bool, bool]:
+        """
+        Calculate the nutrient reward for the given main_class instance.
+        
+        Args:
+            main_class: The main class instance containing nutrient data.
+        
+        Returns:
+            A tuple containing:
+                - A dictionary with nutrient rewards.
+                - A boolean indicating if all nutrient targets were met.
+                - A boolean indicating if the process should terminate.
+        """
+        all_targets_met = True
+        terminate = False
+
+        for nutrient, average_value in main_class.nutrient_averages.items():
+            target_min, target_max = main_class.nutrient_target_ranges[nutrient]
+            if target_min <= average_value <= target_max:
+                main_class.reward_dict['nutrient_reward'][nutrient] += 1.5
+            else:
+                all_targets_met = False
+                distance_reward = RewardCalculator._calculate_distance_reward(
+                    average_value, target_min, target_max
+                )
+                main_class.reward_dict['nutrient_reward'][nutrient] = max(0.1, distance_reward)
+                
+                far_flag = average_value < 0.25 * target_min or average_value > target_max * 4
+                if far_flag:
+                    main_class.reward_dict['nutrient_reward'][nutrient] -= 0.1
+                    terminate = True
+
+        return main_class.reward_dict['nutrient_reward'], all_targets_met, terminate
+
+
+    @staticmethod
+    def calculate_group_count_reward(main_class) -> Tuple[Dict[str, float], bool, bool]:
+        """
+        Calculate the group count reward for the given main_class instance.
+        
+        Args:
+            main_class: The main class instance containing group count data.
+        
+        Returns:
+            A tuple containing:
+                - A dictionary with group count rewards.
+                - A boolean indicating if all group targets were met.
+                - A boolean indicating if the process should terminate.
+        """
+        all_targets_met = True
+        terminate = False
+
+        if RewardCalculator._is_confectionary_target_met(main_class):
+            main_class.reward_dict['ingredient_group_count_reward']['confectionary'] += 1
+        else:
+            all_targets_met = False
+
+        for group, count in main_class.ingredient_group_count.items():
+            if group != 'confectionary':
+                portion_flag, terminate = RewardCalculator._is_within_portion_range(main_class, group)
+                target_met = count >= main_class.ingredient_group_count_targets[group] and portion_flag
+                if target_met:
+                    main_class.reward_dict['ingredient_group_count_reward'][group] += 1
+                else:
+                    all_targets_met = False
+
+        return main_class.reward_dict['ingredient_group_count_reward'], all_targets_met, terminate
+
+    @staticmethod
+    def _is_confectionary_target_met(main_class) -> bool:
+        """
+        Check if the confectionary target is met.
+        
+        Args:
+            main_class: The main class instance containing confectionary data.
+        
+        Returns:
+            A boolean indicating if the confectionary target is met.
+        """
+        return main_class.ingredient_group_count['confectionary'] == main_class.ingredient_group_count_targets['confectionary']
+
+    @staticmethod
+    def _is_within_portion_range(main_class, group: str) -> Tuple[bool, bool]:
+        """
+        Check if the portion range for a group is within the target range.
+        
+        Args:
+            main_class: The main class instance containing portion data.
+            group: The group to check.
+        
+        Returns:
+            A tuple containing:
+                - A boolean indicating if the portion is within the target range.
+                - A boolean indicating if the process should terminate.
+        """
+        portion = (
+            main_class.ingredient_group_portion[group] / main_class.ingredient_group_count[group]
+            if main_class.ingredient_group_count[group] != 0 else 0
+        )
+        min_target, max_target = main_class.ingredient_group_portion_targets[group]
+        # if any one portion greater than 400, terminate
+        terminate = portion > 400
+        return min_target <= portion <= max_target, terminate
+
+    @staticmethod
+    def calculate_environment_count_reward(main_class) -> Tuple[Dict[str, float], bool, bool]:
+        """
+        Calculate the environment count reward for the given main_class instance.
+        
+        Args:
+            main_class: The main class instance containing environment count data.
+        
+        Returns:
+            A tuple containing:
+                - A dictionary with environment count rewards.
+                - A boolean indicating if all environment targets were met.
+                - A boolean indicating if the process should terminate.
+        """
+        environment_target_met = True
+        terminate = False
+        for metric, value in main_class.ingredient_environment_count.items():
+            main_class.reward_dict['ingredient_environment_count_reward'][metric] = value
+        
+        return main_class.reward_dict['ingredient_environment_count_reward'], environment_target_met, terminate
+
+    @staticmethod
+    def calculate_co2g_reward(main_class) -> Tuple[Dict[str, float], bool, bool]:
+        """
+        Calculate the CO2 emissions reward for the given main_class instance.
+        
+        Args:
+            main_class: The main class instance containing CO2 emissions data.
+        
+        Returns:
+            A tuple containing:
+                - A dictionary with CO2 emissions rewards.
+                - A boolean indicating if the CO2 target was met.
+                - A boolean indicating if the process should terminate.
+        """
+        terminate = False
+        co2_target_met = main_class.co2_g['co2_g'] <= main_class.target_co2_g_per_meal
+        
+        if co2_target_met:
+            main_class.reward_dict['co2g_reward']['co2_g'] += 1.5
+        else:
+            target_min = main_class.target_co2_g_per_meal
+            target_max = main_class.target_co2_g_per_meal
+            distance_reward = RewardCalculator._calculate_distance_reward(
+                main_class.co2_g['co2_g'], target_min, target_max
+            )
+            main_class.reward_dict['co2g_reward']['co2_g'] = max(0.1, distance_reward)
+            far_flag = main_class.co2_g['co2_g'] > 2000
             
             if far_flag:
-                nutrient_rewards[nutrient] -= 100
-                all_nutrient_targets_met = False
-            else:
-                if target_min <= average_value <= target_max:
-                    nutrient_rewards[nutrient] += 10
-                else:
-                    distance = max(abs(target_min - average_value), abs(target_max - average_value))
-                    distance_reward = distance / 10
-                    all_nutrient_targets_met = False
-                    
-                    if distance_reward > 500:
-                        nutrient_rewards[nutrient] -= 500
-                    else:
-                        nutrient_rewards[nutrient] -= distance / 10
-        
-        return nutrient_rewards, all_nutrient_targets_met, nutrient_far_flag_list
+                main_class.reward_dict['co2g_reward']['co2_g'] -= 0.1
+                terminate = True
+
+        return main_class.reward_dict['co2g_reward'], co2_target_met, terminate
 
     @staticmethod
-    def group_count_reward(ingredient_group_count, ingredient_group_portion, ingredient_group_count_rewards, ingredient_group_count_targets, ingredient_group_portion_targets):
-        def _is_within_portion_range(group):
-            if ingredient_group_count[group] != 0:
-                portion = ingredient_group_portion[group] / ingredient_group_count[group]
-                min_target, max_target = ingredient_group_portion_targets[group]
-                return min_target <= portion <= max_target
-            return True
-
-        all_group_targets_met = True
-        any_group_exceeded = False
-        group_exceeded = []
-
-        protein_groups = ['non_processed_protein', 'processed_protein']
-        total_protein_count = sum(ingredient_group_count[group] for group in protein_groups)
-        total_protein_target = sum(ingredient_group_count_targets[group] for group in protein_groups)
-
-        if total_protein_count >= total_protein_target:
-            if all(_is_within_portion_range(group) for group in protein_groups):
-                for group in protein_groups:
-                    ingredient_group_count_rewards[group] += 50
-            else:
-                all_group_targets_met = False
-                for group in protein_groups:
-                    ingredient_group_count_rewards[group] -= 25
-
-            if total_protein_count > total_protein_target:
-                any_group_exceeded = True
-                group_exceeded.append('protein')
-        else:
-            all_group_targets_met = False
-            for group in protein_groups:
-                ingredient_group_count_rewards[group] -= 50
-
-        if ingredient_group_count['confectionary'] == ingredient_group_count_targets['confectionary']:
-            ingredient_group_count_rewards['confectionary'] += 100
-        else:
-            ingredient_group_count_rewards['confectionary'] -= 100
-
-        for group, value in ingredient_group_count.items():
-            if group in protein_groups + ['confectionary']:
-                continue
-
-            target = ingredient_group_count_targets[group]
-
-            if value >= target:
-                if value > target:
-                    any_group_exceeded = True
-                    group_exceeded.append(group)
-                
-                if _is_within_portion_range(group):
-                    ingredient_group_count_rewards[group] += 100
-                else:
-                    all_group_targets_met = False
-                    ingredient_group_count_rewards[group] -= 50
-            else:
-                all_group_targets_met = False
-                ingredient_group_count_rewards[group] -= 110
-
-        if not all_group_targets_met and any_group_exceeded:
-            for group in group_exceeded:
-                if group == 'protein':
-                    for protein_group in protein_groups:
-                        ingredient_group_count_rewards[protein_group] -= 50
-                else:
-                    ingredient_group_count_rewards[group] -= 100
-
-        return ingredient_group_count_rewards, all_group_targets_met
-
-    @staticmethod
-    def environment_count_reward(ingredient_environment_count_rewards, ingredient_environment_count, target_CO2_g_per_meal):
-        CO2_distance = abs(target_CO2_g_per_meal - ingredient_environment_count['CO2_g'])
-        environment_target_met = False
+    def calculate_consumption_reward(main_class) -> Tuple[Dict[str, float], bool, bool]:
+        """
+        Calculate the consumption reward for the given main_class instance.
         
-        if ingredient_environment_count['CO2_g'] <= target_CO2_g_per_meal:
-            ingredient_environment_count_rewards['CO2_g'] = CO2_distance / 10
-            environment_target_met = True
-        else:
-            if CO2_distance > 500:
-                ingredient_environment_count_rewards['CO2_g'] = -100
-            else:
-                ingredient_environment_count_rewards['CO2_g'] = -CO2_distance / 50
-
-        rating_to_reward = {1: 100, 2: 80, 3: 60, 4: 40, 5: 20}
+        Args:
+            main_class: The main class instance containing consumption data.
         
-        for factor in ['animal_welfare', 'rainforest', 'water', 'CO2_rating']:
-            rating_value = ingredient_environment_count[factor]
-            if rating_value in rating_to_reward:
-                ingredient_environment_count_rewards[factor] = rating_to_reward[rating_value]
-        
-        return ingredient_environment_count_rewards, environment_target_met
-
-    @staticmethod
-    def cost_reward(cost_rewards, menu_cost, target_cost_per_meal):
-        cost_difference = menu_cost - target_cost_per_meal
-        cost_targets_met = cost_difference <= 0
-        
-        if cost_targets_met:
-            cost_rewards['from_target'] = -cost_difference * 10
-        else:
-            cost_rewards['from_target'] = -cost_difference * 10
-
-        return cost_rewards, cost_targets_met
-
-    @staticmethod
-    def consumption_reward(consumption_reward, consumption_average):
+        Returns:
+            A tuple containing:
+                - A dictionary with consumption rewards.
+                - A boolean indicating if all consumption targets were met.
+                - A boolean indicating if the process should terminate.
+        """
         consumption_targets_met = True
+        main_class.reward_dict['consumption_reward']['average_mean_consumption'] = 0
 
-        consumption_reward['average_mean_consumption'] = consumption_average['average_mean_consumption'] * 3.75
-        consumption_reward['cv_penalty'] = consumption_average['average_cv_ingredients'] * 6.5
-
-        return consumption_reward, consumption_targets_met
+        terminate = False
+            
+        return main_class.reward_dict['consumption_reward'], consumption_targets_met, terminate
 
     @staticmethod
-    def termination_reason(nutrition_targets_met, group_targets_met, environment_targets_met, cost_targets_met, consumption_targets_met, nutrient_far_flag_list, reward):
+    def determine_termination(main_class, targets: Dict[str, bool], termination_reasons: List[str]) -> Tuple[bool, float, List[str]]:
+        """
+        Determine if the process should be terminated and calculate the termination reward.
+        
+        Args:
+            main_class: The main class instance.
+            targets: A dictionary of targets with their met status.
+            termination_reasons: A list of reasons for termination.
+        
+        Returns:
+            A tuple containing:
+                - A boolean indicating if the process should terminate.
+                - The termination reward value.
+                - A list of targets that were not met.
+        """
         terminated = False
-        reward = 0
-        termination = 0
-        targets_not_met = []
+        failed_targets = [key for key, met in targets.items() if not met]
+        termination_reward = 0
 
-        if not nutrition_targets_met:
-            targets_not_met.append("Nutrition")
-        if not group_targets_met:
-            targets_not_met.append("Group")
-        if not environment_targets_met:
-            targets_not_met.append("Environment")
-        if not cost_targets_met:
-            targets_not_met.append("Cost")
-        if not consumption_targets_met:
-            targets_not_met.append("Consumption")
-
-        if not targets_not_met:
-            terminated = True
-            termination = 2
-            reward += 1e8
-        elif nutrient_far_flag_list:
-            if nutrient_far_flag_list.count(True) > 4:
+        if main_class.nsteps > 25:
+            if not failed_targets:
+                if main_class.verbose > 0:
+                    print(f"All targets met at episode {main_class.episode_count} step {main_class.nsteps}.")
                 terminated = True
-                termination = -1
-                reward -= 1000
+                termination_reward += 100
+            else:
+                reward_per_target_met = 100 / len(targets)
+                termination_reward += reward_per_target_met * (len(targets) - len(failed_targets))
+                if main_class.verbose > 0:
+                    print(f"{len(failed_targets)} targets failed at episode {main_class.episode_count} step {main_class.nsteps}.")
+                terminated = False
+            
+        if termination_reasons:
+            if main_class.verbose > 1:
+                print("Termination triggered due to:", ", ".join(termination_reasons))
+            terminated = True
 
-        return terminated, reward, targets_not_met, termination
+        if main_class.verbose > 1 and terminated:
+            print('Terminated as metrics are out of bounds')
+            print('Failed targets:', failed_targets)
+
+        return terminated, termination_reward, failed_targets

@@ -8,7 +8,7 @@ num_envs: 3
 
 render_mode: null
 data_name: 'small_data'
-total_timesteps: 1000000
+total_timesteps: 3000000
 save_freq: 100000
 
 log_dir: saved_models/tensorboard
@@ -16,7 +16,7 @@ save_dir: saved_models/checkpoints
 best_dir: saved_models/best_models
 hyperparams_dir: saved_models/hyperparams
 
-log_prefix: prob_PPO_newParam
+log_prefix: prob_PPO_newParam_test_new_probabilistic_noNeg
 save_prefix: null
 best_prefix: null
 hyperparams_prefix: null
@@ -83,4 +83,4 @@ vecnorm_norm_reward: true
 vecnorm_clip_obs: 10.0
 vecnorm_clip_reward: 100
 vecnorm_epsilon: 0.00000001
-vecnorm_norm_obs_keys: ['current_selection_value', 'groups', 'cost', 'consumption', 'co2g', 'nutrients']
+vecnorm_norm_obs_keys: ['current_selection_value', 'groups', 'cost', 'consumption', 'co2_g', 'nutrients']
