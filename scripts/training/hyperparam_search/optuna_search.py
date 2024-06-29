@@ -67,7 +67,7 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         return env
 
     # Wrap the environment with DummyVecEnv for parallel environments
-    env = make_vec_env(make_env, n_envs=2, seed=None)
+    env = make_vec_env(make_env, n_envs=4, seed=None)
 
     clip_obs = trial.suggest_categorical("clip_obs", [5, 10, 50, 100])
     norm_reward = trial.suggest_categorical("norm_reward", [False, True])
@@ -87,7 +87,7 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         clip_obs=clip_obs,
         clip_reward=100,
         gamma=sampled_hyperparams['gamma'],
-        norm_obs_keys=['current_selection_value', 'groups', 'cost', 'consumption', 'co2g', 'nutrients']
+        norm_obs_keys=['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
     )
 
     if algo == "PPO":
@@ -107,7 +107,7 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     if 'ingredient_df' in env_kwargs:
         del env_kwargs['ingredient_df']
 
-    params = env_kwargs | sampled_hyperparams | {'clip_obs': clip_obs, 'clip_reward': clip_reward}
+    params = env_kwargs | sampled_hyperparams | {'clip_obs': clip_obs, 'norm_reward': norm_reward}
     
 
     try:
@@ -198,16 +198,16 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', type=str, default="A2C", help="Algorithm to optimize: PPO or A2C")
+    parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
-    parser.add_argument('--timeout', type=int, default=200000, help="Timeout for optimization in seconds")
+    parser.add_argument('--timeout', type=int, default=260000, help="Timeout for optimization in seconds")
     parser.add_argument('--n_jobs', type=int, default=1, help="Number of jobs to assign")
     parser.add_argument('--num_timesteps', type=int, default=3000000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_study_newReward"
+        args.study_name = f"{args.algo}_DenseReward"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)
