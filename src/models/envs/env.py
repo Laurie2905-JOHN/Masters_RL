@@ -209,7 +209,7 @@ class BaseEnvironment(gym.Env):
             # Evaluate rewards for each metric and calculate if the episode is terminated or not
             terminated = self._evaluate_rewards()
             reward += self._sum_reward_values()
-            
+
         return reward, terminated
     
     def _sum_reward_values(self):
@@ -620,6 +620,12 @@ from sb3_contrib.common.maskable.utils import get_action_masks
 # This is a drop-in replacement for EvalCallback
 from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
 
+# Register the environment
+register(
+    id='SchoolMealSelection-v1',
+    entry_point='models.envs.env:SchoolMealSelection',
+)
+
 class SchoolMealSelection(BaseEnvironment):
     def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=10, render_mode=None, verbose=0, seed=None, reward_calculator_type='sparse', initialization_strategy='zero', max_episode_steps=100):
         super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_calculator_type, initialization_strategy, max_episode_steps)
@@ -642,54 +648,37 @@ class SchoolMealSelection(BaseEnvironment):
     
     def valid_action_mask(self, action):
         
-        self.ingredient_group_count
-        
-        self.ingredient_group_count_targets
-        
-        group_to_data_map = {
-            'fruit': self.group_a_fruit,
-            'veg': self.group_a_veg,
-            'protein': self.group_bc,
-            'carbs': self.group_d,
-            'dairy': self.group_e,
-            'bread': self.bread,
-            'confectionary': self.confectionary
-        }
-        
-        self.group_info = {
-            'fruit': {'indexes': np.nonzero(self.group_a_veg)[0], 'probability': 0.8},
-            'veg': {'indexes': np.nonzero(self.group_a_fruit)[0], 'probability': 0.8},
-            'protein': {'indexes': np.nonzero(self.group_bc)[0], 'probability': 0.8},
-            'carbs': {'indexes': np.nonzero(self.group_d)[0], 'probability': 0.8},
-            'dairy': {'indexes': np.nonzero(self.group_e)[0], 'probability': 0.8},
-            'bread': {'indexes': np.nonzero(self.bread)[0], 'probability': 0.8},
-            'confectionary': {'indexes': np.nonzero(self.confectionary)[0], 'probability': 0.01}
-        }
-        
-        action_mask = np.ones(self.n_ingredients * 4, dtype=np.int8)
-        
+        _, nonzero_indices, _ = self.get_current_meal_plan()
+        # Create action mask
+        action_mask = np.zeros([self.n_ingredients, 4], dtype=np.int8)
 
-                
-                
-        
-        current_meal_plan, nonzero_indices, nonzero_values = self.get_current_meal_plan()
-        # Implement the valid_action_mask method specific to SchoolMealSelection
-        
-        action_mask = np.zeros(self.n_ingredients * 3, dtype=np.int8)
-        
-        return action_mask
-    
-    
+        # Update action mask for selected indices only
         for key, value in self.ingredient_group_count.items():
-            if value == self.ingredient_group_count_targets[key]: 
-                for idx in nonzero_indices:
-                    for category, info in group_info.values():
-                        if idx in info['indexes']:
-                            if category == key:
-                                action_mask[idx] = [1, 1, 1, 1]
-                                for i in len(action_mask):
-                                    if i != idx:
-                                        action_mask[i] = [0, 0, 0, 0]
-                                action_mask[]
-                                break
-                            break
+            target = self.ingredient_group_count_targets[key]
+            indexes = self.group_info[key]['indexes']
+            selected = [idx for idx in nonzero_indices if idx in indexes]
+            if target == 0:
+                for idx in indexes:
+                    action_mask[idx] = [1, 1, 0, 0]
+                continue
+                
+            if value == target:
+                for idx in selected:
+                    action_mask[idx] = [1, 1, 1, 1]
+                for idx in indexes:
+                    if idx not in selected:
+                        action_mask[idx] = [0, 1, 0, 0]
+            elif value < target:
+                for idx in selected:
+                    action_mask[idx] = [1, 1, 1, 1]
+                for idx in indexes:
+                    if idx not in selected:
+                        action_mask[idx] = [0, 1, 0, 1]
+            else:
+                for idx in selected:
+                    action_mask[idx] = [1, 1, 1, 0]
+                for idx in indexes:
+                    if idx not in selected:
+                        action_mask[idx] = [0, 1, 0, 0]
+                        
+        return action_mask
