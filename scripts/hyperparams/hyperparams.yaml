@@ -3,11 +3,11 @@ max_episode_steps: 100
 max_ingredients: 6
 action_scaling_factor: 10
 
-algo: A2C
+algo: PPO
 num_envs: 3
 
 render_mode: null
-data_name: 'data'
+data_name: 'small_data'
 total_timesteps: 3000000
 save_freq: 100000
 
@@ -16,7 +16,7 @@ save_dir: saved_models/checkpoints
 best_dir: saved_models/best_models
 hyperparams_dir: saved_models/hyperparams
 
-log_prefix: A2C_NEW_BigData_zero
+log_prefix: PPO_NEW_data_perfect
 save_prefix: null
 best_prefix: null
 hyperparams_prefix: null
@@ -37,7 +37,7 @@ gamma: 0.99
 
 
 lr_schedule: linear
-initialization_strategy: 'zero'
+initialization_strategy: 'probabilistic'
 a2c_n_steps: 8
 a2c_learning_rate: 0.00096
 a2c_ent_coef: 0.0
