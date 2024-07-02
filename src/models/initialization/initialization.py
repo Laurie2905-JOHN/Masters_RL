@@ -114,5 +114,6 @@ class IngredientSelectionInitializer:
         return current_selection
 
     def _print_counts(selected_counts):
+        print("\nInitialized plan counts:")
         for key, value in selected_counts.items():
             print(f"Category: {key}, Count: {value}")

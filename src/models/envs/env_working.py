@@ -650,7 +650,7 @@ if __name__ == '__main__':
     from stable_baselines3.common.monitor import Monitor
     from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage, plot_reward_distribution, set_seed
     reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '')
-
+    from models.envs.env import SchoolMealSelectionContinuous
     class Args:
         render_mode = None
         num_envs = 2
@@ -671,8 +671,8 @@ if __name__ == '__main__':
         vecnorm_norm_obs_keys = None
         ingredient_df = get_data("small_data.csv")
         seed = 10
-        env_name = 'SchoolMealSelection-v0'
-        initialization_strategy = 'perfect'
+        env_name = 'SchoolMealSelection-v1'
+        initialization_strategy = 'zero'
         vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
         reward_calculator_type = 'sparse'
     args = Args()
@@ -683,8 +683,7 @@ if __name__ == '__main__':
     
     env = setup_environment(args, reward_save_path=reward_save_path, eval=False)
     
-    
-    # check_env(env.envs[0].unwrapped)
+    check_env(env.envs[0].unwrapped)
 
     print("Environment is valid!")
     

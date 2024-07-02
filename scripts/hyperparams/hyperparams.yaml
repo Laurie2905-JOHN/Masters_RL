@@ -1,4 +1,4 @@
-env_name: SchoolMealSelection-v0
+env_name: SchoolMealSelection-v3
 max_episode_steps: 100
 max_ingredients: 6
 action_scaling_factor: 10
@@ -31,7 +31,7 @@ seed: null
 device: auto
 memory_monitor: false
 pretrained_checkpoint_path: null
-verbose: 0
+verbose: 2
 
 gamma: 0.99
 
