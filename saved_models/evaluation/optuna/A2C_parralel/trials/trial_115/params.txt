@@ -1,2 +1,0 @@
-{'max_ingredients': 5, 'action_scaling_factor': 10, 'n_steps': 10, 'gamma': 0.9456461586957298, 'learning_rate': 4.923212938225677e-05, 'ent_coef': 3.6514406703781307e-07, 'vf_coef': 0.223328003202769, 'max_grad_norm': 0.9, 'gae_lambda': 1.0, 'rms_prop_eps': 0.04380517566151551, 'use_rms_prop': False, 'normalize_advantage': False, 'policy_kwargs': {'net_arch': {'pi': [256, 256], 'vf': [256, 256]}, 'activation_fn': <class 'torch.nn.modules.activation.Tanh'>, 'ortho_init': True}}
-Reward: 1.411337

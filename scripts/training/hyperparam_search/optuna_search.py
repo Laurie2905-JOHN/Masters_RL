@@ -43,8 +43,10 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
 
     max_ingredients = trial.suggest_categorical("max_ingredients", [6, 8])
 
-    initialization_strategy = trial.suggest_categorical("initialization_strategy", ['zero', 'probabilistic', 'perfect'])
+    # initialization_strategy = trial.suggest_categorical("initialization_strategy", ['zero', 'probabilistic', 'perfect'])
 
+    initialization_strategy = 'zero'
+    
     env_kwargs = {
         "ingredient_df": ingredient_df, 
         "max_ingredients": max_ingredients, 
@@ -203,8 +205,8 @@ if __name__ == "__main__":
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=260000, help="Timeout for optimization in seconds")
-    parser.add_argument('--n_jobs', type=int, default=1, help="Number of jobs to assign")
-    parser.add_argument('--num_timesteps', type=int, default=3000000, help="Number of timesteps for model training")
+    parser.add_argument('--n_jobs', type=int, default=3, help="Number of jobs to assign")
+    parser.add_argument('--num_timesteps', type=int, default=180000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:

@@ -1,2 +1,0 @@
-{'max_ingredients': 6, 'action_scaling_factor': 20, 'n_steps': 10, 'gamma': 0.9195253308451565, 'learning_rate': 0.00010384199346528718, 'ent_coef': 0.00010139987447505764, 'vf_coef': 0.7476767535205031, 'max_grad_norm': 0.5, 'gae_lambda': 1.0, 'rms_prop_eps': 0.00581439681329107, 'use_rms_prop': False, 'normalize_advantage': False, 'policy_kwargs': {'net_arch': {'pi': [512, 512, 512], 'vf': [512, 512, 512]}, 'activation_fn': <class 'torch.nn.modules.activation.ELU'>, 'ortho_init': True}}
-Reward: -131.282267
