@@ -3,7 +3,7 @@ from optuna.visualization import plot_optimization_history, plot_param_importanc
 import os
 
 # Define the study path
-study_path = "saved_models/optuna/PPO_DenseReward"
+study_path = "saved_models/evaluation/optuna/A2C_DenseReward"
 
 # Ensure the directory exists
 os.makedirs(study_path, exist_ok=True)

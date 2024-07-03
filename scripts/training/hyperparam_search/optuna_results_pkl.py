@@ -4,10 +4,22 @@ import matplotlib.pyplot as plt
 import os
 from utils.train_utils import get_unique_directory
 
-study_name = "PPO_study1"  # Replace with your actual study name
+def check_file_path(file_path):
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"The file at {file_path} does not exist.")
+    if not os.access(file_path, os.R_OK):
+        raise PermissionError(f"The file at {file_path} is not readable.")
+    if not os.path.isfile(file_path):
+        raise ValueError(f"The path {file_path} is not a file.")
+    else:
+        print("File Exists")
+study_name = "A2C_DenseReward"  # Replace with your actual study name
 
 # Define the path to load the study
-study_file_path = f"saved_models/optuna/{study_name}/study.pkl"
+study_file_path = f"saved_models/evaluation/optuna/{study_name}/study.pkl"
+
+# Check the study file path
+check_file_path(study_file_path)
 
 # Load the study using pickle
 with open(study_file_path, 'rb') as f:

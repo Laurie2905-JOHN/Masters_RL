@@ -71,7 +71,7 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     # Wrap the environment with DummyVecEnv for parallel environments
     env = make_vec_env(make_env, n_envs=4, seed=None)
 
-    clip_obs = trial.suggest_categorical("clip_obs", [5, 10, 50, 100])
+    clip_obs = trial.suggest_categorical("clip_obs", [5, 10])
     norm_reward = trial.suggest_categorical("norm_reward", [False, True])
 
     if algo == "PPO":
@@ -206,7 +206,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=260000, help="Timeout for optimization in seconds")
     parser.add_argument('--n_jobs', type=int, default=3, help="Number of jobs to assign")
-    parser.add_argument('--num_timesteps', type=int, default=180000, help="Number of timesteps for model training")
+    parser.add_argument('--num_timesteps', type=int, default=3000000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
