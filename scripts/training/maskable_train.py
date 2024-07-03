@@ -17,7 +17,6 @@ class Args:
     plot_reward_history = True
     max_episode_steps = 100
     verbose = 0
-    action_scaling_factor = 50
     memory_monitor = True
     gamma = 0.99
     max_ingredients = 6
