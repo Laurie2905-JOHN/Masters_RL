@@ -86,7 +86,7 @@ class BaseEnvironment(gym.Env):
         self.target_sugars_g = 15.5
         self.target_fibre_g = 4.2
         self.target_protein_g = 7.5
-        self.target_salt_g = 1  # Temporary target
+        self.target_salt_g = 1.5  # Temporary target
 
         self.nutrient_target_ranges = {
             'calories': (self.target_calories * 0.95, self.target_calories * 1.05),
@@ -122,15 +122,15 @@ class BaseEnvironment(gym.Env):
             'confectionary': 0
         }
         
-        # self.ingredient_group_portion_targets = {
-        #     'fruit': (40, 110),
-        #     'veg': (40, 110),
-        #     'protein': (70, 150),
-        #     'carbs': (25, 300),
-        #     'dairy': (20, 200),
-        #     'bread': (40, 90),
-        #     'confectionary': (0, 50)
-        # }
+        self.ingredient_group_portion_targets = {
+            'fruit': (40, 110),
+            'veg': (40, 110),
+            'protein': (70, 150),
+            'carbs': (25, 300),
+            'dairy': (20, 200),
+            'bread': (40, 90),
+            'confectionary': (0, 50)
+        }
         
         self.ingredient_group_portion_targets = {
             'fruit': (20, 400),
@@ -144,8 +144,8 @@ class BaseEnvironment(gym.Env):
 
 
         self.group_info = {
-            'fruit': {'indexes': np.nonzero(self.group_a_veg)[0], 'probability': 0.8},
-            'veg': {'indexes': np.nonzero(self.group_a_fruit)[0], 'probability': 0.8},
+            'fruit': {'indexes': np.nonzero(self.group_a_fruit)[0], 'probability': 0.8},
+            'veg': {'indexes': np.nonzero(self.group_a_veg)[0], 'probability': 0.8},
             'protein': {'indexes': np.nonzero(self.group_bc)[0], 'probability': 0.8},
             'carbs': {'indexes': np.nonzero(self.group_d)[0], 'probability': 0.8},
             'dairy': {'indexes': np.nonzero(self.group_e)[0], 'probability': 0.8},
@@ -161,7 +161,7 @@ class BaseEnvironment(gym.Env):
         self.co2_fu_rating = np.array([self.rating_to_int[val] for val in ingredient_df['CO2 FU Rating'].values], dtype=np.float32)
         self.co2_g = {'co2_g': 0.0}
         self.co2_g_per_1g = ingredient_df['CO2_g_per_100g'].values.astype(np.float32) / 100
-        self.target_co2_g_per_meal = 900  # Temporary CO2 target
+        self.target_co2_g_per_meal = 1000  # Temporary CO2 target
 
     def _initialize_consumption_data(self, ingredient_df) -> None:
         self.mean_g_per_day = ingredient_df['Mean_g_per_day'].values.astype(np.float32)
@@ -237,12 +237,12 @@ class BaseEnvironment(gym.Env):
         terminated = False
         
         # Calculate metrics for the current selection
-        self._get_metrics()
+        self.get_metrics()
         # Initialize reward dictionary
         self._initialize_rewards()
         
         # Calculate reward and check for termination conditions every 25 steps
-        if self.nsteps % 25 == 0 and self.nsteps > 0:
+        if self.nsteps % 50 == 0 and self.nsteps > 0:
             # Evaluate rewards for each metric and calculate if the episode is terminated or not
             terminated = self._evaluate_rewards()
             reward += self._sum_reward_values()
@@ -254,7 +254,7 @@ class BaseEnvironment(gym.Env):
         return sum(value for subdict in self.reward_dict.values() if isinstance(subdict, dict) for value in subdict.values() if isinstance(value, (int, float))) + \
             sum(value for value in self.reward_dict.values() if isinstance(value, (int, float)))
             
-    def _get_metrics(self) -> None:
+    def get_metrics(self) -> None:
         """
         Calculate various metrics based on the current selection of ingredients.
         Metrics include nutrient averages, ingredient group counts and portions, environmental impact, cost, and consumption averages.
@@ -407,7 +407,7 @@ class BaseEnvironment(gym.Env):
             self.reward_dict[reward], targets_met, terminate = reward_func(self)
             
             # Update the target met flags and termination reasons based on the reward
-            self._update_flags_and_reasons(reward, targets_met, terminate, target_flags, termination_reasons)
+            termination_reasons = self._update_flags_and_reasons(reward, targets_met, terminate, target_flags, termination_reasons)
             
         # Determine if the episode should be terminated based on the overall targets and reasons
         terminated, self.reward_dict['termination_reward'], failed_targets = self.reward_calculator.determine_termination(
@@ -442,6 +442,7 @@ class BaseEnvironment(gym.Env):
         else:
             raise ValueError(f"Reward Type: {reward} not found in RewardCalculator.")
 
+        return termination_reasons
 
     def reset(self, seed: int = None, options: dict = None) -> tuple:
         """
@@ -454,6 +455,7 @@ class BaseEnvironment(gym.Env):
             current_meal_plan, _, _ = self.get_current_meal_plan()
             print(f"\nFinal plan (Step: {self.nsteps}): {current_meal_plan}")
             print(f"\nFinal portion size of groups (Step: {self.nsteps}): {self.ingredient_group_portion}"),
+        
         
         # Call the parent class's reset method with the provided seed
         super().reset(seed=seed)
@@ -489,13 +491,16 @@ class BaseEnvironment(gym.Env):
         # Increment the number of steps taken
         self.nsteps += 1
         
-        # Clip the action values to be within the range [-1, 1]
-        action = np.clip(action, -1, 1)
-        
         self._validate_and_process_action(action)
         
         # Calculate the reward and check for termination conditions
         reward, terminated = self._calculate_reward()
+        
+        # If verbosity level is greater than 1, print the step plan and portion sizes
+        if self.verbose > 1:
+            current_meal_plan, _, _ = self.get_current_meal_plan()
+            print(f"\nPlan at (Step: {self.nsteps}): {current_meal_plan}")
+            print(f"Portion size of groups (Step: {self.nsteps}): {self.ingredient_group_portion}\n"),
 
         # Return the new observation, reward, termination flag, truncated flag, and additional info
         return self._get_obs(), reward, terminated, False, self._get_info()
@@ -638,7 +643,7 @@ class BaseEnvironment(gym.Env):
             print(f"Initialized plan: {current_meal_plan}")
 
         # Calculate initial metrics and update observations
-        self._get_metrics()
+        self.get_metrics()
         self._get_obs()
     
     # Methods to be overridden
@@ -680,6 +685,8 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
         """
         Update the current selection of ingredients based on the action.
         """
+        # Clip the action values to be within the range [-1, 1]
+        action = np.clip(action, -1, 1)
         # Apply the action scaling factor to the action and update the current selection
         change = action * self.action_scaling_factor
         self.current_selection = np.maximum(0, self.current_selection + change)
@@ -721,36 +728,38 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_calculator_type, initialization_strategy, max_episode_steps)
 
     def initialize_action_space(self) -> None:
-        self.action_space = gym.spaces.MultiDiscrete([4] * self.n_ingredients)
+        self.action_space = gym.spaces.MultiDiscrete([3, self.n_ingredients])
         
     def update_selection(self, action: np.ndarray) -> None:
         """
         Update the current selection of ingredients based on the action.
         """
-        for i in range(len(action)):
-            if action[i] == 0:
-                self.current_selection[i] = 0
-            elif action[i] == 1:
-                continue  # No change
-            elif action[i] == 2:
-                self.current_selection[i] = max(0, self.current_selection[i] - self.action_scaling_factor)
-            elif action[i] == 3:
-                self.current_selection[i] += self.action_scaling_factor
-        print(action)
+        if self.verbose > 2:
+            print(f"Initial current_selection: {self.current_selection}")
+            print(f"Action received: {action}")
+            
+        if action[0] == 0:
+            self.current_selection[action[1]] = 0 # zero value
+        elif action[0] == 1: # Decrease
+            self.current_selection[action[1]] = max(0, self.current_selection[action[1]] - self.action_scaling_factor)
+        elif action[0] == 2: # Increase
+            self.current_selection[action[1]] += self.action_scaling_factor
+        
         # Ensure that the number of selected ingredients does not exceed the maximum allowed
         num_selected_ingredients = np.sum(self.current_selection > 0)
         if num_selected_ingredients > self.max_ingredients:
+            print("Current Selection:", self.get_current_meal_plan())
             excess_indices = np.argsort(-self.current_selection)
             self.current_selection[excess_indices[self.max_ingredients:]] = 0
             print("Current_selection was cut")
-            
+                   
     def validate_action_shape(self, action: np.ndarray) -> None:
         """
         Validate the shape of the action array.
         """
         if self.verbose > 1:
-            if not isinstance(action, np.ndarray) or action.shape != (self.n_ingredients,):
-                raise ValueError(f"Expected action to be an np.ndarray of shape {(self.n_ingredients,)}, but got {type(action)} with shape {action.shape}")
+            if not isinstance(action, np.ndarray) or action.shape != (2,):
+                raise ValueError(f"Expected action to be an np.ndarray of shape {(2,)}, but got {type(action)} with shape {action.shape}")
             if action.shape != self.action_space.shape:
                 raise ValueError(f"Action shape {action.shape} is not equal to action space shape {self.action_space.shape}")
 
@@ -766,9 +775,9 @@ if __name__ == '__main__':
     class Args:
         render_mode = None
         num_envs = 2
-        plot_reward_history = True
+        plot_reward_history = False
         max_episode_steps = 100
-        verbose = 2
+        verbose = 3
         action_scaling_factor = 10
         memory_monitor = True
         gamma = 0.99
