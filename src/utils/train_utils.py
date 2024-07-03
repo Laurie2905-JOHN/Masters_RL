@@ -24,6 +24,60 @@ import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict, Counter
 from models.wrappers.common import RewardTrackingWrapper
+from sb3_contrib.common.wrappers import ActionMasker
+from models.action_masks.masks import mask_fn1
+
+# Function to set up the environment
+def setup_environment(args, reward_save_path=None, eval=False):
+    
+    env_kwargs = {
+                "ingredient_df": args.ingredient_df,
+                "max_ingredients": args.max_ingredients,
+                "action_scaling_factor": args.action_scaling_factor,
+                "render_mode": args.render_mode,
+                "seed": args.seed,
+                "verbose": args.verbose,
+                "initialization_strategy": args.initialization_strategy
+                }
+        
+    def make_env():
+        
+        env = gym.make(args.env_name, **env_kwargs)
+        
+        # Apply the RewardTrackingWrapper if needed
+        if args.plot_reward_history:
+            if reward_save_path is None:
+                raise ValueError("reward_save_path must be specified when plot_reward_history is True")
+            env = RewardTrackingWrapper(
+                env,
+                args.reward_save_interval,
+                reward_save_path,
+                )
+            
+        if args.algo == "MASKED_PPO":
+            env = ActionMasker(env, mask_fn1)  # Wrap to enable masking
+        
+        # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
+        env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
+        env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
+  
+        return env
+
+    env = make_vec_env(make_env, n_envs=args.num_envs, seed=args.seed)
+
+    if eval:
+        return env
+
+    return VecNormalize(
+        env, 
+        norm_obs=args.vecnorm_norm_obs, 
+        norm_reward=args.vecnorm_norm_reward, 
+        clip_obs=args.vecnorm_clip_obs, 
+        clip_reward=args.vecnorm_clip_reward, 
+        gamma=args.gamma, 
+        epsilon=args.vecnorm_epsilon, 
+        norm_obs_keys=args.vecnorm_norm_obs_keys
+    )
 
 def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
     """
@@ -65,54 +119,7 @@ def set_seed(seed, device):
             torch.cuda.manual_seed_all(seed)
 
 
-# Function to set up the environment
-def setup_environment(args, reward_save_path=None, eval=False):
-    
-    env_kwargs = {
-                "ingredient_df": args.ingredient_df,
-                "max_ingredients": args.max_ingredients,
-                "action_scaling_factor": args.action_scaling_factor,
-                "render_mode": args.render_mode,
-                "seed": args.seed,
-                "verbose": args.verbose,
-                "initialization_strategy": args.initialization_strategy
-                }
-        
-    def make_env():
-        
-        env = gym.make(args.env_name, **env_kwargs)
-        
-        # Apply the RewardTrackingWrapper if needed
-        if args.plot_reward_history:
-            if reward_save_path is None:
-                raise ValueError("reward_save_path must be specified when plot_reward_history is True")
-            env = RewardTrackingWrapper(
-                env,
-                args.reward_save_interval,
-                reward_save_path,
-                )
-        
-        # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
-        env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
-        env = Monitor(env)  # wrap it with monitor env again to explicitely take the change into account
-  
-        return env
 
-    env = make_vec_env(make_env, n_envs=args.num_envs, seed=args.seed)
-
-    if eval:
-        return env
-
-    return VecNormalize(
-        env, 
-        norm_obs=args.vecnorm_norm_obs, 
-        norm_reward=args.vecnorm_norm_reward, 
-        clip_obs=args.vecnorm_clip_obs, 
-        clip_reward=args.vecnorm_clip_reward, 
-        gamma=args.gamma, 
-        epsilon=args.vecnorm_epsilon, 
-        norm_obs_keys=args.vecnorm_norm_obs_keys
-    )
 
     
     

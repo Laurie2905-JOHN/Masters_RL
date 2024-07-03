@@ -11,6 +11,9 @@ from utils.train_utils import generate_random_seeds, setup_environment, get_uniq
 import json
 import yaml
 from torch import nn
+from sb3_contrib.ppo_mask import MaskablePPO
+from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
+from sb3_contrib.common.maskable.policies import MaskableMultiInputActorCriticPolicy
 
 def ensure_dir_exists(directory, verbose=0):
     if not os.path.exists(directory):
@@ -126,6 +129,23 @@ def main(args):
                 'policy_kwargs': args.policy_kwargs,
             }
             model = PPO('MultiInputPolicy', env, **common_hyperparams, **ppo_hyperparams)
+        elif args.algo == 'MASKED_PPO':
+            masked_ppo_hyperparams = {
+                'n_steps': args.ppo_n_steps,
+                'batch_size': args.ppo_batch_size,
+                'n_epochs': args.ppo_n_epochs,
+                'learning_rate': args.ppo_learning_rate,
+                'ent_coef': args.ppo_ent_coef,
+                'vf_coef': args.ppo_vf_coef,
+                'max_grad_norm': args.ppo_max_grad_norm,
+                'clip_range': args.ppo_clip_range,
+                'clip_range_vf': args.ppo_clip_range_vf,
+                'gae_lambda': args.ppo_gae_lambda,
+                'normalize_advantage': args.ppo_normalize_advantage,
+                'target_kl': args.ppo_target_kl,
+                'policy_kwargs': args.policy_kwargs,
+            }
+            model = MaskablePPO(MaskableMultiInputActorCriticPolicy,  env, **common_hyperparams, **masked_ppo_hyperparams)
         else:
             raise ValueError(f"Unsupported algorithm: {args.algo}")
         reset_num_timesteps = True
@@ -147,6 +167,8 @@ def main(args):
         hyperparams.update(a2c_hyperparams)
     elif args.algo == 'PPO':
         hyperparams.update(ppo_hyperparams)
+    elif args.algo == 'MASKED_PPO':
+        hyperparams.update(masked_ppo_hyperparams)
 
     # Add VecNormalize parameters to hyperparams
     vecnormalize_params = {
@@ -189,18 +211,30 @@ def main(args):
     
     # callback_on_new_best = CallbackList([stop_training_on_no_model_improvement, stop_training_on_reward_threshold, save_vec_normalize_callback])
 
-    eval_callback = EvalCallback(
-        eval_env=env,
-        best_model_save_path=best_model_path,
-        callback_on_new_best=stop_training_on_no_model_improvement,
-        n_eval_episodes=10,
-        eval_freq=max(args.eval_freq // args.num_envs, 1),
-        deterministic=True,
-        log_path=tensorboard_log_dir,
-        render=False,
-        verbose=args.verbose
-    )
-
+    if args.algo != "MASKED_PPO":
+        eval_callback = EvalCallback(
+            eval_env=env,
+            best_model_save_path=best_model_path,
+            callback_on_new_best=stop_training_on_no_model_improvement,
+            n_eval_episodes=5,
+            eval_freq=max(args.eval_freq // args.num_envs, 1),
+            deterministic=True,
+            log_path=tensorboard_log_dir,
+            render=False,
+            verbose=args.verbose
+        )
+    else:
+        eval_callback = MaskableEvalCallback(
+            eval_env=env,
+            best_model_save_path=best_model_path,
+            callback_on_new_best=stop_training_on_no_model_improvement,
+            n_eval_episodes=5,
+            eval_freq=max(args.eval_freq // args.num_envs, 1),
+            deterministic=True,
+            log_path=tensorboard_log_dir,
+            render=False,
+            verbose=args.verbose
+        )
     info_logger_callback = InfoLoggerCallback()
 
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
@@ -239,6 +273,8 @@ def main(args):
             model = A2C.load(final_save, env=env)
         elif args.algo == 'PPO':
             model = PPO.load(final_save, env=env)
+        elif args.algo == "MASKED_PPO":
+            model = MaskablePPO.load(final_save, env = env)
 
         print("Model and VecNormalize loaded successfully.")
 
@@ -287,7 +323,7 @@ if __name__ == "__main__":
         net_arch = dict(pi=[args.a2c_net_arch_width] * args.a2c_net_arch_depth, vf=[args.a2c_net_arch_width] * args.a2c_net_arch_depth)
         activation_fn = {"tanh": nn.Tanh, "relu": nn.ReLU, "elu": nn.ELU, "leaky_relu": nn.LeakyReLU}[args.a2c_activation_fn]
         ortho_init = args.a2c_ortho_init
-    elif args.algo == 'PPO':
+    elif args.algo == 'PPO' or args.algo == 'MASKED_PPO':
         learning_rate = args.ppo_learning_rate
         net_arch = dict(pi=[args.ppo_net_arch_width] * args.ppo_net_arch_depth, vf=[args.ppo_net_arch_width] * args.ppo_net_arch_depth)
         activation_fn = {"tanh": nn.Tanh, "relu": nn.ReLU, "elu": nn.ELU, "leaky_relu": nn.LeakyReLU}[args.ppo_activation_fn]
@@ -314,7 +350,7 @@ if __name__ == "__main__":
             args.seed = generate_random_seeds(2)
 
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(2)
+        args.seed = generate_random_seeds(1)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
 

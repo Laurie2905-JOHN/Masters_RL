@@ -1,9 +1,9 @@
-env_name: SchoolMealSelection-v3
+env_name: SchoolMealSelection-v2
 max_episode_steps: 100
 max_ingredients: 6
 action_scaling_factor: 10
 
-algo: PPO
+algo: MASKED_PPO
 num_envs: 3
 
 render_mode: null
@@ -16,7 +16,7 @@ save_dir: saved_models/checkpoints
 best_dir: saved_models/best_models
 hyperparams_dir: saved_models/hyperparams
 
-log_prefix: PPO_NEW_data_perfect
+log_prefix: MASKED_PPO
 save_prefix: null
 best_prefix: null
 hyperparams_prefix: null
@@ -37,7 +37,7 @@ gamma: 0.99
 
 
 lr_schedule: linear
-initialization_strategy: 'probabilistic'
+initialization_strategy: 'zero'
 a2c_n_steps: 8
 a2c_learning_rate: 0.00096
 a2c_ent_coef: 0.0

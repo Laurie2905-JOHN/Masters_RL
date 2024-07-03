@@ -723,7 +723,7 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
-                 verbose: int = 0, seed: int = None, reward_calculator_type: str = 'sparse', 
+                 verbose: int = 0, seed: int = None, reward_calculator_type: str = 'shaped', 
                  initialization_strategy: str = 'zero', max_episode_steps: int = 100):
         super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_calculator_type, initialization_strategy, max_episode_steps)
 
@@ -751,7 +751,7 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
             print("Current Selection:", self.get_current_meal_plan())
             excess_indices = np.argsort(-self.current_selection)
             self.current_selection[excess_indices[self.max_ingredients:]] = 0
-            print("Current_selection was cut")
+            print("Cut Current Selection:", self.get_current_meal_plan())
                    
     def validate_action_shape(self, action: np.ndarray) -> None:
         """
@@ -771,7 +771,7 @@ if __name__ == '__main__':
     from stable_baselines3.common.monitor import Monitor
     from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage, plot_reward_distribution, set_seed
     reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '')
-    from models.envs.env import SchoolMealSelectionContinuous
+    from models.envs.env import * 
     class Args:
         render_mode = None
         num_envs = 2

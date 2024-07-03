@@ -5,6 +5,8 @@ from models.envs.env import *
 from sb3_contrib.common.maskable.policies import MaskableMultiInputActorCriticPolicy
 from sb3_contrib.common.wrappers import ActionMasker
 from sb3_contrib.ppo_mask import MaskablePPO
+from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
+from sb3_contrib.common.maskable.policies import MaskableMultiInputActorCriticPolicy
 from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv, SubprocVecEnv
 from stable_baselines3.common.monitor import Monitor
 from gymnasium.wrappers import TimeLimit
@@ -83,11 +85,12 @@ def mask_fn(self) -> np.ndarray:
 
     if all_group_target_met:
         if nsteps > 25:
-            action_mask[:3] = [0, 1, 1]
+            action_mask[:3] = [1, 1, 1]
         else:
             action_mask[:3] = [0, 0, 1]
     else:
         action_mask[:3] = [0, 0, 1]
+        
     # print(action_mask)  # For debugging purposes
     return action_mask
 
