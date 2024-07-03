@@ -1,4 +1,4 @@
-env_name: SchoolMealSelection-v0
+env_name: SchoolMealSelection-v3
 max_episode_steps: 100
 max_ingredients: 6
 action_scaling_factor: 10
@@ -16,7 +16,7 @@ save_dir: saved_models/checkpoints
 best_dir: saved_models/best_models
 hyperparams_dir: saved_models/hyperparams
 
-log_prefix: prob_PPO_newParam_test_new_probabilistic_noNeg
+log_prefix: PPO_NEW_data_perfect
 save_prefix: null
 best_prefix: null
 hyperparams_prefix: null
@@ -31,7 +31,7 @@ seed: null
 device: auto
 memory_monitor: false
 pretrained_checkpoint_path: null
-verbose: 0
+verbose: 2
 
 gamma: 0.99
 

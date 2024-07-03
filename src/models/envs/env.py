@@ -1,492 +1,859 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-from models.reward.reward import nutrient_reward, group_count_reward, environment_count_reward, cost_reward, consumption_reward, termination_reason
-import os
-from utils.process_data import get_data
 from collections import Counter
-        
-class SchoolMealSelection(gym.Env):
+from models.reward import reward
+from models.initialization.initialization import IngredientSelectionInitializer
+from gymnasium.envs.registration import register
+import os
+
+class BaseEnvironment(gym.Env):
+    """
+    A base class for custom Gym environments.
+    Contains common functionalities for initializing and managing the environment.
+    """
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=21.25, num_people=1000, render_mode=None, initial_ingredients=None, reward_metrics=None, verbose=0):
-        super(SchoolMealSelection, self).__init__()
+    def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
+                 verbose: int = 0, seed: int = None, reward_calculator_type: str = 'sparse', 
+                 initialization_strategy: str = 'zero', max_episode_steps: int = 100):
+        super().__init__()
 
+        self._initialize_parameters(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, initialization_strategy, max_episode_steps)
+        self._initialize_nutrient_values(ingredient_df)
+        self._initialize_nutrient_targets()
+        self._create_index_value_mapping()
+        self._initialize_group_categories(ingredient_df)
+        self._initialize_group_targets()
+        self._initialize_environmental_ratings(ingredient_df)
+        self._initialize_consumption_data(ingredient_df)
+        self._initialize_cost_data(ingredient_df)
+        self._initialize_selection_variables()
+        self.reward_calculator = self._get_reward_calculator(reward_calculator_type)
+        self.ingredient_initializer = IngredientSelectionInitializer()
+        self.initialize_action_space()
+        self._initialize_observation_space()
+        
+        self.reward_to_function_mapping = {
+            'nutrient_reward': 'calculate_nutrient_reward',
+            'ingredient_group_count_reward': 'calculate_group_count_reward',
+            'ingredient_environment_count_reward': 'calculate_environment_count_reward',
+            'cost_reward': 'calculate_cost_reward',
+            'consumption_reward': 'calculate_consumption_reward',
+            'co2g_reward': 'calculate_co2g_reward',
+        }
+        
+        self.reward_to_metric_mapping = {
+            'nutrient_reward': 'nutrients',
+            'ingredient_group_count_reward': 'groups',
+            'ingredient_environment_count_reward': 'environment',
+            'cost_reward': 'cost_reward',
+            'co2g_reward': 'co2g_reward',
+            'consumption_reward': 'consumption',
+            'targets_not_met': 'targets_not_met',
+            'termination_reward': 'termination'
+        }
+    
+    def _initialize_parameters(self, ingredient_df, max_ingredients: int, action_scaling_factor: int, render_mode: str, 
+                               verbose: int, seed: int, initialization_strategy: str, max_episode_steps: int) -> None:
         self.ingredient_df = ingredient_df
         self.max_ingredients = max_ingredients
         self.action_scaling_factor = action_scaling_factor
-        self.reward_metrics = reward_metrics if reward_metrics else ['nutrients', 'groups', 'environment', 'cost', 'consumption']
-        self.num_people = num_people
+        self.max_episode_steps = max_episode_steps
         self.verbose = verbose
-        
-        # Nutritional values
+        self.seed = seed
+        self.initialization_strategy = initialization_strategy
+        self.n_ingredients = len(ingredient_df)
+        self.render_mode = render_mode
+        self.episode_count = -1
+        self.nsteps = 0
+
+    def _initialize_nutrient_values(self, ingredient_df) -> None:
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values.astype(np.float32) / 100
-        self.Fat_g = ingredient_df['Fat_g'].values.astype(np.float32) / 100
-        self.Saturates_g = ingredient_df['Saturates_g'].values.astype(np.float32) / 100
-        self.Carbs_g = ingredient_df['Carbs_g'].values.astype(np.float32) / 100
-        self.Sugars_g = ingredient_df['Sugars_g'].values.astype(np.float32) / 100
-        self.Fibre_g = ingredient_df['Fibre_g'].values.astype(np.float32) / 100
-        self.Protein_g = ingredient_df['Protein_g'].values.astype(np.float32) / 100
-        self.Salt_g = ingredient_df['Salt_g'].values.astype(np.float32) / 100
+        self.fat_g = ingredient_df['Fat_g'].values.astype(np.float32) / 100
+        self.saturates_g = ingredient_df['Saturates_g'].values.astype(np.float32) / 100
+        self.carbs_g = ingredient_df['Carbs_g'].values.astype(np.float32) / 100
+        self.sugars_g = ingredient_df['Sugars_g'].values.astype(np.float32) / 100
+        self.fibre_g = ingredient_df['Fibre_g'].values.astype(np.float32) / 100
+        self.protein_g = ingredient_df['Protein_g'].values.astype(np.float32) / 100
+        self.salt_g = ingredient_df['Salt_g'].values.astype(np.float32) / 100
 
-        # Nutritional targets
+    def _initialize_nutrient_targets(self) -> None:
         self.target_calories = 530
-        self.target_Fat_g = 20.6
-        self.target_Saturates_g = 6.5
-        self.target_Carbs_g = 70.6
-        self.target_Sugars_g = 15.5
-        self.target_Fibre_g = 4.2
-        self.target_Protein_g = 7.5
-        self.target_Salt_g = 0.499
+        self.target_fat_g = 20.6
+        self.target_saturates_g = 6.5
+        self.target_carbs_g = 70.6
+        self.target_sugars_g = 15.5
+        self.target_fibre_g = 4.2
+        self.target_protein_g = 7.5
+        self.target_salt_g = 1  # Temporary target
 
-        # Define target ranges and initialize rewards
         self.nutrient_target_ranges = {
             'calories': (self.target_calories * 0.95, self.target_calories * 1.05),
-            'fat': (self.target_Fat_g * 0.5, self.target_Fat_g),
-            'saturates': (0, self.target_Saturates_g),
-            'carbs': (self.target_Carbs_g, self.target_Carbs_g * 2),
-            'sugar': (0, self.target_Sugars_g),
-            'fibre': (self.target_Fibre_g, self.target_Fibre_g * 2),
-            'protein': (self.target_Protein_g, self.target_Protein_g * 2),
-            'salt': (0, self.target_Salt_g)
+            'fat': (self.target_fat_g * 0.1, self.target_fat_g),
+            'saturates': (0, self.target_saturates_g),
+            'carbs': (self.target_carbs_g, self.target_carbs_g * 3),
+            'sugar': (0, self.target_sugars_g),
+            'fibre': (self.target_fibre_g, self.target_fibre_g * 3),
+            'protein': (self.target_protein_g, self.target_protein_g * 3),
+            'salt': (0, self.target_salt_g)
         }
 
-        # Average values for nutrients over time
         self.nutrient_averages = {k: 0.0 for k in self.nutrient_target_ranges.keys()}
 
-        # Group categories
-        self.Group_A_veg = ingredient_df['Group A veg'].values.astype(np.float32)
-        self.Group_A_fruit = ingredient_df['Group A fruit'].values.astype(np.float32)
-        self.Group_B = ingredient_df['Group B'].values.astype(np.float32)
-        self.Group_C = ingredient_df['Group C'].values.astype(np.float32)
-        self.Group_D = ingredient_df['Group D'].values.astype(np.float32)
-        self.Group_E = ingredient_df['Group E'].values.astype(np.float32)
-        self.Bread = ingredient_df['Bread'].values.astype(np.float32)
-        self.Confectionary = ingredient_df['Confectionary'].values.astype(np.float32)
+    def _initialize_group_categories(self, ingredient_df) -> None:
+        self.group_a_veg = ingredient_df['Group A veg'].values.astype(np.float32)
+        self.group_a_fruit = ingredient_df['Group A fruit'].values.astype(np.float32)
+        self.group_bc = ingredient_df['Group BC'].values.astype(np.float32)
+        self.group_d = ingredient_df['Group D'].values.astype(np.float32)
+        self.group_e = ingredient_df['Group E'].values.astype(np.float32)
+        self.bread = ingredient_df['Bread'].values.astype(np.float32)
+        self.confectionary = ingredient_df['Confectionary'].values.astype(np.float32)
+    
 
-        # Ingredient day group targets: from UK school meal regulation
-        # Define group target ranges
+    def _initialize_group_targets(self) -> None:
         self.ingredient_group_count_targets = {
-            'fruit': 1,  # 1 fruit a day per meal
-            'veg': 1,  # 1 veg per day per meal
-            'non_processed_protein': 0.5,  # Portion of non processed protein has to be provided accept if a portion of processed protein is provided. This current env is one day meal selection.
-            'processed_protein': 0.5,  # Processed protein, see above ^
-            'carbs': 1,  # Starchy food , a portion of this should be provided every day
-            'dairy': 1,  # Dairy, a portion of this should be provided every day
-            'bread': 1,  # Bread should be provided as well as a portion of starchy food
-            'confectionary': 0  # No confectionary should be provided
+            'fruit': 1,
+            'veg': 1,
+            'protein': 1,
+            'carbs': 1,
+            'dairy': 1,
+            'bread': 1,
+            'confectionary': 0
         }
         
-        self.ingredient_group_portion_targets = {
-            'fruit': (40, 110),
-            'veg': (40, 110),
-            'non_processed_protein': (70, 150),
-            'processed_protein': (70, 150),
-            'carbs': (25, 300),
-            'dairy': (20, 200),
-            'bread': (40, 90),
-            'confectionary': (0, 0)
-            }
+        # self.ingredient_group_portion_targets = {
+        #     'fruit': (40, 110),
+        #     'veg': (40, 110),
+        #     'protein': (70, 150),
+        #     'carbs': (25, 300),
+        #     'dairy': (20, 200),
+        #     'bread': (40, 90),
+        #     'confectionary': (0, 50)
+        # }
         
-        # Count of ingredient groups
+        self.ingredient_group_portion_targets = {
+            'fruit': (20, 400),
+            'veg': (20, 400),
+            'protein': (20, 400),
+            'carbs': (20, 400),
+            'dairy': (20, 400),
+            'bread': (20, 400),
+            'confectionary': (0, 50)
+        }
+
+
+        self.group_info = {
+            'fruit': {'indexes': np.nonzero(self.group_a_veg)[0], 'probability': 0.8},
+            'veg': {'indexes': np.nonzero(self.group_a_fruit)[0], 'probability': 0.8},
+            'protein': {'indexes': np.nonzero(self.group_bc)[0], 'probability': 0.8},
+            'carbs': {'indexes': np.nonzero(self.group_d)[0], 'probability': 0.8},
+            'dairy': {'indexes': np.nonzero(self.group_e)[0], 'probability': 0.8},
+            'bread': {'indexes': np.nonzero(self.bread)[0], 'probability': 0.8},
+            'confectionary': {'indexes': np.nonzero(self.confectionary)[0], 'probability': 0.01}
+        }
+
+    def _initialize_environmental_ratings(self, ingredient_df) -> None:
+        self.rating_to_int = {'A': 1, 'B': 0.5, 'C': 0, 'D': -0.5, 'E': -1}
+        self.animal_welfare_rating = np.array([self.rating_to_int[val] for val in ingredient_df['Animal Welfare Rating'].values], dtype=np.float32)
+        self.rainforest_rating = np.array([self.rating_to_int[val] for val in ingredient_df['Rainforest Rating'].values], dtype=np.float32)
+        self.water_scarcity_rating = np.array([self.rating_to_int[val] for val in ingredient_df['Water Scarcity Rating'].values], dtype=np.float32)
+        self.co2_fu_rating = np.array([self.rating_to_int[val] for val in ingredient_df['CO2 FU Rating'].values], dtype=np.float32)
+        self.co2_g = {'co2_g': 0.0}
+        self.co2_g_per_1g = ingredient_df['CO2_g_per_100g'].values.astype(np.float32) / 100
+        self.target_co2_g_per_meal = 900  # Temporary CO2 target
+
+    def _initialize_consumption_data(self, ingredient_df) -> None:
+        self.mean_g_per_day = ingredient_df['Mean_g_per_day'].values.astype(np.float32)
+        self.standard_deviation = ingredient_df['StandardDeviation'].values.astype(np.float32)
+        self.coefficient_of_variation = ingredient_df['Coefficient of Variation'].values.astype(np.float32)
+
+    def _initialize_cost_data(self, ingredient_df) -> None:
+        self.cost_per_1g = ingredient_df['Cost_100g'].values.astype(np.float32) / 100
+        self.menu_cost = {'cost': 0.0}
+        self.target_cost_per_meal = 2
+
+    def _initialize_selection_variables(self) -> None:
+        self.all_indices = list(self.ingredient_df.index)
+        self.current_selection = np.zeros(self.n_ingredients, dtype=np.float32)
         self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count_targets.keys()}
-        # Count of ingredient group portions
-        self.ingredient_group_portion = {k: 0 for k in self.ingredient_group_portion_targets.keys()}
-
-        # Environment
-        # A - E ratings - converted to a mapping 1 - 5
-        # Define the mapping dictionary
-        rating_to_int = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5}
-
-        # Apply the mapping to the 'Animal Welfare Rating' column
-        self.Animal_Welfare_Rating = np.array([rating_to_int[val] for val in ingredient_df['Animal Welfare Rating'].values], dtype=np.float32)
-        self.Rainforest_Rating = np.array([rating_to_int[val] for val in ingredient_df['Rainforest Rating'].values], dtype=np.float32)
-        self.Water_Scarcity_Rating = np.array([rating_to_int[val] for val in ingredient_df['Water Scarcity Rating'].values], dtype=np.float32)
-        self.CO2_FU_Rating = np.array([rating_to_int[val] for val in ingredient_df['CO2 FU Rating'].values], dtype=np.float32)
-
-        # CO2 values
-        self.CO2_g_per_1g = ingredient_df['CO2_g_per_100g'].values.astype(np.float32) / 100  # Retrieve the data and convert to per gram
-
-        self.target_CO2_g_per_meal = 500  # Target max CO2 g per meal
-
-        # For A - E ratings will be converted to numbers an average will be taken for each env target
+        self.ingredient_group_portion = {k: 0.0 for k in self.ingredient_group_portion_targets.keys()}
         self.ingredient_environment_count = {
             'animal_welfare': 0,
             'rainforest': 0,
             'water': 0,
-            'CO2_rating': 0,
-            'CO2_g': 0,
+            'co2_rating': 0,
         }
-
-        # Consumption data
-        self.Mean_g_per_day = ingredient_df['Mean_g_per_day'].values.astype(np.float32)
-        self.StandardDeviation = ingredient_df['StandardDeviation'].values.astype(np.float32)
-        self.Coefficient_of_Variation = ingredient_df['Coefficient of Variation'].values.astype(np.float32)
-
         self.consumption_average = {
             'average_mean_consumption': 0.0,
             'average_cv_ingredients': 0.0
         }
-
-        # Cost data
-        self.Cost_per_1g = ingredient_df['Cost_100g'].values.astype(np.float32) / 100
-        self.menu_cost = 0.0
-        self.target_cost_per_meal = 2  # Estimated target cost per meal
-
-        self.render_mode = render_mode
-        self.initial_ingredients = initial_ingredients if initial_ingredients is not None else []
-        self.n_ingredients = len(ingredient_df)
-        self.episode_count = 1
-
-        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(self.n_ingredients,), dtype=np.float32)
-        
-        # Define the observation space based on selected reward metrics
-        obs_shape = self.n_ingredients
-        if 'nutrients' in self.reward_metrics:
-            obs_shape += len(self.nutrient_averages.keys())
-        if 'groups' in self.reward_metrics:
-            obs_shape += len(self.ingredient_group_count.keys())
-        if 'environment' in self.reward_metrics:
-            obs_shape += len(self.ingredient_environment_count.keys())
-        if 'cost' in self.reward_metrics:
-            obs_shape += 1
-        if 'consumption' in self.reward_metrics:
-            obs_shape += len(self.consumption_average.keys())
-
-        self.observation_space = spaces.Box(
-            low=0,
-            high=1000,
-            shape=(obs_shape,),
-            dtype=np.float32
-        )
-
-        self.current_selection = np.zeros(self.n_ingredients)
-        
-        self.termination = 0
-
-        # Create an empty reward dictionary
-        self.reward_dict = {
-            'nutrient_rewards': {},
-            'ingredient_group_count_rewards': {},
-            'ingredient_environment_count_rewards': {},
-            'cost_rewards': {},
-            'consumption_rewards': {},
-            'targets_not_met': {}
-        }
-        
-        # Initialize the counters for targets not met
         self.target_not_met_counters = Counter()
+        self.total_quantity_ratio = self.current_selection / (sum(self.current_selection) + 1e-9)
         
-    def calculate_reward(self):
-        
-        step_penalty = -1  # Negative reward for each step taken
+    def _create_index_value_mapping(self) -> None:
+        """
+        Generate evenly spaced values between 0 and 1 for ingredient indices.
+        Creates a mapping of original indices to new values.
+        """
+        new_values = np.linspace(0, 1, self.n_ingredients)
+        self.index_value_mapping = {i: new_values[i] for i in range(self.n_ingredients)}
+        # Adding case for when ingredients are not selected yet
+        self.index_value_mapping[-1] = -1
+
+    def _get_reward_calculator(self, reward_calculator_type: str):
+        reward_calculator_mapping = {
+            'shaped': reward.ShapedRewardCalculator,
+            'sparse': reward.SparseRewardCalculator,
+            # Add other mappings as needed
+        }
+        return reward_calculator_mapping[reward_calculator_type]
+    
+    def _initialize_observation_space(self) -> None:
+        """
+        Define the observation space for the environment.
+        The observation space is a dictionary containing various components such as:
+        current selection values, indices, time feature, nutrient values, group counts, environment counts, cost, and CO2 emissions.
+        """
+        self.observation_space = spaces.Dict({
+            'current_selection_value': spaces.Box(low=0, high=1000, shape=(self.max_ingredients,), dtype=np.float64),
+            'current_selection_index': spaces.Box(low=-1, high=1, shape=(self.max_ingredients,), dtype=np.float64),
+            'time_feature': spaces.Box(low=0, high=self.max_episode_steps, shape=(1,), dtype=np.float64),
+            'nutrients': spaces.Box(low=0, high=3000, shape=(len(self.nutrient_averages),), dtype=np.float64),
+            'groups': spaces.Box(low=0, high=self.max_ingredients, shape=(len(self.ingredient_group_count),), dtype=np.float64),
+            'environment_counts': spaces.Box(low=-1, high=1, shape=(len(self.ingredient_environment_count),), dtype=np.float64),
+            'cost': spaces.Box(low=0, high=10, shape=(1,), dtype=np.float64),
+            'co2_g': spaces.Box(low=0, high=5000, shape=(1,), dtype=np.float64),
+            'consumption': spaces.Box(low=0, high=100, shape=(len(self.consumption_average),), dtype=np.float64)
+        })
+
+    def _calculate_reward(self) -> tuple:
+        """
+        Calculate the reward for the current state of the environment.
+        Rewards are calculated based on multiple factors like nutrient values, ingredient group counts, environmental impact, cost, and consumption.
+        The function also checks for termination conditions based on these factors.
+        """
         reward = 0
         terminated = False
         
-        # Identify non-dairy ingredients as measured sugars are excluding dairy sugars
-        non_dairy_mask = self.ingredient_df['Category7'] != 'Group E'
+        # Calculate metrics for the current selection
+        self._get_metrics()
+        # Initialize reward dictionary
+        self._initialize_rewards()
         
-        # Calculate the total values for each nutritional category for the selected ingredients
-        self.nutrient_averages = {
-            'calories': sum(self.caloric_values * self.current_selection),
-            'fat': sum(self.Fat_g * self.current_selection),
-            'saturates': sum(self.Saturates_g * self.current_selection),
-            'carbs': sum(self.Carbs_g * self.current_selection),
-            'sugar': sum(self.Sugars_g * self.current_selection * non_dairy_mask), # Exclude dairy sugars
-            'fibre': sum(self.Fibre_g * self.current_selection),
-            'protein': sum(self.Protein_g * self.current_selection),
-            'salt': sum(self.Salt_g * self.current_selection)
-        }
-        
-        non_zero_mask = self.current_selection != 0
+        # Calculate reward and check for termination conditions every 25 steps
+        if self.nsteps % 25 == 0 and self.nsteps > 0:
+            # Evaluate rewards for each metric and calculate if the episode is terminated or not
+            terminated = self._evaluate_rewards()
+            reward += self._sum_reward_values()
+
+        return reward, terminated
     
-        # Calculate the total values for each nutritional category for the selected ingredients
-        non_zero_values = {
-            'fruit': self.Group_A_fruit * non_zero_mask,
-            'veg': self.Group_A_veg * non_zero_mask,
-            'non_processed_protein': self.Group_B * non_zero_mask,
-            'processed_protein': self.Group_C * non_zero_mask,
-            'carbs': self.Group_D * non_zero_mask,
-            'dairy': self.Group_E * non_zero_mask,
-            'bread': self.Bread * non_zero_mask,
-            'confectionary': self.Confectionary * non_zero_mask,
-        }
-
-        # Count ingredient group counts
-        self.ingredient_group_count = {key: sum(values) for key, values in non_zero_values.items()}
-
-        # Calculate the ingredient group portion sizes
-        self.ingredient_group_portion = {key: sum(values * self.current_selection) for key, values in non_zero_values.items()}
-
-        
-        # Calculate environmental counts
-        self.ingredient_environment_count = {
-            'animal_welfare': round(sum(self.Animal_Welfare_Rating * non_zero_mask) / self.max_ingredients),
-            'rainforest': round(sum(self.Rainforest_Rating * non_zero_mask) / self.max_ingredients),
-            'water': round(sum(self.Water_Scarcity_Rating * non_zero_mask) / self.max_ingredients),
-            'CO2_rating': round(sum(self.CO2_FU_Rating * non_zero_mask) / self.max_ingredients),
-            'CO2_g': sum(self.CO2_g_per_1g * self.current_selection),
-        }
-        
-        # Calculate the total cost of the selected ingredients
-        self.menu_cost = sum(self.Cost_per_1g * self.current_selection)
-        
-        
-        # Calculate the consumption stats
-        self.consumption_average = {
-            'average_mean_consumption': sum(non_zero_mask * self.Mean_g_per_day) / self.max_ingredients,
-            'average_cv_ingredients': sum(non_zero_mask * self.Coefficient_of_Variation) / self.max_ingredients
-        }
-    
-        # Initialize reward components as zero
-        nutrient_rewards = {k: 0 for k in self.nutrient_averages.keys()}
-        ingredient_group_count_rewards = {k: 0 for k in self.ingredient_group_count.keys()}
-        ingredient_environment_count_rewards = {k: 0 for k in self.ingredient_environment_count.keys()}
-        cost_rewards = {'from_target': 0}
-        
-        consumption_rewards = {
-                                'average_mean_consumption': 0,
-                                'cv_penalty': 0
-                              }
-        
-        # Initialize target met flags for the case if metrics are not requested
-        group_targets_met = True
-        environment_targets_met = True
-        cost_targets_met = True
-        consumption_targets_met = True
-        nutrition_targets_met = True
-        
-        # List to keep track of values far from target
-        nutrient_far_flag_list = []
-
-        # Calculate rewards for each selected metric
-        if 'nutrients' in self.reward_metrics:
-            nutrient_rewards, nutrition_targets_met, nutrient_far_flag_list = nutrient_reward(self, nutrient_rewards, nutrient_far_flag_list)
-
-        if 'groups' in self.reward_metrics:
-            ingredient_group_count_rewards, group_targets_met = group_count_reward(self, ingredient_group_count_rewards)
-
-        if 'environment' in self.reward_metrics:
-            ingredient_environment_count_rewards, environment_targets_met = environment_count_reward(self, ingredient_environment_count_rewards)
-        
-        if 'cost' in self.reward_metrics:
-            cost_rewards, cost_targets_met = cost_reward(self, cost_rewards)
+    def _sum_reward_values(self) -> float:
+        # Sum the reward dictionary values to get the total reward
+        return sum(value for subdict in self.reward_dict.values() if isinstance(subdict, dict) for value in subdict.values() if isinstance(value, (int, float))) + \
+            sum(value for value in self.reward_dict.values() if isinstance(value, (int, float)))
             
-        if 'consumption' in self.reward_metrics:
-            consumption_rewards, consumption_targets_met = consumption_reward(self, consumption_rewards)
+    def _get_metrics(self) -> None:
+        """
+        Calculate various metrics based on the current selection of ingredients.
+        Metrics include nutrient averages, ingredient group counts and portions, environmental impact, cost, and consumption averages.
+        """
+        self.total_quantity_ratio = self.current_selection / (sum(self.current_selection) + 1e-9)
+        self.nutrient_averages = self._calculate_nutrient_averages()
+        non_zero_mask = self.current_selection != 0
+        non_zero_values = self._calculate_non_zero_values(non_zero_mask)
+        self.ingredient_group_count = self._sum_dict_values(non_zero_values)
+        self.ingredient_group_portion = self._sum_dict_values(non_zero_values, multiply_with=self.current_selection)
+        self.ingredient_environment_count = self._calculate_ingredient_environment_count()
+        self.menu_cost = self._calculate_cost()
+        self.co2_g = self._calculate_co2g()
+        self.consumption_average = self._calculate_consumption_average()
 
-        # Determine if the episode is terminated based on the calculated rewards
-        terminated, reward, targets_not_met = termination_reason(
-            self,
-            nutrition_targets_met,
-            group_targets_met,
-            environment_targets_met,
-            cost_targets_met,
-            consumption_targets_met,
-            nutrient_far_flag_list,
-            reward
+    def _calculate_nutrient_averages(self) -> dict:
+        """
+        Calculate the average values of various nutrients based on the current selection of ingredients.
+        Returns a dictionary of nutrient averages.
+        """
+        return {
+            'calories': sum(self.caloric_values * self.current_selection),
+            'fat': sum(self.fat_g * self.current_selection),
+            'saturates': sum(self.saturates_g * self.current_selection),
+            'carbs': sum(self.carbs_g * self.current_selection),
+            'sugar': sum(self.sugars_g * self.current_selection),
+            'fibre': sum(self.fibre_g * self.current_selection),
+            'protein': sum(self.protein_g * self.current_selection),
+            'salt': sum(self.salt_g * self.current_selection)
+        }
+
+    def _calculate_non_zero_values(self, non_zero_mask: np.ndarray) -> dict:
+        """
+        Calculate non-zero values for ingredient groups based on the current selection mask.
+        Returns a dictionary of non-zero values for each ingredient group.
+        """
+        return {
+            'fruit': self.group_a_fruit * non_zero_mask,
+            'veg': self.group_a_veg * non_zero_mask,
+            'protein': self.group_bc * non_zero_mask,
+            'carbs': self.group_d * non_zero_mask,
+            'dairy': self.group_e * non_zero_mask,
+            'bread': self.bread * non_zero_mask,
+            'confectionary': self.confectionary * non_zero_mask,
+        }
+
+    def _sum_dict_values(self, data: dict, multiply_with: np.ndarray = None) -> dict:
+        """
+        Sum values in a dictionary, optionally multiplying each value with a corresponding array.
+        If multiply_with is provided, it multiplies each value with the corresponding element in multiply_with before summing.
+        Returns a dictionary of summed values.
+        """
+        if multiply_with is None:
+            return {key: sum(values) for key, values in data.items()}
+        else:
+            return {key: sum(values * multiply_with) for key, values in data.items()}
+
+
+    def _calculate_ingredient_environment_count(self) -> dict:
+        """
+        Calculate the environmental impact counts for the current selection of ingredients.
+        Returns a dictionary of rounded environmental ratings for each impact category.
+        """
+        def _round_to_nearest_rating(value: float) -> float:
+            values = list(self.rating_to_int.values())
+            closest_value = min(values, key=lambda x: abs(x - value))
+            return closest_value
+                
+        return {
+            'animal_welfare': _round_to_nearest_rating(sum(self.animal_welfare_rating * self.total_quantity_ratio)),
+            'rainforest': _round_to_nearest_rating(sum(self.rainforest_rating * self.total_quantity_ratio)),
+            'water': _round_to_nearest_rating(sum(self.water_scarcity_rating * self.total_quantity_ratio)),
+            'co2_rating': _round_to_nearest_rating(sum(self.co2_fu_rating * self.total_quantity_ratio)),
+        }
+
+    def _calculate_consumption_average(self) -> dict:
+        """
+        Calculate the average consumption values based on the current selection of ingredients.
+        Returns a dictionary of average mean consumption and coefficient of variation.
+        """
+        return {
+            'average_mean_consumption': sum(self.mean_g_per_day * self.total_quantity_ratio),
+            'average_cv_ingredients': sum(self.coefficient_of_variation * self.total_quantity_ratio)
+        }
+
+    def _calculate_cost(self) -> dict:
+        """
+        Calculate the total cost based on the current selection of ingredients.
+        Returns a dictionary with the total cost.
+        """
+        return {
+            'cost': sum(self.cost_per_1g * self.current_selection),
+        }
+        
+    def _calculate_co2g(self) -> dict:
+        """
+        Calculate the total CO2 emissions based on the current selection of ingredients.
+        Returns a dictionary with the total CO2 emissions.
+        """
+        return {
+            'co2_g': sum(self.co2_g_per_1g * self.current_selection),
+        }
+
+    def _initialize_rewards(self) -> None:
+        """
+        Initialize the reward dictionary with default values.
+        Each reward component is set to zero.
+        """
+        self.reward_dict = {}
+        self.reward_dict['nutrient_reward'] = {k: 0 for k in self.nutrient_averages.keys()}
+        self.reward_dict['ingredient_group_count_reward'] = {k: 0 for k in self.ingredient_group_count.keys()}
+        self.reward_dict['ingredient_environment_count_reward'] = {k: 0 for k in self.ingredient_environment_count.keys()}
+        self.reward_dict['cost_reward'] = {'cost': 0}
+        self.reward_dict['co2g_reward'] = {'co2_g': 0}
+        self.reward_dict['consumption_reward'] = {'average_mean_consumption': 0, 'cv_penalty': 0}
+        self.reward_dict['targets_not_met'] = []
+        self.reward_dict['termination_reward'] = 0
+        self.reward_dict['step_penalty'] = 0
+
+    def _evaluate_rewards(self) -> bool:
+        """
+        Evaluate the rewards based on the current state of the environment.
+        Calculates rewards for each metric and checks if termination conditions are met.
+        Returns a boolean indicating if the episode should be terminated.
+        """
+        # Initialize flags for target metrics
+        target_flags = {
+            'Nutrition': True,
+            'Group': True,
+            'Environment': True,
+            'Cost': True,
+            'Consumption': True,
+            'CO2G': True
+        }
+
+        termination_reasons = []  # List to store reasons for termination
+
+        # Iterate through each reward in the reward dictionary
+        for reward in self.reward_dict.keys():
+            # Skip step penalty, targets not met, and termination reward rewards
+            if reward in ['step_penalty', 'targets_not_met', 'termination_reward']:
+                continue
+            
+            # Get the corresponding reward function from the RewardCalculator
+            method = self.reward_to_function_mapping[reward]
+
+            reward_func = getattr(self.reward_calculator, method)
+            
+            # Calculate the reward, targets met, and termination condition for the current reward
+            self.reward_dict[reward], targets_met, terminate = reward_func(self)
+            
+            # Update the target met flags and termination reasons based on the reward
+            self._update_flags_and_reasons(reward, targets_met, terminate, target_flags, termination_reasons)
+            
+        # Determine if the episode should be terminated based on the overall targets and reasons
+        terminated, self.reward_dict['termination_reward'], failed_targets = self.reward_calculator.determine_termination(
+            self, target_flags, termination_reasons
         )
+        # Store the targets not met in the reward dictionary
+        self.reward_dict['targets_not_met'] = failed_targets
 
-        # Create and update reward dictionary
-        self.reward_dict = {
-            'nutrient_rewards': nutrient_rewards,
-            'ingredient_group_count_rewards': ingredient_group_count_rewards,
-            'ingredient_environment_count_rewards': ingredient_environment_count_rewards,
-            'cost_rewards': cost_rewards,
-            'consumption_rewards': consumption_rewards,
-            'targets_not_met': targets_not_met
+        # Set step penalty to zero
+        self.reward_dict['step_penalty'] = 0
+        
+        return terminated
+
+    def _update_flags_and_reasons(self, reward: str, targets_met: bool, terminate: bool, target_flags: dict, termination_reasons: list) -> None:
+        """
+        Helper function to update target flags and termination reasons based on the reward.
+        """
+        reward_to_flag = {
+            'nutrient_reward': 'Nutrition',
+            'ingredient_group_count_reward': 'Group',
+            'ingredient_environment_count_reward': 'Environment',
+            'cost_reward': 'Cost',
+            'consumption_reward': 'Consumption',
+            'co2g_reward': 'CO2G'
         }
 
-        # Calculate total reward
-        reward += sum(nutrient_rewards.values()) + \
-                  sum(ingredient_group_count_rewards.values()) + \
-                  sum(ingredient_environment_count_rewards.values()) + \
-                  sum(consumption_rewards.values()) + \
-                  sum(cost_rewards.values()) + \
-                  step_penalty
+        if reward in reward_to_flag:
+            flag = reward_to_flag[reward]
+            target_flags[flag] = targets_met
+            if terminate:
+                termination_reasons.append(f"{flag.lower()}_terminate")
+        else:
+            raise ValueError(f"Reward Type: {reward} not found in RewardCalculator.")
 
-        info = self._get_info()
 
-        return reward, info, terminated
-
-    def reset(self, seed=None, options=None):
+    def reset(self, seed: int = None, options: dict = None) -> tuple:
+        """
+        Reset the environment to its initial state.
+        Resets the episode count, steps, and initializes the selection of ingredients.
+        Also resets the rewards and renders the environment if required.
+        """
+        # If verbosity level is greater than 1, print the final plan and portion sizes
+        if self.verbose > 1:
+            current_meal_plan, _, _ = self.get_current_meal_plan()
+            print(f"\nFinal plan (Step: {self.nsteps}): {current_meal_plan}")
+            print(f"\nFinal portion size of groups (Step: {self.nsteps}): {self.ingredient_group_portion}"),
+        
+        # Call the parent class's reset method with the provided seed
         super().reset(seed=seed)
-        
-        self.current_selection = np.zeros(self.n_ingredients, dtype=np.float32)
 
+        # Reset the number of steps taken to 0
+        self.nsteps = 0
+        
+        # Increment the episode count
         self.episode_count += 1
-        
-        self.nutrient_averages = {k: 0 for k in self.nutrient_averages.keys()}
-        
-        self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count.keys()}
-        
-        self.ingredient_environment_count = {k: 0 for k in self.ingredient_environment_count.keys()}
-        
-        self.termination = 0
-        
-        # Create an empty reward dictionary
-        self.reward_dict = {
-            'nutrient_rewards': {},
-            'ingredient_group_count_rewards': {},
-            'ingredient_environment_count_rewards': {},
-            'cost_rewards': {},
-            'consumption_rewards': {},
-            'targets_not_met': {}
-        }
 
-        observation = self._get_obs()
-        
-        info = self._get_info()
+        # Initialize the selection of ingredients and reset metrics to initial values
+        self._initialize_current_selection()
 
+        # Reset rewards to zero for each metric
+        self._initialize_rewards()
+
+        # If render mode is 'human', render the environment
         if self.render_mode == 'human':
             self.render()
 
-        return observation, info
+        # Return the initial observation and information
+        return self._get_obs(), self._get_info()
 
-    def step(self, action):
+    def step(self, action: np.ndarray) -> tuple:
+        """
+        Execute one time step within the environment.
+        Updates the current selection of ingredients based on the action taken.
+        Calculates the reward and checks for termination conditions.
+        Returns the new observation, reward, termination flag, truncated flag, and additional info.
+        """
+        terminated = False  # Initialize termination flag
+
+        # Increment the number of steps taken
+        self.nsteps += 1
         
-        action = np.clip(action, -1, 1)  # Ensure actions are within bounds
-
-        change = action * self.action_scaling_factor
+        # Clip the action values to be within the range [-1, 1]
+        action = np.clip(action, -1, 1)
         
-        self.current_selection = np.maximum(0, self.current_selection + change)
-
-        num_selected_ingredients = np.sum(self.current_selection > 0)
-
-        if num_selected_ingredients > self.max_ingredients:
-            excess_indices = np.argsort(-self.current_selection)
-            self.current_selection[excess_indices[self.max_ingredients:]] = 0
-
-        reward, info, terminated = self.calculate_reward()  # Use the stored reward function
+        self._validate_and_process_action(action)
         
-        obs = self._get_obs()
-            
-        if self.render_mode is not None:
-            pass
-            
-        info = self._get_info()
-        
-        return obs, reward, terminated, False, info
+        # Calculate the reward and check for termination conditions
+        reward, terminated = self._calculate_reward()
+
+        # Return the new observation, reward, termination flag, truncated flag, and additional info
+        return self._get_obs(), reward, terminated, False, self._get_info()
     
-    def _get_obs(self):
-        obs_parts = []
-        if 'nutrients' in self.reward_metrics:
-            obs_parts.append(list(self.nutrient_averages.values()))
-        if 'groups' in self.reward_metrics:
-            obs_parts.append(list(self.ingredient_group_count.values()))
-        if 'environment' in self.reward_metrics:
-            obs_parts.append(list(self.ingredient_environment_count.values()))
-        if 'cost' in self.reward_metrics:
-            obs_parts.append([self.menu_cost])
-        if 'consumption' in self.reward_metrics:
-            obs_parts.append(list(self.consumption_average.values()))
-        obs_parts.append(self.current_selection)
+    def _validate_and_process_action(self, action: np.ndarray) -> None:
+        """
+        Validate the action shape and process the action to update the current selection.
+        """
+        # Validate action shape
+        self.validate_action_shape(action)
         
-        obs = np.concatenate(obs_parts).astype(np.float32)
+        # Process the action to update the current selection
+        self.update_selection(action)
+    
+    def _get_obs(self) -> dict:
+        """
+        Get the current observation of the environment.
+        Includes various components such as current selection values, indices, time feature, nutrient values, group counts, environment counts, cost, and CO2 emissions.
+        Returns the observation dictionary.
+        """
+        # Get current meal plan details
+        _, current_selection_index, current_selection_value = self.get_current_meal_plan()
+        
+        # Map the current selection index to new values
+        mapped_index_value = [self.index_value_mapping[index] for index in current_selection_index]
+        
+        # Calculate the time feature as a fraction of steps remaining
+        time_feature = 1 - (self.nsteps / self.max_episode_steps)
+
+        # Create the observation dictionary with various components
+        obs = {}
+        obs['current_selection_value'] = np.array(current_selection_value, dtype=np.float64)
+        obs['current_selection_index'] = np.array(mapped_index_value, dtype=np.float64)
+        obs['time_feature'] = np.array([time_feature], dtype=np.float64)
+        obs['nutrients'] = np.array(list(self.nutrient_averages.values()), dtype=np.float64)
+        obs['groups'] = np.array(list(self.ingredient_group_count.values()), dtype=np.float64)
+        obs['environment_counts'] = np.array(list(self.ingredient_environment_count.values()), dtype=np.float64)
+        obs['cost'] = np.array(list(self.menu_cost.values()), dtype=np.float64)
+        obs['co2_g'] = np.array(list(self.co2_g.values()), dtype=np.float64)
+        obs['consumption'] = np.array(list(self.consumption_average.values()), dtype=np.float64)
+
         return obs
 
-    def _get_info(self):
-        # Update the counter dictionary for targets not met
+    def _get_info(self) -> dict:
+        """
+        Get additional information about the current state of the environment.
+        Includes nutrient averages, ingredient group counts, environmental impact, cost, CO2 emissions, rewards, group portions, targets not met count, and the current meal plan.
+        Returns the info dictionary.
+        """
+        # Update the counters for targets not met with the current reward dictionary values
         self.target_not_met_counters.update(self.reward_dict['targets_not_met'])
+        
+        # Get current meal plan details
+        current_meal_plan, _, _ = self.get_current_meal_plan()
 
-        # Check if all values in the counter dictionary have reached 10,000
-        if all(value >= 100000 for value in self.target_not_met_counters.values()):
-            # Reset all values to zero
-            self.target_not_met_counters = Counter({key: 0 for key in self.target_not_met_counters.keys()})
-
-        # Compute nonzero indices once
-        nonzero_indices = np.nonzero(self.current_selection)
-
-        # Compute nonzero indices once
-        nonzero_indices = np.nonzero(self.current_selection)
-
-        # Construct the info dictionary
+        # Create the info dictionary with various components
         info = {
             'nutrient_averages': self.nutrient_averages,
             'ingredient_group_count': self.ingredient_group_count,
             'ingredient_environment_count': self.ingredient_environment_count,
             'consumption_average': self.consumption_average,
             'cost': self.menu_cost,
+            'co2_g': self.co2_g,
             'reward': self.reward_dict,
-            'current_selection': self.current_selection[nonzero_indices],
-            'selected_ingredients': self.ingredient_df['Category7'].iloc[nonzero_indices],
-            'termination_reason': self.termination,
-            'targets_not_met_count': dict(self.target_not_met_counters)
+            'group_portions': self.ingredient_group_portion,
+            'targets_not_met_count': dict(self.target_not_met_counters),
+            'current_meal_plan': current_meal_plan
         }
+
         return info
 
-
-
-    def render(self, step=None):
-        if self.render_mode == 'human':
-            print(f"Step: {step}")
-            print(f"Average Calories per Day")
+    def render(self) -> None:
+        """
+        Render the current state of the environment.
+        Displays the current step or episode based on the render mode.
+        """
         if self.render_mode == 'step':
-            if step is not None:
-                print(f"Step: {step}")
-        if self.render_mode == "episode":
+            print(f"Step: {self.nsteps}")
+        if self.render_mode == "human":
             print(f"Episode: {self.episode_count}")
 
-    def close(self):
+    def close(self) -> None:
+        """
+        Perform any necessary cleanup.
+        """
         pass
+
+    def get_current_meal_plan(self) -> tuple:
+        """
+        Get the current meal plan based on the selected ingredients.
+        Ensures that the number of selected ingredients matches the max_ingredients.
+        Returns the current meal plan, non-zero indices, and non-zero values.
+        """
+        current_meal_plan = {}
+
+        # Get non-zero indices and values
+        nonzero_indices = np.nonzero(self.current_selection)[0]
+        nonzero_values = self.current_selection[nonzero_indices]
+
+        # Ensure the number of selected ingredients matches max_ingredients
+        num_selected_ingredients = len(nonzero_indices)
+
+        if num_selected_ingredients < self.max_ingredients:
+            # Calculate the number of zeros needed
+            zeros_needed = self.max_ingredients - num_selected_ingredients
+
+            # Create an array of zero values to fill the remaining spaces
+            zero_values = np.zeros(zeros_needed, dtype=self.current_selection.dtype)
+
+            # Append zero values to the selected values
+            filled_values = np.concatenate((nonzero_values, zero_values))
+
+            # For indices, append -1 to indicate these are zero-filled entries
+            filled_indices = np.concatenate((nonzero_indices, -1 * np.ones(zeros_needed, dtype=int)))
+        else:
+            filled_values = nonzero_values
+            filled_indices = nonzero_indices
+
+        # Create the current meal plan dictionary with category values
+        for idx, value in zip(filled_indices, filled_values):
+            if idx != -1:  # Ignore the padded indices
+                category_value = self.ingredient_df['Category7'].iloc[idx]
+                current_meal_plan[category_value] = value
+
+        return current_meal_plan, filled_indices, filled_values
+        
+    def _initialize_current_selection(self) -> None:
+        """
+        Initialize the selection of ingredients based on the chosen strategy.
+        Supports different initialization strategies like 'perfect', 'zero', and 'probabilistic'.
+        Updates the current selection and calculates initial metrics.
+        """
+        self.current_selection = np.zeros(self.n_ingredients, dtype=np.float32)
+        
+        self.current_selection = self.ingredient_initializer.initialize_selection(self)
+
+        # Verbose output to show the initialized plan
+        if self.verbose > 1:
+            current_meal_plan, _, _ = self.get_current_meal_plan()
+            print(f"Initialized plan: {current_meal_plan}")
+
+        # Calculate initial metrics and update observations
+        self._get_metrics()
+        self._get_obs()
+    
+    # Methods to be overridden
+    def validate_action_shape(self, action: np.ndarray) -> None:
+        pass
+    
+    def update_selection(self, action: np.ndarray) -> None:
+        pass
+    
+    def initialize_action_space(self) -> None:
+        pass
+        
+
+
+# Register the environment
+register(
+    id='SchoolMealSelection-v1',
+    entry_point='models.envs.env:SchoolMealSelectionContinuous',
+    max_episode_steps=100
+)
+
+class SchoolMealSelectionContinuous(BaseEnvironment):
+    """
+    A custom Gym environment for selecting school meals that meet certain nutritional and environmental criteria.
+    The environment allows actions to adjust the quantity of ingredients and calculates rewards based on multiple metrics,
+    such as nutrient values, environmental impact, cost, and consumption patterns.
+    """
+    metadata = {"render_modes": ["human"], 'render_fps': 1}
+
+    def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
+                 verbose: int = 0, seed: int = None, reward_calculator_type: str = 'sparse', 
+                 initialization_strategy: str = 'zero', max_episode_steps: int = 100):
+        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_calculator_type, initialization_strategy, max_episode_steps)
+
+    def initialize_action_space(self) -> None:
+        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(self.n_ingredients,), dtype=np.float32)
+        
+    def update_selection(self, action: np.ndarray) -> None:
+        """
+        Update the current selection of ingredients based on the action.
+        """
+        # Apply the action scaling factor to the action and update the current selection
+        change = action * self.action_scaling_factor
+        self.current_selection = np.maximum(0, self.current_selection + change)
+        # Ensure that the number of selected ingredients does not exceed the maximum allowed
+        num_selected_ingredients = np.sum(self.current_selection > 0)
+        if num_selected_ingredients > self.max_ingredients:
+            excess_indices = np.argsort(-self.current_selection)
+            self.current_selection[excess_indices[self.max_ingredients:]] = 0
+            
+    def validate_action_shape(self, action: np.ndarray) -> None:
+        """
+        Validate the shape of the action array.
+        """
+        if self.verbose > 1:
+            if not isinstance(action, np.ndarray) or action.shape != (self.n_ingredients,):
+                raise ValueError(f"Expected action to be an np.ndarray of shape {(self.n_ingredients,)}, but got {type(action)} with shape {action.shape}")
+            if action.shape != self.action_space.shape:
+                raise ValueError(f"Action shape {action.shape} is not equal to action space shape {self.action_space.shape}")
+
+
+# Register the environment
+register(
+    id='SchoolMealSelection-v2',
+    entry_point='models.envs.env:SchoolMealSelectionDiscrete',
+    max_episode_steps=100
+)
+
+class SchoolMealSelectionDiscrete(BaseEnvironment):
+    """
+    A custom Gym environment for selecting school meals that meet certain nutritional and environmental criteria.
+    The environment allows actions to adjust the quantity of ingredients and calculates rewards based on multiple metrics,
+    such as nutrient values, environmental impact, cost, and consumption patterns.
+    """
+    metadata = {"render_modes": ["human"], 'render_fps': 1}
+
+    def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
+                 verbose: int = 0, seed: int = None, reward_calculator_type: str = 'sparse', 
+                 initialization_strategy: str = 'zero', max_episode_steps: int = 100):
+        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_calculator_type, initialization_strategy, max_episode_steps)
+
+    def initialize_action_space(self) -> None:
+        self.action_space = gym.spaces.MultiDiscrete([4] * self.n_ingredients)
+        
+    def update_selection(self, action: np.ndarray) -> None:
+        """
+        Update the current selection of ingredients based on the action.
+        """
+        for i in range(len(action)):
+            if action[i] == 0:
+                self.current_selection[i] = 0
+            elif action[i] == 1:
+                continue  # No change
+            elif action[i] == 2:
+                self.current_selection[i] = max(0, self.current_selection[i] - self.action_scaling_factor)
+            elif action[i] == 3:
+                self.current_selection[i] += self.action_scaling_factor
+        print(action)
+        # Ensure that the number of selected ingredients does not exceed the maximum allowed
+        num_selected_ingredients = np.sum(self.current_selection > 0)
+        if num_selected_ingredients > self.max_ingredients:
+            excess_indices = np.argsort(-self.current_selection)
+            self.current_selection[excess_indices[self.max_ingredients:]] = 0
+            print("Current_selection was cut")
+            
+    def validate_action_shape(self, action: np.ndarray) -> None:
+        """
+        Validate the shape of the action array.
+        """
+        if self.verbose > 1:
+            if not isinstance(action, np.ndarray) or action.shape != (self.n_ingredients,):
+                raise ValueError(f"Expected action to be an np.ndarray of shape {(self.n_ingredients,)}, but got {type(action)} with shape {action.shape}")
+            if action.shape != self.action_space.shape:
+                raise ValueError(f"Action shape {action.shape} is not equal to action space shape {self.action_space.shape}")
 
 
 if __name__ == '__main__':
     from utils.process_data import get_data
     from gymnasium.utils.env_checker import check_env
-    from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage, plot_reward_distribution
-    reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '.json')
-    
-    # Define arguments
+    from gymnasium.wrappers import TimeLimit
+    from stable_baselines3.common.monitor import Monitor
+    from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage, plot_reward_distribution, set_seed
+    reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '')
+    from models.envs.env import SchoolMealSelectionContinuous
     class Args:
-        reward_metrics = ['nutrients', 'groups', 'environment', 'consumption', 'cost']
         render_mode = None
-        num_envs = 8
+        num_envs = 2
         plot_reward_history = True
-        max_episode_steps = 1000
+        max_episode_steps = 100
         verbose = 2
-    ingredient_df = get_data()
-    
+        action_scaling_factor = 10
+        memory_monitor = True
+        gamma = 0.99
+        max_ingredients = 6
+        action_scaling_factor = 10
+        reward_save_interval = 1000
+        vecnorm_norm_obs = True
+        vecnorm_norm_reward = True
+        vecnorm_clip_obs = 10
+        vecnorm_clip_reward = 10
+        vecnorm_epsilon = 1e-8 
+        vecnorm_norm_obs_keys = None
+        ingredient_df = get_data("small_data.csv")
+        seed = 10
+        env_name = 'SchoolMealSelection-v2'
+        initialization_strategy = 'zero'
+        vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
+        reward_calculator_type = 'shaped'
     args = Args()
-    seed = None
+
     num_episodes = 500
     
-    
     reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
-    env = setup_environment(args, seed, ingredient_df, reward_save_path=reward_save_path, eval=False)
     
-    check_env(env.unwrapped.envs[0].unwrapped)
-    print("Environment is valid!")
+    env = setup_environment(args, reward_save_path=reward_save_path, eval=False)
+    
+    check_env(env.envs[0].unwrapped)
 
+    print("Environment is valid!")
+    
+    del env
+
+    env_kwargs = {
+        "ingredient_df": args.ingredient_df,
+        "max_ingredients": args.max_ingredients,
+        "action_scaling_factor": args.action_scaling_factor,
+        "render_mode": args.render_mode,
+        "seed": args.seed,
+        'initialization_strategy': args.initialization_strategy,
+        "verbose": args.verbose,
+        "reward_calculator_type":  args.reward_calculator_type
+        }
+
+    from models.wrappers.common import RewardTrackingWrapper
+    
+    def make_env():
+        env = gym.make(args.env_name, **env_kwargs)
+        # Apply the RewardTrackingWrapper if needed
+        if args.plot_reward_history:
+            if reward_save_path is None:
+                raise ValueError("reward_save_path must be specified when plot_reward_history is True")
+            env = RewardTrackingWrapper(
+                env,
+                args.reward_save_interval,
+                reward_save_path,
+                )
+        env = TimeLimit(env, max_episode_steps=100)
+        env = Monitor(env)
+        return env     
+
+    env = make_env()
     np.set_printoptions(suppress=True)
 
-    # Start the memory monitoring in a separate thread
-    import threading
-    monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
-    monitoring_thread.start()
+    if args.memory_monitor:
+        import threading
+        monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
+        monitoring_thread.start()
 
     for episode in range(num_episodes):
-        obs = env.reset()
         if episode % 100 == 0:
-            print(f"Episode {episode}")
+            print(f"Episode {episode + 1}")
 
-        for step in range(args.max_episode_steps):
-            action = env.action_space.sample()
-            obs, rewards, dones, infos = env.step(action)
-            
-            # VecEnv will return arrays of values
-            terminated = dones[0]
-            truncated = infos[0].get('TimeLimit.truncated', False)
-            targets_met = infos[0].get('all_targets_met', False)
-            
+        terminated = False
+        truncated = False
+        n_steps = 0
+        obs = env.reset()
+        while not terminated and not truncated:
+            actions = env.action_space.sample()
+            n_steps += 1
+            obs, reward, terminated, truncated, info = env.step(actions)
 
-            if terminated or truncated:
-                break
     env.close()
-        # Access the underlying RewardTrackingWrapper for saving rewards
+        # print(f"Episode {episode + 1} completed in {n_steps} steps.")
+
     if args.plot_reward_history:
-        # Save reward distribution
-        # Plotting data from all envs though as they agregate to the same file
         reward_prefix = reward_prefix.split(".")[0]
         dir, pref = get_unique_directory(reward_dir, f"{reward_prefix}_plot", '.png')
         plot_path = os.path.abspath(os.path.join(dir, pref))

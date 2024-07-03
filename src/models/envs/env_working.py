@@ -1,12 +1,11 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-from collections import Counter
-from models.reward.reward_sparse_shaped_nutrient import RewardCalculator
 import os
-import random
+from collections import Counter
+from models.reward import reward
 from gymnasium.envs.registration import register
-
+from models.initialization.initialization import IngredientSelectionInitializer
 
 # Register the environment
 register(
@@ -22,7 +21,7 @@ class SchoolMealSelection(gym.Env):
     """
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=10, render_mode=None, verbose=0, seed=None, initialization_strategy='zero', max_episode_steps=1000):
+    def __init__(self, ingredient_df, max_ingredients=6, action_scaling_factor=10, render_mode=None, verbose=0, seed=None, reward_calculator_type='sparse', initialization_strategy='zero' , max_episode_steps=100):
         super().__init__()
 
         self._initialize_parameters(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, initialization_strategy, max_episode_steps)
@@ -35,10 +34,10 @@ class SchoolMealSelection(gym.Env):
         self._initialize_consumption_data(ingredient_df)
         self._initialize_cost_data(ingredient_df)
         self._initialize_selection_variables()
-
+        self.reward_calculator = self._get_reward_calculator(reward_calculator_type)
+        self.ingredient_initializer = IngredientSelectionInitializer()
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(self.n_ingredients,), dtype=np.float32)
         self._initialize_observation_space()
-        self._initialize_current_selection()
 
         self.reward_to_function_mapping = {
             'nutrient_reward': 'calculate_nutrient_reward',
@@ -48,6 +47,7 @@ class SchoolMealSelection(gym.Env):
             'consumption_reward': 'calculate_consumption_reward',
             'co2g_reward': 'calculate_co2g_reward',
         }
+        
         self.reward_to_metric_mapping = {
             'nutrient_reward': 'nutrients',
             'ingredient_group_count_reward': 'groups',
@@ -71,7 +71,7 @@ class SchoolMealSelection(gym.Env):
         self.render_mode = render_mode
         self.episode_count = -1
         self.nsteps = 0
-
+        
     def _initialize_nutrient_values(self, ingredient_df):
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values.astype(np.float32) / 100
         self.fat_g = ingredient_df['Fat_g'].values.astype(np.float32) / 100
@@ -166,8 +166,8 @@ class SchoolMealSelection(gym.Env):
         self.target_cost_per_meal = 2
 
     def _initialize_selection_variables(self):
-        self.all_indices = list(self.ingredient_df.index) 
-        self._initialize_current_selection()
+        self.all_indices = list(self.ingredient_df.index)
+        self.current_selection = np.zeros(self.n_ingredients, dtype=np.float32)
         self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count_targets.keys()}
         self.ingredient_group_portion = {k: 0.0 for k in self.ingredient_group_portion_targets.keys()}
         self.ingredient_environment_count = {
@@ -191,6 +191,13 @@ class SchoolMealSelection(gym.Env):
         new_values = np.linspace(0, 1, self.n_ingredients)
         self.index_value_mapping = {i: new_values[i] for i in range(self.n_ingredients)}
 
+    def _get_reward_calculator(self, reward_calculator_type: str):
+        reward_calculator_mapping = {
+            'shaped': reward.ShapedRewardCalculator,
+            'sparse': reward.SparseRewardCalculator,
+            # Add other mappings as needed
+        }
+        return reward_calculator_mapping[reward_calculator_type]
     
     def _initialize_observation_space(self):
         """
@@ -224,6 +231,7 @@ class SchoolMealSelection(gym.Env):
         # Initialize reward dictionary
         self._initialize_rewards()
         
+        # Calculate reward and check for termination conditions every 25 steps
         if self.nsteps % 25 == 0 and self.nsteps > 0:
             # Evaluate rewards for each metric and calculate if the episode is terminated or not
             terminated = self._evaluate_rewards()
@@ -384,20 +392,21 @@ class SchoolMealSelection(gym.Env):
             
             # Get the corresponding reward function from the RewardCalculator
             method = self.reward_to_function_mapping[reward]
-            reward_func = getattr(RewardCalculator, method)
+
+            reward_func = getattr(self.reward_calculator, method)
             
             # Calculate the reward, targets met, and termination condition for the current reward
             self.reward_dict[reward], targets_met, terminate = reward_func(self)
             
             # Update the target met flags and termination reasons based on the reward
             self._update_flags_and_reasons(reward, targets_met, terminate, target_flags, termination_reasons)
-
+            
         # Determine if the episode should be terminated based on the overall targets and reasons
-        terminated, self.reward_dict['termination_reward'], targets_not_met = RewardCalculator.determine_termination(
+        terminated, self.reward_dict['termination_reward'], failed_targets = self.reward_calculator.determine_termination(
             self, target_flags, termination_reasons
         )
         # Store the targets not met in the reward dictionary
-        self.reward_dict['targets_not_met'] = targets_not_met
+        self.reward_dict['targets_not_met'] = failed_targets
 
         # Set step penalty to zero
         self.reward_dict['step_penalty'] = 0
@@ -621,24 +630,9 @@ class SchoolMealSelection(gym.Env):
         Supports different initialization strategies like 'perfect', 'zero', and 'probabilistic'.
         Updates the current selection and calculates initial metrics.
         """
-        self.current_selection = np.zeros(self.n_ingredients)  # Set all current selections to zero
-        # Select the initialization strategy
-        if self.initialization_strategy == 'perfect':
-            # Initialize selection using the 'perfect' strategy
-            selected_indices, selected_counts = self._initialize_current_selection_perfect()
-        elif self.initialization_strategy == 'zero':
-            # Initialize selection with all zeros
-            selected_counts = {category: 0 for category in self.ingredient_group_count_targets}  # Ensure selected_counts is defined
-        elif self.initialization_strategy == 'probabilistic':
-            # Initialize selection using the 'probabilistic' strategy
-            selected_indices, selected_counts = self._initialize_current_selection_probabilistic()
-        else:
-            # Raise an error if the initialization strategy is invalid
-            raise ValueError(f"Invalid value for initialization strategy: {self.initialization_strategy}")
-
-        # If the initialization strategy is not 'zero', assign values to the selected indices
-        if self.initialization_strategy != "zero":
-            self._assign_values_to_selected_indices(selected_indices, selected_counts)
+        self.current_selection = np.zeros(self.n_ingredients, dtype=np.float32)
+        
+        self.current_selection = self.ingredient_initializer.initialize_selection(self)
 
         # Verbose output to show the initialized plan
         if self.verbose > 1:
@@ -649,90 +643,20 @@ class SchoolMealSelection(gym.Env):
         self._get_metrics()
         self._get_obs()
 
-    def _initialize_current_selection_perfect(self):
-        """
-        Initialize the selection of ingredients using the 'perfect' strategy.
-        Selects the indices that meet the ingredient group count targets.
-        Returns the selected indices and their counts per group.
-        """
-        rng = random.Random(None)  # Create a random number generator instance
-        selected_indices = []  # List to store selected indices
-        selected_counts = {category: 0 for category in self.ingredient_group_count_targets}  # Dictionary to keep count of selected indices per category
-        num_indices_to_select = min(self.max_ingredients, self.n_ingredients)  # Determine the number of indices to select
-
-        total_target_count = sum(self.ingredient_group_count_targets.values())  # Calculate the total target count
-        if total_target_count > num_indices_to_select:
-            raise ValueError(f"Total target counts {total_target_count} exceed max ingredients {num_indices_to_select}")
-
-        # Select indices based on group targets
-        for key, value in self.ingredient_group_count_targets.items():
-            for _ in range(value):
-                selected_index = rng.choice(self.group_info[key]['indexes'])  # Randomly select an index for the group
-                selected_indices.append(selected_index)
-                selected_counts[key] += 1
-
-        # If fewer indices selected than max_ingredients, randomly select remaining indices
-        if num_indices_to_select < self.max_ingredients:
-            remaining_indices = set(self.all_indices) - set(selected_indices)  # Calculate remaining indices
-            selected_indices.extend(rng.sample(remaining_indices, num_indices_to_select - total_target_count))  # Add remaining indices
-        return selected_indices, selected_counts  # Return selected indices and counts
-
-    def _initialize_current_selection_probabilistic(self):
-        """
-        Initialize the selection of ingredients using the 'probabilistic' strategy.
-        Randomly selects the indices and updates the counts per group.
-        Returns the selected indices and their counts per group.
-        """
-        rng = random.Random(None)  # Create a random number generator instance
-        selected_indices = rng.sample(self.all_indices, min(self.max_ingredients, self.n_ingredients))  # Randomly select indices
-        selected_counts = {category: 0 for category in self.ingredient_group_count_targets}  # Dictionary to keep count of selected indices per category
-        
-        # Update the selected counts for each category
-        for idx in selected_indices:
-            for category, info in self.group_info.items():
-                if idx in info['indexes']:
-                    selected_counts[category] += 1
-                    break
-
-        return selected_indices, selected_counts  # Return selected indices and counts
-
-    def _assign_values_to_selected_indices(self, selected_indices, selected_counts):
-        """
-        Assign values to the selected indices based on the group portion targets.
-        """
-        rng = random.Random(None)  # Create a random number generator instance
-        values_to_assign = []  # List to store values to be assigned
-
-        # Generate values for selected indices based on group portion targets
-        for group, count in selected_counts.items():
-            if count > 0:
-                for _ in range(count):
-                    value = rng.randint(*self.ingredient_group_portion_targets[group])  # Assign values within the group portion target range
-                    while value == 0:
-                        value = rng.randint(*self.ingredient_group_portion_targets[group])
-                    values_to_assign.append(value)
-
-        # Assign the generated values to the selected indices
-        for idx, value in zip(selected_indices, values_to_assign):
-            self.current_selection[idx] = value
-
-        if len(values_to_assign) > 6:
-            raise ValueError(f"Values to assign: {values_to_assign}")
-
 if __name__ == '__main__':
     from utils.process_data import get_data
     from gymnasium.utils.env_checker import check_env
-    from gymnasium.wrappers import TimeLimit, NormalizeObservation, NormalizeReward
+    from gymnasium.wrappers import TimeLimit
     from stable_baselines3.common.monitor import Monitor
     from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage, plot_reward_distribution, set_seed
     reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '')
-
+    from models.envs.env import SchoolMealSelectionContinuous
     class Args:
         render_mode = None
         num_envs = 2
-        plot_reward_history = False
-        max_episode_steps = 1000
-        verbose = 0
+        plot_reward_history = True
+        max_episode_steps = 100
+        verbose = 2
         action_scaling_factor = 10
         memory_monitor = True
         gamma = 0.99
@@ -747,10 +671,10 @@ if __name__ == '__main__':
         vecnorm_norm_obs_keys = None
         ingredient_df = get_data("small_data.csv")
         seed = 10
-        env_name = 'SchoolMealSelection-v0'
-        initialization_strategy = 'probabilistic'
-        vecnorm_norm_obs_keys = ['current_selection_value', 'current_selection_index', 'groups', 'cost', 'environment_counts', 'consumption', 'co2_g', 'nutrients']
-    
+        env_name = 'SchoolMealSelection-v1'
+        initialization_strategy = 'zero'
+        vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
+        reward_calculator_type = 'sparse'
     args = Args()
 
     num_episodes = 1000
@@ -759,10 +683,9 @@ if __name__ == '__main__':
     
     env = setup_environment(args, reward_save_path=reward_save_path, eval=False)
     
-    
-    # check_env(env.envs[0].unwrapped)
+    check_env(env.envs[0].unwrapped)
 
-    # print("Environment is valid!")
+    print("Environment is valid!")
     
     del env
 
@@ -773,12 +696,24 @@ if __name__ == '__main__':
         "render_mode": args.render_mode,
         "seed": args.seed,
         'initialization_strategy': args.initialization_strategy,
-        "verbose": args.verbose
-    }
+        "verbose": args.verbose,
+        "reward_calculator_type":  args.reward_calculator_type
+        }
 
+    from models.wrappers.common import RewardTrackingWrapper
+    
     def make_env():
         env = gym.make(args.env_name, **env_kwargs)
-        env = TimeLimit(env, max_episode_steps=1000)
+        # Apply the RewardTrackingWrapper if needed
+        if args.plot_reward_history:
+            if reward_save_path is None:
+                raise ValueError("reward_save_path must be specified when plot_reward_history is True")
+            env = RewardTrackingWrapper(
+                env,
+                args.reward_save_interval,
+                reward_save_path,
+                )
+        env = TimeLimit(env, max_episode_steps=100)
         env = Monitor(env)
         return env     
 
@@ -803,9 +738,8 @@ if __name__ == '__main__':
             n_steps += 1
             obs, reward, terminated, truncated, info = env.step(actions)
 
-        print(f"Episode {episode + 1} completed in {n_steps} steps.")
-
     env.close()
+        # print(f"Episode {episode + 1} completed in {n_steps} steps.")
 
     if args.plot_reward_history:
         reward_prefix = reward_prefix.split(".")[0]

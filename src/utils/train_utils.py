@@ -8,8 +8,9 @@ from stable_baselines3.common.env_util import make_vec_env
 import torch
 # from models.envs.env import SchoolMealSelection
 from models.envs.env_working import SchoolMealSelection
+from models.envs.env import *
 import os
-from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv, SubprocVecEnv
+from stable_baselines3.common.vec_env import VecNormalize
 from stable_baselines3.common.monitor import Monitor
 from gymnasium.wrappers import TimeLimit
 import psutil

@@ -17,16 +17,20 @@ class RewardTrackingWrapper(gym.Wrapper):
         self.reward_save_path = reward_save_path
         self.reward_history = []
         self.reward_details_history = []
+        
     def step(self, actions):
         obs, reward, terminated, truncated, info = self.env.step(actions)
-        self.reward_history.append(float(reward))
-        reward_dict = info.get('reward', {}).copy()
-        reward_dict_flat = self.flatten_dict(reward_dict)
-        reward_dict_flat = self.convert_specific_values_to_str(reward_dict_flat)
-        self.reward_details_history.append(reward_dict_flat)
         nsteps = self.get_wrapper_attr('nsteps')
-
-        if nsteps % self.save_interval == 0 or nsteps == 1:
+        
+        # Only record reward when it is actually calculated
+        if nsteps % 25 == 0: 
+            self.reward_history.append(float(reward))
+            reward_dict = info.get('reward', {}).copy()
+            reward_dict_flat = self.flatten_dict(reward_dict)
+            reward_dict_flat = self.convert_specific_values_to_str(reward_dict_flat)
+            self.reward_details_history.append(reward_dict_flat)
+        
+        if nsteps % self.save_interval == 0:
             self.save_and_clear()
 
         return obs, reward, terminated, truncated, info
@@ -93,7 +97,9 @@ class RewardTrackingWrapper(gym.Wrapper):
         gc.collect()
 
     def close(self):
-        self.save_and_clear()
+        # Save any remaining data when closing
+        if self.reward_history or self.reward_details_history:
+            self.save_and_clear()
         super(RewardTrackingWrapper, self).close()
 
 
