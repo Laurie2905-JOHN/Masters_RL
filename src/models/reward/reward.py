@@ -98,18 +98,17 @@ class BaseRewardCalculator(ABC):
         failed_targets = [key for key, met in targets.items() if not met]
         termination_reward = 0
 
-        if main_class.nsteps > 25:
-            if not failed_targets:
-                if main_class.verbose > 0:
-                    print(f"All targets met at episode {main_class.episode_count} step {main_class.nsteps}.")
-                terminated = True
-                termination_reward += 100
-            else:
-                reward_per_target_met = 100 / len(targets)
-                termination_reward += reward_per_target_met * (len(targets) - len(failed_targets))
-                if main_class.verbose > 0:
-                    print(f"{len(failed_targets)} targets failed at episode {main_class.episode_count} step {main_class.nsteps}.")
-                terminated = False
+        if not failed_targets:
+            if main_class.verbose > 0:
+                print(f"All targets met at episode {main_class.episode_count} step {main_class.nsteps}.")
+            terminated = True
+            termination_reward += 100
+        else:
+            reward_per_target_met = 100 / len(targets)
+            termination_reward += reward_per_target_met * (len(targets) - len(failed_targets))
+            if main_class.verbose > 0:
+                print(f"{len(failed_targets)} targets failed at episode {main_class.episode_count} step {main_class.nsteps}.")
+            terminated = True
 
         if termination_reasons:
             if main_class.verbose > 1:
