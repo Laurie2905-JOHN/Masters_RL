@@ -2,12 +2,14 @@ import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
 from stable_baselines3 import A2C, PPO
+from sb3_contrib.ppo_mask import MaskablePPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 import os
 from utils.process_data import get_data
-import random 
+from sb3_contrib.common.maskable.utils import get_action_masks
+from sb3_contrib.common.maskable.evaluation import evaluate_policy
 
-def evaluate_model(model, env, num_episodes=10, deterministic=True):
+def evaluate_model(model, env, algo, num_episodes=10, deterministic=True):
     """Evaluate the trained model and collect predictions."""
     predictions = []
 
@@ -17,10 +19,16 @@ def evaluate_model(model, env, num_episodes=10, deterministic=True):
         episode_predictions = []
         counter = 0
 
-        while not done:
+        while True:
             counter += 1
-            action, state = model.predict(obs, state=state, deterministic=deterministic)
+            if algo == "MASKED_PPO":
+                action_masks = get_action_masks(env)
+                action, _states = model.predict(obs, state=state, deterministic=deterministic, action_masks = action_masks)
+            else:
+                action, _states = model.predict(obs, state=state, deterministic=deterministic)
+                
             obs, reward, done, info = env.step(action)
+            
             info = info[0]
 
             if done:
@@ -31,6 +39,7 @@ def evaluate_model(model, env, num_episodes=10, deterministic=True):
                     info['ingredient_environment_count'],
                     info['consumption_average'],
                     info['cost'],
+                    info['co2_g'],
                     info['reward'],
                     info['group_portions'],
                     info['targets_not_met_count'],
@@ -45,41 +54,40 @@ def average_dicts(dicts):
     keys = dicts[0].keys()
     return {key: np.mean([d[key] for d in dicts]) for key in keys}
 
-def get_protein_color(ingredient_group_counts):
-    protein_counter = sum(ingredient_group_counts.get(key, 0) for key in ['non_processed_protein', 'processed_protein'])
-    return 'green' if protein_counter >= 1 else 'red'
-
 def plot_results(predictions, num_episodes):
     """Plot the results from the predictions."""
     flattened_predictions = [pred for episode in predictions for pred in episode]
 
-    nutrient_averages, ingredient_group_counts, ingredient_environment_counts, consumption_averages, costs, _, _, _, current_meal_plan = zip(*flattened_predictions)
+    nutrient_averages, ingredient_group_counts, ingredient_environment_counts, consumption_averages, costs, co2_g, _, _, _, current_meal_plan = zip(*flattened_predictions)
     avg_nutrient_averages = average_dicts(nutrient_averages)
     avg_ingredient_group_counts = average_dicts(ingredient_group_counts)
     avg_ingredient_environment_counts = average_dicts(ingredient_environment_counts)
     avg_consumption_averages = average_dicts(consumption_averages)
     avg_cost = average_dicts(costs)
-    avg_consumption_averages['avg_cost'] = avg_cost['menu_cost']
+    avg_co2_g = average_dicts(co2_g)
+    
+    avg_consumption_averages['cost'] = avg_cost['cost']
+    avg_consumption_averages['co2_g'] = avg_co2_g['co2_g']
 
     targets = {
         'nutrients': {
             'calories': (530, 'range'), 'fat': (20.6, 'max'), 'saturates': (6.5, 'max'),
             'carbs': (70.6, 'min'), 'sugar': (15.5, 'max'), 'fibre': (4.2, 'min'),
-            'protein': (7.5, 'min'), 'salt': (0.499, 'max')
+            'protein': (7.5, 'min'), 'salt': (1, 'max')
         },
         'ingredient_groups': {
-            'fruit': (1, 'min'), 'veg': (1, 'min'), 'non_processed_protein': (1, 'min'),
-            'processed_protein': (1, 'min'), 'carbs': (1, 'min'), 'dairy': (1, 'min'),
+            'fruit': (1, 'min'), 'veg': (1, 'min'), 'protein': (1, 'min'),
+            'carbs': (1, 'min'), 'dairy': (1, 'min'),
             'bread': (1, 'min'), 'confectionary': (0, 'max')
         },
         'ingredient_environment': {
-            'animal_welfare': (1, 'min'), 'rainforest': (1, 'min'), 'water': (1, 'min'),
-            'CO2_rating': (1, 'min'), 'CO2_g': (500, 'max')
+            'animal_welfare': (0.5, 'min'), 'rainforest': (0.5, 'min'), 'water': (0.5, 'min'),
+            'co2_rating': (0.5, 'min')
         },
-        'consumption': {
-            'average_mean_consumption': (0, 'min'), 'average_cv_ingredients': (0, 'min'),
-            'avg_cost': (2, 'max')
-        }
+        'consumption_cost_co2_g': {
+            'average_mean_consumption': (5.8, 'min'), 'average_cv_ingredients': (8.5, 'min'),
+            'cost': (2, 'max'), 'co2_g': (800, 'max'),
+        },
     }
 
     fig = plt.figure(figsize=(16, 8))
@@ -93,14 +101,15 @@ def plot_results(predictions, num_episodes):
         labels = list(data.keys())
         values = list(data.values())
         
-        protein_color = get_protein_color(avg_ingredient_group_counts)
         
         colors = [
-            protein_color if label in ['non_processed_protein', 'processed_protein'] 
-            else ('red' if (targets and ((targets[label][1] == 'max' and value > targets[label][0]) or 
-                                        (targets[label][1] == 'min' and value < targets[label][0]) or 
-                                        (targets[label][1] == 'range' and (value <= targets[label][0] * 0.9 or value >= targets[label][0] * 1.1))))
-                else 'green')
+            'red' if (
+                targets and (
+                    (targets[label][1] == 'max' and value > targets[label][0]) or 
+                    (targets[label][1] == 'min' and value < targets[label][0]) or 
+                    (targets[label][1] == 'range' and (value <= targets[label][0] * 0.9 or value >= targets[label][0] * 1.1))
+                )
+            ) else 'green'
             for label, value in zip(labels, values)
         ]
 
@@ -119,7 +128,7 @@ def plot_results(predictions, num_episodes):
     plot_bars(axs[0], avg_nutrient_averages, 'Nutrient Average Over ', targets['nutrients'])
     plot_bars(axs[1], avg_ingredient_group_counts, 'Ingredient Group Count Average Over ', targets['ingredient_groups'], rotation=25)
     plot_bars(axs[2], avg_ingredient_environment_counts, 'Ingredient Environment Count Average Over ', targets['ingredient_environment'])
-    plot_bars(axs[3], avg_consumption_averages, 'Consumption and Cost Averages Over ', targets['consumption'])
+    plot_bars(axs[3], avg_consumption_averages, 'Consumption and Cost Averages Over ', targets['consumption_cost_co2_g'])
     num_plots = min(len(current_meal_plan), 4)
     
     for i in range(num_plots):
@@ -148,17 +157,30 @@ def plot_results(predictions, num_episodes):
 
 
 class Args:
-    env_name = "SchoolMealSelection-v0"
-    reward_metrics = "nutrients,groups,environment,cost,consumption"
+    algo = "MASKED_PPO"
     render_mode = None
     num_envs = 1
     plot_reward_history = False
     max_episode_steps = 1000
-    verbose = 2
-    ingredient_df = get_data('medium_data.csv')
+    verbose = 3
+    action_scaling_factor = 10
+    memory_monitor = True
+    gamma = 0.99
     max_ingredients = 6
-    action_scaling_factor = 20
-    seed = 1994152466
+    action_scaling_factor = 10
+    reward_save_interval = 1000
+    vecnorm_norm_obs = True
+    vecnorm_norm_reward = True
+    vecnorm_clip_obs = 10
+    vecnorm_clip_reward = 10
+    vecnorm_epsilon = 1e-8 
+    vecnorm_norm_obs_keys = None
+    ingredient_df = get_data("data.csv")
+    seed = 10
+    env_name = 'SchoolMealSelection-v2'
+    initialization_strategy = 'zero'
+    vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
+    reward_type = 'shaped'
     
 def main():
     args = Args()
@@ -166,9 +188,9 @@ def main():
     from utils.train_utils import setup_environment, get_unique_directory
     from utils.process_data import get_data  # Ensure this import is correct
     
-    basepath = os.path.abspath(f"saved_models/evaluation/best_models")
+    basepath = os.path.abspath(f"saved_models/evaluation/best_models/new_env")
 
-    filename = "SchoolMealSelection_v1_A2C_30000000_8env_nutrients_groups_environment_cost_consumption_seed_1994152466"    
+    filename = "SchoolMealSelection_v2_MASKED_PPO_reward_type_shaped_3000000_4env_env_best_seed_576538709"    
 
     # if len(filename.split("_")) < 2:
     #     seed = random.randint(0, 1000)
@@ -177,7 +199,7 @@ def main():
 
     env = setup_environment(args, eval=True)
 
-    norm_path = os.path.join(basepath, filename, "vec_normalize_best.pkl")
+    norm_path = os.path.join(basepath, filename, "vecnormalize_best.pkl")
     env = VecNormalize.load(norm_path, env)
     
     env.training = False
@@ -191,11 +213,17 @@ def main():
     model_path = os.path.join(basepath, filename, "best_model.zip")
     
     custom_objects = {'lr_schedule': dummy_lr_schedule}
-    model = A2C.load(model_path, env=env, custom_objects=custom_objects)
+    
+    if args.algo == 'A2C':
+        model = A2C.load(model_path, env=env, custom_objects=custom_objects)
+    elif args.algo == 'PPO':
+        model = PPO.load(model_path, env=env, custom_objects=custom_objects)
+    elif args.algo == "MASKED_PPO":
+        model = MaskablePPO.load(model_path, env=env, custom_objects=custom_objects)  
 
-    num_episodes = 20
+    num_episodes = 4
 
-    predictions = evaluate_model(model, env, num_episodes, deterministic=True)
+    predictions = evaluate_model(model, env, args.algo, num_episodes, deterministic=False)
 
     plot_results(predictions, num_episodes)
 

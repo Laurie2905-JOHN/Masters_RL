@@ -246,7 +246,7 @@ def load_hyperparams(filepath):
     
 def set_default_prefixes(args):
     # Function to set the default prefixes if not provided
-    no_name = f"{args.env_name}_{args.algo}_reward_type{args.reward_type}_{args.total_timesteps}_{args.num_envs}env".replace('-', '_')
+    no_name = f"{args.env_name}_{args.algo}_reward_type_{args.reward_type}_{args.total_timesteps}_{args.num_envs}env".replace('-', '_')
 
     if args.log_prefix is None:
         args.log_prefix = no_name

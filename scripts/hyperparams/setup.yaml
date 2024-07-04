@@ -4,12 +4,12 @@ max_ingredients: 6
 action_scaling_factor: 10
 
 algo: MASKED_PPO
-num_envs: 3
+num_envs: 4
 
 render_mode: null
 data_name: 'data'
 total_timesteps: 3000000
-save_freq: 100000
+save_freq: 1000
 
 log_dir: saved_models/tensorboard
 save_dir: saved_models/checkpoints
