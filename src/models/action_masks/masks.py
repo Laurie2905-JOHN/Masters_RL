@@ -7,7 +7,9 @@ def mask_fn1(self) -> np.ndarray:
     # Cache necessary attributes
     n_ingredients = self.env.get_wrapper_attr('n_ingredients')  # Number of ingredients
     
-    self.get_metrics()  # Ensure metrics are up-to-date
+    get_metrics = self.env.get_wrapper_attr('get_metrics')  # Number of ingredients
+    
+    get_metrics()  # Ensure metrics are up-to-date
     
     # Get current state attributes
     ingredient_group_count = self.env.get_wrapper_attr('ingredient_group_count')  # Current count of each ingredient group
@@ -18,7 +20,7 @@ def mask_fn1(self) -> np.ndarray:
     if get_env_name_from_class(self) != 'SchoolMealSelectionDiscreteDone':
         extra_action = 3 # First 3 for actions, rest for ingredients
     else:
-        extra_action = 5 # First 4 for actions on ingredients, rest for ingredient selection
+        extra_action = 6 # First 4 for actions on ingredients, rest for ingredient selection
     
     # Initialize action mask with zeros
     action_mask = np.zeros(extra_action + n_ingredients, dtype=np.int8)  
@@ -68,12 +70,12 @@ def ingredient_action(self, all_group_target_met, action_mask):
             action_mask[:3] = [0, 0, 1]  # Only allow the "increase" action otherwise
     else:
         # Extra done action if this env
-        # ALlow all actions to be taken on an ingredient if all group targets are met and nsteps is greater than 25 [zero, decrease, increase]
+        # ALlow all actions to be taken on an ingredient if all group targets are met and nsteps is greater than 25 [zero, do_nothing, decrease, increase]
         if all_group_target_met and nsteps > 50:
-            action_mask[:5] = [1, 1, 1, 1, 1]  # Allow all actions if all group targets are met and steps > 25
+            action_mask[:6] = [1, 1, 1, 1, 1, 1]  # Allow all actions if all group targets are met and steps > 60, 
         else:
             # If group targets are not met, only allow the increase action as only ingredients which are needed for group target will be selected
-            action_mask[:5] = [0, 0, 1, 1, 0]  # Only allow the "increase" action and no done signal
+            action_mask[:6] = [0, 0, 0, 1, 1, 0]  # Only allow the "increase" action and no done signal
     return action_mask
     
 def get_env_name_from_class(self):

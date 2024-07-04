@@ -34,7 +34,7 @@ seed: null
 device: auto
 memory_monitor: false
 pretrained_checkpoint_path: null
-verbose: 0
+verbose: 3
 
 
 

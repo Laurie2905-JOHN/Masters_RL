@@ -822,7 +822,7 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
 
     def initialize_action_space(self) -> None:
         # [zero, decrease, increase] [selected ingredient to perform action] [done signal]
-        self.action_space = gym.spaces.MultiDiscrete([3, 2, self.n_ingredients])
+        self.action_space = gym.spaces.MultiDiscrete([4, 2, self.n_ingredients])
         
     def validate_process_action_calculate_reward(self, action: np.ndarray) -> tuple:
         """
@@ -856,9 +856,11 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
             
         if action[0] == 0:
             self.current_selection[action[2]] = 0 # zero value
-        elif action[0] == 1: # Decrease
+        if action[0] == 1:
+            pass # Do nothing
+        elif action[0] == 2: # Decrease
             self.current_selection[action[2]] = max(0, self.current_selection[action[2]] - self.action_scaling_factor)
-        elif action[0] == 2: # Increase
+        elif action[0] == 3: # Increase
             self.current_selection[action[2]] += self.action_scaling_factor
             
         # Ensure current selection isnt greater than max_ingredients
