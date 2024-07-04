@@ -153,15 +153,25 @@ def main(args):
     except Exception as e:
         print(f"Error loading model: {e}")
 
-    
 # Entry point of the script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent on an environment")
-    parser.add_argument("--hyperparams_dir", type=str, default="scripts/hyperparams", help="Path to the hyperparameters YAML file")
+    parser.add_argument("--hyperparams_file", type=str, default="scripts/hyperparams/setup.yaml", help="Path to the hyperparameters YAML file")
     args = parser.parse_args()
+    
+    ALGO_YAML_MAP = {
+    'A2C': 'scripts/hyperparams/a2c.yaml',
+    'PPO': 'scripts/hyperparams/ppo.yaml',
+    'MASKED_PPO': 'scripts/hyperparams/masked_ppo.yaml'
+}
 
+    VEC_NORMALIZE_YAML = 'scripts/hyperparams/vec_normalize.yaml'
+    SETUP_YAML = 'setup.yaml'
+    
     # Load setup file
-    setup_params = load_yaml(os.path.join(args.hyperparams_dir, SETUP_YAML))
+    # setup_params = load_yaml(os.path.join(args.hyperparams_dir, SETUP_YAML))
+    # Load setup file
+    setup_params = load_yaml(args.hyperparams_file)
     
     # Select the YAML files based on the chosen algorithm
     yaml_file = ALGO_YAML_MAP.get(setup_params['algo'])
@@ -172,11 +182,11 @@ if __name__ == "__main__":
         raise ValueError(f"Unsupported algorithm for environment")
     
     # Load hyperparameters from the selected YAML file
-    algo_hyperparams_dir = os.path.join(args.hyperparams_dir, yaml_file)
+    algo_hyperparams_dir = yaml_file
     algo_hyperparams = load_yaml(algo_hyperparams_dir)
 
     # Load additional parameters
-    vec_normalize_params = load_yaml(os.path.join(args.hyperparams_dir, VEC_NORMALIZE_YAML))
+    vec_normalize_params = load_yaml(os.path.join(VEC_NORMALIZE_YAML))
     
     # Combine all parameters
     hyperparams = {**algo_hyperparams, **vec_normalize_params, **setup_params}

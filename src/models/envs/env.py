@@ -226,21 +226,45 @@ class BaseEnvironment(gym.Env):
             'consumption': spaces.Box(low=0, high=100, shape=(len(self.consumption_average),), dtype=np.float64)
         })
 
-    def calculate_reward(self) -> tuple:
+    def calculate_reward(self) -> tuple:  
+          
         """
-        Calculate the reward for the current state of the environment.
-        Rewards are calculated based on multiple factors like nutrient values, ingredient group counts, environmental impact, cost, and consumption.
-        The function also checks for termination conditions based on these factors.
+        Calculate the rewards based on the current state of the environment.
+        Calculates rewards for each metric and checks if termination conditions are met.
+        Returns a boolean indicating if the episode should be terminated.
         """
-        
-        # Evaluate rewards for each metric and calculate if the episode is terminated or not
-        terminated = self._evaluate_rewards()
-        
-        reward = self._sum_reward_values()
+        # Initialize flags for target metrics
+        target_flags = {
+            'Nutrition': True,
+            'Group': True,
+            'Environment': True,
+            'Cost': True,
+            'Consumption': True,
+            'CO2G': True
+        }
 
-        return reward, terminated
+        termination_reasons = []  # List to store reasons for termination
+
+        # Iterate through each reward in the reward dictionary
+        for reward in self.reward_dict.keys():
+            # Skip step reward, targets not met, and termination reward rewards
+            if reward in ['step_reward', 'targets_not_met', 'termination_reward']:
+                continue
+            
+            # Get the corresponding reward function from the RewardCalculator
+            method = self.reward_to_function_mapping[reward]
+
+            reward_func = getattr(self.reward_calculator, method)
+            
+            # Calculate the reward, targets met, and termination condition for the current reward
+            self.reward_dict[reward], targets_met, terminate = reward_func(self)
+            
+            # Update the target met flags and termination reasons based on the reward
+            termination_reasons, target_flags = self._update_flags_and_reasons(reward, targets_met, terminate, target_flags, termination_reasons)
+            
+        return termination_reasons, target_flags
     
-    def _sum_reward_values(self) -> float:
+    def sum_reward_values(self) -> float:
         # Sum the reward dictionary values to get the total reward
         return sum(value for subdict in self.reward_dict.values() if isinstance(subdict, dict) for value in subdict.values() if isinstance(value, (int, float))) + \
             sum(value for value in self.reward_dict.values() if isinstance(value, (int, float)))
@@ -349,7 +373,7 @@ class BaseEnvironment(gym.Env):
             'co2_g': sum(self.co2_g_per_1g * self.current_selection),
         }
 
-    def _initialize_rewards(self) -> None:
+    def initialize_rewards(self) -> None:
         """
         Initialize the reward dictionary with default values.
         Each reward component is set to zero.
@@ -364,54 +388,6 @@ class BaseEnvironment(gym.Env):
         self.reward_dict['targets_not_met'] = []
         self.reward_dict['termination_reward'] = 0
         self.reward_dict['step_reward'] = 0
-
-    def _evaluate_rewards(self) -> bool:
-        """
-        Evaluate the rewards based on the current state of the environment.
-        Calculates rewards for each metric and checks if termination conditions are met.
-        Returns a boolean indicating if the episode should be terminated.
-        """
-        # Initialize flags for target metrics
-        target_flags = {
-            'Nutrition': True,
-            'Group': True,
-            'Environment': True,
-            'Cost': True,
-            'Consumption': True,
-            'CO2G': True
-        }
-
-        termination_reasons = []  # List to store reasons for termination
-
-        # Iterate through each reward in the reward dictionary
-        for reward in self.reward_dict.keys():
-            # Skip step reward, targets not met, and termination reward rewards
-            if reward in ['step_reward', 'targets_not_met', 'termination_reward']:
-                continue
-            
-            # Get the corresponding reward function from the RewardCalculator
-            method = self.reward_to_function_mapping[reward]
-
-            reward_func = getattr(self.reward_calculator, method)
-            
-            # Calculate the reward, targets met, and termination condition for the current reward
-            self.reward_dict[reward], targets_met, terminate = reward_func(self)
-            
-            # Update the target met flags and termination reasons based on the reward
-            termination_reasons = self._update_flags_and_reasons(reward, targets_met, terminate, target_flags, termination_reasons)
-            
-        # Determine if the episode should be terminated based on the overall targets and reasons
-        terminated, self.reward_dict['termination_reward'], failed_targets = self.reward_calculator.determine_termination(
-            self, target_flags, termination_reasons
-        )
-        # Store the targets not met in the reward dictionary
-        self.reward_dict['targets_not_met'] = failed_targets
-        
-        if terminated:
-            # Add the current length of targets_not_met to the history
-            self.targets_not_met_history.append(len(failed_targets))
-        
-        return terminated
 
     def _update_flags_and_reasons(self, reward: str, targets_met: bool, terminate: bool, target_flags: dict, termination_reasons: list) -> None:
         """
@@ -434,7 +410,7 @@ class BaseEnvironment(gym.Env):
         else:
             raise ValueError(f"Reward Type: {reward} not found in RewardCalculator.")
 
-        return termination_reasons
+        return termination_reasons, target_flags
 
     def reset(self, seed: int = None, options: dict = None) -> tuple:
         """
@@ -462,7 +438,7 @@ class BaseEnvironment(gym.Env):
         self._initialize_current_selection()
 
         # Reset rewards to zero for each metric
-        self._initialize_rewards()
+        self.initialize_rewards()
 
         # If render mode is 'human', render the environment
         if self.render_mode == 'human':
@@ -655,6 +631,30 @@ class BaseEnvironment(gym.Env):
             if action.shape != self.action_space.shape:
                 raise ValueError(f"Action shape {action.shape} is not equal to action space shape {self.action_space.shape}")
     
+    def determine_final_termination_and_reward(self, target_flags):
+        
+        terminated = False
+        
+        # Determine episode termination and reward based on the overall targets and reasons
+        terminated, self.reward_dict['termination_reward'], failed_targets = self.reward_calculator.determine_final_termination(
+            self, target_flags
+        )
+        
+        if terminated:
+            # Add the current length of targets_not_met to the history
+            self.targets_not_met_history.append(len(failed_targets))
+        
+        return terminated
+    
+    def determine_termination(self, termination_reasons):
+        terminated = False
+        if termination_reasons:
+            if self.verbose > 1:
+                print("Termination triggered due to:", ", ".join(termination_reasons))
+            terminated = True
+            self.reward_dict['termination_reward'] = 0
+        return terminated   
+    
     # Methods to be overridden
     def update_and_process_selection(self, action: np.ndarray) -> None:
         pass
@@ -704,7 +704,8 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
     def validate_process_action_calculate_reward(self, action: np.ndarray) -> tuple:
         """
         Process the action to update the current selection and calculate the reward.
-        """ 
+        """
+        
         # Process the action to update the current selection
         self.update_and_process_selection(action)
         
@@ -712,9 +713,17 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
         terminated = False
         
         # Calculate the reward for the action
-        # Here is where the reward is calculated or not
-        reward, terminated = self.calculate_reward()
-            
+        termination_reasons, target_flags = self.calculate_reward()
+        
+        if self.nsteps > 25:
+            terminated = self.determine_termination(termination_reasons)
+        
+        if self.nsteps == self.max_episode_steps-1:
+            # Calculate if terminated and termination reward
+            terminated = self.determine_final_termination_and_reward(target_flags)
+        
+        reward = self.sum_reward_values()
+                 
         return reward, terminated
         
     def update_and_process_selection(self, action: np.ndarray) -> None:
@@ -739,7 +748,7 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
         self.get_metrics()
         
         # Initialize reward dictionary
-        self._initialize_rewards()
+        self.initialize_rewards()
         
         # Print current meal plan if verbosity
         self.print_current_meal_plan()
@@ -772,7 +781,16 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         terminated = False
         
         # Calculate the reward for the action
-        reward, terminated = self.calculate_reward()
+        termination_reasons, target_flags = self.calculate_reward()
+        
+        if self.nsteps > 50:
+            terminated = self.determine_termination(termination_reasons)
+        
+        if self.nsteps == self.max_episode_steps-1:
+            # Calculate if terminated and termination reward
+            terminated = self.determine_final_termination_and_reward(target_flags)
+        
+        reward = self.sum_reward_values()
                  
         return reward, terminated
         
@@ -801,10 +819,11 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         self.get_metrics()
         
         # Initialize reward dictionary
-        self._initialize_rewards()
+        self.initialize_rewards()
         
         # Print current meal plan if verbosity
         self.print_current_meal_plan()
+        
 
 
 class SchoolMealSelectionDiscreteDone(BaseEnvironment):
@@ -835,12 +854,18 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
         reward = 0
         terminated = False
         
-        # Calculate the reward for the action if done signal present in action
-        if action[1] == 1:
-            reward, terminated = self.calculate_reward()
+        # Calculate the reward for the action
+        termination_reasons, target_flags = self.calculate_reward()
         
-        self.print_current_meal_plan()
-            
+        if self.nsteps > 50:
+            terminated = self.determine_termination(termination_reasons)
+        
+        if action[1] == 1:
+            # Calculate if terminated and termination reward
+            terminated = self.determine_final_termination_and_reward(target_flags)
+        
+        reward = self.sum_reward_values()
+                 
         return reward, terminated
             
     def update_and_process_selection(self, action: np.ndarray) -> None:
@@ -870,11 +895,10 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
         self.get_metrics()
         
         # Initialize reward dictionary
-        self._initialize_rewards()
+        self.initialize_rewards()
         
         # Print current meal plan if verbosity
         self.print_current_meal_plan()
-
 
 
 if __name__ == '__main__':

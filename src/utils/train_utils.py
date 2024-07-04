@@ -30,15 +30,6 @@ from sb3_contrib.ppo_mask import MaskablePPO
 from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
 from stable_baselines3 import A2C, PPO
 
-ALGO_YAML_MAP = {
-    'A2C': 'a2c.yaml',
-    'PPO': 'ppo.yaml',
-    'MASKED_PPO': 'masked_ppo.yaml'
-}
-
-VEC_NORMALIZE_YAML = 'vec_normalize.yaml'
-SETUP_YAML = 'setup.yaml'
-
 # Function to set up the environment
 def setup_environment(args, reward_save_path=None, eval=False):
     
@@ -186,25 +177,43 @@ def create_model(args, env, tensorboard_log_dir, seed):
         'policy_kwargs': args.policy_kwargs,
     }
 
-    if args.algo == 'A2C':
-        algo_hyperparams = {
-            'n_steps': args.n_steps,
-            'rms_prop_eps': args.rms_prop_eps,
-            'use_rms_prop': args.use_rms_prop,
-            'use_sde': args.use_sde,
-            'sde_sample_freq': args.sde_sample_freq,
-        }
+    if args.algo == 'A2C' :
+        if args.env_name == 'SchoolMealSelection-v0':
+            algo_hyperparams = {
+                'n_steps': args.n_steps,
+                'rms_prop_eps': args.rms_prop_eps,
+                'use_rms_prop': args.use_rms_prop,
+                'use_sde': args.use_sde,
+                'sde_sample_freq': args.sde_sample_freq,
+            }
+        else:
+            algo_hyperparams = {
+                'n_steps': args.n_steps,
+                'rms_prop_eps': args.rms_prop_eps,
+                'use_rms_prop': args.use_rms_prop,
+            }
     elif args.algo == 'PPO':
-        algo_hyperparams = {
-            'n_steps': args.n_steps,
-            'batch_size': args.batch_size,
-            'n_epochs': args.n_epochs,
-            'clip_range': args.clip_range,
-            'clip_range_vf': args.clip_range_vf,
-            'target_kl': args.target_kl,
-            'use_sde': args.use_sde,
-            'sde_sample_freq': args.sde_sample_freq,
-        }
+        if args.env_name == 'SchoolMealSelection-v0':
+            algo_hyperparams = {
+                'n_steps': args.n_steps,
+                'batch_size': args.batch_size,
+                'n_epochs': args.n_epochs,
+                'clip_range': args.clip_range,
+                'clip_range_vf': args.clip_range_vf,
+                'target_kl': args.target_kl,
+                'use_sde': args.use_sde,
+                'sde_sample_freq': args.sde_sample_freq,
+            }
+        else:
+            algo_hyperparams = {
+                'n_steps': args.n_steps,
+                'batch_size': args.batch_size,
+                'n_epochs': args.n_epochs,
+                'clip_range': args.clip_range,
+                'clip_range_vf': args.clip_range_vf,
+                'target_kl': args.target_kl,
+            }
+            
     elif args.algo == 'MASKED_PPO':
         algo_hyperparams = {
             'n_steps': args.n_steps,

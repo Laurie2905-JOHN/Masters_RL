@@ -1,3 +1,4 @@
+gamma: 0.99
 lr_schedule: linear
 initialization_strategy: 'zero'
 n_steps: 8

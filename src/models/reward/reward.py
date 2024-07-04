@@ -38,6 +38,11 @@ class BaseRewardCalculator(ABC):
     def calculate_step_reward(main_class: Any) -> Tuple[Dict[str, float], bool, bool]:
         pass
     
+    # @staticmethod
+    # @abstractmethod
+    # def determine_termination(main_class: Any, targets: Dict[str, bool], termination_reasons: List[str]) -> Tuple[bool, float, List[str]]:
+    #     pass
+    
     @staticmethod
     def cost_target(main_class: Any) -> bool:
         cost_target_met = main_class.menu_cost['cost'] <= main_class.target_cost_per_meal
@@ -124,7 +129,7 @@ class BaseRewardCalculator(ABC):
         return max(0.1, distance_reward)
     
     @staticmethod
-    def determine_termination(main_class: Any, targets: Dict[str, bool], termination_reasons: List[str]) -> Tuple[bool, float, List[str]]:
+    def determine_final_termination(main_class: Any, targets: Dict[str, bool]) -> Tuple[bool, float, List[str]]:
         
         terminated = False
         failed_targets = [key for key, met in targets.items() if not met]
@@ -141,19 +146,14 @@ class BaseRewardCalculator(ABC):
             if main_class.verbose > 0:
                 print(f"{len(failed_targets)} targets failed at episode {main_class.episode_count} step {main_class.nsteps}.")
             terminated = True
-
-        if termination_reasons:
-            if main_class.verbose > 1:
-                print("Termination triggered due to:", ", ".join(termination_reasons))
-            terminated = True
-
-        if main_class.verbose > 1 and terminated:
-            print('Terminated as metrics are out of bounds')
-            print('Failed targets:', failed_targets)
+            
+        # Store the targets not met in the reward dictionary
+        main_class.reward_dict['targets_not_met'] = failed_targets
             
         return terminated, termination_reward, failed_targets
 
 class ShapedRewardCalculator(BaseRewardCalculator):
+    
     @staticmethod
     def calculate_cost_reward(main_class) -> Tuple[dict, bool, bool]:
         """
@@ -341,6 +341,7 @@ class ShapedRewardCalculator(BaseRewardCalculator):
             
         return main_class.reward_dict['consumption_reward'], consumption_targets_met, terminate
     
+    @staticmethod
     def calculate_step_reward(main_class):
         main_class.reward_dict['step_reward'] = 0
         
@@ -501,6 +502,7 @@ class SparseRewardCalculator(BaseRewardCalculator):
             
         return main_class.reward_dict['consumption_reward'], consumption_targets_met, terminate
     
+    @staticmethod
     def calculate_step_reward(main_class):
         main_class.reward_dict['step_reward'] = 0
         return main_class.reward_dict['step_reward'], True, False
