@@ -1,6 +1,5 @@
 import os
 import gymnasium as gym
-from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 import numpy as np
 import random
 from typing import Union, Callable
@@ -24,6 +23,21 @@ from collections import defaultdict, Counter
 from models.wrappers.common import RewardTrackingWrapper
 from sb3_contrib.common.wrappers import ActionMasker
 from models.action_masks.masks import mask_fn1
+from torch import nn
+import json
+import yaml
+from sb3_contrib.ppo_mask import MaskablePPO
+from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
+from stable_baselines3 import A2C, PPO
+
+ALGO_YAML_MAP = {
+    'A2C': 'a2c.yaml',
+    'PPO': 'ppo.yaml',
+    'MASKED_PPO': 'masked_ppo.yaml'
+}
+
+VEC_NORMALIZE_YAML = 'vec_normalize.yaml'
+SETUP_YAML = 'setup.yaml'
 
 # Function to set up the environment
 def setup_environment(args, reward_save_path=None, eval=False):
@@ -116,14 +130,146 @@ def set_seed(seed, device):
         if device == "cuda":
             torch.cuda.manual_seed_all(seed)
 
-
-
-
+def load_yaml(filepath):
+    with open(filepath, 'r') as file:
+        return yaml.safe_load(file)
     
+# Ensure the specified directory exists, creating it if necessary
+def ensure_dir_exists(directory, verbose=0):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        if verbose > 1:
+            print(f"Warning: Directory {directory} did not exist and was created.")
+
+# Load a pretrained model if a checkpoint is specified
+def load_model(args, env, tensorboard_log_dir, seed):
+    checkpoint_path = os.path.abspath(args.pretrained_checkpoint_path)
+    print(f"Loading model from checkpoint: {checkpoint_path}")
+    checkpoint_dir = os.path.dirname(checkpoint_path)
+    checkpoint_name = os.path.basename(checkpoint_path)
+    steps = checkpoint_name.split("_")[-2]
+    pkl_name = f"{'_'.join(checkpoint_name.split('_')[:-2])}_vecnormalize_{steps}_steps.pkl"
+    pkl_path = os.path.join(checkpoint_dir, pkl_name)
+
+    if os.path.exists(pkl_path):
+        print(f"Loading VecNormalize from: {pkl_path}")
+        env = VecNormalize.load(pkl_path, env)
+    else:
+        print(f"VecNormalize file does not exist: {pkl_path}")
+        return None
+
+    model = {
+        'A2C': A2C.load,
+        'PPO': PPO.load
+    }.get(args.algo, lambda *args, **kwargs: None)(checkpoint_path, env=env, verbose=args.verbose, tensorboard_log=tensorboard_log_dir, device=args.device, seed=seed)
+
+    if model is None:
+        raise ValueError(f"Unsupported algorithm: {args.algo}")
+
+    return model
+
+# Create a new model with the specified algorithm and hyperparameters
+def create_model(args, env, tensorboard_log_dir, seed):
+    common_hyperparams = {
+        'verbose': args.verbose,
+        'tensorboard_log': tensorboard_log_dir,
+        'device': args.device,
+        'seed': seed,
+        'gamma': args.gamma,
+        'learning_rate': args.learning_rate,
+        'ent_coef': args.ent_coef,
+        'vf_coef': args.vf_coef,
+        'max_grad_norm': args.max_grad_norm,
+        'normalize_advantage': args.normalize_advantage,
+        'gae_lambda': args.gae_lambda,
+        'policy_kwargs': args.policy_kwargs,
+    }
+
+    if args.algo == 'A2C':
+        algo_hyperparams = {
+            'n_steps': args.n_steps,
+            'rms_prop_eps': args.rms_prop_eps,
+            'use_rms_prop': args.use_rms_prop,
+            'use_sde': args.use_sde,
+            'sde_sample_freq': args.sde_sample_freq,
+        }
+    elif args.algo == 'PPO':
+        algo_hyperparams = {
+            'n_steps': args.n_steps,
+            'batch_size': args.batch_size,
+            'n_epochs': args.n_epochs,
+            'clip_range': args.clip_range,
+            'clip_range_vf': args.clip_range_vf,
+            'target_kl': args.target_kl,
+            'use_sde': args.use_sde,
+            'sde_sample_freq': args.sde_sample_freq,
+        }
+    elif args.algo == 'MASKED_PPO':
+        algo_hyperparams = {
+            'n_steps': args.n_steps,
+            'batch_size': args.batch_size,
+            'n_epochs': args.n_epochs,
+            'clip_range': args.clip_range,
+            'clip_range_vf': args.clip_range_vf,
+            'target_kl': args.target_kl,
+        }
+    else:
+        raise ValueError(f"Unsupported algorithm: {args.algo}")
+
+    model_class = {
+        'A2C': A2C,
+        'PPO': PPO,
+        'MASKED_PPO': MaskablePPO
+    }.get(args.algo, None)
+
+    if model_class is None:
+        raise ValueError(f"Unsupported algorithm: {args.algo}")
+
+    return model_class('MultiInputPolicy', env, **common_hyperparams, **algo_hyperparams)
+
+# Save hyperparameters to a JSON file
+def save_hyperparams(hyperparams, args, seed):
+    hyperparams_dir, hyperparams_prefix = get_unique_directory(args.hyperparams_dir, f"{args.hyperparams_prefix}_seed_{seed}_hyperparameters", ".json")
+    hyperparams_path = os.path.join(hyperparams_dir, f"{hyperparams_prefix}")
+    with open(hyperparams_path, 'w') as f:
+        json.dump({k: str(v) for k, v in hyperparams.items()}, f, indent=4)
+
+# Convert a comma-separated string into a list
+def str_to_list(value):
+    return value.split(',')
+
+# Load hyperparameters from a YAML file
+def load_hyperparams(filepath):
+    with open(filepath, 'r') as file:
+        return yaml.safe_load(file)
+    
+def set_default_prefixes(args):
+    # Function to set the default prefixes if not provided
+    no_name = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env".replace('-', '_')
+
+    if args.log_prefix is None:
+        args.log_prefix = no_name
+    if args.reward_prefix is None:
+        args.reward_prefix = f"{no_name}_reward_data"
+    if args.save_prefix is None:
+        args.save_prefix = no_name
+    if args.best_prefix is None:
+        args.best_prefix = f"{no_name}_env_best"
+    if args.hyperparams_prefix is None:
+        args.hyperparams_prefix = no_name
+    return args
+
+def get_activation_fn(name):
+    return {
+        "tanh": nn.Tanh,
+        "relu": nn.ReLU,
+        "elu": nn.ELU,
+        "leaky_relu": nn.LeakyReLU
+    }.get(name.lower(), nn.ReLU)
+
     
 def generate_random_seeds(n):
     return [random.randint(0, 2**32 - 1) for _ in range(n)]
-
 
 
 def get_unique_directory(directory, base_name, file_extension):
@@ -148,53 +294,6 @@ def get_unique_directory(directory, base_name, file_extension):
     return base_path, unique_file
 
 
-
-def run_episodes(env, num_episodes, steps_per_episode):
-    successful_terminations = 0
-    total_rewards = []
-
-    for episode in range(num_episodes):
-        obs, info = env.reset()  # Reset the environment at the start of each episode
-        episode_reward = 0
-
-        for step in range(steps_per_episode):
-            action = env.action_space.sample()  # Sample a random action
-            obs, reward, done, _, info = env.step(action)  # Take a step in the environment
-
-            episode_reward += reward
-
-            if done:
-                if "successful" in info.get("termination_reason", ""):
-                    successful_terminations += 1
-                break
-
-        total_rewards.append(episode_reward)
-
-    return successful_terminations, total_rewards
-
-def optimize_scaling_factor(ingredient_df, num_episodes, steps_per_episode, scale_factors):
-    best_scale_factor = None
-    max_successful_terminations = 0
-    scale_factor_results = {}
-
-    for scale_factor in scale_factors:
-        env = SchoolMealSelection(ingredient_df=ingredient_df, action_scaling_factor=scale_factor)
-        successful_terminations, total_rewards = run_episodes(env, num_episodes, steps_per_episode)
-        scale_factor_results[scale_factor] = {
-            "successful_terminations": successful_terminations,
-            "total_rewards": total_rewards
-        }
-        print(f"Scale Factor: {scale_factor}, Successful Terminations: {successful_terminations}")
-
-        if successful_terminations > max_successful_terminations:
-            max_successful_terminations = successful_terminations
-            best_scale_factor = scale_factor
-
-        env.close()
-
-    return best_scale_factor, max_successful_terminations, scale_factor_results
-
-
 # Function to set random seeds for reproducibility
 def set_seed(seed, device):
     if seed is not None:
@@ -203,46 +302,6 @@ def set_seed(seed, device):
         torch.manual_seed(seed)
         if device == "cuda":
             torch.cuda.manual_seed_all(seed)
-
-
-        
-class InfoLoggerCallback(BaseCallback):
-    def __init__(self, verbose=0):
-        super(InfoLoggerCallback, self).__init__(verbose)
-
-    def _on_step(self) -> bool:
-        info = self.locals.get('infos', [{}])[0]
-        for key, value in info.items():
-            if key == 'current_meal_plan':
-                continue
-            if isinstance(value, (int, float, np.number)):
-                self.logger.record(f'info/{key}', value)
-            elif isinstance(value, dict):
-                for sub_key, sub_value in value.items():
-                    if isinstance(sub_value, (int, float, np.number)):
-                        self.logger.record(f'info/{key}/{sub_key}', sub_value)
-                    elif isinstance(sub_value, dict):
-                        for sub_sub_key, sub_sub_value in sub_value.items():
-                            if isinstance(sub_sub_value, (int, float, np.number)):
-                                self.logger.record(f'info/{key}/{sub_key}/{sub_sub_key}', sub_sub_value)
-                                
-        return True
-
-
-class SaveVecNormalizeEvalCallback(BaseCallback):
-    def __init__(self, save_path, vec_normalize_env, verbose=0):
-        super(SaveVecNormalizeEvalCallback, self).__init__(verbose)
-        self.save_path = save_path
-        self.vec_normalize_env = vec_normalize_env
-
-    def _on_step(self) -> bool:
-        # Save the VecNormalize statistics
-        if self.vec_normalize_env is not None:
-            save_path = os.path.join(self.save_path, 'vec_normalize_best.pkl')
-            self.vec_normalize_env.save(save_path)
-            if self.verbose > 0:
-                print(f"Saved VecNormalize to {save_path}")
-        return True
 
 def monitor_memory_usage(interval=5):
     process = psutil.Process(os.getpid())
@@ -272,7 +331,6 @@ def process_and_aggregate(store, start, stop):
                 flattened_reward_histories[column].append(rewards)
 
     return reward_history, flattened_reward_histories, targets_not_met_counts
-
 
 
 def plot_reward_distribution(load_path, save_plot_path=None, chunk_size=10000, start_portion=0.0, end_portion=1.0):
@@ -365,12 +423,3 @@ if __name__ == "__main__":
     print(os.path.abspath('saved_models/best_models'))
 
 
-
-
-
-            
-if __name__ == "__main__":
-    base, subdir = get_unique_directory("saved_models/tensorboard", "A2C_100000", ".zip")
-    print(f"Base Directory: {base}")
-    print(f"Unique Subdirectory: {subdir}")
-    print(os.path.abspath('saved_models/best_models'))

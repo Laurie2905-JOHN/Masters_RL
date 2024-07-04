@@ -1,130 +1,14 @@
 import os
 import argparse
-import gymnasium as gym
 from stable_baselines3 import A2C, PPO
 from stable_baselines3.common.vec_env import VecNormalize
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback, StopTrainingOnNoModelImprovement
 from stable_baselines3.common.logger import configure, HumanOutputFormat
 from utils.process_data import get_data
-from utils.train_utils import InfoLoggerCallback, generate_random_seeds, setup_environment, get_unique_directory, select_device, set_seed, monitor_memory_usage, plot_reward_distribution, linear_schedule
-import json
-import yaml
-from torch import nn
+from utils.train_utils import *
 from sb3_contrib.ppo_mask import MaskablePPO
 from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
-
-ALGO_YAML_MAP = {
-    'A2C': 'a2c.yaml',
-    'PPO': 'ppo.yaml',
-    'MASKED_PPO': 'masked_ppo.yaml'
-}
-
-VEC_NORMALIZE_YAML = 'vec_normalize.yaml'
-SETUP_YAML = 'setup.yaml'
-
-def load_yaml(filepath):
-    with open(filepath, 'r') as file:
-        return yaml.safe_load(file)
-    
-# Ensure the specified directory exists, creating it if necessary
-def ensure_dir_exists(directory, verbose=0):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-        if verbose > 1:
-            print(f"Warning: Directory {directory} did not exist and was created.")
-
-# Load a pretrained model if a checkpoint is specified
-def load_model(args, env, tensorboard_log_dir, seed):
-    checkpoint_path = os.path.abspath(args.pretrained_checkpoint_path)
-    print(f"Loading model from checkpoint: {checkpoint_path}")
-    checkpoint_dir = os.path.dirname(checkpoint_path)
-    checkpoint_name = os.path.basename(checkpoint_path)
-    steps = checkpoint_name.split("_")[-2]
-    pkl_name = f"{'_'.join(checkpoint_name.split('_')[:-2])}_vecnormalize_{steps}_steps.pkl"
-    pkl_path = os.path.join(checkpoint_dir, pkl_name)
-
-    if os.path.exists(pkl_path):
-        print(f"Loading VecNormalize from: {pkl_path}")
-        env = VecNormalize.load(pkl_path, env)
-    else:
-        print(f"VecNormalize file does not exist: {pkl_path}")
-        return None
-
-    model = {
-        'A2C': A2C.load,
-        'PPO': PPO.load
-    }.get(args.algo, lambda *args, **kwargs: None)(checkpoint_path, env=env, verbose=args.verbose, tensorboard_log=tensorboard_log_dir, device=args.device, seed=seed)
-
-    if model is None:
-        raise ValueError(f"Unsupported algorithm: {args.algo}")
-
-    return model
-
-# Create a new model with the specified algorithm and hyperparameters
-def create_model(args, env, tensorboard_log_dir, seed):
-    common_hyperparams = {
-        'verbose': args.verbose,
-        'tensorboard_log': tensorboard_log_dir,
-        'device': args.device,
-        'seed': seed,
-        'gamma': args.gamma,
-        'learning_rate': args.learning_rate,
-        'ent_coef': args.ent_coef,
-        'vf_coef': args.vf_coef,
-        'max_grad_norm': args.max_grad_norm,
-        'normalize_advantage': args.normalize_advantage,
-        'gae_lambda': args.gae_lambda,
-        'policy_kwargs': args.policy_kwargs,
-    }
-
-    if args.algo == 'A2C':
-        algo_hyperparams = {
-            'n_steps': args.n_steps,
-            'rms_prop_eps': args.rms_prop_eps,
-            'use_rms_prop': args.use_rms_prop,
-            'use_sde': args.use_sde,
-            'sde_sample_freq': args.sde_sample_freq,
-        }
-    elif args.algo == 'PPO':
-        algo_hyperparams = {
-            'n_steps': args.n_steps,
-            'batch_size': args.batch_size,
-            'n_epochs': args.n_epochs,
-            'clip_range': args.clip_range,
-            'clip_range_vf': args.clip_range_vf,
-            'target_kl': args.target_kl,
-            'use_sde': args.use_sde,
-            'sde_sample_freq': args.sde_sample_freq,
-        }
-    elif args.algo == 'MASKED_PPO':
-        algo_hyperparams = {
-            'n_steps': args.n_steps,
-            'batch_size': args.batch_size,
-            'n_epochs': args.n_epochs,
-            'clip_range': args.clip_range,
-            'clip_range_vf': args.clip_range_vf,
-            'target_kl': args.target_kl,
-        }
-    else:
-        raise ValueError(f"Unsupported algorithm: {args.algo}")
-
-    model_class = {
-        'A2C': A2C,
-        'PPO': PPO,
-        'MASKED_PPO': MaskablePPO
-    }.get(args.algo, None)
-
-    if model_class is None:
-        raise ValueError(f"Unsupported algorithm: {args.algo}")
-
-    return model_class('MultiInputPolicy', env, **common_hyperparams, **algo_hyperparams)
-
-# Save hyperparameters to a JSON file
-def save_hyperparams(hyperparams, args, seed):
-    hyperparams_dir, hyperparams_prefix = get_unique_directory(args.hyperparams_dir, f"{args.hyperparams_prefix}_seed_{seed}_hyperparameters", ".json")
-    hyperparams_path = os.path.join(hyperparams_dir, f"{hyperparams_prefix}")
-    with open(hyperparams_path, 'w') as f:
-        json.dump({k: str(v) for k, v in hyperparams.items()}, f, indent=4)
+from models.callbacks.callback import *
 
 # Main training function
 def main(args):
@@ -263,38 +147,6 @@ def main(args):
     except Exception as e:
         print(f"Error loading model: {e}")
 
-# Convert a comma-separated string into a list
-def str_to_list(value):
-    return value.split(',')
-
-# Load hyperparameters from a YAML file
-def load_hyperparams(filepath):
-    with open(filepath, 'r') as file:
-        return yaml.safe_load(file)
-    
-def set_default_prefixes(args):
-    # Function to set the default prefixes if not provided
-    no_name = f"{args.env_name}_{args.algo}_{args.total_timesteps}_{args.num_envs}env".replace('-', '_')
-
-    if args.log_prefix is None:
-        args.log_prefix = no_name
-    if args.reward_prefix is None:
-        args.reward_prefix = f"{no_name}_reward_data"
-    if args.save_prefix is None:
-        args.save_prefix = no_name
-    if args.best_prefix is None:
-        args.best_prefix = f"{no_name}_env_best"
-    if args.hyperparams_prefix is None:
-        args.hyperparams_prefix = no_name
-    return args
-
-def get_activation_fn(name):
-    return {
-        "tanh": nn.Tanh,
-        "relu": nn.ReLU,
-        "elu": nn.ELU,
-        "leaky_relu": nn.LeakyReLU
-    }.get(name.lower(), nn.ReLU)
     
 # Entry point of the script
 if __name__ == "__main__":
