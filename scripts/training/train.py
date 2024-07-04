@@ -162,6 +162,9 @@ if __name__ == "__main__":
     if not yaml_file:
         raise ValueError(f"Unsupported algorithm: {setup_params['algo']}")
     
+    if setup_params['env_name'] == "SchoolMealSelection-v0" and setup_params['algo'] == "MASKED_PPO":
+        raise ValueError(f"Unsupported algorithm for environment")
+    
     # Load hyperparameters from the selected YAML file
     algo_hyperparams_dir = os.path.join(args.hyperparams_dir, yaml_file)
     algo_hyperparams = load_yaml(algo_hyperparams_dir)

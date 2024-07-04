@@ -34,6 +34,37 @@ class BaseRewardCalculator(ABC):
         pass
     
     @staticmethod
+    @abstractmethod
+    def calculate_step_reward(main_class: Any) -> Tuple[Dict[str, float], bool, bool]:
+        pass
+    
+    @staticmethod
+    def cost_target(main_class: Any) -> bool:
+        cost_target_met = main_class.menu_cost['cost'] <= main_class.target_cost_per_meal
+        return cost_target_met
+
+    @staticmethod
+    def environment_count_target(main_class: Any) -> bool:
+        environment_count_target_met = sum(main_class.ingredient_environment_count.values()) > 0.5
+        return environment_count_target_met
+
+    @staticmethod
+    def co2g_target(main_class: Any) -> bool:
+        return main_class.co2_g['co2_g'] <= main_class.target_co2_g_per_meal
+
+    @staticmethod
+    def consumption_target(main_class: Any) -> bool:
+        
+        consumption_targets_met = True
+  
+        if main_class.consumption_average['average_mean_consumption'] > main_class.consumption_target['average_mean_consumption']:
+            consumption_targets_met = False
+        if main_class.consumption_average['average_cv_ingredients'] < main_class.consumption_target['average_cv_ingredients']:
+            consumption_targets_met = False
+            
+        return consumption_targets_met
+    
+    @staticmethod
     def is_confectionary_target_met(main_class) -> bool:
         """
         Check if the confectionary target is met.
@@ -90,10 +121,11 @@ class BaseRewardCalculator(ABC):
         distance = max(abs(target_min - value), abs(target_max - value)) * distance_factor
         distance_reward = 1 - (distance / average_target)
         
-        return distance_reward
+        return max(0.1, distance_reward)
     
     @staticmethod
     def determine_termination(main_class: Any, targets: Dict[str, bool], termination_reasons: List[str]) -> Tuple[bool, float, List[str]]:
+        
         terminated = False
         failed_targets = [key for key, met in targets.items() if not met]
         termination_reward = 0
@@ -102,7 +134,7 @@ class BaseRewardCalculator(ABC):
             if main_class.verbose > 0:
                 print(f"All targets met at episode {main_class.episode_count} step {main_class.nsteps}.")
             terminated = True
-            termination_reward += 100
+            termination_reward += 200
         else:
             reward_per_target_met = 100 / len(targets)
             termination_reward += reward_per_target_met * (len(targets) - len(failed_targets))
@@ -118,7 +150,7 @@ class BaseRewardCalculator(ABC):
         if main_class.verbose > 1 and terminated:
             print('Terminated as metrics are out of bounds')
             print('Failed targets:', failed_targets)
-
+            
         return terminated, termination_reward, failed_targets
 
 class ShapedRewardCalculator(BaseRewardCalculator):
@@ -137,7 +169,8 @@ class ShapedRewardCalculator(BaseRewardCalculator):
                 - A boolean indicating if the process should terminate.
         """
         terminate = False
-        cost_target_met = main_class.menu_cost['cost'] <= main_class.target_cost_per_meal
+        
+        cost_target_met = BaseRewardCalculator.cost_target(main_class)
         
         if cost_target_met:
             main_class.reward_dict['cost_reward']['cost'] += 1.5
@@ -147,7 +180,8 @@ class ShapedRewardCalculator(BaseRewardCalculator):
             distance_reward = BaseRewardCalculator.calculate_distance_reward(
                 main_class.menu_cost['cost'], target_min, target_max
             )
-            main_class.reward_dict['cost_reward']['cost'] = max(0.1, distance_reward)
+            main_class.reward_dict['cost_reward']['cost'] = distance_reward
+            
             cost_difference = main_class.menu_cost['cost'] - main_class.target_cost_per_meal
             
             # If the cost is far from the target range, penalize the reward and terminate  
@@ -184,7 +218,7 @@ class ShapedRewardCalculator(BaseRewardCalculator):
                 distance_reward = BaseRewardCalculator.calculate_distance_reward(
                     average_value, target_min, target_max
                 )
-                main_class.reward_dict['nutrient_reward'][nutrient] = max(0.1, distance_reward)
+                main_class.reward_dict['nutrient_reward'][nutrient] = distance_reward
                 
                 far_flag = average_value < 0.25 * target_min or average_value > target_max * 4
                 if far_flag:
@@ -241,7 +275,8 @@ class ShapedRewardCalculator(BaseRewardCalculator):
                 - A boolean indicating if all environment targets were met.
                 - A boolean indicating if the process should terminate.
         """
-        environment_target_met = True
+        environment_target_met = BaseRewardCalculator.environment_count_target(main_class)
+        
         terminate = False
         for metric, value in main_class.ingredient_environment_count.items():
             main_class.reward_dict['ingredient_environment_count_reward'][metric] = value
@@ -263,7 +298,8 @@ class ShapedRewardCalculator(BaseRewardCalculator):
                 - A boolean indicating if the process should terminate.
         """
         terminate = False
-        co2_target_met = main_class.co2_g['co2_g'] <= main_class.target_co2_g_per_meal
+        
+        co2_target_met = BaseRewardCalculator.co2g_target(main_class)
         
         if co2_target_met:
             main_class.reward_dict['co2g_reward']['co2_g'] = 0
@@ -273,7 +309,7 @@ class ShapedRewardCalculator(BaseRewardCalculator):
             distance_reward = BaseRewardCalculator.calculate_distance_reward(
                 main_class.co2_g['co2_g'], target_min, target_max
             )
-            main_class.reward_dict['co2g_reward']['co2_g'] = max(0.1, distance_reward)
+            main_class.reward_dict['co2g_reward']['co2_g'] = distance_reward
             far_flag = main_class.co2_g['co2_g'] > 2000
             
             if far_flag:
@@ -296,12 +332,18 @@ class ShapedRewardCalculator(BaseRewardCalculator):
                 - A boolean indicating if all consumption targets were met.
                 - A boolean indicating if the process should terminate.
         """
-        consumption_targets_met = True
+
+        consumption_targets_met = BaseRewardCalculator.consumption_target(main_class)
+        
         main_class.reward_dict['consumption_reward']['average_mean_consumption'] = 0
 
         terminate = False
             
         return main_class.reward_dict['consumption_reward'], consumption_targets_met, terminate
+    
+    def calculate_step_reward(main_class):
+        main_class.reward_dict['step_reward'] = 0
+        
 
 class SparseRewardCalculator(BaseRewardCalculator):
     @staticmethod
@@ -319,7 +361,8 @@ class SparseRewardCalculator(BaseRewardCalculator):
                 - A boolean indicating if the process should terminate.
         """
         terminate = False
-        cost_target_met = main_class.menu_cost['cost'] <= main_class.target_cost_per_meal
+        
+        cost_target_met = BaseRewardCalculator.cost_target(main_class)
         
         if not cost_target_met:
             cost_difference = main_class.menu_cost['cost'] - main_class.target_cost_per_meal
@@ -403,7 +446,8 @@ class SparseRewardCalculator(BaseRewardCalculator):
                 - A boolean indicating if all environment targets were met.
                 - A boolean indicating if the process should terminate.
         """
-        environment_target_met = True
+        
+        environment_target_met = BaseRewardCalculator.environment_count_target(main_class)
         terminate = False
         
         return main_class.reward_dict['ingredient_environment_count_reward'], environment_target_met, terminate
@@ -424,7 +468,9 @@ class SparseRewardCalculator(BaseRewardCalculator):
         """
         
         terminate = False
-        co2_target_met = main_class.co2_g['co2_g'] <= main_class.target_co2_g_per_meal
+        
+        co2_target_met = BaseRewardCalculator.co2g_target(main_class)
+        
         far_flag = main_class.co2_g['co2_g'] > 2000
         
         if far_flag:
@@ -446,9 +492,15 @@ class SparseRewardCalculator(BaseRewardCalculator):
                 - A boolean indicating if all consumption targets were met.
                 - A boolean indicating if the process should terminate.
         """
-        consumption_targets_met = True
+        
+        consumption_targets_met = BaseRewardCalculator.consumption_target(main_class)
+            
         main_class.reward_dict['consumption_reward']['average_mean_consumption'] = 0
 
         terminate = False
             
         return main_class.reward_dict['consumption_reward'], consumption_targets_met, terminate
+    
+    def calculate_step_reward(main_class):
+        main_class.reward_dict['step_reward'] = 0
+        return main_class.reward_dict['step_reward'], True, False
