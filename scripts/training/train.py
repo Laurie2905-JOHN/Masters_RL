@@ -84,10 +84,16 @@ def main(args):
         verbose=args.verbose
     )
 
-    stop_training_on_no_model_improvement = StopTrainingOnNoModelImprovement(
-        max_no_improvement_evals=50,
-        min_evals=50,
-        verbose=args.verbose
+    # stop_training_on_no_model_improvement = StopTrainingOnNoModelImprovement(
+    #     max_no_improvement_evals=50,
+    #     min_evals=50,
+    #     verbose=args.verbose
+    # )
+    
+    save_vec_normalize = SaveVecNormalizeCallback(
+        save_freq = args.save_freq,
+        save_path = args.save_dir,
+        name_prefix = args.save_prefix
     )
 
     eval_callback_class = MaskableEvalCallback if args.algo == "MASKED_PPO" else EvalCallback
@@ -95,7 +101,7 @@ def main(args):
     eval_callback = eval_callback_class(
         eval_env=env,
         best_model_save_path=best_model_path,
-        callback_on_new_best=stop_training_on_no_model_improvement,
+        callback_on_new_best=save_vec_normalize,
         n_eval_episodes=5,
         eval_freq=max(args.eval_freq // args.num_envs, 1),
         deterministic=True,
