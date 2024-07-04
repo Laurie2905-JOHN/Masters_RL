@@ -1,0 +1,40 @@
+env_name: SchoolMealSelection-v2
+max_episode_steps: 100
+max_ingredients: 6
+action_scaling_factor: 10
+
+algo: MASKED_PPO
+num_envs: 3
+
+render_mode: null
+data_name: 'small_data'
+total_timesteps: 3000000
+save_freq: 100000
+
+log_dir: saved_models/tensorboard
+save_dir: saved_models/checkpoints
+best_dir: saved_models/best_models
+hyperparams_dir: saved_models/hyperparams
+
+log_prefix: MASKED_PPO
+save_prefix: null
+best_prefix: null
+hyperparams_prefix: null
+
+
+reward_dir: saved_models/reward
+reward_prefix: null
+reward_save_interval: 10000
+plot_reward_history: false
+eval_freq: 1000
+seed: null
+device: auto
+memory_monitor: false
+pretrained_checkpoint_path: null
+verbose: 2
+
+
+
+
+
+

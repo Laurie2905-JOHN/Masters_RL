@@ -6,8 +6,6 @@ import random
 from typing import Union, Callable
 from stable_baselines3.common.env_util import make_vec_env
 import torch
-# from models.envs.env import SchoolMealSelection
-from models.envs.env_working import SchoolMealSelection
 from models.envs.env import *
 import os
 from stable_baselines3.common.vec_env import VecNormalize
