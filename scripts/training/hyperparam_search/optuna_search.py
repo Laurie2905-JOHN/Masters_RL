@@ -17,67 +17,63 @@ from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.env_util import make_vec_env
 from utils.optuna_utils.sample_params.ppo import sample_ppo_params
 from utils.optuna_utils.sample_params.a2c import sample_a2c_params
-from models.envs.env_working import SchoolMealSelection
-from utils.optuna_utils.trial_eval_callback import TrialEvalCallback
+from utils.optuna_utils.sample_params.masked_ppo import sample_masked_ppo_params
+from models.envs.env import *
+from sb3_contrib.ppo_mask import MaskablePPO
+from utils.optuna_utils.trial_eval_callback import TrialEvalCallback, MaskableTrialEvalCallback
 from utils.process_data import get_data
 from gymnasium.wrappers import TimeLimit, NormalizeReward
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
-
-# Function to set up the environment
-def setup_environment(args):
-    env_kwargs = {
-        "ingredient_df": args.ingredient_df,
-        "max_ingredients": args.max_ingredients,
-        "action_scaling_factor": args.action_scaling_factor,
-        "render_mode": args.render_mode,
-        "seed": args.seed,
-        "verbose": args.verbose,
-        "initialization_strategy": args.initialization_strategy
-    }
-
-
+from sb3_contrib.common.wrappers import ActionMasker
+from models.action_masks.masks import mask_fn1
 
 def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> float:
     # Prevent Resource Contention: When multiple trials start simultaneously, they might contend for limited computational resources
     time.sleep(random.random() * 16)
 
-    max_ingredients = trial.suggest_categorical("max_ingredients", [6, 8])
-
-    # initialization_strategy = trial.suggest_categorical("initialization_strategy", ['zero', 'probabilistic', 'perfect'])
+    action_scaling_factor = trial.suggest_categorical("action_scaling_factor", [5, 10, 15])
 
     initialization_strategy = 'zero'
     
     env_kwargs = {
         "ingredient_df": ingredient_df, 
-        "max_ingredients": max_ingredients, 
-        "action_scaling_factor": 10,
+        "max_ingredients": 6, 
+        "action_scaling_factor": action_scaling_factor,
         "initialization_strategy": initialization_strategy,
+        "seed": None,
+        "verbose": 2,
+        "initialization_strategy": 'zero',
+        "reward_type": 'shaped'
     }
-    
-    
+     
     path = os.path.abspath(f"{study_path}/trials/trial_{str(trial.number)}")
     
     if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)
 
     def make_env():
-        env = gym.make("SchoolMealSelection-v0", **env_kwargs)
+        env = gym.make("SchoolMealSelection-v2", **env_kwargs)
         
-        env = TimeLimit(env, max_episode_steps=100)
+        env = TimeLimit(env, max_episode_steps=1000)
         env = Monitor(env)  # Monitoring is added to track statistics and/or save logs
+        
+        if algo == "MASKED_PPO":
+            env = ActionMasker(env, mask_fn1)  # Wrap to enable masking
         
         return env
 
     # Wrap the environment with DummyVecEnv for parallel environments
     env = make_vec_env(make_env, n_envs=4, seed=None)
 
-    clip_obs = trial.suggest_categorical("clip_obs", [5, 10])
+    clip_obs = trial.suggest_categorical("clip_obs", [5, 10, 15])
     norm_reward = trial.suggest_categorical("norm_reward", [False, True])
 
     if algo == "PPO":
         sampled_hyperparams = sample_ppo_params(trial)
     elif algo == "A2C":
         sampled_hyperparams = sample_a2c_params(trial)
+    elif algo =="MASKED_PPO":
+        sampled_hyperparams = sample_masked_ppo_params(trial)
     else:
         raise ValueError("Invalid algorithm")
     
@@ -87,7 +83,7 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         norm_obs=True,
         norm_reward=norm_reward,
         clip_obs=clip_obs,
-        clip_reward=100,
+        clip_reward=250,
         gamma=sampled_hyperparams['gamma'],
         norm_obs_keys=['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
     )
@@ -96,15 +92,23 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         model = PPO("MultiInputPolicy", env=env, seed=None, verbose=0, device='cuda', tensorboard_log=path, **sampled_hyperparams)
     elif algo == "A2C":
         model = A2C("MultiInputPolicy", env=env, seed=None, verbose=0, device='cpu', tensorboard_log=path, **sampled_hyperparams)
+    elif algo == "MASKED_PPO":
+        model = MaskablePPO("MultiInputPolicy", env=env, seed=None, verbose=0, device='cuda', tensorboard_log=path, **sampled_hyperparams)
     else:
         raise ValueError("Invalid algorithm")
     
     stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=20, min_evals=50, verbose=1)
     
-    eval_callback = TrialEvalCallback(
-        env, trial, best_model_save_path=path, log_path=path,
-        n_eval_episodes=5, eval_freq=10000, deterministic=True, callback_after_eval=stop_callback
-    )
+    if algo != "MASKED_PPO":
+        eval_callback = TrialEvalCallback(
+            env, trial, best_model_save_path=path, log_path=path,
+            n_eval_episodes=5, eval_freq=10000, deterministic=True, callback_after_eval=stop_callback
+        )
+    else:
+        eval_callback = MaskableTrialEvalCallback(
+                        env, trial, best_model_save_path=path, log_path=path,
+            n_eval_episodes=5, eval_freq=10000, deterministic=True, callback_after_eval=stop_callback
+        )
     
     if 'ingredient_df' in env_kwargs:
         del env_kwargs['ingredient_df']
@@ -147,8 +151,16 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
     db_dir = os.path.join(study_path, "db")
     os.makedirs(db_dir, exist_ok=True)  # Ensure the directory exists
     
-    if storage is None:
-        storage = f"sqlite:///{os.path.join(db_dir, f'{study_name}.db')}"
+    # if storage is None:
+    #     storage = f"sqlite:///{os.path.join(db_dir, f'{study_name}.db')}"
+    
+    if storage is None:   
+        db_dir = os.path.join(study_path, "journal_storage")
+        os.makedirs(db_dir, exist_ok=True)
+        
+        storage = optuna.storages.JournalStorage(
+            optuna.storages.JournalFileStorage(os.path.join(db_dir, "journal.log"))
+        )
 
     sampler = TPESampler(n_startup_trials=10, multivariate=True)
     pruner = MedianPruner(n_startup_trials=10, n_warmup_steps=10)
@@ -200,7 +212,7 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', type=str, default="PPO", help="Algorithm to optimize: PPO or A2C")
+    parser.add_argument('--algo', type=str, default="MASKED_PPO", help="Algorithm to optimize: PPO or A2C")
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")

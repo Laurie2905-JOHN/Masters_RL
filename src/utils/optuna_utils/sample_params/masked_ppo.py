@@ -4,9 +4,10 @@ import optuna
 from torch import nn
 from utils.train_utils import linear_schedule
 
-def sample_ppo_params(trial: optuna.Trial) -> Dict[str, Any]:
+
+def sample_masked_ppo_params(trial: optuna.Trial) -> Dict[str, Any]:
     """
-    Sampler for PPO hyperparams.
+    Sampler for Masked PPO hyperparams.
 
     :param trial:
     :return:
@@ -24,8 +25,6 @@ def sample_ppo_params(trial: optuna.Trial) -> Dict[str, Any]:
     vf_coef = trial.suggest_float("vf_coef", 0, 1)
     clip_range_vf = trial.suggest_categorical("clip_range_vf", [None, 0.1, 0.2, 0.3, 0.4])
     normalize_advantage = trial.suggest_categorical("normalize_advantage", [False, True])
-    use_sde = trial.suggest_categorical("use_sde", [False, True])
-    sde_sample_freq = trial.suggest_int("sde_sample_freq", -1, 100)
     target_kl = trial.suggest_float("target_kl", 0.01, 0.1, log=True)
 
     # Orthogonal initialization
@@ -60,8 +59,6 @@ def sample_ppo_params(trial: optuna.Trial) -> Dict[str, Any]:
         "vf_coef": vf_coef,
         "clip_range_vf": clip_range_vf,
         "normalize_advantage": normalize_advantage,
-        "use_sde": use_sde,
-        "sde_sample_freq": sde_sample_freq,
         "target_kl": target_kl,
         "policy_kwargs": dict(
             net_arch=net_arch,
