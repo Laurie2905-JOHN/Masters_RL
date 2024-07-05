@@ -1,4 +1,4 @@
-env_name: SchoolMealSelection-v2
+env_name: SchoolMealSelection-v1
 max_episode_steps: 100
 max_ingredients: 6
 action_scaling_factor: 10
@@ -18,7 +18,7 @@ hyperparams_dir: saved_models/hyperparams
 reward_dir: saved_models/reward
 
 
-log_prefix: V2_shaped_new_env
+log_prefix: V1_shaped_new_env_new_target
 save_prefix: null
 best_prefix: null
 hyperparams_prefix: null

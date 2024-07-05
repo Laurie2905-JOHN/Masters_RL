@@ -125,12 +125,12 @@ class BaseEnvironment(gym.Env):
         }
         
         self.ingredient_group_portion_targets = {
-            'fruit': (40, 110),
-            'veg': (40, 110),
-            'protein': (70, 150),
-            'carbs': (25, 300),
+            'fruit': (20, 110),
+            'veg': (20, 110),
+            'protein': (40, 150),
+            'carbs': (20, 300),
             'dairy': (20, 200),
-            'bread': (40, 90),
+            'bread': (30, 100),
             'confectionary': (0, 50)
         }
 
@@ -937,11 +937,11 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
         if self.nsteps > 50:
             far_flag_terminate = True
         
+        # Calculate the reward for the action
+        termination_reasons, target_flags = self.calculate_reward(action)
+            
         if action[1] == 1:
-            # Calculate the reward for the action
-            termination_reasons, target_flags = self.calculate_reward(action)
             main_terminate = True
-        
             
         # Calculate if terminated and termination reward
         terminated = self.determine_final_termination_and_reward(target_flags, termination_reasons, main_terminate, far_flag_terminate)
