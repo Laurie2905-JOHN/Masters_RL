@@ -70,7 +70,7 @@ def ingredient_action(self, all_group_target_met, action_mask):
             action_mask[:3] = [0, 0, 1]  # Only allow the "increase" action otherwise
     else:
         # Extra done action if this env
-        # ALlow all actions to be taken on an ingredient if all group targets are met and nsteps is greater than 25 [zero, do_nothing, decrease, increase]
+        # ALlow all actions to be taken on an ingredient if all group targets are met and nsteps is greater than 25 [zero, do_nothing, decrease, increase, not_done, done]
         if all_group_target_met and nsteps > 50:
             action_mask[:6] = [1, 1, 1, 1, 1, 1]  # Allow all actions if all group targets are met and steps > 60, 
         else:

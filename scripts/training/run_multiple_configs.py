@@ -23,8 +23,8 @@ def main():
 
     # Example variations
     env_names = ["SchoolMealSelection-v0", "SchoolMealSelection-v1", "SchoolMealSelection-v2"]
-    algos = ['MASKED_PPO', 'PPO', 'A2C']
-    log_prefixes = ['MASKED_PPO_RUN', 'PPO_RUN', 'A2C_RUN']
+    algos = ['MASKED_PPO', 'PPO']
+    log_prefixes = ['MASKED_PPO_RUN', 'PPO_RUN']
     reward_type = ['shaped', 'sparse']
 
     for env in env_names:
@@ -37,6 +37,8 @@ def main():
                 modified_setup['algo'] = algo
                 version = env.split("-")[1]
                 modified_setup['log_prefix'] = log_prefix + "_" + version + "_" + reward
+                if env == "SchoolMealSelection-v2":
+                    modified_setup['max_episode_steps'] = 1000
 
                 # Create a unique setup file for this run
                 temp_setup_path = f'temp_setup_{env}_{reward}_{algo}.yaml'

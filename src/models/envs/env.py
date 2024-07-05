@@ -226,7 +226,7 @@ class BaseEnvironment(gym.Env):
             'consumption': spaces.Box(low=0, high=100, shape=(len(self.consumption_average),), dtype=np.float64)
         })
 
-    def calculate_reward(self) -> tuple:  
+    def calculate_reward(self, action) -> tuple:  
           
         """
         Calculate the rewards based on the current state of the environment.
@@ -248,7 +248,7 @@ class BaseEnvironment(gym.Env):
         # Iterate through each reward in the reward dictionary
         for reward in self.reward_dict.keys():
             # Skip step reward, targets not met, and termination reward rewards
-            if reward in ['step_reward', 'targets_not_met', 'termination_reward']:
+            if reward in ['step_reward', 'targets_not_met', 'termination_reward', 'action_reward']:
                 continue
             
             # Get the corresponding reward function from the RewardCalculator
@@ -261,7 +261,7 @@ class BaseEnvironment(gym.Env):
             
             # Update the target met flags and termination reasons based on the reward
             termination_reasons, target_flags = self._update_flags_and_reasons(reward, targets_met, terminate, target_flags, termination_reasons)
-            
+        
         return termination_reasons, target_flags
     
     def sum_reward_values(self) -> float:
@@ -388,6 +388,7 @@ class BaseEnvironment(gym.Env):
         self.reward_dict['targets_not_met'] = []
         self.reward_dict['termination_reward'] = 0
         self.reward_dict['step_reward'] = 0
+        self.reward_dict['action_reward'] = 0
 
     def _update_flags_and_reasons(self, reward: str, targets_met: bool, terminate: bool, target_flags: dict, termination_reasons: list) -> None:
         """
@@ -631,29 +632,42 @@ class BaseEnvironment(gym.Env):
             if action.shape != self.action_space.shape:
                 raise ValueError(f"Action shape {action.shape} is not equal to action space shape {self.action_space.shape}")
     
-    def determine_final_termination_and_reward(self, target_flags):
+    def determine_final_termination_and_reward(self, target_flags, termination_reasons, main_terminate, far_flag_terminate):
         
         terminated = False
         
-        # Determine episode termination and reward based on the overall targets and reasons
-        terminated, self.reward_dict['termination_reward'], failed_targets = self.reward_calculator.determine_final_termination(
-            self, target_flags
-        )
+        if main_terminate:
+            # Determine episode termination and reward based on the overall targets and reasons
+            terminated, self.reward_dict['termination_reward'], failed_targets = self.reward_calculator.determine_final_termination(
+                self, target_flags
+            )
+            
+            if terminated:
+                # Add the current length of targets_not_met to the history
+                self.targets_not_met_history.append(len(failed_targets))
         
-        if terminated:
-            # Add the current length of targets_not_met to the history
-            self.targets_not_met_history.append(len(failed_targets))
-        
-        return terminated
-    
-    def determine_termination(self, termination_reasons):
-        terminated = False
-        if termination_reasons:
+        if termination_reasons and far_flag_terminate:
             if self.verbose > 1:
                 print("Termination triggered due to:", ", ".join(termination_reasons))
             terminated = True
             self.reward_dict['termination_reward'] = 0
-        return terminated   
+
+            if self.verbose > 1:
+                print("Metrics far away:", ", ".join(termination_reasons))
+                
+
+        
+        return terminated
+    
+    def action_reward(self, action):
+        """
+        Calculate the reward for the action taken.
+        """
+        reward = self.determine_action_quality(action)
+        
+        # Assign the calculated reward to the reward dictionary
+        self.reward_dict['action_reward'] = reward
+
     
     # Methods to be overridden
     def update_and_process_selection(self, action: np.ndarray) -> None:
@@ -711,16 +725,21 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
         
         reward = 0
         terminated = False
-        
-        # Calculate the reward for the action
-        termination_reasons, target_flags = self.calculate_reward()
+        main_terminate = False
+        far_flag_terminate = False
         
         if self.nsteps > 25:
-            terminated = self.determine_termination(termination_reasons)
+            far_flag_terminate = True
+            
+        # Calculate the reward for the action
+        termination_reasons, target_flags = self.calculate_reward(action)
         
         if self.nsteps == self.max_episode_steps-1:
-            # Calculate if terminated and termination reward
-            terminated = self.determine_final_termination_and_reward(target_flags)
+            main_terminate = True
+            
+            
+        # Calculate if terminated and termination reward
+        terminated = self.determine_final_termination_and_reward(target_flags, termination_reasons, main_terminate, far_flag_terminate)
         
         reward = self.sum_reward_values()
                  
@@ -735,6 +754,9 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
         
         # Validate action shape
         self.validate_action_shape(action, self.n_ingredients)
+        
+        # Action reward is specific to environment so it is calculated out of the reward calculator. Calculated before current selection updated
+        self.action_reward(action)
         
         # Apply the action scaling factor to the action and update the current selection
         change = action * self.action_scaling_factor
@@ -752,6 +774,33 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
         
         # Print current meal plan if verbosity
         self.print_current_meal_plan()
+    
+    def determine_action_quality(self, action):
+        
+        reward, number_of_selected_ingredients = self._calculate_number_of_action_distance(action)
+        
+        reward += self._calculate_if_actions_are_on_chosen_ingredients(action, number_of_selected_ingredients)
+        
+        reward = reward / 2
+
+        return reward
+    
+    def _calculate_number_of_action_distance(self, action):
+        # Use bitwise operators to combine conditions
+        number_of_selected_ingredients = len(np.where((action > 0.01) | (action < -0.01))[0])
+        distance = 1 - (abs(number_of_selected_ingredients - self.max_ingredients) / self.n_ingredients)
+        
+        return distance, number_of_selected_ingredients
+    
+    def _calculate_if_actions_are_on_chosen_ingredients(self, action, number_of_selected_ingredients):
+        count = 0
+        for idx, value in enumerate(action):
+            if value > 0.01 or value < -0.01:
+                if self.current_selection[idx] > 0:
+                    count += 1
+                    
+        distance = count / number_of_selected_ingredients
+        return distance
 
 class SchoolMealSelectionDiscrete(BaseEnvironment):
     """
@@ -779,16 +828,20 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         
         reward = 0
         terminated = False
-        
-        # Calculate the reward for the action
-        termination_reasons, target_flags = self.calculate_reward()
+        main_terminate = False
+        far_flag_terminate = False
         
         if self.nsteps > 50:
-            terminated = self.determine_termination(termination_reasons)
+            far_flag_terminate = True
+            
+        # Calculate the reward for the action
+        termination_reasons, target_flags = self.calculate_reward(action)
         
         if self.nsteps == self.max_episode_steps-1:
-            # Calculate if terminated and termination reward
-            terminated = self.determine_final_termination_and_reward(target_flags)
+            main_terminate = True
+            
+        # Calculate if terminated and termination reward
+        terminated = self.determine_final_termination_and_reward(target_flags, termination_reasons, main_terminate, far_flag_terminate)
         
         reward = self.sum_reward_values()
                  
@@ -800,6 +853,9 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         """
         # Validate action shape
         self.validate_action_shape(action, 2)
+        
+        # Action reward is specific to environment so it is calculated out of the reward calculator. Calculated before current selection updated
+        self.action_reward(action)
         
         if self.verbose > 2:
             print(f"Initial current_selection: {self.current_selection}")
@@ -824,7 +880,27 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         # Print current meal plan if verbosity
         self.print_current_meal_plan()
         
+    def determine_action_quality(self, action):
+        reward = 0
+        
+        reward += self._calculate_if_actions_are_on_groups_which_are_needed(action)
 
+        return reward
+    
+    def _calculate_if_actions_are_on_groups_which_are_needed(self, action):
+        reward = 0
+        # Iterate through each ingredient group to set the action mask
+        for key, target in self.ingredient_group_count_targets.items():
+            value = self.ingredient_group_count[key]  # Current count of the ingredient group
+            indexes = self.group_info[key]['indexes']  # Indexes of ingredients in this group
+            selected = [idx for idx in indexes if self.current_selection[idx] > 0]  # Selected ingredients in this group
+            
+            if target != value:
+                # If the target is not met, the agent should select ingredients from this group so will be reward if it does
+                for idx in selected:
+                    if action[1] == idx:
+                        reward += 1
+        return reward
 
 class SchoolMealSelectionDiscreteDone(BaseEnvironment):
     """
@@ -853,18 +929,24 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
         
         reward = 0
         terminated = False
-        
-        # Calculate the reward for the action
-        termination_reasons, target_flags = self.calculate_reward()
+        main_terminate = False
+        far_flag_terminate = False
+        target_flags = None
+        termination_reasons = None
         
         if self.nsteps > 50:
-            terminated = self.determine_termination(termination_reasons)
+            far_flag_terminate = True
         
         if action[1] == 1:
-            # Calculate if terminated and termination reward
-            terminated = self.determine_final_termination_and_reward(target_flags)
+            # Calculate the reward for the action
+            termination_reasons, target_flags = self.calculate_reward(action)
+            main_terminate = True
         
-        reward = self.sum_reward_values()
+            
+        # Calculate if terminated and termination reward
+        terminated = self.determine_final_termination_and_reward(target_flags, termination_reasons, main_terminate, far_flag_terminate)
+            
+        reward += self.sum_reward_values()      
                  
         return reward, terminated
             
@@ -874,6 +956,9 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
         """
         # Validate action shape
         self.validate_action_shape(action, 3)
+        
+        # Action reward is specific to environment so it is calculated out of the reward calculator. Calculated before current selection updated
+        self.action_reward(action)
         
         if self.verbose > 2:
             print(f"Initial current_selection: {self.current_selection}")
@@ -899,7 +984,53 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
         
         # Print current meal plan if verbosity
         self.print_current_meal_plan()
+        
+    
+    def determine_action_quality(self, action):
+        
+        reward = self._calculate_reward_termination_action(action)
+        
+        reward += self._calculate_if_actions_are_on_groups_which_are_needed(action)
+        
+        reward = reward / 2
 
+        return reward
+    
+    def _calculate_reward_termination_action(self, action):
+        reward = 0
+        # if agent terminates and is below 50 steps, it gets a negative reward. In masking this will never happen as mask
+        if action[1] == 1:  # Termination action
+            if self.nsteps > 50:
+                reward += 0.5
+            if action[0] == 1:  # Selecting 'do nothing'
+                reward += 1
+        else:  # Non-termination action
+            if action[0] != 1:  # Not selecting 'do nothing'
+                reward += 1
+
+        return reward
+    
+    def _calculate_if_actions_are_on_groups_which_are_needed(self, action):
+        reward = 0
+        # Iterate through each ingredient group to set the action mask
+        for key, target in self.ingredient_group_count_targets.items():
+            value = self.ingredient_group_count[key]  # Current count of the ingredient group
+            indexes = self.group_info[key]['indexes']  # Indexes of ingredients in this group
+            selected = [idx for idx in indexes if self.current_selection[idx] > 0]  # Selected ingredients in this group
+            
+            # Will not happen unless non masked algo is being used
+            if target != value:
+                # If the target is not met, the agent should select ingredients from this group so will be reward if it does
+                for idx in selected:
+                    if action[2] == idx:
+                        reward += 1
+                        if value > target: # If the value is over the target reward for a decrease or zero action
+                            if action[0] == 0 or action[0] == 2:
+                                reward += 1
+                        elif value < target: # If the value is under the target reward for an increase action
+                            if action[0] == 3:
+                                reward += 1
+        return reward
 
 if __name__ == '__main__':
     from utils.process_data import get_data
@@ -929,10 +1060,11 @@ if __name__ == '__main__':
         vecnorm_norm_obs_keys = None
         ingredient_df = get_data("small_data.csv")
         seed = 10
-        env_name = 'SchoolMealSelection-v2'
+        env_name = 'SchoolMealSelection-v1'
         initialization_strategy = 'zero'
         vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
         reward_type = 'shaped'
+        algo = 'MASKED_PPO'
     args = Args()
 
     num_episodes = 500
@@ -958,49 +1090,49 @@ if __name__ == '__main__':
         "reward_type":  args.reward_type
         }
 
-    from models.wrappers.common import RewardTrackingWrapper
+    # from models.wrappers.common import RewardTrackingWrapper
     
-    def make_env():
-        env = gym.make(args.env_name, **env_kwargs)
-        # Apply the RewardTrackingWrapper if needed
-        if args.plot_reward_history:
-            if reward_save_path is None:
-                raise ValueError("reward_save_path must be specified when plot_reward_history is True")
-            env = RewardTrackingWrapper(
-                env,
-                args.reward_save_interval,
-                reward_save_path,
-                )
-        env = TimeLimit(env, max_episode_steps=100)
-        env = Monitor(env)
-        return env     
+    # def make_env():
+    #     env = gym.make(args.env_name, **env_kwargs)
+    #     # Apply the RewardTrackingWrapper if needed
+    #     if args.plot_reward_history:
+    #         if reward_save_path is None:
+    #             raise ValueError("reward_save_path must be specified when plot_reward_history is True")
+    #         env = RewardTrackingWrapper(
+    #             env,
+    #             args.reward_save_interval,
+    #             reward_save_path,
+    #             )
+    #     env = TimeLimit(env, max_episode_steps=100)
+    #     env = Monitor(env)
+    #     return env     
 
-    env = make_env()
-    np.set_printoptions(suppress=True)
+    # env = make_env()
+    # np.set_printoptions(suppress=True)
 
-    if args.memory_monitor:
-        import threading
-        monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
-        monitoring_thread.start()
+    # if args.memory_monitor:
+    #     import threading
+    #     monitoring_thread = threading.Thread(target=monitor_memory_usage, daemon=True)
+    #     monitoring_thread.start()
 
-    for episode in range(num_episodes):
-        if episode % 100 == 0:
-            print(f"Episode {episode + 1}")
+    # for episode in range(num_episodes):
+    #     if episode % 100 == 0:
+    #         print(f"Episode {episode + 1}")
 
-        terminated = False
-        truncated = False
-        n_steps = 0
-        obs = env.reset()
-        while not terminated and not truncated:
-            actions = env.action_space.sample()
-            n_steps += 1
-            obs, reward, terminated, truncated, info = env.step(actions)
+    #     terminated = False
+    #     truncated = False
+    #     n_steps = 0
+    #     obs = env.reset()
+    #     while not terminated and not truncated:
+    #         actions = env.action_space.sample()
+    #         n_steps += 1
+    #         obs, reward, terminated, truncated, info = env.step(actions)
 
-    env.close()
-        # print(f"Episode {episode + 1} completed in {n_steps} steps.")
+    # env.close()
+    #     # print(f"Episode {episode + 1} completed in {n_steps} steps.")
 
-    if args.plot_reward_history:
-        reward_prefix = reward_prefix.split(".")[0]
-        dir, pref = get_unique_directory(reward_dir, f"{reward_prefix}_plot", '.png')
-        plot_path = os.path.abspath(os.path.join(dir, pref))
-        plot_reward_distribution(reward_save_path, plot_path)
+    # if args.plot_reward_history:
+    #     reward_prefix = reward_prefix.split(".")[0]
+    #     dir, pref = get_unique_directory(reward_dir, f"{reward_prefix}_plot", '.png')
+    #     plot_path = os.path.abspath(os.path.join(dir, pref))
+    #     plot_reward_distribution(reward_save_path, plot_path)

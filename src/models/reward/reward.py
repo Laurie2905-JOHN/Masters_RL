@@ -62,10 +62,10 @@ class BaseRewardCalculator(ABC):
         
         consumption_targets_met = True
   
-        if main_class.consumption_average['average_mean_consumption'] > main_class.consumption_target['average_mean_consumption']:
-            consumption_targets_met = False
-        if main_class.consumption_average['average_cv_ingredients'] < main_class.consumption_target['average_cv_ingredients']:
-            consumption_targets_met = False
+        # if main_class.consumption_average['average_mean_consumption'] > main_class.consumption_target['average_mean_consumption']:
+        #     consumption_targets_met = False
+        # if main_class.consumption_average['average_cv_ingredients'] < main_class.consumption_target['average_cv_ingredients']:
+        #     consumption_targets_met = False
             
         return consumption_targets_met
     

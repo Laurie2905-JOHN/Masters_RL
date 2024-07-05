@@ -3,12 +3,12 @@ max_episode_steps: 100
 max_ingredients: 6
 action_scaling_factor: 10
 
-algo: PPO
-num_envs: 4
+algo: MASKED_PPO
+num_envs: 2
 
 render_mode: null
 data_name: 'data'
-total_timesteps: 1000000
+total_timesteps: 500000
 save_freq: 100000
 
 log_dir: saved_models/tensorboard
@@ -18,7 +18,7 @@ hyperparams_dir: saved_models/hyperparams
 reward_dir: saved_models/reward
 
 
-log_prefix: test
+log_prefix: V2_shaped_new_env
 save_prefix: null
 best_prefix: null
 hyperparams_prefix: null
