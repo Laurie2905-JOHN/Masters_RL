@@ -38,11 +38,6 @@ class BaseRewardCalculator(ABC):
     def calculate_step_reward(main_class: Any) -> Tuple[Dict[str, float], bool, bool]:
         pass
     
-    # @staticmethod
-    # @abstractmethod
-    # def determine_termination(main_class: Any, targets: Dict[str, bool], termination_reasons: List[str]) -> Tuple[bool, float, List[str]]:
-    #     pass
-    
     @staticmethod
     def cost_target(main_class: Any) -> bool:
         cost_target_met = main_class.menu_cost['cost'] <= main_class.target_cost_per_meal
