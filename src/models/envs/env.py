@@ -912,7 +912,7 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'shaped', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 100):
+                 initialization_strategy: str = 'zero', max_episode_steps: int = 1000):
         super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps)
 
     def initialize_action_space(self) -> None:
@@ -934,7 +934,7 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
         target_flags = None
         termination_reasons = None
         
-        if self.nsteps > 50:
+        if self.nsteps > 100:
             far_flag_terminate = True
         
         # Calculate the reward for the action

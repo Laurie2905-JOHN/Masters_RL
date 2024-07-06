@@ -22,9 +22,9 @@ def main():
     base_setup = load_yaml(setup_file)
 
     # Example variations
-    env_names = ["SchoolMealSelection-v0", "SchoolMealSelection-v1", "SchoolMealSelection-v2"]
-    algos = ['MASKED_PPO', 'PPO']
-    log_prefixes = ['MASKED_PPO_RUN', 'PPO_RUN']
+    env_names = ["SchoolMealSelection-v1", "SchoolMealSelection-v2"]
+    algos = ['MASKED_PPO']
+    log_prefixes = ['MASKED_PPO_RUN']
     reward_type = ['shaped', 'sparse']
 
     for env in env_names:
