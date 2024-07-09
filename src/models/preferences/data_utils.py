@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import prince
 import plotly.express as px
+import random
+from utils.process_data import get_data
 
 def get_child_data():
     # Function to get feature data on children
@@ -15,44 +17,40 @@ def get_child_data():
         "child1": {"age": 10, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
         "child2": {"age": 9, "gender": "F", "health_consideration": "very health conscious", "favorite_cuisine": "Italian"},
         "child3": {"age": 9, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "Italian"},
-        "child4": {"age": 7, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
+        "child4": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
         "child5": {"age": 11, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "Italian"},
         "child6": {"age": 11, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
         "child7": {"age": 9, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "Italian"},
         "child8": {"age": 9, "gender": "F", "health_consideration": "very health conscious", "favorite_cuisine": "Italian"},
         "child9": {"age": 10, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
         "child10": {"age": 11, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
-        "child11": {"age": 7, "gender": "F", "health_consideration": "moderately health conscious", "favorite_cuisine": "Italian"},
+        "child11": {"age": 9, "gender": "F", "health_consideration": "moderately health conscious", "favorite_cuisine": "Italian"},
         "child12": {"age": 9, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
-        "child13": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Chinese"},
-        "child14": {"age": 10, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "Chinese"},
-        "child15": {"age": 11, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Chinese"},
-        "child16": {"age": 11, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Chinese"},
+        "child13": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
+        "child14": {"age": 10, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "Seafood"},
+        "child15": {"age": 11, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
+        "child16": {"age": 11, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
         "child17": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
-        "child18": {"age": 7, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Chinese"},
-        "child19": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Chinese"},
-        "child20": {"age": 10, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "British"},
-        "child21": {"age": 10, "gender": "F", "health_consideration": "very health conscious", "favorite_cuisine": "British"},
-        "child22": {"age": 7, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "British"},
-        "child23": {"age": 9, "gender": "F", "health_consideration": "moderately health conscious", "favorite_cuisine": "British"},
-        "child24": {"age": 9, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "British"},
-        "child25": {"age": 11, "gender": "F", "health_consideration": "very health conscious", "favorite_cuisine": "British"},
-        "child26": {"age": 11, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "British"},
-        "child27": {"age": 9, "gender": "F", "health_consideration": "moderately health conscious", "favorite_cuisine": "Chinese"},
-        "child28": {"age": 7, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Chinese"},
+        "child18": {"age": 9, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
+        "child19": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
+        "child20": {"age": 10, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "BBQ"},
+        "child21": {"age": 10, "gender": "F", "health_consideration": "very health conscious", "favorite_cuisine": "BBQ"},
+        "child22": {"age": 9, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "BBQ"},
+        "child23": {"age": 9, "gender": "F", "health_consideration": "moderately health conscious", "favorite_cuisine": "BBQ"},
+        "child24": {"age": 9, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "BBQ"},
+        "child25": {"age": 11, "gender": "F", "health_consideration": "very health conscious", "favorite_cuisine": "BBQ"},
+        "child26": {"age": 11, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "BBQ"},
+        "child27": {"age": 9, "gender": "F", "health_consideration": "moderately health conscious", "favorite_cuisine": "Seafood"},
+        "child28": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
         "child29": {"age": 9, "gender": "M", "health_consideration": "very health conscious", "favorite_cuisine": "Italian"},
         "child30": {"age": 10, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"}
     }
 
-import random
-from utils.process_data import get_data
-
-def initialize_children_data(child_features, data_file="data.csv", seed=None):
-    random.seed(seed)
-    children_data = {}
+def initialize_children_data(child_features, ingredient_df, seed=None):
     
-    # Load the ingredient data
-    ingredient_df = get_data(data_file)
+    random.seed(seed)
+    
+    children_data = {}
     
     # Base probabilities for like, neutral, and dislike
     base_probabilities = {"like": 0.3, "neutral": 0.5, "dislike": 0.2}
@@ -198,71 +196,6 @@ def initialize_children_data(child_features, data_file="data.csv", seed=None):
     return children_data
 
 
-def initialize_children_data(child_features, seed=None):
-    # Function to get initial preference data on children, based on their health consideration and vegetable groups.
-    # Following this paper: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6173934/ 
-    # Define vegetable groups with descriptions
-    vegetable_groups = {
-        "Group A": ["Tomatoes", "Sweet corn", "Sweet potatoes", "Carrots"],
-        "Group B": ["Onions", "Spring onions", "Pepper"],
-        "Group C": ["Cauliflowers"],
-        "Group D": ["Courgettes", "Spinaches", "Curly kales", "Peas"],
-        "Group E": ["Beetroots", "Lettuces (generic)", "Broccoli"],
-        "Group F": ["Aubergines", "Cucumber", "White cabbage", "Savoy cabbages", "Red cabbage", "Runner beans (with pods)"]
-    }
-
-    # Define probabilities based on group descriptions
-    probabilities = {
-        "Group A": {"like": 0.7, "neutral": 0.2, "dislike": 0.1},  # Most liked
-        "Group B": {"like": 0.4, "neutral": 0.3, "dislike": 0.3},  # Camouflaged in recipes
-        "Group C": {"like": 0.1, "neutral": 0.2, "dislike": 0.7},  # Strongly disliked
-        "Group D": {"like": 0.3, "neutral": 0.3, "dislike": 0.4},  # Camouflaged but some forced
-        "Group E": {"like": 0.2, "neutral": 0.3, "dislike": 0.5},  # Offered but often rejected
-        "Group F": {"like": 0.2, "neutral": 0.3, "dislike": 0.5}   # Rarely offered, often rejected
-    }
-    
-    random.seed(seed)
-
-    children_data = {}
-
-# Iterate over each child in the dataset
-    for child_key, features in child_features.items():
-        # Get the health consideration feature for the current child
-        health_consideration = features["health_consideration"]
-        
-        # Calculate like probability modifier based on health consideration
-        # More health conscious children have a higher modifier, making them less likely to dislike vegetables
-        if health_consideration == "very health conscious":
-            like_modifier = 0.2
-        elif health_consideration == "moderately health conscious":
-            like_modifier = 0.1
-        else:
-            like_modifier = 0
-
-        # Initialize the preferences for the current child
-        preferences = {"likes": [], "neutral": [], "dislikes": []}
-
-        # Assign preferences based on group probabilities and health consideration
-        for group, veggies in vegetable_groups.items():
-            for veggie in veggies:
-                # Generate a random value between 0 and 1
-                rand_val = random.random()
-                # Get the probability distribution for the current group
-                prob = probabilities[group]
-                
-                # Determine preference based on probabilities and health consideration modifier
-                if rand_val < prob["like"] - like_modifier:
-                    preferences["likes"].append(veggie)
-                elif rand_val < prob["like"] + prob["neutral"]:
-                    preferences["neutral"].append(veggie)
-                else:
-                    preferences["dislikes"].append(veggie)
-        # Store the preferences for the current child
-        children_data[child_key] = preferences
-    
-    return children_data
-
-
 def get_feedback(ingredient_list, mean_no_feedback=9, std_dev_no_feedback=4, seed=None):
     # Function to get feedback on meal plan which gives randomised comments on the ingredients for each child.
     # The function also sometimes doesn't provide feedback for some children. 
@@ -361,6 +294,7 @@ def get_data_preprocessor():
             ("gender", OneHotEncoder(), ["gender"]),
             ("health_consideration", OneHotEncoder(), ["health_consideration"]),
             ("favorite_cuisine", OneHotEncoder(), ["favorite_cuisine"]),
+            ("healthy", OneHotEncoder(), ["healthy"]),
             ("type", OneHotEncoder(), ["type"]),
             ("colour", OneHotEncoder(), ["colour"]),
             ("taste", OneHotEncoder(), ["taste"]),
@@ -399,19 +333,23 @@ def prepare_ml_data(preferences, ingredient_df, child_data):
     combined_df = pd.merge(child_df, preferences_long_df, on='child')
     
     # Merge the combined DataFrame with the ingredient DataFrame
-    df = pd.merge(combined_df, ingredient_df[['Category7', 'Category1', 'Colour', 'Texture', 'Taste']], left_on='ingredient', right_on='Category7')
-    
+    df = pd.merge(combined_df, ingredient_df[['Category7', 'Category1', 'Colour', 'Texture', 'Taste', 'Healthy']], left_on='ingredient', right_on='Category7')
+
+    # Drop the redundant 'Category7' column after the merge
+    df.drop(columns=['Category7'], inplace=True)
+
     # Rename columns to match the desired output
     df.rename(columns={
-        'Category7': 'ingredient',
+        'ingredient': 'ingredient',
         'Category1': 'type',
         'Colour': 'colour',
         'Texture': 'texture',
-        'Taste': 'taste'
+        'Taste': 'taste',
+        'Healthy': 'healthy'
     }, inplace=True)
     
     # Select and reorder the final columns
-    df = df[['age', 'gender', 'health_consideration', 'favorite_cuisine', 'ingredient', 'type', 'colour', 'texture', 'taste', 'preference']]
+    df = df[['age', 'gender', 'health_consideration', 'favorite_cuisine', 'ingredient', 'type', 'colour', 'texture', 'taste', 'healthy', 'preference']]
     
     # Encode the target variable
     label_encoder = LabelEncoder()
@@ -428,7 +366,7 @@ def prepare_ml_data(preferences, ingredient_df, child_data):
     X = preprocessor.transform(df)
     y = df["preference"].values
     
-    return X, y, label_encoder, preprocessor
+    return X, y, df, label_encoder, preprocessor
 
 
 # Function to plot 2D MCA components
