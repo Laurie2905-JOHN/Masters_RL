@@ -10,6 +10,11 @@ import prince
 import plotly.express as px
 import random
 from utils.process_data import get_data
+from imblearn.over_sampling import SMOTE
+import random
+import matplotlib.pyplot as plt
+import pandas as pd
+from typing import Dict, Any, Tuple
 
 def get_child_data():
     # Function to get feature data on children
@@ -46,63 +51,150 @@ def get_child_data():
         "child30": {"age": 10, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"}
     }
 
-def initialize_children_data(child_features, ingredient_df, seed=None):
-    
+def get_modifiers(
+    features: Dict[str, Any],
+    ingredient_row: pd.Series,
+    health_consideration_modifiers: Dict[str, Dict[str, float]],
+    favorite_cuisine_modifiers: Dict[str, Dict[str, float]],
+    taste_modifiers: Dict[str, float],
+    colour_modifiers: Dict[str, float],
+    gender_modifiers: Dict[str, float],
+    age_modifiers: Dict[int, float],
+    texture_modifiers: Dict[str, float],
+    other_modifiers: Dict[str, Any],
+    vegetable_groups: Dict[str, list],
+    group_probabilities_modifiers: Dict[str, float]
+) -> float:
+    health_consideration = features["health_consideration"]
+    age = features["age"]
+    gender = features["gender"]
+    favorite_cuisine = features["favorite_cuisine"]
+
+    health_category = ingredient_row["Healthy"]
+    ingredient_category1 = ingredient_row["Category1"]
+    taste = ingredient_row["Taste"]
+    colour = ingredient_row["Colour"]
+    texture = ingredient_row["Texture"]
+    ingredient = ingredient_row["Category7"]
+
+    health_mod = health_consideration_modifiers[health_consideration][health_category]
+    favorite_mod = favorite_cuisine_modifiers.get(favorite_cuisine, {}).get(ingredient_category1, 1)
+    taste_mod = taste_modifiers.get(taste, taste_modifiers["Misc"])
+    colour_mod = colour_modifiers[colour]
+    texture_mod = texture_modifiers[texture]
+    gender_mod = gender_modifiers[gender]
+    age_mod = age_modifiers[age]
+
+    group_name = next((group for group, ingredients in vegetable_groups.items() if ingredient in ingredients), None)
+    group_mod = group_probabilities_modifiers.get(group_name, 1)
+
+    fruit_mod = other_modifiers["fruit_factor"] if ingredient_category1 == "Fruits and fruit products" else 1
+    vegetable_mod = other_modifiers["vegetables_factor"][gender] if ingredient_category1 == "Vegetables and vegetable products" else 1
+    meat_mod = other_modifiers["meat_factor"][gender] if ingredient_category1 == "Meat and meat products" else 1
+
+    return (health_mod * favorite_mod * taste_mod * colour_mod * gender_mod * age_mod * 
+            texture_mod * group_mod * fruit_mod * vegetable_mod * meat_mod)
+
+
+def get_modifiers(
+    features: Dict[str, Any],
+    ingredient_row: pd.Series,
+    health_consideration_modifiers: Dict[str, Dict[str, float]],
+    favorite_cuisine_modifiers: Dict[str, Dict[str, float]],
+    taste_modifiers: Dict[str, float],
+    colour_modifiers: Dict[str, float],
+    gender_modifiers: Dict[str, float],
+    age_modifiers: Dict[int, float],
+    texture_modifiers: Dict[str, float],
+    other_modifiers: Dict[str, Any],
+    vegetable_groups: Dict[str, list],
+    group_probabilities_modifiers: Dict[str, float]
+) -> float:
+    health_consideration = features["health_consideration"]
+    age = features["age"]
+    gender = features["gender"]
+    favorite_cuisine = features["favorite_cuisine"]
+
+    health_category = ingredient_row["Healthy"]
+    ingredient_category1 = ingredient_row["Category1"]
+    taste = ingredient_row["Taste"]
+    colour = ingredient_row["Colour"]
+    texture = ingredient_row["Texture"]
+    ingredient = ingredient_row["Category7"]
+
+    health_mod = health_consideration_modifiers[health_consideration][health_category]
+    favorite_mod = favorite_cuisine_modifiers.get(favorite_cuisine, {}).get(ingredient_category1, 1)
+    taste_mod = taste_modifiers.get(taste, taste_modifiers["Misc"])
+    colour_mod = colour_modifiers[colour]
+    texture_mod = texture_modifiers[texture]
+    gender_mod = gender_modifiers[gender]
+    age_mod = age_modifiers[age]
+
+    group_name = next((group for group, ingredients in vegetable_groups.items() if ingredient in ingredients), None)
+    group_mod = group_probabilities_modifiers.get(group_name, 1)
+
+    fruit_mod = other_modifiers["fruit_factor"] if ingredient_category1 == "Fruits and fruit products" else 1
+    vegetable_mod = other_modifiers["vegetables_factor"][gender] if ingredient_category1 == "Vegetables and vegetable products" else 1
+    meat_mod = other_modifiers["meat_factor"][gender] if ingredient_category1 == "Meat and meat products" else 1
+    random_mod = random.uniform(other_modifiers["random_factor"][0], other_modifiers["random_factor"][1])
+
+    return (health_mod * favorite_mod * taste_mod * colour_mod * gender_mod * age_mod * 
+            texture_mod * group_mod * fruit_mod * vegetable_mod * meat_mod * random_mod)
+
+def initialize_children_data(child_data: Dict[str, Dict[str, Any]], ingredient_df: pd.DataFrame, split: float = 0.8, seed: int = None, plot_graphs: bool = False) -> Tuple[Dict[str, Dict[str, list]], Dict[str, Dict[str, list]]]:
     random.seed(seed)
-    
     children_data = {}
-    
-    # Base probabilities for like, neutral, and dislike
-    base_probabilities = {"like": 0.3, "neutral": 0.5, "dislike": 0.2}
-    
-    # Factors affecting preferences with modifier values
+    all_scores = []
+    all_preferences = {"likes": [], "neutral": [], "dislikes": []}
+
+    # Factors affecting preferences with modifier values (increased impact)
     health_consideration_modifiers = {
-        "very health conscious": {"healthy": 1.2, "average": 1, "unhealthy": 0.8},
-        "moderately health conscious": {"healthy": 1.1, "average": 1, "unhealthy": 0.9},
-        "don't care": {"healthy": 0.8, "average": 1, "unhealthy": 1.2},
+        "very health conscious": {"healthy": 1.5, "average": 1, "unhealthy": 0.5},
+        "moderately health conscious": {"healthy": 1.3, "average": 1, "unhealthy": 0.7},
+        "don't care": {"healthy": 0.7, "average": 1, "unhealthy": 1.3},
     }
-    
+
     favorite_cuisine_modifiers = {
-        "BBQ": {"Meat and meat products": 1.2},
-        "Seafood": {"Fish seafood amphibians reptiles and invertebrates": 1.2},
-        "Italian": {"Anchovies": 1.2, "Aubergines": 1.2, "Noodles": 1.2, "Pasta plain (not stuffed) uncooked": 1.2, "Pasta wholemeal": 1.2, "Tomatoes": 1.2},
+        "BBQ": {"Meat and meat products": 1.4},
+        "Seafood": {"Fish seafood amphibians reptiles and invertebrates": 1.4},
+        "Italian": {"Anchovies": 1.4, "Aubergines": 1.4, "Noodles": 1.4, "Pasta plain (not stuffed) uncooked": 1.4, "Pasta wholemeal": 1.4, "Tomatoes": 1.4},
     }
-    
+
     taste_modifiers = {
-        "Sweet": 1.1,
-        "Salty": 1.1,
-        "Sour": 0.8,
-        "Earthy": 0.8,
+        "Sweet": 1.3,
+        "Salty": 1.3,
+        "Sour": 0.7,
+        "Earthy": 0.7,
         "Misc": 1,
     }
-    
+
     colour_modifiers = {
-        "Red": 1.1,
-        "Green": 1.1,
-        "Yellow": 1.05,
-        "Orange": 1.05,
+        "Red": 1.3,
+        "Green": 1.3,
+        "Yellow": 1.2,
+        "Orange": 1.2,
         "Pink": 1,
         "Purple": 1,
-        "White": 0.95,
-        "Brown": 0.95,
+        "White": 0.8,
+        "Brown": 0.8,
     }
-    
+
     gender_modifiers = {
-        "M": 0.9,
-        "F": 1.1,
+        "M": 0.7,
+        "F": 1.3,
     }
-    
+
     age_modifiers = {
-        9: 0.9,
+        9: 0.7,
         10: 1,
-        11: 1.1,
+        11: 1.3,
     }
-    
+
     texture_modifiers = {
-        "Crunchy": 0.9,
-        "Soft": 1.1,
-        "Soft/Crunchy": 0.8,
-        "Firm": 1.1,
+        "Crunchy": 0.7,
+        "Soft": 1.3,
+        "Soft/Crunchy": 0.6,
+        "Firm": 1.3,
         "Leafy": 1,
         "Grainy": 1,
         "Liquid": 1,
@@ -110,13 +202,14 @@ def initialize_children_data(child_features, ingredient_df, seed=None):
         "Creamy": 1,
         "Hard": 1,
     }
-    
+
     other_modifiers = {
-        "fruit_factor": 1.1,
-        "vegetables_factor": {"M": 0.9, "F": 1},
-        "meat_factor": {"M": 1, "F": 0.9},
+        "fruit_factor": 1.3,
+        "vegetables_factor": {"M": 0.7, "F": 1.3},
+        "meat_factor": {"M": 1.3, "F": 0.7},
+        "random_factor": [0.7, 1.3]
     }
-    
+
     vegetable_groups = {
         "Group A": ["Tomatoes", "Sweet corn", "Sweet potatoes", "Carrots"],
         "Group B": ["Onions", "Spring onions", "Pepper"],
@@ -125,76 +218,92 @@ def initialize_children_data(child_features, ingredient_df, seed=None):
         "Group E": ["Beetroots", "Lettuces (generic)", "Broccoli"],
         "Group F": ["Aubergines", "Cucumber", "White cabbage", "Savoy cabbages", "Red cabbage", "Runner beans (with pods)"],
     }
-    
+
     group_probabilities_modifiers = {
-        "Group A": {"like": 1.2, "neutral": 0.8, "dislike": 0.7},  # Most liked
-        "Group B": {"like": 1.1, "neutral": 1, "dislike": 0.9},  # Camouflaged in recipes
-        "Group C": {"like": 0.8, "neutral": 1, "dislike": 1.2},  # Strongly disliked
-        "Group D": {"like": 1, "neutral": 1, "dislike": 1},      # Camouflaged but some forced
-        "Group E": {"like": 0.9, "neutral": 1, "dislike": 1.1},  # Offered but often rejected
-        "Group F": {"like": 0.9, "neutral": 1, "dislike": 1.1}   # Rarely offered, often rejected
+        "Group A": 1.4,
+        "Group B": 1.3,
+        "Group C": 0.7, 
+        "Group D": 1, 
+        "Group E": 0.9, 
+        "Group F": 0.9 
     }
-    
 
-    # Initialize preferences for each child
-    for child_key, features in child_features.items():
-        # Extract child-specific features
-        health_consideration = features["health_consideration"]
-        age = features["age"]
-        gender = features["gender"]
-        favorite_cuisine = features["favorite_cuisine"]
-
-        # Get the modifier values for the child's health consideration, age, and gender
-        health_modifiers = health_consideration_modifiers[health_consideration]
-        age_modifier = age_modifiers[age]
-        gender_modifier = gender_modifiers[gender]
-
+    for child_key, features in child_data.items():
         preferences = {"likes": [], "neutral": [], "dislikes": []}
+        child_scores = []
 
-        for i, row in ingredient_df.iterrows():
-            ingredient = row["Category7"]
-            health_category = row["Healthy"]
+        for _, row in ingredient_df.iterrows():
+            score = get_modifiers(features, row, health_consideration_modifiers, favorite_cuisine_modifiers, taste_modifiers,
+                                  colour_modifiers, gender_modifiers, age_modifiers, texture_modifiers, other_modifiers,
+                                  vegetable_groups, group_probabilities_modifiers)
+            child_scores.append((row["Category7"], score))
 
-            # Calculate modifiers based on various factors
-            health_mod = health_modifiers[health_category]
-            favorite_mod = favorite_cuisine_modifiers.get(favorite_cuisine, {}).get(row["Category1"], 1)
-            taste_mod = taste_modifiers.get(row["Taste"], taste_modifiers["Misc"])
-            colour_mod = colour_modifiers[row["Colour"]]
-            texture_mod = texture_modifiers[row["Texture"]]
+        child_scores.sort(key=lambda x: x[1], reverse=True)
+        all_scores.extend(child_scores)
 
-            # Determine the vegetable group and get the group probability modifiers
-            group_name = next((group for group, ingredients in vegetable_groups.items() if ingredient in ingredients), None)
-            group_modifiers = group_probabilities_modifiers[group_name] if group_name else {"like": 1, "neutral": 1, "dislike": 1}
-            
-            # Calculate other modifiers
-            fruit_mod = other_modifiers["fruit_factor"] if row["Category1"] == "Fruits and fruit products" else 1
-            vegetable_mod = other_modifiers["vegetables_factor"][gender] if row["Category1"] == "Vegetables and vegetable products" else 1
-            meat_mod = other_modifiers["meat_factor"][gender] if row["Category1"] == "Meat and meat products" else 1
+        num_ingredients = len(child_scores)
+        num_likes = int(0.6 * num_ingredients)
+        num_neutral = int(0.2 * num_ingredients)
+        num_dislikes = num_ingredients - num_likes - num_neutral
 
-            # Calculate the overall probabilities by applying modifiers to the base probabilities
-            like_probability = base_probabilities["like"] * health_mod * favorite_mod * taste_mod * colour_mod * gender_modifier * age_modifier * texture_mod * group_modifiers["like"] * fruit_mod * vegetable_mod * meat_mod
-            neutral_probability = base_probabilities["neutral"] * health_mod * favorite_mod * taste_mod * colour_mod * gender_modifier * age_modifier * texture_mod * group_modifiers["neutral"] * fruit_mod * vegetable_mod * meat_mod
-            dislike_probability = base_probabilities["dislike"] * health_mod * favorite_mod * taste_mod * colour_mod * gender_modifier * age_modifier * texture_mod * group_modifiers["dislike"] * fruit_mod * vegetable_mod * meat_mod
-            
-            # Normalize the probabilities
-            total = like_probability + neutral_probability + dislike_probability
-            like_probability /= total
-            neutral_probability /= total
-            dislike_probability /= total
+        preferences["likes"] = [ingredient for ingredient, _ in child_scores[:num_likes]]
+        preferences["neutral"] = [ingredient for ingredient, _ in child_scores[num_likes:num_likes + num_neutral]]
+        preferences["dislikes"] = [ingredient for ingredient, _ in child_scores[num_likes + num_neutral:]]
 
-            # Determine the preference based on the calculated probabilities
-            rand_val = random.random()
-            if rand_val < like_probability:
-                preferences["likes"].append(ingredient)
-            elif rand_val < like_probability + neutral_probability:
-                preferences["neutral"].append(ingredient)
-            else:
-                preferences["dislikes"].append(ingredient)
+        all_preferences["likes"].extend(preferences["likes"])
+        all_preferences["neutral"].extend(preferences["neutral"])
+        all_preferences["dislikes"].extend(preferences["dislikes"])
 
         children_data[child_key] = preferences
 
-    return children_data
+    all_data = {}
 
+    for child_key, preferences in children_data.items():
+        known_preferences = {"likes": [], "neutral": [], "dislikes": []}
+        unknown_preferences = {"likes": [], "neutral": [], "dislikes": []}
+
+        for category in ["likes", "neutral", "dislikes"]:
+            total_items = len(preferences[category])
+            split_index = int(total_items * split)
+            known_preferences[category] = preferences[category][:split_index]
+            unknown_preferences[category] = preferences[category][split_index:]
+
+        all_data[child_key] = {
+            "known": known_preferences,
+            "unknown": unknown_preferences
+        }
+
+    if plot_graphs:
+        plot_histograms(all_scores, all_preferences)
+
+    return all_data
+
+def plot_histograms(scores: list, preferences: Dict[str, list]) -> None:
+    plt.figure(figsize=(15, 5))
+
+    plt.subplot(1, 3, 1)
+    plt.hist([score for ingredient, score in scores if ingredient in preferences["likes"]], bins=20, color='green', alpha=0.7, label='Like')
+    plt.title('Like Scores')
+    plt.xlabel('Score')
+    plt.ylabel('Frequency')
+    plt.legend()
+
+    plt.subplot(1, 3, 2)
+    plt.hist([score for ingredient, score in scores if ingredient in preferences["neutral"]], bins=20, color='blue', alpha=0.7, label='Neutral')
+    plt.title('Neutral Scores')
+    plt.xlabel('Score')
+    plt.ylabel('Frequency')
+    plt.legend()
+
+    plt.subplot(1, 3, 3)
+    plt.hist([score for ingredient, score in scores if ingredient in preferences["dislikes"]], bins=20, color='red', alpha=0.7, label='Dislike')
+    plt.title('Dislike Scores')
+    plt.xlabel('Score')
+    plt.ylabel('Frequency')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
 
 def get_feedback(ingredient_list, mean_no_feedback=9, std_dev_no_feedback=4, seed=None):
     # Function to get feedback on meal plan which gives randomised comments on the ingredients for each child.
@@ -282,10 +391,6 @@ def get_supplier_availability(ingredients, mean_unavailable=5, std_dev_unavailab
     
     return supplier_availability
 
-# Function to convert to dense and DataFrame
-def to_dense_dataframe(X):
-    X_dense = X.toarray() if hasattr(X, 'toarray') else X
-    return pd.DataFrame(X_dense)
 
 def get_data_preprocessor():
     preprocessor = ColumnTransformer(
@@ -294,24 +399,19 @@ def get_data_preprocessor():
             ("gender", OneHotEncoder(), ["gender"]),
             ("health_consideration", OneHotEncoder(), ["health_consideration"]),
             ("favorite_cuisine", OneHotEncoder(), ["favorite_cuisine"]),
-            ("healthy", OneHotEncoder(), ["healthy"]),
             ("type", OneHotEncoder(), ["type"]),
             ("colour", OneHotEncoder(), ["colour"]),
             ("taste", OneHotEncoder(), ["taste"]),
             ("texture", OneHotEncoder(), ["texture"]),
-        ]
+            ("healthy", OneHotEncoder(), ["healthy"]),
+        ],
     )
     return preprocessor
     
-# Function to prepare data for the machine learning model
-def prepare_ml_data(preferences, ingredient_df, child_data):
-    
+ # Function to prepare data for the machine learning model
+def prepare_ml_data(preferences, ingredient_df, child_data, apply_SMOTE=False, seed=42):
     # Create a DataFrame from child_data
     child_df = pd.DataFrame.from_dict(child_data, orient='index').reset_index().rename(columns={'index': 'child'})
-    
-    # Encode the gender column
-    label_encoder_gender = LabelEncoder()
-    child_df["gender"] = label_encoder_gender.fit_transform(child_df["gender"])
     
     # Create a DataFrame from preferences
     preferences_df = pd.DataFrame(preferences).T.reset_index().rename(columns={'index': 'child'})
@@ -353,19 +453,40 @@ def prepare_ml_data(preferences, ingredient_df, child_data):
     
     # Encode the target variable
     label_encoder = LabelEncoder()
-    
     df["preference"] = label_encoder.fit_transform(df["preference"])
 
     # Define the preprocessor for numerical and categorical features
     preprocessor = get_data_preprocessor()
 
+    # Drop the target column before fitting the preprocessor, this will occur in column transformer but done to make it resilient to changes.
+    X = df.drop(columns=['preference'])
+    y = df["preference"].values
+
     # Fit the preprocessor
-    preprocessor = preprocessor.fit(df)
+    preprocessor = preprocessor.fit(X)
 
     # Apply the transformations and prepare the dataset
-    X = preprocessor.transform(df)
-    y = df["preference"].values
+    X = preprocessor.transform(X)
     
+    if apply_SMOTE:
+        # Convert sparse matrix to dense format
+        X_dense = X.toarray() if hasattr(X, 'toarray') else X
+        # Apply SMOTE to balance the classes
+        smote = SMOTE(random_state=seed)
+        X_res, y_res = smote.fit_resample(X_dense, y)
+        
+        # Convert back to DataFrame
+        X_res_df = pd.DataFrame(X_res, columns=preprocessor.get_feature_names_out())
+        y_res_df = pd.DataFrame(y_res, columns=['preference'])
+        
+        # Concatenate X and y
+        df_res = pd.concat([X_res_df, y_res_df], axis=1)
+        
+        # Update df, X, and y
+        df = df_res
+        X = X_res
+        y = y_res
+
     return X, y, df, label_encoder, preprocessor
 
 
