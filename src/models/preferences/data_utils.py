@@ -15,6 +15,9 @@ import random
 import matplotlib.pyplot as plt
 import pandas as pd
 from typing import Dict, Any, Tuple
+import numpy as np
+import random
+from typing import Dict
 
 def get_child_data():
     # Function to get feature data on children
@@ -305,76 +308,102 @@ def plot_histograms(scores: list, preferences: Dict[str, list]) -> None:
     plt.tight_layout()
     plt.show()
 
-def get_feedback(ingredient_list, mean_no_feedback=9, std_dev_no_feedback=4, seed=None):
-    # Function to get feedback on meal plan which gives randomised comments on the ingredients for each child.
+
+def get_feedback(preferences: Dict[str, Dict[str, list]], ingredient_list: list, seed=None):
+    # Function to get feedback on meal plan which gives randomized comments on the ingredients for each child.
     # The function also sometimes doesn't provide feedback for some children. 
     comments = [
-        "Didn't like the {} and {} in the dish, but the {} was tasty.",
-        "Did not enjoy the {} and {}.",
-        "Enjoyed the {} and {}, but was okay with the {}.",
-        "Loved the {}, but didn't like the {} and {}.",
-        "The {} was great, but the {} were just okay.",
-        "Didn't enjoy the {}, but the {} and {} were okay.",
-        "Loved the {} and {}, but not the {}.",
-        "Loved the {} and {}, but the {} was not appealing.",
-        "Enjoyed the {}, but the {} was not liked.",
-        "Didn't like the {}, {} and {} together.",
-        "Really liked the {} with {} and the {} was tasty.",
-        "Didn't like the {} in the dish, but the {} was fine.",
-        "Enjoyed the {} and {}, but not the {}.",
-        "Didn't like the {} and {}.",
-        "The {} and {} were amazing, but didn't enjoy the {} much.",
-        "Loved the {} and {}, but not the {}.",
-        "Didn't enjoy the {} much, but the {} were okay.",
-        "The {} and {} dish was great.",
-        "Didn't like the {}.",
-        "Enjoyed the {} and {}.",
-        "Loved the {} and {}.",
-        "Didn't like the {} and the {}.",
-        "Enjoyed the {} and {}, but the {} was okay.",
-        "Didn't like the {} and {} in the dish.",
-        "Didn't like the {} and {}, but the {} were okay.",
-        "Enjoyed the {} and {}, but didn't like the {}.",
-        "Didn't like the {}.",
-        "Loved the {} and {}, but the {} was not liked.",
-        "Didn't like the {} much and the {} were okay.",
-        "Enjoyed the {} and {}.",
-        "Liked the {} but not the {}.",
-        "The {} was fine, but the {} and {} weren't good.",
-        "The {} and {} were great, but the {} was not.",
-        "The {} was tasty, but the {} and {} weren't.",
-        "The {} was okay, but the {} and {} weren't appealing.",
-        "Didn't like the {}, but the {} and {} were good.",
-        "The {} and {} were okay, but the {} wasn't.",
-        "Really liked the {}, but the {} was too strong.",
-        "Enjoyed the {}, but the {} and {} were too bland.",
-        "The {} was fine, but the {} and {} needed more flavor.",
-        "Loved the {}, but the {} and {} were not good.",
-        "Didn't enjoy the {}, but the {} was okay.",
-        "The {} was good, but the {} and {} were not to my taste.",
-        "Enjoyed the {}, but the {} was too overpowering.",
-        "The {} was delicious, but the {} and {} weren't enjoyable."
+        ("Didn't like the {} and {} in the dish, but the {} was tasty.", ["dislikes", "dislikes", "likes"]),
+        ("Did not enjoy the {} and {}.", ["dislikes", "dislikes"]),
+        ("Enjoyed the {} and {}, but was okay with the {}.", ["likes", "likes", "neutral"]),
+        ("Loved the {}, but didn't like the {} and {}.", ["likes", "dislikes", "dislikes"]),
+        ("The {} was great, but the {} was just okay.", ["likes", "neutral"]),
+        ("Didn't enjoy the {}, but the {} was okay.", ["dislikes", "neutral"]),
+        ("Loved the {} and {}, but not the {}.", ["likes", "likes", "dislikes"]),
+        ("Loved the {}, but the {} was not appealing.", ["likes", "dislikes"]),
+        ("Enjoyed the {}, but the {} was not liked.", ["likes", "dislikes"]),
+        ("Didn't like the {}, {} and {} together.", ["dislikes", "dislikes", "dislikes"]),
+        ("Really liked the {} with {} and the {} was tasty.", ["likes", "likes", "likes"]),
+        ("Didn't like the {} in the dish, but the {} was fine.", ["dislikes", "neutral"]),
+        ("Enjoyed the {} and {}, but not the {}.", ["likes", "likes", "dislikes"]),
+        ("Didn't like the {} and {}.", ["dislikes", "dislikes"]),
+        ("The {} and {} were amazing, but didn't enjoy the {} much.", ["likes", "likes", "dislikes"]),
+        ("Loved the {} and {}, but not the {}.", ["likes", "likes", "dislikes"]),
+        ("Didn't enjoy the {} much, but the {} was okay.", ["dislikes", "neutral"]),
+        ("The {} and {} dish was great.", ["likes", "likes"]),
+        ("Didn't like the {}.", ["dislikes"]),
+        ("Enjoyed the {} and {}.", ["likes", "likes"]),
+        ("Loved the {} and {}.", ["likes", "likes"]),
+        ("Didn't like the {} and the {}.", ["dislikes", "dislikes"]),
+        ("Enjoyed the {} and {}, but the {} was okay.", ["likes", "likes", "neutral"]),
+        ("Didn't like the {} and {} in the dish.", ["dislikes", "dislikes"]),
+        ("Didn't like the {}, but the {} was okay.", ["dislikes", "neutral"]),
+        ("Enjoyed the {} and {}, but didn't like the {}.", ["likes", "likes", "dislikes"]),
+        ("Didn't like the {}.", ["dislikes"]),
+        ("Loved the {} and {}, but the {} was not liked.", ["likes", "likes", "dislikes"]),
+        ("Didn't like the {}, but the {} was okay.", ["dislikes", "neutral"]),
+        ("Enjoyed the {} and {}.", ["likes", "likes"]),
+        ("Liked the {} but not the {}.", ["likes", "dislikes"]),
+        ("The {} was fine, but the {} wasn't good.", ["neutral", "dislikes"]),
+        ("The {} and {} were great, but the {} was not.", ["likes", "likes", "dislikes"]),
+        ("The {} was tasty, but the {} wasn't.", ["likes", "dislikes"]),
+        ("The {} was okay, but the {} wasn't appealing.", ["neutral", "dislikes"]),
+        ("Didn't like the {}, but the {} was good.", ["dislikes", "likes"]),
+        ("The {} and {} were okay, but the {} wasn't.", ["neutral", "neutral", "dislikes"]),
+        ("Really liked the {}, but the {} was too strong.", ["likes", "dislikes"]),
+        ("Enjoyed the {}, but the {} was too bland.", ["likes", "dislikes"]),
+        ("The {} was fine, but the {} needed more flavor.", ["neutral", "dislikes"]),
+        ("Loved the {}, but the {} was not good.", ["likes", "dislikes"]),
+        ("Didn't enjoy the {}, but the {} was okay.", ["dislikes", "neutral"]),
+        ("The {} was good, but the {} was not to my taste.", ["likes", "dislikes"]),
+        ("Enjoyed the {}, but the {} was too overpowering.", ["likes", "dislikes"]),
+        ("The {} was delicious, but the {} wasn't enjoyable.", ["likes", "dislikes"])
     ]
     
-    children = [f"child{i}" for i in range(1, 31)]
+
     random.seed(seed)
-    random.shuffle(children)
-    
-    
-    # Determine the number of children who will not give feedback
-    num_children_no_feedback = max(0, int(np.random.normal(mean_no_feedback, std_dev_no_feedback)))
-    children_no_feedback = random.sample(children, num_children_no_feedback)
-    
     feedback = {}
-    for child in children:
-        if child in children_no_feedback:
-            continue
-        comment_template = random.choice(comments)
-        ingredient_list = [random.choice(ingredient_list) for _ in range(comment_template.count("{}"))]
-        comment = comment_template.format(*ingredient_list)
-        feedback[child] = {"comments": comment}
-    
-    return feedback
+
+    for child, prefs in preferences.items():  # Iterate over each child and their preferences
+        
+        # Combine known and unknown preferences for likes, neutral, and dislikes
+        available_ingredients = {
+            "likes": prefs['known']['likes'] + prefs['unknown']['likes'],
+            "neutral": prefs['known']['neutral'] + prefs['unknown']['neutral'],
+            "dislikes": prefs['known']['dislikes'] + prefs['unknown']['dislikes'],
+        }
+
+        valid_comments = []  # Initialize the list of valid comments
+
+        # Iterate over each comment template and its corresponding feedback types
+        for comment_template, feedback_types in comments:
+            matched_ingredients = []  # Initialize the list of matched ingredients
+            used_ingredients = set()  # Initialize the set of used ingredients
+
+            # Match ingredients according to feedback types
+            for feedback_type in feedback_types:
+                for category in available_ingredients:
+                    if feedback_type in category:  # Check if the feedback type matches the category
+                        # List possible ingredients not yet used
+                        possible_ingredients = [ingredient for ingredient in ingredient_list if ingredient in available_ingredients[category] and ingredient not in used_ingredients]
+                        if possible_ingredients:  # If there are possible ingredients
+                            chosen_ingredient = random.choice(possible_ingredients)  # Randomly select an ingredient
+                            matched_ingredients.append(chosen_ingredient)  # Add the chosen ingredient to the matched list
+                            used_ingredients.add(chosen_ingredient)  # Mark the ingredient as used
+                            break  # Break after finding a valid ingredient
+
+            # Check if we have matched the required number of ingredients
+            if len(matched_ingredients) == len(feedback_types):
+                valid_comments.append((comment_template, matched_ingredients, feedback_types))  # Add to valid comments if matches found
+
+        # Select a random valid comment from the list of valid comments
+        if valid_comments:
+            comment_template, matched_ingredients, feedback_types = random.choice(valid_comments)  # Randomly select a valid comment
+            comment = comment_template.format(*matched_ingredients)  # Format the comment with matched ingredients
+            correct_action = {ingredient: feedback_types[idx] for idx, ingredient in enumerate(matched_ingredients)}
+            feedback[child] = {"comment": comment, "correct_action": correct_action}  # Add the comment to the child's feedback
+
+    return feedback  # Return the feedback dictionary
 
 
 def get_supplier_availability(ingredients, mean_unavailable=5, std_dev_unavailable=2, seed = None):
