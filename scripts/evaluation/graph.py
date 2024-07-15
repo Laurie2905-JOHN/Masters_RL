@@ -18,7 +18,7 @@ def evaluate_model(model, env, algo, num_episodes=10, deterministic=True):
         done, state = False, None
         episode_predictions = []
         counter = 0
-
+        print("Algo:", algo)
         while True:
             counter += 1
             if algo == "MASKED_PPO":
@@ -177,7 +177,7 @@ class Args:
     vecnorm_norm_obs_keys = None
     ingredient_df = get_data("data.csv")
     seed = 10
-    env_name = 'SchoolMealSelection-v2'
+    env_name = 'SchoolMealSelection-v1'
     initialization_strategy = 'zero'
     vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
     reward_type = 'shaped'
@@ -188,9 +188,9 @@ def main():
     from utils.train_utils import setup_environment, get_unique_directory
     from utils.process_data import get_data  # Ensure this import is correct
     
-    basepath = os.path.abspath(f"saved_models/evaluation/best_models/new_env")
+    basepath = os.path.abspath(f"saved_models/evaluation/best_models/presentation")
 
-    filename = "SchoolMealSelection_v2_MASKED_PPO_reward_type_shaped_3000000_4env_env_best_seed_576538709"    
+    filename = "V1"    
 
     # if len(filename.split("_")) < 2:
     #     seed = random.randint(0, 1000)
