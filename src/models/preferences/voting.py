@@ -69,6 +69,13 @@ def calculate_child_weight_complex(child, preferences, feedback):
         'dislikes': normalized_dislikes * like_dislike_ratio * child_merit_weight * feedback_provided_weight
     }
 
+def calculate_child_weight_simple(child, preferences):
+    return {
+        'likes': 1,
+        'neutral': 1,
+        'dislikes': 1
+    }
+
 def collect_weighted_votes(preferences, ingredient_type, rf_model, preprocessor, child_data, ingredients_data, weight_function):
     supplier_availability = get_supplier_availability()
     

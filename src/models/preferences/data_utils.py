@@ -406,7 +406,9 @@ def get_feedback(preferences: Dict[str, Dict[str, list]], ingredient_list: list,
     return feedback  # Return the feedback dictionary
 
 
-def get_supplier_availability(ingredients, mean_unavailable=5, std_dev_unavailable=2, seed = None):
+def get_supplier_availability(ingredient_df, mean_unavailable=5, std_dev_unavailable=2, seed = None):
+    
+    ingredients = ingredient_df['Category7'].tolist()
     
     # Function to randomly generate supplier availability for ingredients
     random.seed(seed)
@@ -455,8 +457,11 @@ def prepare_ml_data(preferences, ingredient_df, child_data, apply_SMOTE=False, s
     dislikes_df = preferences_df.explode('dislikes')[['child', 'dislikes']].rename(columns={'dislikes': 'ingredient'})
     dislikes_df['preference'] = 1
     
+    unknown_df = preferences_df.explode('unknown')[['child', 'unknown']].rename(columns={'unknown': 'ingredient'})
+    unknown_df['preference'] = np.nan
+    
     # Concatenate all preference DataFrames
-    preferences_long_df = pd.concat([likes_df, neutral_df, dislikes_df])
+    preferences_long_df = pd.concat([likes_df, neutral_df, dislikes_df, unknown_df])
     
     # Merge child data with preferences
     combined_df = pd.merge(child_df, preferences_long_df, on='child')
@@ -482,20 +487,30 @@ def prepare_ml_data(preferences, ingredient_df, child_data, apply_SMOTE=False, s
     
     # Encode the target variable
     label_encoder = LabelEncoder()
-    df["preference"] = label_encoder.fit_transform(df["preference"])
+    df["preference"] = label_encoder.fit_transform(df["preference"].astype(str))
 
     # Define the preprocessor for numerical and categorical features
     preprocessor = get_data_preprocessor()
 
-    # Drop the target column before fitting the preprocessor, this will occur in column transformer but done to make it resilient to changes.
+    # Drop the target column before fitting the preprocessor
     X = df.drop(columns=['preference'])
     y = df["preference"].values
 
     # Fit the preprocessor
-    preprocessor = preprocessor.fit(X)
+    preprocessor.fit(X)
 
     # Apply the transformations and prepare the dataset
-    X = preprocessor.transform(X)
+    X_transformed = preprocessor.transform(X)
+
+    # Drop rows with NaN preferences in the original DataFrame
+    known_df = df.dropna(subset=['preference'])
+
+    # Extract the indices of known preferences
+    known_indices = known_df.index
+
+    # Filter X_transformed and y to only include known preferences
+    X = X_transformed[known_indices]
+    y = y[known_indices]
     
     if apply_SMOTE:
         # Convert sparse matrix to dense format

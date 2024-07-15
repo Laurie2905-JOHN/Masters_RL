@@ -15,20 +15,10 @@ def fit_random_forest_classifier(X, y):
     
     return rf_model
 
-def predict_preference_using_model(child_features, ingredient_features, preferences, model, preprocessor):
+def predict_preference_using_model(child_features, ingredient_features, child, model, preprocessor):
+    
     # Create a dictionary with combined features
-    combined_features = {
-        "age": [child_features["age"]],
-        "gender": [1 if child_features["gender"] == "M" else 0],
-        "health_consideration": [child_features["health_consideration"]],
-        "favorite_cuisine": [child_features["favorite_cuisine"]],
-        "ingredient": [ingredient_features["ingredient"]],
-        "type": [ingredient_features["type"]],
-        "color": [ingredient_features["color"]],
-        "taste": [ingredient_features["taste"]],
-        "preference": [5 if ingredient_features["ingredient"] in preferences[child]["likes"] else
-                       3 if ingredient_features["ingredient"] in preferences[child]["neutral"] else 1]
-    }
+    combined_features = [child_features | ingredient_features]
     
     # Create a DataFrame from the combined features dictionary
     df = pd.DataFrame(combined_features)
