@@ -309,7 +309,7 @@ def plot_histograms(scores: list, preferences: Dict[str, list]) -> None:
     plt.show()
 
 
-def get_feedback(preferences: Dict[str, Dict[str, list]], ingredient_list: list, seed=None):
+def get_feedback(preferences: Dict[str, Dict[str, list]], menu_plan: list, seed=None):
     # Function to get feedback on meal plan which gives randomized comments on the ingredients for each child.
     # The function also sometimes doesn't provide feedback for some children. 
     comments = [
@@ -385,7 +385,7 @@ def get_feedback(preferences: Dict[str, Dict[str, list]], ingredient_list: list,
                 for category in available_ingredients:
                     if feedback_type in category:  # Check if the feedback type matches the category
                         # List possible ingredients not yet used
-                        possible_ingredients = [ingredient for ingredient in ingredient_list if ingredient in available_ingredients[category] and ingredient not in used_ingredients]
+                        possible_ingredients = [ingredient for ingredient in menu_plan if ingredient in available_ingredients[category] and ingredient not in used_ingredients]
                         if possible_ingredients:  # If there are possible ingredients
                             chosen_ingredient = random.choice(possible_ingredients)  # Randomly select an ingredient
                             matched_ingredients.append(chosen_ingredient)  # Add the chosen ingredient to the matched list
