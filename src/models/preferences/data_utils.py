@@ -485,16 +485,20 @@ def prepare_ml_data(preferences, ingredient_df, child_data, apply_SMOTE=False, s
     # Select and reorder the final columns
     df = df[['age', 'gender', 'health_consideration', 'favorite_cuisine', 'ingredient', 'type', 'colour', 'texture', 'taste', 'healthy', 'preference']]
     
+    # Drop rows with NaN preferences in the original DataFrame
+    known_df = df.dropna(subset=['preference'])
+    
     # Encode the target variable
     label_encoder = LabelEncoder()
-    df["preference"] = label_encoder.fit_transform(df["preference"].astype(str))
+    known_df.loc[:, "preference"] = label_encoder.fit_transform(known_df["preference"])
+
 
     # Define the preprocessor for numerical and categorical features
     preprocessor = get_data_preprocessor()
 
     # Drop the target column before fitting the preprocessor
     X = df.drop(columns=['preference'])
-    y = df["preference"].values
+    y = known_df["preference"].values
 
     # Fit the preprocessor
     preprocessor.fit(X)
@@ -502,15 +506,12 @@ def prepare_ml_data(preferences, ingredient_df, child_data, apply_SMOTE=False, s
     # Apply the transformations and prepare the dataset
     X_transformed = preprocessor.transform(X)
 
-    # Drop rows with NaN preferences in the original DataFrame
-    known_df = df.dropna(subset=['preference'])
-
     # Extract the indices of known preferences
     known_indices = known_df.index
 
     # Filter X_transformed and y to only include known preferences
     X = X_transformed[known_indices]
-    y = y[known_indices]
+    y = y
     
     if apply_SMOTE:
         # Convert sparse matrix to dense format
@@ -531,7 +532,8 @@ def prepare_ml_data(preferences, ingredient_df, child_data, apply_SMOTE=False, s
         X = X_res
         y = y_res
 
-    return X, y, df, label_encoder, preprocessor
+    return X, y, known_df, label_encoder, preprocessor
+
 
 
 # Function to plot 2D MCA components
