@@ -183,7 +183,7 @@ saved_models/hyperparams/*
 # *.csv
 
 # Ignore specific file
-data/processed_data.csv
+# data/processed_data.csv
 
 # Ignore all files and directories under saved_models/**/**/trials/
 # saved_models/**/**/trials/*
