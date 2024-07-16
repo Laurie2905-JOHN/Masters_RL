@@ -10,11 +10,11 @@ hyperparams_dir: saved_models/hyperparams
 hyperparams_prefix: null
 initialization_strategy: zero
 log_dir: saved_models/tensorboard
-log_prefix: MASKED_PPO_RUN_v2_sparse
+log_prefix: V1_shaped_new_env_new_target_2
 max_episode_steps: 1000
 max_ingredients: 6
 memory_monitor: false
-num_envs: 3
+num_envs: 4
 plot_reward_history: false
 pretrained_checkpoint_path: null
 render_mode: null
@@ -26,5 +26,5 @@ save_dir: saved_models/checkpoints
 save_freq: 100000
 save_prefix: null
 seed: null
-total_timesteps: 1000000
+total_timesteps: 500000
 verbose: 0
