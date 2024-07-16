@@ -24,7 +24,7 @@ def main():
     # Example variations
     env_names = ["SchoolMealSelection-v1", "SchoolMealSelection-v2"]
     algos = ['PPO', 'MASKED_PPO']
-    reward_type = ['shaped', 'sparse']
+    reward_type = ['sparse']
 
     for env in env_names:
         for reward in reward_type:
@@ -34,6 +34,7 @@ def main():
                 modified_setup = copy.deepcopy(base_setup)
                 modified_setup['env_name'] = env
                 modified_setup['algo'] = algo
+                modified_setup['reward_type'] = reward
                 version = env.split("-")[1]
                 if env == "SchoolMealSelection-v2":
                     modified_setup['max_episode_steps'] = 1000
