@@ -176,8 +176,8 @@ class Args:
     vecnorm_epsilon = 1e-8 
     vecnorm_norm_obs_keys = None
     ingredient_df = get_data("data.csv")
-    seed = 10
-    env_name = 'SchoolMealSelection-v1'
+    seed = 2789679713
+    env_name = 'SchoolMealSelection-v2'
     initialization_strategy = 'zero'
     vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
     reward_type = 'shaped'
@@ -188,9 +188,9 @@ def main():
     from utils.train_utils import setup_environment, get_unique_directory
     from utils.process_data import get_data  # Ensure this import is correct
     
-    basepath = os.path.abspath(f"saved_models/evaluation/best_models/presentation")
+    basepath = os.path.abspath(f"saved_models/evaluation/mum/evaluate/V2")
 
-    filename = "V1"    
+    filename = "SchoolMealSelection_v2_MASKED_PPO_reward_type_shaped_500000_4env_env_best_seed_2789679713"    
 
     # if len(filename.split("_")) < 2:
     #     seed = random.randint(0, 1000)

@@ -21,4 +21,4 @@ net_arch_depth: 2
 activation_fn: tanh
 ortho_init: true
 lr_schedule: linear
-initialization_strategy: 'perfect'
+initialization_strategy: 'zero'
