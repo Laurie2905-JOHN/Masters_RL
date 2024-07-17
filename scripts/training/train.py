@@ -34,7 +34,7 @@ def main(args):
         reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed_{args.seed}_env", '.json')
         reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
 
-    env = setup_environment(args, reward_save_path, eval=False)  # Set up the training environment
+    env = setup_environment(args, reward_save_path=reward_save_path, eval=False)  # Set up the training environment
     tensorboard_log_dir = os.path.join(args.log_dir, f"{args.log_prefix}_seed_{args.seed}")
 
     if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':
@@ -91,21 +91,21 @@ def main(args):
     #     verbose=args.verbose
     # )
     
-    save_vec_normalize = SaveVecNormalizeCallback(
-        save_freq = args.save_freq,
-        save_path = args.save_dir,
-        name_prefix = args.save_prefix
-    )
+    # Set up callbacks
+    save_vecnormalize_best_callback = SaveVecNormalizeBestCallback(
+        save_path=best_model_path
+        )
 
+       
     eval_callback_class = MaskableEvalCallback if args.algo == "MASKED_PPO" else EvalCallback
 
     eval_callback = eval_callback_class(
-        eval_env=env,
+        eval_env=setup_environment(args, reward_save_path=reward_save_path),  # Set up the eval environment,
         best_model_save_path=best_model_path,
-        callback_on_new_best=save_vec_normalize,
+        callback_on_new_best=save_vecnormalize_best_callback,
         n_eval_episodes=5,
         eval_freq=max(args.eval_freq // args.num_envs, 1),
-        deterministic=True,
+        deterministic=False,
         log_path=tensorboard_log_dir,
         render=False,
         verbose=args.verbose
@@ -137,7 +137,7 @@ def main(args):
         env.save(final_vec_normalize_path)
 
         # Reload environment and model to test loading
-        env = setup_environment(args, reward_save_path, eval=False)
+        env = setup_environment(args, eval=False)
         env = VecNormalize.load(final_vec_normalize_path, env)
 
         if args.algo == 'A2C':

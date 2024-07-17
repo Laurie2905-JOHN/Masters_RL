@@ -69,21 +69,30 @@ def setup_environment(args, reward_save_path=None, eval=False):
   
         return env
 
-    env = make_vec_env(make_env, n_envs=args.num_envs, seed=args.seed)
+    env = make_vec_env(make_env,
+                       n_envs=args.num_envs,
+                       seed=args.seed,
+                       )
 
     if eval:
-        return env
+        pass
+    else:
+        env = VecNormalize(
+            env, 
+            norm_obs=args.vecnorm_norm_obs, 
+            norm_reward=args.vecnorm_norm_reward, 
+            clip_obs=args.vecnorm_clip_obs, 
+            clip_reward=args.vecnorm_clip_reward, 
+            gamma=args.gamma, 
+            epsilon=args.vecnorm_epsilon, 
+            norm_obs_keys=args.vecnorm_norm_obs_keys
+        )
+    
+    return env
 
-    return VecNormalize(
-        env, 
-        norm_obs=args.vecnorm_norm_obs, 
-        norm_reward=args.vecnorm_norm_reward, 
-        clip_obs=args.vecnorm_clip_obs, 
-        clip_reward=args.vecnorm_clip_reward, 
-        gamma=args.gamma, 
-        epsilon=args.vecnorm_epsilon, 
-        norm_obs_keys=args.vecnorm_norm_obs_keys
-    )
+
+
+
 
 def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
     """
