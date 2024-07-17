@@ -127,7 +127,7 @@ class BaseRewardCalculator(ABC):
         return max(0.1, distance_reward)
     
     @staticmethod
-    def determine_final_termination(main_class: Any, targets: Dict[str, bool]) -> Tuple[bool, float, List[str]]:
+    def determine_final_termination(main_class: Any, targets: Dict[str, bool], main_terminate) -> Tuple[bool, float, List[str]]:
         
         terminated = False
         failed_targets = [key for key, met in targets.items() if not met]
@@ -138,7 +138,7 @@ class BaseRewardCalculator(ABC):
                 print(f"All targets met at episode {main_class.episode_count} step {main_class.nsteps}.")
             terminated = True
             termination_reward += 500
-        else:
+        elif main_terminate:
             reward_per_target_met = 500 / len(targets)
             termination_reward += reward_per_target_met * (len(targets) - len(failed_targets))
             if main_class.verbose > 0:

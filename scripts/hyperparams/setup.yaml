@@ -4,7 +4,7 @@ max_ingredients: 6
 action_scaling_factor: 5
 
 algo: MASKED_PPO
-num_envs: 1
+num_envs: 16
 
 render_mode: null
 data_name: 'data'
@@ -34,7 +34,7 @@ seed: null
 device: auto
 memory_monitor: false
 pretrained_checkpoint_path: null
-verbose: 3
+verbose: 0
 
 
 

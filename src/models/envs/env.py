@@ -188,7 +188,7 @@ class BaseEnvironment(gym.Env):
         
         total_min_portion = sum([min_val for min_val, _ in self.ingredient_group_portion_targets.values()])
         total_max_portion = sum([max_val for _, max_val in self.ingredient_group_portion_targets.values()])
-        self.total_average_portion = (total_min_portion + total_max_portion) / 2
+        self.total_average_portion = total_min_portion + 10 # Adding a value so it doesnt just choose the minimum
         
         self.ingredient_environment_count = {
             'animal_welfare': 0,
@@ -671,27 +671,20 @@ class BaseEnvironment(gym.Env):
         
         terminated = False
         
-        if main_terminate or (termination_reasons and far_flag_terminate):
-            # Determine episode termination and reward based on the overall targets and reasons
-            terminated, self.reward_dict['termination_reward'], failed_targets = self.reward_calculator.determine_final_termination(
-                self, target_flags
-            )
+        # Determine episode termination and reward based on the overall targets and reasons
+        terminated, self.reward_dict['termination_reward'], failed_targets = self.reward_calculator.determine_final_termination(
+            self, target_flags, main_terminate
+        )
             
-            if terminated:
-                # Add the current length of targets_not_met to the history
-                self.targets_not_met_history.append(len(failed_targets))
-        
+        if terminated:
+            # Add the current length of targets_not_met to the history
+            self.targets_not_met_history.append(len(failed_targets))
+    
+            if termination_reasons and far_flag_terminate:  
+                self.reward_dict['termination_reward'] = 0
                 if self.verbose > 1:
                     print("Termination triggered due to:", ", ".join(termination_reasons))
-                
-                if termination_reasons and far_flag_terminate:
-                    self.reward_dict['termination_reward'] = 0
 
-                if self.verbose > 1:
-                    print("Metrics far away:", ", ".join(termination_reasons))
-                
-
-        
         return terminated
     
     def action_reward(self, action):
