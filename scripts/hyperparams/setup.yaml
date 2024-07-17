@@ -4,7 +4,7 @@ max_ingredients: 6
 action_scaling_factor: 5
 
 algo: MASKED_PPO
-num_envs: 4
+num_envs: 16
 
 render_mode: null
 data_name: 'data'
