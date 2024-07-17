@@ -890,17 +890,15 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         """
         Update the current selection of ingredients based on the action.
         """
-        if self.verbose > 1:
-            print(f"Action: {action[0]} to ingredient {self.ingredient_df['Category7'].iloc[action[1]]}")
+        
         # Validate action shape
         self.validate_action_shape(action, 2)
         
         # Action reward is specific to environment so it is calculated out of the reward calculator. Calculated before current selection updated
         self.action_reward(action)
-        
-        if self.verbose > 2:
-            print(f"Initial current_selection: {self.current_selection}")
-            print(f"Action received: {action}")
+        action_list = ['zero', 'decrease', 'increase']
+        if self.verbose > 1:
+            print(f"Action received: {action_list[action[0]]} to {self.ingredient_df['Category7'].iloc[action[1]]}")
             
         if action[0] == 0:
             self.current_selection[action[1]] = 0 # zero value

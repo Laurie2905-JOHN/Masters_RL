@@ -87,9 +87,13 @@ def mask_fn2(self) -> np.ndarray:
     # Cache necessary attributes
     n_ingredients = self.env.get_wrapper_attr('n_ingredients')  # Number of ingredients
     
+    ingredient_df = self.env.get_wrapper_attr('ingredient_df')  # Number of ingredients
+    
     get_metrics = self.env.get_wrapper_attr('get_metrics')  # Metrics
     
     step_to_reward = self.env.get_wrapper_attr('step_to_reward')  # Number of ingredients
+    
+    verbose = self.env.get_wrapper_attr('verbose')  # Verbosity
     
     get_metrics()  # Ensure metrics are up-to-date
     
@@ -134,7 +138,7 @@ def mask_fn2(self) -> np.ndarray:
         if count_target == 0 and portion_target == (0, 0):
             # If the target is zero for both count and portion, block selection for all these ingredients
             action_mask[indexes + extra_action] = 0
-        elif value >= count_target:
+        elif value == count_target:
             if portion_target[0] <= portion <= portion_target[1]:
                 # If both group targets are met or exceeded
                 if all_group_count_target_met and all_group_portion_target_met:
@@ -152,16 +156,18 @@ def mask_fn2(self) -> np.ndarray:
             if value < count_target:
                 # Allow selection if count is not met or portion is below the minimum target
                 action_mask[indexes + extra_action] = 1
-            else:
-                # Block selection if count is met and portion is within the target range
-                action_mask[indexes + extra_action] = 0
+            else: # if value is greater than count target
+                # This condition will not occur in current logic
+                # Allow only selected ingredients to be acted upon in this group if all the group targets are met
+                for idx in indexes:
+                    action_mask[idx + extra_action] = 1 if idx in selected else 0
         
     # Create mask for actions on selected ingredients
-    action_mask = ingredient_action_2(self, all_group_count_target_met, all_group_portion_target_met, action_mask, step_to_reward)
+    action_mask = ingredient_action_2(self, all_group_count_target_met, all_group_portion_target_met, action_mask, step_to_reward, verbose, ingredient_df)
 
     return action_mask
 
-def ingredient_action_2(self, all_group_count_target_met, all_group_portion_target_met, action_mask, step_to_reward):
+def ingredient_action_2(self, all_group_count_target_met, all_group_portion_target_met, action_mask, step_to_reward, verbose, ingredient_df):
     """
     Update action mask based on whether count and portion targets for all groups are met.
     """
@@ -169,8 +175,8 @@ def ingredient_action_2(self, all_group_count_target_met, all_group_portion_targ
 
     if get_env_name_from_class(self) != 'SchoolMealSelectionDiscreteDone':
         # For environments other than 'SchoolMealSelectionDiscreteDone'
-        if all_group_count_target_met and all_group_portion_target_met and nsteps > step_to_reward:
-            # Allow all actions if both targets are met and steps > step_to_reward
+        if all_group_count_target_met and all_group_portion_target_met:
+            # Allow all actions if both targets are met
             action_mask[:3] = [1, 1, 1]
         else:
             if not all_group_count_target_met:
@@ -179,26 +185,63 @@ def ingredient_action_2(self, all_group_count_target_met, all_group_portion_targ
             elif not all_group_portion_target_met:
                 if all_group_count_target_met:
                     # Allow "increase" and "decrease" actions if count targets are met but portion targets are not
-                    action_mask[:3] = [0, 1, 1]
+                    action_mask[:3] = [1, 0, 1]
                 else:
                     # Allow "decrease", and "increase" actions if neither count nor portion targets are met
-                    action_mask[:3] = [0, 1, 1]
+                    action_mask[:3] = [0, 0, 1]
+                    
+    if verbose > 1:
+        print_action_mask(action_mask, ingredient_df, action_number = 3)
+        
     else:
         # For 'SchoolMealSelectionDiscreteDone' environment
-        if all_group_count_target_met and all_group_portion_target_met and nsteps > step_to_reward:
-            # Allow all actions if both targets are met and steps > step_to_reward
-            action_mask[:6] = [1, 1, 1, 1, 1, 1]
+        if all_group_count_target_met and all_group_portion_target_met:
+            if nsteps > step_to_reward:
+                # Allow all actions if both targets are met, including the done signal 
+                action_mask[:6] = [1, 1, 1, 1, 1, 1]
+            else:
+                # Allow all actions except done if not enough steps have been taken, which means the do nothing action is also masked
+                action_mask[:6] = [1, 0, 1, 1, 1, 0]
         else:
             if not all_group_count_target_met:
-                # Allow only the "increase" action if count targets are not met
+                # Allow only the "increase" action if count targets are not met and no done.
                 action_mask[:6] = [0, 0, 0, 1, 1, 0]
-            else:
-                # Allow "increase" and "decrease" actions with no done signal
-                action_mask[:6] = [0, 0, 1, 1, 1, 0]
-
+            elif not all_group_portion_target_met:
+                # If the portion size is not met, allow the "increase" or zero action
+                if all_group_count_target_met:
+                    # Allow "increase" and "zero" actions if count targets are met but portion targets are not, no done signal
+                    action_mask[:6] = [1, 0, 0, 1, 1, 0]
+                else:
+                    # If nothing is met, no done signal and only increase action
+                    action_mask[:6] = [0, 0, 0, 1, 1, 0]
+        
+        if verbose > 1:
+            print_action_mask(action_mask, ingredient_df, action_number = 6)
+        
     return action_mask
 
+def print_action_mask(action_mask, ingredient_df, action_number):
+    """
+    Print the action mask with indications of allowed actions.
+    """
+    if action_number == 6:
+        action_list = ['zero', 'do nothing', 'decrease', 'increase', 'no done', 'done']
+    else:
+        action_list = ['zero', 'decrease', 'increase']
+        
+    print_action_list = [f"{action} (allowed)" if action_mask[i] == 1 else f"{action} (disallowed)" for i, action in enumerate(action_list)]
+    
+    # Print allowed actions
+    for action in print_action_list:
+        print(action)
+    
+    # Get non-zero indices for ingredient actions
+    nonzero_indices = np.nonzero(action_mask[action_number:])[0]
+    for idx in nonzero_indices:
+        category_value = ingredient_df['Category7'].iloc[idx]
+        print(f"To selected ingredients: {category_value}")
 
+                        
 
     
 def get_env_name_from_class(self):
