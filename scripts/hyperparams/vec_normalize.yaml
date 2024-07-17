@@ -2,6 +2,6 @@ vecnorm_gamma: true
 vecnorm_norm_obs: true
 vecnorm_norm_reward: true
 vecnorm_clip_obs: 10.0
-vecnorm_clip_reward: 250
+vecnorm_clip_reward: 10
 vecnorm_epsilon: 0.00000001
 vecnorm_norm_obs_keys: ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']

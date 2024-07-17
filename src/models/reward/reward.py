@@ -40,7 +40,10 @@ class BaseRewardCalculator(ABC):
     
     @staticmethod
     def cost_target(main_class: Any) -> bool:
-        cost_target_met = main_class.menu_cost['cost'] <= main_class.target_cost_per_meal
+        if main_class.total_min_portion < sum(main_class.current_selection):
+            cost_target_met = False
+        else:
+            cost_target_met = main_class.menu_cost['cost'] <= main_class.target_cost_per_meal
         return cost_target_met
 
     @staticmethod
@@ -50,17 +53,16 @@ class BaseRewardCalculator(ABC):
 
     @staticmethod
     def co2g_target(main_class: Any) -> bool:
-        return main_class.co2_g['co2_g'] <= main_class.target_co2_g_per_meal
+        if main_class.total_min_portion < sum(main_class.current_selection):
+            co2g_target = main_class.co2_g['co2_g'] <= main_class.target_co2_g_per_meal
+        else:
+            co2g_target = False
 
     @staticmethod
     def consumption_target(main_class: Any) -> bool:
         
+        # Not implemented yet
         consumption_targets_met = True
-  
-        # if main_class.consumption_average['average_mean_consumption'] > main_class.consumption_target['average_mean_consumption']:
-        #     consumption_targets_met = False
-        # if main_class.consumption_average['average_cv_ingredients'] < main_class.consumption_target['average_cv_ingredients']:
-        #     consumption_targets_met = False
             
         return consumption_targets_met
     
@@ -96,8 +98,8 @@ class BaseRewardCalculator(ABC):
             if main_class.ingredient_group_count[group] != 0 else 0
         )
         min_target, max_target = main_class.ingredient_group_portion_targets[group]
-        # if any one portion greater than 400, terminate
-        terminate = portion > 400
+        # if any one portion greater than 300, terminate
+        terminate = portion > 300
         return min_target <= portion <= max_target, terminate
     
     @staticmethod
@@ -134,9 +136,9 @@ class BaseRewardCalculator(ABC):
             if main_class.verbose > 0:
                 print(f"All targets met at episode {main_class.episode_count} step {main_class.nsteps}.")
             terminated = True
-            termination_reward += 200
+            termination_reward += 500
         else:
-            reward_per_target_met = 100 / len(targets)
+            reward_per_target_met = 500 / len(targets)
             termination_reward += reward_per_target_met * (len(targets) - len(failed_targets))
             if main_class.verbose > 0:
                 print(f"{len(failed_targets)} targets failed at episode {main_class.episode_count} step {main_class.nsteps}.")
@@ -203,22 +205,29 @@ class ShapedRewardCalculator(BaseRewardCalculator):
         """
         all_targets_met = True
         terminate = False
+        
+        calculate_nutrient_step = main_class.step_to_reward
+        selection_total = sum(main_class.current_selection)
 
         for nutrient, average_value in main_class.nutrient_averages.items():
             target_min, target_max = main_class.nutrient_target_ranges[nutrient]
             if target_min <= average_value <= target_max:
-                main_class.reward_dict['nutrient_reward'][nutrient] += 1.5
+                if main_class.total_min_portion < selection_total:
+                    main_class.reward_dict['nutrient_reward'][nutrient] += 1.5
+                # else will return 0 
             else:
-                all_targets_met = False
-                distance_reward = BaseRewardCalculator.calculate_distance_reward(
-                    average_value, target_min, target_max
-                )
-                main_class.reward_dict['nutrient_reward'][nutrient] = distance_reward
                 
-                far_flag = average_value < 0.25 * target_min or average_value > target_max * 4
-                if far_flag:
-                    main_class.reward_dict['nutrient_reward'][nutrient] -= 0.1
-                    terminate = True
+                if main_class.nsteps % calculate_nutrient_step == 0 and main_class.nsteps > 0:
+                    if main_class.total_min_portion < selection_total:
+                        distance_reward = BaseRewardCalculator.calculate_distance_reward(
+                            average_value, target_min, target_max
+                        )
+                        main_class.reward_dict['nutrient_reward'][nutrient] = distance_reward
+                        
+                        far_flag = average_value < 0.5 * target_min or average_value > target_max * 2
+                        if far_flag:
+                            main_class.reward_dict['nutrient_reward'][nutrient] -= 0.1
+                            terminate = True
 
         return main_class.reward_dict['nutrient_reward'], all_targets_met, terminate
 
@@ -239,20 +248,24 @@ class ShapedRewardCalculator(BaseRewardCalculator):
         """
         all_targets_met = True
         terminate = False
+        
+        # Only calculate if PPO or A2C as MASKED PPO selects groups with mask. Less rewards the easier it is for the agent to determine the reason for reward.
+        if main_class.algo != "MASKED_PPO":
+            if BaseRewardCalculator.is_confectionary_target_met(main_class):
+                main_class.reward_dict['ingredient_group_count_reward']['confectionary'] += 1
+            else:
+                all_targets_met = False
 
-        if BaseRewardCalculator.is_confectionary_target_met(main_class):
-            main_class.reward_dict['ingredient_group_count_reward']['confectionary'] += 1
-        else:
-            all_targets_met = False
-
-        for group, count in main_class.ingredient_group_count.items():
-            if group != 'confectionary':
-                portion_flag, terminate = BaseRewardCalculator.is_within_portion_range(main_class, group)
-                target_met = count >= main_class.ingredient_group_count_targets[group] and portion_flag
-                if target_met:
-                    main_class.reward_dict['ingredient_group_count_reward'][group] += 1
-                else:
-                    all_targets_met = False
+            for group, count in main_class.ingredient_group_count.items():
+                if group != 'confectionary':
+                    portion_flag, terminate = BaseRewardCalculator.is_within_portion_range(main_class, group)
+                    target_met = count >= main_class.ingredient_group_count_targets[group] and portion_flag
+                    if target_met:
+                        main_class.reward_dict['ingredient_group_count_reward'][group] += 1
+                    else:
+                        all_targets_met = False
+        # else:
+            # No update required to for group count reward: main_class.reward_dict['ingredient_group_count_reward']) as initialized to zero
 
         return main_class.reward_dict['ingredient_group_count_reward'], all_targets_met, terminate
 
@@ -274,7 +287,10 @@ class ShapedRewardCalculator(BaseRewardCalculator):
         
         terminate = False
         for metric, value in main_class.ingredient_environment_count.items():
-            main_class.reward_dict['ingredient_environment_count_reward'][metric] = value
+            # No negative rewards so if value is negative reward = 0
+            if value < 0:
+                value = 0
+            main_class.reward_dict['ingredient_environment_count_reward'][metric] = value / 4 # Divide by 4 as four targets and they are not as important as nutrition or other targets
         
         return main_class.reward_dict['ingredient_environment_count_reward'], environment_target_met, terminate
 
@@ -297,7 +313,7 @@ class ShapedRewardCalculator(BaseRewardCalculator):
         co2_target_met = BaseRewardCalculator.co2g_target(main_class)
         
         if co2_target_met:
-            main_class.reward_dict['co2g_reward']['co2_g'] = 0
+            main_class.reward_dict['co2g_reward']['co2_g'] = 2 # Reward well for meeting CO2 target
         else:
             target_min = main_class.target_co2_g_per_meal
             target_max = main_class.target_co2_g_per_meal
@@ -305,7 +321,7 @@ class ShapedRewardCalculator(BaseRewardCalculator):
                 main_class.co2_g['co2_g'], target_min, target_max
             )
             main_class.reward_dict['co2g_reward']['co2_g'] = distance_reward
-            far_flag = main_class.co2_g['co2_g'] > 2000
+            far_flag = main_class.co2_g['co2_g'] > 1500
             
             if far_flag:
                 main_class.reward_dict['co2g_reward']['co2_g'] -= 0.1
@@ -390,7 +406,7 @@ class SparseRewardCalculator(BaseRewardCalculator):
             if not target_min <= average_value <= target_max:
                 all_targets_met = False
                 
-                far_flag = average_value < 0.25 * target_min or average_value > target_max * 4
+                far_flag = average_value < 0.5 * target_min or average_value > target_max * 2
                 if far_flag:
                     terminate = True
 

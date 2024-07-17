@@ -61,6 +61,7 @@ def main(args):
             'device': args.device,
             'seed': args.seed,
             'gamma': args.gamma,
+            'initialization_strategy': args.initialization_strategy,
         },
         'vecnormalize_params': {
             'vecnorm_norm_obs': args.vecnorm_norm_obs,

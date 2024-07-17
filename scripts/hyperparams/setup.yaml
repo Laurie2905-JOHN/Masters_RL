@@ -1,10 +1,10 @@
-env_name: SchoolMealSelection-v0
-max_episode_steps: 100
+env_name: SchoolMealSelection-v1
+max_episode_steps: 200
 max_ingredients: 6
 action_scaling_factor: 5
 
-algo: A2C
-num_envs: 8
+algo: MASKED_PPO
+num_envs: 4
 
 render_mode: null
 data_name: 'data'

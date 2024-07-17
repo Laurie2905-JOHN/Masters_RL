@@ -22,7 +22,7 @@ import numpy as np
 from collections import defaultdict, Counter
 from models.wrappers.common import RewardTrackingWrapper
 from sb3_contrib.common.wrappers import ActionMasker
-from models.action_masks.masks import mask_fn1
+from models.action_masks.masks import mask_fn1, mask_fn2
 from torch import nn
 import json
 import yaml
@@ -41,7 +41,9 @@ def setup_environment(args, reward_save_path=None, eval=False):
                 "seed": args.seed,
                 "verbose": args.verbose,
                 "initialization_strategy": args.initialization_strategy,
-                "reward_type": args.reward_type
+                "reward_type": args.reward_type,
+                "algo": args.algo,
+                "max_episode_steps": args.max_episode_steps
                 }
         
     def make_env():
@@ -59,7 +61,7 @@ def setup_environment(args, reward_save_path=None, eval=False):
                 )
             
         if args.algo == "MASKED_PPO":
-            env = ActionMasker(env, mask_fn1)  # Wrap to enable masking
+            env = ActionMasker(env, mask_fn2)  # Wrap to enable masking
         
         # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
         env = TimeLimit(env, max_episode_steps=args.max_episode_steps)
@@ -255,7 +257,7 @@ def load_hyperparams(filepath):
     
 def set_default_prefixes(args):
     # Function to set the default prefixes if not provided
-    no_name = f"{args.env_name}_{args.algo}_reward_type_{args.reward_type}_{args.total_timesteps}_{args.num_envs}env".replace('-', '_')
+    no_name = f"{args.env_name}_{args.algo}_reward_type_{args.reward_type}_{args.total_timesteps}_{args.num_envs}env_NewMASK".replace('-', '_')
 
     if args.log_prefix is None:
         args.log_prefix = no_name
