@@ -40,7 +40,7 @@ class BaseRewardCalculator(ABC):
     
     @staticmethod
     def cost_target(main_class: Any) -> bool:
-        if main_class.total_min_portion < sum(main_class.current_selection):
+        if not main_class.total_average_portion < sum(main_class.current_selection):
             cost_target_met = False
         else:
             cost_target_met = main_class.menu_cost['cost'] <= main_class.target_cost_per_meal
@@ -53,10 +53,11 @@ class BaseRewardCalculator(ABC):
 
     @staticmethod
     def co2g_target(main_class: Any) -> bool:
-        if main_class.total_min_portion < sum(main_class.current_selection):
+        if main_class.total_average_portion < sum(main_class.current_selection):
             co2g_target = main_class.co2_g['co2_g'] <= main_class.target_co2_g_per_meal
         else:
             co2g_target = False
+        return co2g_target
 
     @staticmethod
     def consumption_target(main_class: Any) -> bool:
@@ -212,22 +213,19 @@ class ShapedRewardCalculator(BaseRewardCalculator):
         for nutrient, average_value in main_class.nutrient_averages.items():
             target_min, target_max = main_class.nutrient_target_ranges[nutrient]
             if target_min <= average_value <= target_max:
-                if main_class.total_min_portion < selection_total:
-                    main_class.reward_dict['nutrient_reward'][nutrient] += 1.5
+                main_class.reward_dict['nutrient_reward'][nutrient] += 1.5
                 # else will return 0 
             else:
+                all_targets_met = False
+                distance_reward = BaseRewardCalculator.calculate_distance_reward(
+                    average_value, target_min, target_max
+                )
+                main_class.reward_dict['nutrient_reward'][nutrient] = distance_reward
                 
-                if main_class.nsteps % calculate_nutrient_step == 0 and main_class.nsteps > 0:
-                    if main_class.total_min_portion < selection_total:
-                        distance_reward = BaseRewardCalculator.calculate_distance_reward(
-                            average_value, target_min, target_max
-                        )
-                        main_class.reward_dict['nutrient_reward'][nutrient] = distance_reward
-                        
-                        far_flag = average_value < 0.5 * target_min or average_value > target_max * 2
-                        if far_flag:
-                            main_class.reward_dict['nutrient_reward'][nutrient] -= 0.1
-                            terminate = True
+                far_flag = average_value < 0.5 * target_min or average_value > target_max * 2
+                if far_flag:
+                    main_class.reward_dict['nutrient_reward'][nutrient] -= 0.1
+                    terminate = True
 
         return main_class.reward_dict['nutrient_reward'], all_targets_met, terminate
 
@@ -382,7 +380,9 @@ class SparseRewardCalculator(BaseRewardCalculator):
             far_flag = cost_difference > 3
             if far_flag:
                 terminate = True
-
+        else:
+            main_class.reward_dict['cost_reward'] = 1
+        
         return main_class.reward_dict['cost_reward'], cost_target_met, terminate
 
     @staticmethod
@@ -409,7 +409,11 @@ class SparseRewardCalculator(BaseRewardCalculator):
                 far_flag = average_value < 0.5 * target_min or average_value > target_max * 2
                 if far_flag:
                     terminate = True
-
+        if all_targets_met:
+            reward = 1 / len(main_class.nutrient_averages.keys())
+            for key in main_class.nutrient_averages.keys():
+                main_class.reward_dict['nutrient_reward'][key] = reward
+            
         return main_class.reward_dict['nutrient_reward'], all_targets_met, terminate
 
 
@@ -487,6 +491,9 @@ class SparseRewardCalculator(BaseRewardCalculator):
         
         if far_flag:
             terminate = True
+            
+        if co2_target_met:
+            main_class.reward_dict['co2g_reward'] = 1
 
         return main_class.reward_dict['co2g_reward'], co2_target_met, terminate
 

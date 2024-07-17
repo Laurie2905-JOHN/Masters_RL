@@ -55,6 +55,20 @@ class BaseEnvironment(gym.Env):
             'targets_not_met': 'targets_not_met',
             'termination_reward': 'termination'
         }
+        
+        if self.algo != "MASKED_PPO":
+            self.reward_to_flag = {
+                'nutrient_reward': 'Nutrition',
+                'ingredient_group_count_reward': 'Group',
+                'cost_reward': 'Cost',
+                'co2g_reward': 'CO2G'
+            }
+        else:
+            self.reward_to_flag = {
+                'nutrient_reward': 'Nutrition',
+                'cost_reward': 'Cost',
+                'co2g_reward': 'CO2G'
+            }
     
     def _initialize_parameters(self, ingredient_df, max_ingredients: int, action_scaling_factor: int, render_mode: str, 
                                verbose: int, seed: int, initialization_strategy: str, max_episode_steps: int, algo: str) -> None:
@@ -172,7 +186,9 @@ class BaseEnvironment(gym.Env):
         self.ingredient_group_count = {k: 0 for k in self.ingredient_group_count_targets.keys()}
         self.ingredient_group_portion = {k: 0.0 for k in self.ingredient_group_portion_targets.keys()}
         
-        self.total_min_portion = sum([min_val for min_val, _ in self.ingredient_group_portion_targets.values()])
+        total_min_portion = sum([min_val for min_val, _ in self.ingredient_group_portion_targets.values()])
+        total_max_portion = sum([max_val for _, max_val in self.ingredient_group_portion_targets.values()])
+        self.total_average_portion = (total_min_portion + total_max_portion) / 2
         
         self.ingredient_environment_count = {
             'animal_welfare': 0,
@@ -231,15 +247,21 @@ class BaseEnvironment(gym.Env):
         })
         
     def _initialize_target_flags(self) -> dict:
-        return {
-            'Nutrition': False,
-            'Group': False,
-            'Environment': False,
-            'Cost': False,
-            'Consumption': False,
-            'CO2G': False
-        }
         
+        if self.algo == "MASKED_PPO":
+            return {
+                'Nutrition': False,
+                'Cost': False,
+                'CO2G': False
+            }
+        else:
+            return {
+                'Nutrition': False,
+                'Group': False,
+                'Cost': False,
+                'CO2G': False
+            }
+            
     def get_class_name(self):
         return self.__class__.__name__
 
@@ -404,22 +426,15 @@ class BaseEnvironment(gym.Env):
         """
         Helper function to update target flags and termination reasons based on the reward.
         """
-        reward_to_flag = {
-            'nutrient_reward': 'Nutrition',
-            'ingredient_group_count_reward': 'Group',
-            'ingredient_environment_count_reward': 'Environment',
-            'cost_reward': 'Cost',
-            'consumption_reward': 'Consumption',
-            'co2g_reward': 'CO2G'
-        }
 
-        if reward in reward_to_flag:
-            flag = reward_to_flag[reward]
-            target_flags[flag] = targets_met
-            if terminate:
-                termination_reasons.append(f"{flag.lower()}_terminate")
-        else:
-            raise ValueError(f"Reward Type: {reward} not found in RewardCalculator.")
+        if reward in self.reward_to_flag:
+            flag = self.reward_to_flag[reward]
+            if flag in target_flags.keys():
+                target_flags[flag] = targets_met
+                if terminate:
+                    termination_reasons.append(f"{flag.lower()}_terminate")
+            else:
+                raise ValueError(f"Reward Type: {reward} not found in RewardCalculator.")
 
         return termination_reasons, target_flags
 
@@ -646,14 +661,17 @@ class BaseEnvironment(gym.Env):
     def calculate_if_current_selection_equals_max_ingredients(self):
         num_selected = len(np.where(self.current_selection > 0)[0])
         # Use sigmoid function to smoothly approach 1
-        reward = 1 / (1 + np.exp(- (num_selected - self.max_ingredients)))
+        reward = self._gaussian_function(num_selected, self.max_ingredients, sigma = 2)
         return reward
-    
+   
+    def _gaussian_function(self, num_selected, max_ingredients, sigma):
+        return np.exp(-((num_selected - max_ingredients) / sigma) ** 2)
+
     def determine_final_termination_and_reward(self, target_flags, termination_reasons, main_terminate, far_flag_terminate):
         
         terminated = False
         
-        if main_terminate:
+        if main_terminate or (termination_reasons and far_flag_terminate):
             # Determine episode termination and reward based on the overall targets and reasons
             terminated, self.reward_dict['termination_reward'], failed_targets = self.reward_calculator.determine_final_termination(
                 self, target_flags
@@ -663,14 +681,14 @@ class BaseEnvironment(gym.Env):
                 # Add the current length of targets_not_met to the history
                 self.targets_not_met_history.append(len(failed_targets))
         
-        if termination_reasons and far_flag_terminate:
-            if self.verbose > 1:
-                print("Termination triggered due to:", ", ".join(termination_reasons))
-            terminated = True
-            self.reward_dict['termination_reward'] = 0
+                if self.verbose > 1:
+                    print("Termination triggered due to:", ", ".join(termination_reasons))
+                
+                if termination_reasons and far_flag_terminate:
+                    self.reward_dict['termination_reward'] = 0
 
-            if self.verbose > 1:
-                print("Metrics far away:", ", ".join(termination_reasons))
+                if self.verbose > 1:
+                    print("Metrics far away:", ", ".join(termination_reasons))
                 
 
         
@@ -680,10 +698,7 @@ class BaseEnvironment(gym.Env):
         """
         Calculate the reward for the action taken.
         """
-        if self.algo != "MASKED_PPO":
-            reward = self.determine_action_quality(action)
-        else:
-            reward = 0
+        reward = self.determine_action_quality(action)
             
         # Assign the calculated reward to the reward dictionary
         self.reward_dict['action_reward'] = reward
@@ -695,9 +710,9 @@ class BaseEnvironment(gym.Env):
         
         # Check if the main_class is an instance of 'SchoolMealSelectionContinuous' by comparing class names
         if self.get_class_name() == "SchoolMealSelectionContinuous":
-            calculate_step = self.total_min_portion / (self.action_scaling_factor * self.max_ingredients)
+            calculate_step = self.total_average_portion / (self.action_scaling_factor * self.max_ingredients)
         else:
-            calculate_step = self.total_min_portion / self.action_scaling_factor
+            calculate_step = self.total_average_portion / self.action_scaling_factor
         
         return calculate_step
     
@@ -853,7 +868,7 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         self.step_to_reward = self.calculate_step_to_reward()
         
     def initialize_action_space(self) -> None:
-        self.action_space = gym.spaces.MultiDiscrete([3, self.n_ingredients])
+        self.action_space = gym.spaces.MultiDiscrete([2, self.n_ingredients])
         
     def validate_process_action_calculate_reward(self, action: np.ndarray) -> tuple:
         """
@@ -898,13 +913,11 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         self.action_reward(action)
         action_list = ['zero', 'decrease', 'increase']
         if self.verbose > 1:
-            print(f"Action received: {action_list[action[0]]} to {self.ingredient_df['Category7'].iloc[action[1]]}")
+            print(f"\nAction received: {action_list[action[0]]} to {self.ingredient_df['Category7'].iloc[action[1]]}")
             
-        if action[0] == 0:
-            self.current_selection[action[1]] = 0 # zero value
-        elif action[0] == 1: # Decrease
+        elif action[0] == 0: # Decrease
             self.current_selection[action[1]] = max(0, self.current_selection[action[1]] - self.action_scaling_factor)
-        elif action[0] == 2: # Increase
+        elif action[0] == 1: # Increase
             self.current_selection[action[1]] += self.action_scaling_factor
         
         # Ensure current selection isnt greater than max_ingredients
@@ -920,13 +933,16 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         self.print_current_meal_plan()
         
     def determine_action_quality(self, action):
+        
         reward = 0
         
-        reward += self._calculate_if_actions_are_on_groups_which_are_needed(action)
+        if self.algo != "MASKED_PPO":
         
-        reward += self.calculate_if_current_selection_equals_max_ingredients()
+            reward += self._calculate_if_actions_are_on_groups_which_are_needed(action)
+            
+            reward += self.calculate_if_current_selection_equals_max_ingredients()
         
-        reward = reward / 2 # Normalize actions to max 1
+            reward = reward / 2 # Normalize actions to max 1
 
         return reward
     
@@ -963,7 +979,7 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
 
     def initialize_action_space(self) -> None:
         # [zero, decrease, increase] [selected ingredient to perform action] [done signal]
-        self.action_space = gym.spaces.MultiDiscrete([4, 2, self.n_ingredients])
+        self.action_space = gym.spaces.MultiDiscrete([3, 2, self.n_ingredients])
         
     def validate_process_action_calculate_reward(self, action: np.ndarray) -> tuple:
         """
@@ -1008,17 +1024,17 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
         # Action reward is specific to environment so it is calculated out of the reward calculator. Calculated before current selection updated
         self.action_reward(action)
         
-        if self.verbose > 2:
-            print(f"Initial current_selection: {self.current_selection}")
-            print(f"Action received: {action}")
-            
+        action_list = ['do nothing', 'decrease', 'increase', 'no done', 'done']
+        if self.verbose > 1:
+            print(f"\nAction received: {action_list[action[0]]} to {self.ingredient_df['Category7'].iloc[action[2]]}")
+            if action[1] == 1:
+                print("Done signal received")
+        
         if action[0] == 0:
-            self.current_selection[action[2]] = 0 # zero value
-        if action[0] == 1:
             pass # Do nothing
-        elif action[0] == 2: # Decrease
+        elif action[0] == 1: # Decrease
             self.current_selection[action[2]] = max(0, self.current_selection[action[2]] - self.action_scaling_factor)
-        elif action[0] == 3: # Increase
+        elif action[0] == 2: # Increase
             self.current_selection[action[2]] += self.action_scaling_factor
             
         # Ensure current selection isnt greater than max_ingredients
@@ -1036,13 +1052,17 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
     
     def determine_action_quality(self, action):
         
-        reward = self._calculate_reward_termination_action(action)
+        reward = 0
         
-        reward += self._calculate_if_actions_are_on_groups_which_are_needed(action)
+        reward += self._calculate_reward_termination_action(action)
         
-        reward += self.calculate_if_current_selection_equals_max_ingredients()
+        if self.algo != "MASKED_PPO":
         
-        reward = reward / 3 # Normalize actions to max 1
+            reward += self._calculate_if_actions_are_on_groups_which_are_needed(action)
+            
+            reward += self.calculate_if_current_selection_equals_max_ingredients()
+        
+            reward = reward / 3 # Normalize actions to max 1
 
         return reward
     
@@ -1057,6 +1077,7 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
         else:  # If the agent does a non-termination action it should never 'do nothing' reward positively for not doing this
             if action[0] != 1:  # Not selecting 'do nothing'
                 reward += 1
+                
 
         return reward
     
