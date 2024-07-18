@@ -25,7 +25,7 @@ from utils.process_data import get_data
 from gymnasium.wrappers import TimeLimit
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from sb3_contrib.common.wrappers import ActionMasker
-from models.action_masks.masks import mask_fn1
+from models.action_masks.masks import mask_fn1, mask_fn2
 
 def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> float:
     # Prevent Resource Contention: When multiple trials start simultaneously, they might contend for limited computational resources
@@ -52,13 +52,13 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         os.makedirs(path, exist_ok=True)
 
     def make_env():
-        env = gym.make("SchoolMealSelection-v2", **env_kwargs)
+        env = gym.make("SchoolMealSelection-v1", **env_kwargs)
         
-        env = TimeLimit(env, max_episode_steps=1000)
+        env = TimeLimit(env, max_episode_steps=200)
         env = Monitor(env)  # Monitoring is added to track statistics and/or save logs
         
         if algo == "MASKED_PPO":
-            env = ActionMasker(env, mask_fn1)  # Wrap to enable masking
+            env = ActionMasker(env, mask_fn2)  # Wrap to enable masking
         
         return env
 
@@ -216,12 +216,12 @@ if __name__ == "__main__":
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
-    parser.add_argument('--timeout', type=int, default=3600*40, help="Timeout for optimization in seconds")
+    parser.add_argument('--timeout', type=int, default=3600*48, help="Timeout for optimization in seconds")
     parser.add_argument('--n_jobs', type=int, default=1, help="Number of jobs to assign")
-    parser.add_argument('--num_timesteps', type=int, default=500000, help="Number of timesteps for model training")
+    parser.add_argument('--num_timesteps', type=int, default=350000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}V3_shaped"
+        args.study_name = f"{args.algo}_new_MASK"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)
