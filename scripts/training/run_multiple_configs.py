@@ -47,7 +47,9 @@ def main():
                 run_experiment(temp_setup_path)
 
                 # Remove the temporary setup file if needed
-                os.remove(temp_setup_path)
-
+                try:
+                    os.remove(temp_setup_path)
+                except FileNotFoundError:
+                    pass
 if __name__ == '__main__':
     main()
