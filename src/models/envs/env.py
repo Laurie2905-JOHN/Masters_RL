@@ -7,6 +7,7 @@ from models.initialization.initialization import IngredientSelectionInitializer
 from gymnasium.envs.registration import register
 import os
 from collections import deque
+from models.envs.score_calculator import ScoreCalculator
 
 class BaseEnvironment(gym.Env):
     """
@@ -224,6 +225,7 @@ class BaseEnvironment(gym.Env):
         reward_calculator_mapping = {
             'shaped': reward.ShapedRewardCalculator,
             'sparse': reward.SparseRewardCalculator,
+            'shaped_with_group': reward.ShapedRewardCalculatorGroup,
             # Add other mappings as needed
         }
         return reward_calculator_mapping[reward_type]
@@ -739,6 +741,12 @@ register(
     max_episode_steps=1000
 )
 
+register(
+    id='SchoolMealSelection-v3',
+    entry_point='models.envs.env:SchoolMealSelectionDiscreteNewRewardMethod',
+    max_episode_steps=200
+)
+
 class SchoolMealSelectionContinuous(BaseEnvironment):
     """
     A custom Gym environment for selecting school meals that meet certain nutritional and environmental criteria.
@@ -904,11 +912,11 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         
         # Action reward is specific to environment so it is calculated out of the reward calculator. Calculated before current selection updated
         self.action_reward(action)
-        action_list = ['zero', 'decrease', 'increase']
+        action_list = ['decrease', 'increase']
         if self.verbose > 1:
             print(f"\nAction received: {action_list[action[0]]} to {self.ingredient_df['Category7'].iloc[action[1]]}")
             
-        elif action[0] == 0: # Decrease
+        if action[0] == 0: # Decrease
             self.current_selection[action[1]] = max(0, self.current_selection[action[1]] - self.action_scaling_factor)
         elif action[0] == 1: # Increase
             self.current_selection[action[1]] += self.action_scaling_factor
@@ -973,7 +981,7 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
     def initialize_action_space(self) -> None:
         # [zero, decrease, increase] [selected ingredient to perform action] [done signal]
         self.action_space = gym.spaces.MultiDiscrete([3, 2, self.n_ingredients])
-        
+    
     def validate_process_action_calculate_reward(self, action: np.ndarray) -> tuple:
         """
         Process the action to update the current selection and calculate the reward.
@@ -1096,6 +1104,201 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
                                 reward += 1
         return reward
 
+class SchoolMealSelectionDiscreteNewRewardMethod(BaseEnvironment):
+    """
+    A custom Gym environment for selecting school meals that meet certain nutritional and environmental criteria.
+    The environment allows actions to adjust the quantity of ingredients and calculates rewards based on multiple metrics,
+    such as nutrient values, environmental impact, cost, and consumption patterns. Uses discrete actions with done signal.
+    """
+    metadata = {"render_modes": ["human"], 'render_fps': 1}
+
+    def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
+                 verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
+                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO'):
+        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo)
+        
+        self.step_to_reward = self.calculate_step_to_reward()
+                                    # Nutrient, group, cost, co2
+        self.score_weights = np.array([1.5, 1.5, 1, 1])
+        self.max_score = np.sum(self.score_weights)
+
+        # Will be 0 at the start as scores depend on groups being met first
+        self.current_potential = 0
+        self.gamma = 0.99
+        self.scores = [0, 0, 0, 0]
+
+    def _initialize_observation_space(self) -> None:
+        """
+        Define the observation space for the environment.
+        The observation space is a dictionary containing various components such as:
+        current selection values, indices, time feature, nutrient values, group counts, environment counts, cost, and CO2 emissions.
+        """
+        self.observation_space = spaces.Dict({
+            'current_selection_value': spaces.Box(low=0, high=1000, shape=(self.max_ingredients,), dtype=np.float64),
+            'current_selection_index': spaces.Box(low=-1, high=1, shape=(self.max_ingredients,), dtype=np.float64),
+            'time_feature': spaces.Box(low=0, high=self.max_episode_steps, shape=(1,), dtype=np.float64),
+            'groups_selected': spaces.Box(low=0, high=1, shape=(len(self.ingredient_group_count.keys()),), dtype=np.float64),
+            'groups_portion': spaces.Box(low=-1, high=1, shape=(len(self.ingredient_group_portion.keys()),), dtype=np.float64),  
+            'nutrient_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+            'group_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+            'cost_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+            'co2_g_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+        })
+    
+    def initialize_rewards(self) -> None:
+        """
+        Initialize the reward dictionary with default values.
+        Each reward component is set to zero.
+        """
+        self.reward_dict = {}
+        self.reward_dict['nutrient_score'] = 0
+        self.reward_dict['ingredient_group_count_score'] = 0
+        self.reward_dict['cost_score'] = 0
+        self.reward_dict['co2g_score'] = 0
+        
+        # Initialize additional rewards
+        self.reward_dict['targets_not_met'] = []
+        self.reward_dict['bonus_score'] = 0
+    
+    
+    def _get_obs(self) -> dict:
+        """
+        Get the current observation of the environment.
+        Includes various components such as current selection values, indices, time feature, nutrient values, group counts, environment counts, cost, and CO2 emissions.
+        Returns the observation dictionary.
+        """
+        # Get current meal plan details
+        _, current_selection_index, current_selection_value = self.get_current_meal_plan()
+        
+        # Map the current selection index to new values
+        mapped_index_value = [self.index_value_mapping[index] for index in current_selection_index]
+        
+        # Calculate the time feature as a fraction of steps remaining
+        time_feature = 1 - (self.nsteps / self.max_episode_steps)
+
+        # Create the observation dictionary with various components
+        obs = {}
+        obs['current_selection_value'] = np.array(current_selection_value, dtype=np.float64)
+        obs['current_selection_index'] = np.array(mapped_index_value, dtype=np.float64)
+        obs['groups_selected'] =  np.array(list(self.ingredient_group_count.values()), dtype=np.float64)
+        obs['groups_portion'] = self._normalize_group_portions(self.ingredient_group_portion)
+        obs['time_feature'] = np.array([time_feature], dtype=np.float64)
+        obs['nutrient_score'] = np.array([self.scores[0]], dtype=np.float64)
+        obs['group_score'] = np.array([self.scores[1]], dtype=np.float64)
+        obs['cost_score'] = np.array([self.scores[2]], dtype=np.float64)
+        obs['co2_g_score'] = np.array([self.scores[3]], dtype=np.float64)
+
+
+        return obs
+    
+    def _normalize_group_portions(self, group_portions):
+        """
+        Normalize the group portions to be between -1 and 1, with:
+        - -1 for values below the min target or above the max target
+        - 0 for values at the min target
+        - 1 for values at the max target
+        - Linear interpolation between 0 and 1 for values within the target range
+        """
+        normalized_portions = {}
+
+        for group, portion in group_portions.items():
+            min_target, max_target = self.ingredient_group_portion_targets[group]
+
+            if portion < min_target or portion > max_target:
+                normalized_value = -1
+            elif portion == min_target:
+                normalized_value = 0
+            elif portion == max_target:
+                normalized_value = 1
+            else:
+                normalized_value = (portion - min_target) / (max_target - min_target)
+
+            normalized_portions[group] = normalized_value
+
+        return np.array(list(normalized_portions.values()), dtype=np.float64)
+    
+    def initialize_action_space(self) -> None:
+        # [decrease, increase] [selected ingredient to perform action] [done signal]
+        self.action_space = gym.spaces.Discrete(self.n_ingredients)
+    
+    def determine_action_quality(self, action):
+        reward = 0
+        return reward
+        
+    def validate_process_action_calculate_reward(self, action: np.ndarray) -> tuple:
+        """
+        Process the action to update the current selection and calculate the reward.
+        """
+        
+        # Process the action to update the current selection
+        self.update_and_process_selection(action)
+        
+        reward = 0
+        terminated = False
+        
+        # Instantiate ScoreCalculator with the main class instance
+        score_calculator = ScoreCalculator(self)
+        
+        # Calculate the reward for the action
+        self.scores, targets_not_met = score_calculator.calculate_scores()
+        
+        self.reward_dict['nutrient_score'] = self.scores[0]
+        self.reward_dict['ingredient_group_count_score'] = self.scores[1]
+        self.reward_dict['cost_score'] = self.scores[2]
+        self.reward_dict['co2g_score'] = self.scores[3]
+        self.reward_dict['targets_not_met'] = targets_not_met
+        
+        current_reward = np.dot(self.scores, self.score_weights)
+        
+        next_potential  = self.calculate_potential(reward)
+        
+        # print(self.scores)
+        
+        # Calculate the shaped reward
+        shaped_reward = current_reward + (self.gamma * next_potential) - self.current_potential
+
+        if len(targets_not_met) == 0:
+            terminated = True
+            
+        if self.nsteps == self.max_episode_steps:
+            terminated = True
+                       
+        return shaped_reward, terminated
+    
+    def calculate_potential(self, reward):
+        return -(self.max_score - reward)
+     
+    def update_and_process_selection(self, action: np.ndarray) -> None:
+        """
+        Update the current selection of ingredients based on the action.
+        """
+        
+        # Action reward is specific to environment so it is calculated out of the reward calculator. Calculated before current selection updated
+        self.action_reward(action)
+        
+        if self.verbose > 1:
+            print(f"\nAction received: increase to {self.ingredient_df['Category7'].iloc[action]}")
+            
+        # if action[0] == 0: # Decrease
+        #     self.current_selection[action[1]] = max(0, self.current_selection[action[1]] - self.action_scaling_factor)
+        # elif action[0] == 1: # Increase
+        #     self.current_selection[action[1]] += self.action_scaling_factor
+        
+        self.current_selection[action] += self.action_scaling_factor
+            
+        # Ensure current selection isnt greater than max_ingredients
+        self.cut_current_selection()
+        
+        # Calculate metrics for the current selection
+        self.get_metrics()
+        
+        # Initialize reward dictionary
+        self.initialize_rewards()
+        
+        # Print current meal plan if verbosity
+        self.print_current_meal_plan()
+        
+    
 if __name__ == '__main__':
     from utils.process_data import get_data
     from gymnasium.utils.env_checker import check_env
@@ -1124,9 +1327,10 @@ if __name__ == '__main__':
         vecnorm_norm_obs_keys = None
         ingredient_df = get_data("small_data.csv")
         seed = 10
-        env_name = 'SchoolMealSelection-v1'
+        env_name = 'SchoolMealSelection-v3'
         initialization_strategy = 'zero'
-        vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
+        # vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
+        vecnorm_norm_obs_keys = ['current_selection_value']
         reward_type = 'shaped'
         algo = 'PPO'
     args = Args()

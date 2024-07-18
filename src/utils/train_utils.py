@@ -14,10 +14,7 @@ import psutil
 import time
 import matplotlib.pyplot as plt
 import pandas as pd
-import matplotlib.pyplot as plt
-from collections import defaultdict, Counter
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict, Counter
 from models.wrappers.common import RewardTrackingWrapper

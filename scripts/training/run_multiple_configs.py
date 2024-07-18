@@ -22,9 +22,9 @@ def main():
     base_setup = load_yaml(setup_file)
 
     # Example variations
-    env_names = ["SchoolMealSelection-v1", "SchoolMealSelection-v2"]
-    algos = ['MASKED_PPO']
-    reward_type = ['shaped']
+    env_names = ["SchoolMealSelection-v0", "SchoolMealSelection-v1", "SchoolMealSelection-v2"]
+    algos = ['PPO']
+    reward_type = ['shaped_with_group']
 
     for env in env_names:
         for reward in reward_type:

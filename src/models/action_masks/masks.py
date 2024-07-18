@@ -109,6 +109,8 @@ def mask_fn2(self) -> np.ndarray:
     
     if get_env_name_from_class(self) != 'SchoolMealSelectionDiscreteDone':
         extra_action = 2 # First 2 for actions, rest for ingredients
+    elif get_env_name_from_class(self) == 'SchoolMealSelectionDiscreteNewRewardMethod':
+        extra_action = 1 # Only increase action
     else:
         extra_action = 5 # First 5 for actions on ingredients, rest for ingredient selection
     
@@ -173,29 +175,16 @@ def ingredient_action_2(self, all_group_count_target_met, all_group_portion_targ
     """
     nsteps = self.env.get_wrapper_attr('nsteps')  # Number of steps taken so far
 
-    if get_env_name_from_class(self) != 'SchoolMealSelectionDiscreteDone':
+
+    if get_env_name_from_class(self) == 'SchoolMealSelectionDiscreteNewRewardMethod':
+        action_number = 1
         
-        action_number = 2
-        # For environments other than 'SchoolMealSelectionDiscreteDone'
-        if all_group_count_target_met and all_group_portion_target_met:
-            # Allow all actions if both targets are met
-            action_mask[:action_number] = [1, 1]
-        else:
-            if not all_group_count_target_met:
-                # Allow only the "increase" action if count targets are not met
-                action_mask[:action_number] = [0, 1]
-            elif not all_group_portion_target_met:
-                if all_group_count_target_met:
-                    # Allow "increase" and "" if count targets are met but portion targets are not
-                    action_mask[:action_number] = [0, 1]
-                else:
-                    # Allow "increase" actions if neither count nor portion targets are met
-                    action_mask[:action_number] = [0, 1]
-                    
+        # Allow all actions as only action is increase
+        action_mask[:action_number] = [1]
+                 
         if verbose > 1:
             print_action_mask(action_mask, ingredient_df, action_number = action_number)
-        
-    else:
+    elif get_env_name_from_class(self) == 'SchoolMealSelectionDiscreteDone':
         action_number = 5
         # For 'SchoolMealSelectionDiscreteDone' environment
         if all_group_count_target_met and all_group_portion_target_met:
@@ -214,6 +203,28 @@ def ingredient_action_2(self, all_group_count_target_met, all_group_portion_targ
                     # If nothing is met, no done signal and only increase action
                     action_mask[:action_number] = [0, 0, 1, 1, 0]
         
+        if verbose > 1:
+            print_action_mask(action_mask, ingredient_df, action_number = action_number)
+            
+    else:
+                
+        action_number = 2
+        # For environments other than 'SchoolMealSelectionDiscreteDone'
+        if all_group_count_target_met and all_group_portion_target_met:
+            # Allow all actions if both targets are met
+            action_mask[:action_number] = [1, 1]
+        else:
+            if not all_group_count_target_met:
+                # Allow only the "increase" action if count targets are not met
+                action_mask[:action_number] = [0, 1]
+            elif not all_group_portion_target_met:
+                if all_group_count_target_met:
+                    # Allow "increase" and "" if count targets are met but portion targets are not
+                    action_mask[:action_number] = [0, 1]
+                else:
+                    # Allow "increase" actions if neither count nor portion targets are met
+                    action_mask[:action_number] = [0, 1]
+                    
         if verbose > 1:
             print_action_mask(action_mask, ingredient_df, action_number = action_number)
         

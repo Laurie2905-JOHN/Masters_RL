@@ -165,7 +165,7 @@ def plot_results(predictions, num_episodes):
     plt.show()
 
 class Args:
-    algo = "MASKED_PPO"
+    algo = "PPO"
     render_mode = None
     num_envs = 1
     plot_reward_history = False
@@ -185,9 +185,10 @@ class Args:
     vecnorm_norm_obs_keys = None
     ingredient_df = get_data("data.csv")
     seed = 1004113609
-    env_name = 'SchoolMealSelection-v2'
+    env_name = 'SchoolMealSelection-v3'
     initialization_strategy = 'zero'
-    vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
+    # vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
+    vecnorm_norm_obs_keys = ['current_selection_value']
     reward_type = 'shaped'
     
 def main():
@@ -196,9 +197,9 @@ def main():
     from utils.train_utils import setup_environment, get_unique_directory
     from utils.process_data import get_data  # Ensure this import is correct
     
-    basepath = os.path.abspath(f"saved_models/evaluation/new_mask_v2")
+    basepath = os.path.abspath(f"saved_models/evaluation/new_models")
 
-    filename = "SchoolMealSelection_v2_MASKED_PPO_reward_type_shaped_500000_8env_NewMASK_env_best_seed_2887580471"    
+    filename = "SchoolMealSelection_v3_PPO_reward_type_shaped_with_group_1000000_8env_NewMASK_env_best_seed_308789474"    
 
     # if len(filename.split("_")) < 2:
     #     seed = random.randint(0, 1000)
