@@ -9,7 +9,7 @@ from utils.process_data import get_data
 from sb3_contrib.common.maskable.utils import get_action_masks
 from sb3_contrib.common.maskable.evaluation import evaluate_policy
 
-def evaluate_model(model, env, algo, num_episodes=10, deterministic=True):
+def evaluate_model(model, env, algo, num_episodes=10, deterministic=False):
     """Evaluate the trained model and collect predictions."""
     predictions = []
 
@@ -90,7 +90,7 @@ def plot_results(predictions, num_episodes):
             'cost': (2, 'max'), 'co2_g': (800, 'max'),
         },
         'group_portions': {
-            'fruit': ((40, 100), 'range1'), 'veg': ((40, 60), 'range1'), 'protein': ((40, 90), 'range1'),
+            'fruit': ((40, 130), 'range1'), 'veg': ((40, 80), 'range1'), 'protein': ((40, 90), 'range1'),
             'carbs': ((40, 150), 'range1'), 'dairy': ((50, 150), 'range1'),
             'bread': ((50, 70), 'range1'), 'confectionary': ((0, 0), 'range1')
         },
@@ -165,11 +165,11 @@ def plot_results(predictions, num_episodes):
     plt.show()
 
 class Args:
-    algo = "PPO"
+    algo = "MASKED_PPO"
     render_mode = None
     num_envs = 1
     plot_reward_history = False
-    max_episode_steps = 200
+    max_episode_steps = 100
     verbose = 3
     action_scaling_factor = 5
     memory_monitor = True
@@ -184,8 +184,8 @@ class Args:
     vecnorm_epsilon = 1e-8 
     vecnorm_norm_obs_keys = None
     ingredient_df = get_data("data.csv")
-    seed = 1004113609
-    env_name = 'SchoolMealSelection-v3'
+    seed = 4079985948
+    env_name = 'SchoolMealSelection-v1'
     initialization_strategy = 'zero'
     # vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
     vecnorm_norm_obs_keys = ['current_selection_value']
@@ -197,9 +197,9 @@ def main():
     from utils.train_utils import setup_environment, get_unique_directory
     from utils.process_data import get_data  # Ensure this import is correct
     
-    basepath = os.path.abspath(f"saved_models/evaluation/new_models")
+    basepath = os.path.abspath(f"saved_models/evaluation/working_models")
 
-    filename = "SchoolMealSelection_v3_PPO_reward_type_shaped_with_group_1000000_8env_NewMASK_env_best_seed_308789474"    
+    filename = "SchoolMealSelection_v1_MASKED_PPO_reward_type_shaped_1000000_8env_NewMASK_env_best_seed_4079985948"    
 
     # if len(filename.split("_")) < 2:
     #     seed = random.randint(0, 1000)

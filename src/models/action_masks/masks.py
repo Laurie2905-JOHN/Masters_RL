@@ -107,12 +107,12 @@ def mask_fn2(self) -> np.ndarray:
     group_info = self.env.get_wrapper_attr('group_info')  # Information about each group
     current_selection = self.env.get_wrapper_attr('current_selection')  # Current ingredient selection
     
-    if get_env_name_from_class(self) != 'SchoolMealSelectionDiscreteDone':
-        extra_action = 2 # First 2 for actions, rest for ingredients
+    if get_env_name_from_class(self) == 'SchoolMealSelectionDiscreteDone':
+        extra_action = 5 # First 2 for actions, rest for ingredients
     elif get_env_name_from_class(self) == 'SchoolMealSelectionDiscreteNewRewardMethod':
-        extra_action = 1 # Only increase action
+        extra_action = 2 # Only increase action
     else:
-        extra_action = 5 # First 5 for actions on ingredients, rest for ingredient selection
+        extra_action = 2 # First 5 for actions on ingredients, rest for ingredient selection
     
     # Initialize action mask with zeros
     action_mask = np.zeros(extra_action + n_ingredients, dtype=np.int8)  
@@ -177,13 +177,19 @@ def ingredient_action_2(self, all_group_count_target_met, all_group_portion_targ
 
 
     if get_env_name_from_class(self) == 'SchoolMealSelectionDiscreteNewRewardMethod':
-        action_number = 1
+        action_number = 2
         
-        # Allow all actions as only action is increase
-        action_mask[:action_number] = [1]
+        # For 'SchoolMealSelectionDiscreteNewRewardMethod' environment
+        if all_group_count_target_met and all_group_portion_target_met:
+            # Allow all actions if both targets are met, including the done signal and do nothing signal
+            action_mask[:action_number] = [1, 1]
+        else:
+            # If the targets are not met, only allow the increase action
+            action_mask[:action_number] = [0, 1]
                  
         if verbose > 1:
             print_action_mask(action_mask, ingredient_df, action_number = action_number)
+            
     elif get_env_name_from_class(self) == 'SchoolMealSelectionDiscreteDone':
         action_number = 5
         # For 'SchoolMealSelectionDiscreteDone' environment

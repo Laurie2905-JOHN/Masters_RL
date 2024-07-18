@@ -7,7 +7,7 @@ from models.initialization.initialization import IngredientSelectionInitializer
 from gymnasium.envs.registration import register
 import os
 from collections import deque
-from models.envs.score_calculator import ScoreCalculator
+from models.envs.score_calculator import ScoreCalculator, ScoreCalculatorShaped
 
 class BaseEnvironment(gym.Env):
     """
@@ -141,8 +141,8 @@ class BaseEnvironment(gym.Env):
         }
         
         self.ingredient_group_portion_targets = {
-            'fruit': (40, 100),
-            'veg': (40, 60),
+            'fruit': (40, 130),
+            'veg': (40, 80),
             'protein': (40, 90),
             'carbs': (40, 150),
             'dairy': (50, 150),
@@ -1119,13 +1119,14 @@ class SchoolMealSelectionDiscreteNewRewardMethod(BaseEnvironment):
         
         self.step_to_reward = self.calculate_step_to_reward()
                                     # Nutrient, group, cost, co2
-        self.score_weights = np.array([1.5, 1.5, 1, 1])
+        self.score_weights = np.array([2, 1.5, 1, 1])
         self.max_score = np.sum(self.score_weights)
-
-        # Will be 0 at the start as scores depend on groups being met first
-        self.current_potential = 0
-        self.gamma = 0.99
         self.scores = [0, 0, 0, 0]
+        
+        current_reward = np.dot(self.scores, self.score_weights)
+        self.current_potential  = self.calculate_potential(current_reward)
+        self.gamma = 0.99
+        
 
     def _initialize_observation_space(self) -> None:
         """
@@ -1218,8 +1219,8 @@ class SchoolMealSelectionDiscreteNewRewardMethod(BaseEnvironment):
         return np.array(list(normalized_portions.values()), dtype=np.float64)
     
     def initialize_action_space(self) -> None:
-        # [decrease, increase] [selected ingredient to perform action] [done signal]
-        self.action_space = gym.spaces.Discrete(self.n_ingredients)
+        # [do_nothing, increase] [selected ingredient to perform action]
+        self.action_space = gym.spaces.MultiDiscrete([2, self.n_ingredients])
     
     def determine_action_quality(self, action):
         reward = 0
@@ -1237,7 +1238,7 @@ class SchoolMealSelectionDiscreteNewRewardMethod(BaseEnvironment):
         terminated = False
         
         # Instantiate ScoreCalculator with the main class instance
-        score_calculator = ScoreCalculator(self)
+        score_calculator = ScoreCalculatorShaped(self)
         
         # Calculate the reward for the action
         self.scores, targets_not_met = score_calculator.calculate_scores()
@@ -1250,18 +1251,24 @@ class SchoolMealSelectionDiscreteNewRewardMethod(BaseEnvironment):
         
         current_reward = np.dot(self.scores, self.score_weights)
         
-        next_potential  = self.calculate_potential(reward)
+        next_potential  = self.calculate_potential(current_reward)
         
         # print(self.scores)
         
         # Calculate the shaped reward
-        shaped_reward = current_reward + (self.gamma * next_potential) - self.current_potential
+        shaped_reward  = current_reward + (self.gamma * next_potential) - self.current_potential
+        
+        # Update current potential for the next step
+        self.current_potential = next_potential
 
         if len(targets_not_met) == 0:
             terminated = True
             
         if self.nsteps == self.max_episode_steps:
             terminated = True
+            # Add the current length of targets_not_met to the history
+            self.targets_not_met_history.append(len(targets_not_met))
+            
                        
         return shaped_reward, terminated
     
@@ -1279,12 +1286,12 @@ class SchoolMealSelectionDiscreteNewRewardMethod(BaseEnvironment):
         if self.verbose > 1:
             print(f"\nAction received: increase to {self.ingredient_df['Category7'].iloc[action]}")
             
-        # if action[0] == 0: # Decrease
-        #     self.current_selection[action[1]] = max(0, self.current_selection[action[1]] - self.action_scaling_factor)
-        # elif action[0] == 1: # Increase
-        #     self.current_selection[action[1]] += self.action_scaling_factor
-        
-        self.current_selection[action] += self.action_scaling_factor
+        if action[0] == 0: # Do Nothing
+            pass
+        elif action[0] == 1: # Increase
+            self.current_selection[action[1]] += self.action_scaling_factor
+        else:
+            raise ValueError(f"Invalid action received: {action}")
             
         # Ensure current selection isnt greater than max_ingredients
         self.cut_current_selection()
