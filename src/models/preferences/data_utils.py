@@ -144,7 +144,7 @@ def get_modifiers(
     return (health_mod * favorite_mod * taste_mod * colour_mod * gender_mod * age_mod * 
             texture_mod * group_mod * fruit_mod * vegetable_mod * meat_mod * random_mod)
 
-def initialize_children_data(child_data: Dict[str, Dict[str, Any]], ingredient_df: pd.DataFrame, split: float = 0.8, seed: int = None, plot_graphs: bool = False) -> Tuple[Dict[str, Dict[str, list]], Dict[str, Dict[str, list]]]:
+def initialize_child_preference_data(child_data: Dict[str, Dict[str, Any]], ingredient_df: pd.DataFrame, split: float = 0.8, seed: int = None, plot_graphs: bool = False) -> Tuple[Dict[str, Dict[str, list]], Dict[str, Dict[str, list]]]:
     random.seed(seed)
     children_data = {}
     all_scores = []
@@ -438,9 +438,27 @@ def get_data_preprocessor():
         ],
     )
     return preprocessor
+
+def prepare_ml_preferences(preferences: Dict[str, Dict[str, Dict[str, list]]], ingredient_df: pd.DataFrame) -> Dict[str, Dict[str, list]]:
+    ml_preferences = {}
+
+    for child in preferences:
+        ml_preferences[child] = {}
+        ml_preferences[child]['likes'] = preferences[child]['known']['likes']
+        ml_preferences[child]['neutral'] = preferences[child]['known']['neutral']
+        ml_preferences[child]['dislikes'] = preferences[child]['known']['dislikes']
+
+        # Determine unknown features
+        known_ingredients = set(preferences[child]['known']['likes'] + preferences[child]['known']['neutral'] + preferences[child]['known']['dislikes'])
+        all_ingredients = set(ingredient_df['Category7'])
+        unknown_ingredients = all_ingredients - known_ingredients
+
+        ml_preferences[child]['unknown'] = list(unknown_ingredients)
+
+    return ml_preferences
     
  # Function to prepare data for the machine learning model
-def prepare_ml_data(preferences, ingredient_df, child_data, apply_SMOTE=False, seed=42):
+def prepare_ml_data(preferences, child_data, ingredient_df, apply_SMOTE=False, seed=42):
     # Create a DataFrame from child_data
     child_df = pd.DataFrame.from_dict(child_data, orient='index').reset_index().rename(columns={'index': 'child'})
     

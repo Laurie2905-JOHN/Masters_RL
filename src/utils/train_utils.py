@@ -19,7 +19,7 @@ import numpy as np
 from collections import defaultdict, Counter
 from models.wrappers.common import RewardTrackingWrapper
 from sb3_contrib.common.wrappers import ActionMasker
-from models.action_masks.masks import mask_fn1, mask_fn2
+from models.action_masks.masks import mask_fn
 from torch import nn
 import json
 import yaml
@@ -58,7 +58,7 @@ def setup_environment(args, reward_save_path=None, eval=False):
                 )
             
         if args.algo == "MASKED_PPO":
-            env = ActionMasker(env, mask_fn2)  # Wrap to enable masking
+            env = ActionMasker(env, mask_fn)  # Wrap to enable masking
         
         # # Apply the TimeLimit wrapper to enforce a maximum number of steps per episode. Need to repeat this so if i want to experiment with different steps.
         env = TimeLimit(env, max_episode_steps=args.max_episode_steps)

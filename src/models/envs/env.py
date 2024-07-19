@@ -207,7 +207,7 @@ class BaseEnvironment(gym.Env):
         }
         self.target_not_met_counters = Counter()
         
-        self.targets_not_met_history = deque(maxlen=50)
+        self.targets_not_met_history = deque(maxlen=10)
 
         self.total_quantity_ratio = self.current_selection / (sum(self.current_selection) + 1e-9)
         
@@ -224,6 +224,7 @@ class BaseEnvironment(gym.Env):
     def _get_reward_calculator(self, reward_type: str):
         reward_calculator_mapping = {
             'shaped': reward.ShapedRewardCalculator,
+            'semi_sparse': reward.SemiSparseRewardCalculator,
             'sparse': reward.SparseRewardCalculator,
             'shaped_with_group': reward.ShapedRewardCalculatorGroup,
             # Add other mappings as needed
@@ -266,37 +267,6 @@ class BaseEnvironment(gym.Env):
             
     def get_class_name(self):
         return self.__class__.__name__
-
-    def calculate_reward(self, action) -> tuple:  
-          
-        """
-        Calculate the rewards based on the current state of the environment.
-        Calculates rewards for each metric and checks if termination conditions are met.
-        Returns a boolean indicating if the episode should be terminated.
-        """
-        # Initialize flags for target metrics
-        target_flags = self._initialize_target_flags()
-        
-        termination_reasons = []  # List to store reasons for termination
-
-        # Iterate through each reward in the reward dictionary
-        for reward in self.reward_dict.keys():
-            # Skip step reward, targets not met, and termination reward rewards
-            if reward in ['step_reward', 'targets_not_met', 'termination_reward', 'action_reward']:
-                continue
-            
-            # Get the corresponding reward function from the RewardCalculator
-            method = self.reward_to_function_mapping[reward]
-
-            reward_func = getattr(self.reward_calculator, method)
-            
-            # Calculate the reward, targets met, and termination condition for the current reward
-            self.reward_dict[reward], targets_met, terminate = reward_func(self)
-            
-            # Update the target met flags and termination reasons based on the reward
-            termination_reasons, target_flags = self._update_flags_and_reasons(reward, targets_met, terminate, target_flags, termination_reasons)
-        
-        return termination_reasons, target_flags
     
     def sum_reward_values(self) -> float:
         # Sum the reward dictionary values to get the total reward
@@ -491,6 +461,37 @@ class BaseEnvironment(gym.Env):
 
         # Return the new observation, reward, termination flag, truncated flag, and additional info
         return self._get_obs(), reward, terminated, False, self._get_info()
+    
+    def calculate_reward(self, action) -> tuple:  
+          
+        """
+        Calculate the rewards based on the current state of the environment.
+        Calculates rewards for each metric and checks if termination conditions are met.
+        Returns a boolean indicating if the episode should be terminated.
+        """
+        # Initialize flags for target metrics
+        target_flags = self._initialize_target_flags()
+        
+        termination_reasons = []  # List to store reasons for termination
+
+        # Iterate through each reward in the reward dictionary
+        for reward in self.reward_dict.keys():
+            # Skip step reward, targets not met, and termination reward rewards
+            if reward in ['step_reward', 'targets_not_met', 'termination_reward', 'action_reward']:
+                continue
+            
+            # Get the corresponding reward function from the RewardCalculator
+            method = self.reward_to_function_mapping[reward]
+
+            reward_func = getattr(self.reward_calculator, method)
+            
+            # Calculate the reward, targets met, and termination condition for the current reward
+            self.reward_dict[reward], targets_met, terminate = reward_func(self)
+            
+            # Update the target met flags and termination reasons based on the reward
+            termination_reasons, target_flags = self._update_flags_and_reasons(reward, targets_met, terminate, target_flags, termination_reasons)
+        
+        return termination_reasons, target_flags
     
     def cut_current_selection(self) -> bool:
         # Ensure that the number of selected ingredients does not exceed the maximum allowed
@@ -726,24 +727,18 @@ class BaseEnvironment(gym.Env):
 register(
     id='SchoolMealSelection-v0',
     entry_point='models.envs.env:SchoolMealSelectionContinuous',
-    max_episode_steps=100
+    max_episode_steps=200
 )
 
 register(
     id='SchoolMealSelection-v1',
     entry_point='models.envs.env:SchoolMealSelectionDiscrete',
-    max_episode_steps=100
-)
-
-register(
-    id='SchoolMealSelection-v2',
-    entry_point='models.envs.env:SchoolMealSelectionDiscreteDone',
-    max_episode_steps=1000
+    max_episode_steps=200
 )
 
 register(
     id='SchoolMealSelection-v3',
-    entry_point='models.envs.env:SchoolMealSelectionDiscreteNewRewardMethod',
+    entry_point='models.envs.env:SchoolMealSelectionDiscretePotentialReward',
     max_episode_steps=200
 )
 
@@ -912,12 +907,12 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         
         # Action reward is specific to environment so it is calculated out of the reward calculator. Calculated before current selection updated
         self.action_reward(action)
-        action_list = ['decrease', 'increase']
+        action_list = ['do nothing', 'increase']
         if self.verbose > 1:
             print(f"\nAction received: {action_list[action[0]]} to {self.ingredient_df['Category7'].iloc[action[1]]}")
             
-        if action[0] == 0: # Decrease
-            self.current_selection[action[1]] = max(0, self.current_selection[action[1]] - self.action_scaling_factor)
+        if action[0] == 0: # Do nothing
+            pass
         elif action[0] == 1: # Increase
             self.current_selection[action[1]] += self.action_scaling_factor
         
@@ -962,8 +957,7 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
                         reward += 1
         return reward
 
-
-class SchoolMealSelectionDiscreteDone(BaseEnvironment):
+class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
     """
     A custom Gym environment for selecting school meals that meet certain nutritional and environmental criteria.
     The environment allows actions to adjust the quantity of ingredients and calculates rewards based on multiple metrics,
@@ -973,153 +967,12 @@ class SchoolMealSelectionDiscreteDone(BaseEnvironment):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO'):
-        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo)
-        
-        self.step_to_reward = self.calculate_step_to_reward()
-
-    def initialize_action_space(self) -> None:
-        # [zero, decrease, increase] [selected ingredient to perform action] [done signal]
-        self.action_space = gym.spaces.MultiDiscrete([3, 2, self.n_ingredients])
-    
-    def validate_process_action_calculate_reward(self, action: np.ndarray) -> tuple:
-        """
-        Process the action to update the current selection and calculate the reward.
-        """
-        
-        # Process the action to update the current selection
-        self.update_and_process_selection(action)
-        
-        reward = 0
-        terminated = False
-        main_terminate = False
-        far_flag_terminate = False
-        target_flags = None
-        termination_reasons = None
-        
-        # If n steps is greater than step terminate can start to terminate if very far from goals. This prevents the agent from being in a space where no "good" learning can occur 
-        if self.nsteps > self.step_to_reward:
-            far_flag_terminate = True
-        
-        # Calculate the reward for the action
-        termination_reasons, target_flags = self.calculate_reward(action)
-        
-        # Agent decides when it gets to terminate 
-        if action[1] == 1:
-            main_terminate = True
-            
-        # Calculate if terminated and termination reward
-        terminated = self.determine_final_termination_and_reward(target_flags, termination_reasons, main_terminate, far_flag_terminate)
-            
-        reward += self.sum_reward_values()      
-                 
-        return reward, terminated
-            
-    def update_and_process_selection(self, action: np.ndarray) -> None:
-        """
-        Update the current selection of ingredients based on the action.
-        """
-        # Validate action shape
-        self.validate_action_shape(action, 3)
-        
-        # Action reward is specific to environment so it is calculated out of the reward calculator. Calculated before current selection updated
-        self.action_reward(action)
-        
-        action_list = ['do nothing', 'decrease', 'increase', 'no done', 'done']
-        if self.verbose > 1:
-            print(f"\nAction received: {action_list[action[0]]} to {self.ingredient_df['Category7'].iloc[action[2]]}")
-            if action[1] == 1:
-                print("Done signal received")
-        
-        if action[0] == 0:
-            pass # Do nothing
-        elif action[0] == 1: # Decrease
-            self.current_selection[action[2]] = max(0, self.current_selection[action[2]] - self.action_scaling_factor)
-        elif action[0] == 2: # Increase
-            self.current_selection[action[2]] += self.action_scaling_factor
-            
-        # Ensure current selection isnt greater than max_ingredients
-        self.cut_current_selection()
-        
-        # Calculate metrics for the current selection
-        self.get_metrics()
-        
-        # Initialize reward dictionary
-        self.initialize_rewards()
-        
-        # Print current meal plan if verbosity
-        self.print_current_meal_plan()
-        
-    
-    def determine_action_quality(self, action):
-        
-        reward = 0
-        
-        reward += self._calculate_reward_termination_action(action)
-        
-        if self.algo != "MASKED_PPO":
-        
-            reward += self._calculate_if_actions_are_on_groups_which_are_needed(action)
-            
-            reward += self.calculate_if_current_selection_equals_max_ingredients()
-        
-            reward = reward / 3 # Normalize actions to max 1
-
-        return reward
-    
-    def _calculate_reward_termination_action(self, action):
-        reward = 0
-        # if agent terminates and is below step to reward steps, it gets a negative reward. In masking this will never happen as prevented in base env
-        if action[1] == 1:  # Termination action
-            if self.nsteps > self.step_to_reward:
-                reward += 1
-            if action[0] == 1:  # Selecting 'do nothing' when terminating is rewarded
-                reward += 1
-        else:  # If the agent does a non-termination action it should never 'do nothing' reward positively for not doing this
-            if action[0] != 1:  # Not selecting 'do nothing'
-                reward += 1
-                
-
-        return reward
-    
-    def _calculate_if_actions_are_on_groups_which_are_needed(self, action):
-        reward = 0
-        # Iterate through each ingredient group to set the action mask
-        for key, target in self.ingredient_group_count_targets.items():
-            value = self.ingredient_group_count[key]  # Current count of the ingredient group
-            indexes = self.group_info[key]['indexes']  # Indexes of ingredients in this group
-            selected = [idx for idx in indexes if self.current_selection[idx] > 0]  # Selected ingredients in this group
-            
-            # Will not happen unless non masked algo is being used
-            if target != value:
-                # If the target is not met, the agent should select ingredients from this group so will be reward if it does
-                for idx in selected:
-                    if action[2] == idx:
-                        reward += 1
-                        if value > target: # If the value is over the target reward for a decrease or zero action
-                            if action[0] == 0 or action[0] == 2:
-                                reward += 1
-                        elif value < target: # If the value is under the target reward for an increase action
-                            if action[0] == 3:
-                                reward += 1
-        return reward
-
-class SchoolMealSelectionDiscreteNewRewardMethod(BaseEnvironment):
-    """
-    A custom Gym environment for selecting school meals that meet certain nutritional and environmental criteria.
-    The environment allows actions to adjust the quantity of ingredients and calculates rewards based on multiple metrics,
-    such as nutrient values, environmental impact, cost, and consumption patterns. Uses discrete actions with done signal.
-    """
-    metadata = {"render_modes": ["human"], 'render_fps': 1}
-
-    def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
-                 verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO'):
+                 initialization_strategy: str = 'zero', max_episode_steps: int = 175, algo: str = 'PPO'):
         super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo)
         
         self.step_to_reward = self.calculate_step_to_reward()
                                     # Nutrient, group, cost, co2
-        self.score_weights = np.array([2, 1.5, 1, 1])
+        self.score_weights = np.array([2, 1, 1.1, 1.1])
         self.max_score = np.sum(self.score_weights)
         self.scores = [0, 0, 0, 0]
         
@@ -1263,6 +1116,7 @@ class SchoolMealSelectionDiscreteNewRewardMethod(BaseEnvironment):
 
         if len(targets_not_met) == 0:
             terminated = True
+            self.reward_dict['bonus_score'] = 100
             
         if self.nsteps == self.max_episode_steps:
             terminated = True
@@ -1282,9 +1136,9 @@ class SchoolMealSelectionDiscreteNewRewardMethod(BaseEnvironment):
         
         # Action reward is specific to environment so it is calculated out of the reward calculator. Calculated before current selection updated
         self.action_reward(action)
-        
+        action_list = ['do nothing', 'increase']
         if self.verbose > 1:
-            print(f"\nAction received: increase to {self.ingredient_df['Category7'].iloc[action]}")
+            print(f"\nAction received: {action_list[action[0]]} to {self.ingredient_df['Category7'].iloc[action[1]]}")
             
         if action[0] == 0: # Do Nothing
             pass
@@ -1318,7 +1172,7 @@ if __name__ == '__main__':
         render_mode = None
         num_envs = 2
         plot_reward_history = False
-        max_episode_steps = 100
+        max_episode_steps = 200
         verbose = 3
         action_scaling_factor = 10
         memory_monitor = True
@@ -1339,7 +1193,7 @@ if __name__ == '__main__':
         # vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
         vecnorm_norm_obs_keys = ['current_selection_value']
         reward_type = 'shaped'
-        algo = 'PPO'
+        algo = 'MASKED_PPO'
     args = Args()
 
     num_episodes = 500

@@ -222,9 +222,9 @@ if __name__ == "__main__":
         if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':
             raise ValueError("Must provide seed when loading from checkpoint. Choose -1 to begin training from random value")
         else:
-            args.seed = generate_random_seeds(5)
+            args.seed = generate_random_seeds(2)
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(5)
+        args.seed = generate_random_seeds(2)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
 
