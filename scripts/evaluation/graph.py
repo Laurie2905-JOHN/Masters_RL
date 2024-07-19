@@ -198,7 +198,7 @@ def main():
     
     basepath = os.path.abspath(f"saved_models/evaluation/new_models")
 
-    filename = "SchoolMealSelection_v3_MASKED_PPO_reward_type_shaped_with_group_750000_8env_NewMASK_env_best_seed_1481354365"    
+    filename = "SchoolMealSelection_v3_MASKED_PPO_reward_type_shaped_with_group_200000_8env_NewMASK_env_best_seed_4212743807"    
 
     # if len(filename.split("_")) < 2:
     #     seed = random.randint(0, 1000)

@@ -25,13 +25,13 @@ from utils.process_data import get_data
 from gymnasium.wrappers import TimeLimit
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from sb3_contrib.common.wrappers import ActionMasker
-from models.action_masks.masks import mask_fn1, mask_fn2
+from models.action_masks.masks import mask_fn
 
 def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> float:
     # Prevent Resource Contention: When multiple trials start simultaneously, they might contend for limited computational resources
     time.sleep(random.random() * 16)
 
-    action_scaling_factor = trial.suggest_categorical("action_scaling_factor", [5, 10, 15])
+    action_scaling_factor = trial.suggest_categorical("action_scaling_factor", [2.5, 5, 10])
 
     initialization_strategy = 'zero'
     
@@ -43,7 +43,8 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         "seed": None,
         "verbose": 0,
         "initialization_strategy": 'zero',
-        "reward_type": 'shaped'
+        "reward_type": 'shaped',
+        'gamma': sampled_hyperparams['gamma']
     }
      
     path = os.path.abspath(f"{study_path}/trials/trial_{str(trial.number)}")
@@ -52,18 +53,18 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         os.makedirs(path, exist_ok=True)
 
     def make_env():
-        env = gym.make("SchoolMealSelection-v1", **env_kwargs)
+        env = gym.make("SchoolMealSelection-v3", **env_kwargs)
         
-        env = TimeLimit(env, max_episode_steps=200)
+        env = TimeLimit(env, max_episode_steps=175)
         env = Monitor(env)  # Monitoring is added to track statistics and/or save logs
         
         if algo == "MASKED_PPO":
-            env = ActionMasker(env, mask_fn2)  # Wrap to enable masking
+            env = ActionMasker(env, mask_fn)  # Wrap to enable masking
         
         return env
 
     # Wrap the environment with DummyVecEnv for parallel environments
-    env = make_vec_env(make_env, n_envs=4, seed=None)
+    env = make_vec_env(make_env, n_envs=8, seed=None)
 
     clip_obs = trial.suggest_categorical("clip_obs", [5, 10, 15])
     norm_reward = trial.suggest_categorical("norm_reward", [False, True])
@@ -83,7 +84,7 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         norm_obs=True,
         norm_reward=norm_reward,
         clip_obs=clip_obs,
-        clip_reward=250,
+        clip_reward=10,
         gamma=sampled_hyperparams['gamma'],
         norm_obs_keys=['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
     )
@@ -216,12 +217,12 @@ if __name__ == "__main__":
     parser.add_argument('--study_name', type=str, default=None, help="Name of the Optuna study")
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
-    parser.add_argument('--timeout', type=int, default=3600*48, help="Timeout for optimization in seconds")
-    parser.add_argument('--n_jobs', type=int, default=1, help="Number of jobs to assign")
-    parser.add_argument('--num_timesteps', type=int, default=350000, help="Number of timesteps for model training")
+    parser.add_argument('--timeout', type=int, default=3600*100, help="Timeout for optimization in seconds")
+    parser.add_argument('--n_jobs', type=int, default=2, help="Number of jobs to assign")
+    parser.add_argument('--num_timesteps', type=int, default=400000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_new_MASK"
+        args.study_name = f"{args.algo}_V3"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)

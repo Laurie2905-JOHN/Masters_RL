@@ -40,6 +40,7 @@ def setup_environment(args, reward_save_path=None, eval=False):
                 "initialization_strategy": args.initialization_strategy,
                 "reward_type": args.reward_type,
                 "algo": args.algo,
+                "gamma": args.gamma,
                 "max_episode_steps": args.max_episode_steps
                 }
         

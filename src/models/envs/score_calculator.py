@@ -5,20 +5,17 @@ class BaseScoreCalculator:
 
     def calculate_scores(self):
         """Calculate all scores and identify which targets are not met."""
-        group_score, group_target_met = self._calculate_group_score()
         nutrient_score, nutrient_target_met = self._calculate_nutrient_score()
-        cost_score, cost_target_met = self._calculate_cost_score()
-        co2_score, co2_target_met = self._calculate_co2_score()
+        cost_score, cost_target_met = self._calculate_cost_score(nutrient_target_met)
+        co2_score, co2_target_met = self._calculate_co2_score(nutrient_target_met)
 
         # Collect all scores
-        scores = [nutrient_score, group_score, cost_score, co2_score]
+        scores = [nutrient_score, cost_score, co2_score]
         
         # Collect unmet targets
         targets = []
         if not nutrient_target_met:
             targets.append('nutrient')
-        if not group_target_met:
-            targets.append('group')
         if not cost_target_met:
             targets.append('cost')
         if not co2_target_met:
@@ -54,104 +51,72 @@ class BaseScoreCalculator:
         return min_target <= value <= max_target
 
 
-class ScoreCalculator(BaseScoreCalculator):
+class ScoreCalculatorSparse(BaseScoreCalculator):
     def __init__(self, main_instance):
-        """Initialize ScoreCalculator with a reference to the main instance."""
+        """Initialize ScoreCalculatorSparse with a reference to the main instance."""
         super().__init__(main_instance)
 
     def _calculate_nutrient_score(self):
         """Calculate the nutrient score and check if the target is met."""
-        if not self.main.step_to_reward:
-            return 0, False
-
         return self.calculate_score(self.main.nutrient_averages, self.main.nutrient_target_ranges)
 
     def _calculate_cost_score(self):
         """Calculate the cost score and check if the target is met."""
-        if not self.main.step_to_reward:
-            return 0, False
-
         cost_target = {key: (0, self.main.target_cost_per_meal) for key in self.main.menu_cost.keys()}
         return self.calculate_score(self.main.menu_cost, cost_target, normalize=False)
 
     def _calculate_co2_score(self):
         """Calculate the CO2 score and check if the target is met."""
-        if not self.main.step_to_reward:
-            return 0, False
-
         co2_target = {key: (0, self.main.target_co2_g_per_meal) for key in self.main.co2_g.keys()}
         return self.calculate_score(self.main.co2_g, co2_target, normalize=False)
 
-    def _calculate_group_score(self):
-        """Calculate the group score and check if the target is met."""
-        if not self.main.step_to_reward:
-            return 0, False
+    def calculate_scores(self):
+        """Calculate all scores and return binary values for target met status."""
+        _, nutrient_target_met = self._calculate_nutrient_score()
+        _, cost_target_met = self._calculate_cost_score()
+        _, co2_target_met = self._calculate_co2_score()
 
-        group_target = self.main.ingredient_group_portion_targets
-        scores, target_met = 0, True
-        norm_factor = len(self.main.ingredient_group_count.keys())
+        # Collect binary scores based on target met status
+        scores = [
+            1 if nutrient_target_met else 0,
+            1 if cost_target_met else 0,
+            1 if co2_target_met else 0
+        ]
 
-        for key, value in self.main.ingredient_group_count.items():
-            portion = (
-                self.main.ingredient_group_portion[key] / value
-                if value != 0 else 0
-            )
-            min_target, max_target = group_target[key]
-
-            if min_target <= portion <= max_target:
-                scores += 1
-            else:
-                target_met = False
-                # Calculate score based on distance from target
-                distance = min(abs(min_target - portion), abs(portion - max_target))
-                max_distance = max(abs(min_target), abs(max_target))
-                scores += (1 - (distance / max_distance))
-
-        return scores / norm_factor, target_met
-
-    def is_within_portion_range(self, group: str):
-        """Check if the portion is within the target range."""
-        portion = (
-            self.main.ingredient_group_portion[group] / self.main.ingredient_group_count[group]
-            if self.main.ingredient_group_count[group] != 0 else 0
-        )
-        min_target, max_target = self.main.ingredient_group_portion_targets[group]
-        terminate = portion > 300
-        return min_target <= portion <= max_target, terminate
+        return scores
 
 
 class ScoreCalculatorShaped(BaseScoreCalculator):
     def __init__(self, main_instance):
-        """Initialize ScoreCalculatorShaped with a reference to the main instance."""
+        """Initialize ScoreCalculator with a reference to the main instance."""
         super().__init__(main_instance)
 
-    def _calculate_nutrient_score(self):
+    def _calculate_nutrient_score(self, group_target_met):
         """Calculate the nutrient score and check if the target is met."""
-        if not self.main.step_to_reward:
-            return 0, False
-
+        
+        if not group_target_met:
+            return 0, False  # No cost score if nutrient target is met
+        
         return self.calculate_score(self.main.nutrient_averages, self.main.nutrient_target_ranges)
 
-    def _calculate_cost_score(self):
+    def _calculate_cost_score(self, group_target_met):
         """Calculate the cost score and check if the target is met."""
-        if not self.main.step_to_reward:
-            return 0, False
+        if not group_target_met:
+            return 0, False  # No cost score if nutrient target is met
 
         cost_target = {key: (0, self.main.target_cost_per_meal) for key in self.main.menu_cost.keys()}
         return self.calculate_score(self.main.menu_cost, cost_target, normalize=False)
-
-    def _calculate_co2_score(self):
+    
+    def _calculate_co2_score(self, group_target_met):
         """Calculate the CO2 score and check if the target is met."""
-        if not self.main.step_to_reward:
-            return 0, False
+        if not group_target_met:
+            return 0, False  # No CO2 score if nutrient target is not met
 
         co2_target = {key: (0, self.main.target_co2_g_per_meal) for key in self.main.co2_g.keys()}
         return self.calculate_score(self.main.co2_g, co2_target, normalize=False)
-
+    
     def _calculate_group_score(self):
         """Calculate the group score and check if the target is met."""
-        if not self.main.step_to_reward:
-            return 0, False
 
         group_target = self.main.ingredient_group_portion_targets
         scores, target_met = 0, True
@@ -186,3 +151,26 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
         min_target, max_target = self.main.ingredient_group_portion_targets[group]
         terminate = portion > 300
         return min_target <= portion <= max_target, terminate
+
+    def calculate_scores(self):
+        """Calculate all scores and identify which targets are not met."""
+        _, group_target_met = self._calculate_group_score()
+        nutrient_score, nutrient_target_met = self._calculate_nutrient_score(group_target_met)
+        cost_score, cost_target_met = self._calculate_cost_score(group_target_met)
+        co2_score, co2_target_met = self._calculate_co2_score(group_target_met)
+
+        # Collect all scores
+        scores = [nutrient_score, cost_score, co2_score]
+        
+        # Collect unmet targets
+        targets = []
+        if not nutrient_target_met:
+            targets.append('nutrient')
+        if not cost_target_met:
+            targets.append('cost')
+        if not co2_target_met:
+            targets.append('co2')
+
+        return scores, targets
+
+

@@ -7,7 +7,7 @@ from models.initialization.initialization import IngredientSelectionInitializer
 from gymnasium.envs.registration import register
 import os
 from collections import deque
-from models.envs.score_calculator import ScoreCalculator, ScoreCalculatorShaped
+from models.envs.score_calculator import ScoreCalculatorSparse, ScoreCalculatorShaped
 
 class BaseEnvironment(gym.Env):
     """
@@ -18,10 +18,10 @@ class BaseEnvironment(gym.Env):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO'):
+                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO', gamma: float = 0.99):
         super().__init__()
 
-        self._initialize_parameters(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, initialization_strategy, max_episode_steps, algo)
+        self._initialize_parameters(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, initialization_strategy, max_episode_steps, algo, gamma)
         self._initialize_nutrient_values(ingredient_df)
         self._initialize_nutrient_targets()
         self._create_index_value_mapping()
@@ -72,7 +72,7 @@ class BaseEnvironment(gym.Env):
             }
     
     def _initialize_parameters(self, ingredient_df, max_ingredients: int, action_scaling_factor: int, render_mode: str, 
-                               verbose: int, seed: int, initialization_strategy: str, max_episode_steps: int, algo: str) -> None:
+                               verbose: int, seed: int, initialization_strategy: str, max_episode_steps: int, algo: str, gamma: float) -> None:
         self.ingredient_df = ingredient_df
         self.max_ingredients = max_ingredients
         self.action_scaling_factor = action_scaling_factor
@@ -85,6 +85,8 @@ class BaseEnvironment(gym.Env):
         self.episode_count = -1
         self.nsteps = 0
         self.algo = algo
+        self.gamma = gamma
+        self.bonus_score = 10
 
     def _initialize_nutrient_values(self, ingredient_df) -> None:
         self.caloric_values = ingredient_df['Calories_kcal_per_100g'].values.astype(np.float32) / 100
@@ -967,18 +969,19 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 175, algo: str = 'PPO'):
-        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo)
+                 initialization_strategy: str = 'zero', max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
+        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo, gamma)
         
         self.step_to_reward = self.calculate_step_to_reward()
                                     # Nutrient, group, cost, co2
-        self.score_weights = np.array([2, 1, 1.1, 1.1])
+        self.score_weights = np.array([2, 1, 1])
         self.max_score = np.sum(self.score_weights)
-        self.scores = [0, 0, 0, 0]
+
+        self.scores = [0, 0, 0]
         
         current_reward = np.dot(self.scores, self.score_weights)
         self.current_potential  = self.calculate_potential(current_reward)
-        self.gamma = 0.99
+        self.gamma = gamma
         
 
     def _initialize_observation_space(self) -> None:
@@ -994,7 +997,6 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
             'groups_selected': spaces.Box(low=0, high=1, shape=(len(self.ingredient_group_count.keys()),), dtype=np.float64),
             'groups_portion': spaces.Box(low=-1, high=1, shape=(len(self.ingredient_group_portion.keys()),), dtype=np.float64),  
             'nutrient_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
-            'group_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
             'cost_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
             'co2_g_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
         })
@@ -1006,7 +1008,6 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         """
         self.reward_dict = {}
         self.reward_dict['nutrient_score'] = 0
-        self.reward_dict['ingredient_group_count_score'] = 0
         self.reward_dict['cost_score'] = 0
         self.reward_dict['co2g_score'] = 0
         
@@ -1038,9 +1039,8 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         obs['groups_portion'] = self._normalize_group_portions(self.ingredient_group_portion)
         obs['time_feature'] = np.array([time_feature], dtype=np.float64)
         obs['nutrient_score'] = np.array([self.scores[0]], dtype=np.float64)
-        obs['group_score'] = np.array([self.scores[1]], dtype=np.float64)
-        obs['cost_score'] = np.array([self.scores[2]], dtype=np.float64)
-        obs['co2_g_score'] = np.array([self.scores[3]], dtype=np.float64)
+        obs['cost_score'] = np.array([self.scores[1]], dtype=np.float64)
+        obs['co2_g_score'] = np.array([self.scores[2]], dtype=np.float64)
 
 
         return obs
@@ -1087,47 +1087,55 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         # Process the action to update the current selection
         self.update_and_process_selection(action)
         
-        reward = 0
-        terminated = False
-        
         # Instantiate ScoreCalculator with the main class instance
         score_calculator = ScoreCalculatorShaped(self)
         
-        # Calculate the reward for the action
+        # Calculate the scores and targets not met
         self.scores, targets_not_met = score_calculator.calculate_scores()
         
         self.reward_dict['nutrient_score'] = self.scores[0]
-        self.reward_dict['ingredient_group_count_score'] = self.scores[1]
-        self.reward_dict['cost_score'] = self.scores[2]
-        self.reward_dict['co2g_score'] = self.scores[3]
+        self.reward_dict['cost_score'] = self.scores[1]
+        self.reward_dict['co2g_score'] = self.scores[2]
         self.reward_dict['targets_not_met'] = targets_not_met
         
+        # Calculate the immediate reward based on the current scores
         current_reward = np.dot(self.scores, self.score_weights)
         
-        next_potential  = self.calculate_potential(current_reward)
-        
-        # print(self.scores)
+        # Calculate the potential of the next state based on current reward
+        next_potential = self.calculate_potential(current_reward)
         
         # Calculate the shaped reward
-        shaped_reward  = current_reward + (self.gamma * next_potential) - self.current_potential
+        shaped_reward = current_reward + (self.gamma * next_potential) - self.current_potential
         
-        # Update current potential for the next step
+        # Update the current potential to the next potential for the next step
         self.current_potential = next_potential
-
-        if len(targets_not_met) == 0:
-            terminated = True
-            self.reward_dict['bonus_score'] = 100
-            
+        
+        terminated = False
+        # Check if maximum steps are reached
         if self.nsteps == self.max_episode_steps:
             terminated = True
             # Add the current length of targets_not_met to the history
             self.targets_not_met_history.append(len(targets_not_met))
-            
-                       
-        return shaped_reward, terminated
+
+        # Check if all targets are met
+        if terminated and len(targets_not_met) == 0:
+            terminated = True
+            print("All targets met!")
+            self.reward_dict['bonus_score'] = self.bonus_score
+            shaped_reward += self.bonus_score  # Additional reward for meeting all target
+        else: # If some targets are met, give bonus score based on number of targets met
+            self.reward_dict['bonus_score'] = 3 - len(targets_not_met)
+            shaped_reward += self.reward_dict['bonus_score']
     
+        return shaped_reward, terminated
+
     def calculate_potential(self, reward):
+        """
+        Calculate the potential based on the reward.
+        """
+        # Potential is calculated to reflect how close the current reward is to the max score
         return -(self.max_score - reward)
+
      
     def update_and_process_selection(self, action: np.ndarray) -> None:
         """
