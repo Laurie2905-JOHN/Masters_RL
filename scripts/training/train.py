@@ -105,7 +105,7 @@ def main(args):
         callback_on_new_best=save_vecnormalize_best_callback,
         n_eval_episodes=5,
         eval_freq=max(args.eval_freq // args.num_envs, 1),
-        deterministic=False,
+        deterministic=True,
         log_path=tensorboard_log_dir,
         render=False,
         verbose=args.verbose
@@ -222,9 +222,9 @@ if __name__ == "__main__":
         if args.pretrained_checkpoint_path and args.pretrained_checkpoint_path.lower() != 'none':
             raise ValueError("Must provide seed when loading from checkpoint. Choose -1 to begin training from random value")
         else:
-            args.seed = generate_random_seeds(2)
+            args.seed = generate_random_seeds(5)
     elif args.seed == "-1":
-        args.seed = generate_random_seeds(2)
+        args.seed = generate_random_seeds(5)
     else:
         args.seed = [int(s) for s in args.seed.strip('[]').split(',')]
 
