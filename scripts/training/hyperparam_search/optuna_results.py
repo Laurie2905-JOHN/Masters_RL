@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 from utils.train_utils import get_unique_directory
 
-study_name = "MASKED_PPO_new_MASK"  # Replace with your actual study name
+study_name = "MASKED_PPO_V3"  # Replace with your actual study name
 
 # Specify the path to the journal file
 journal_file_path = f"saved_models/optuna/{study_name}/journal_storage/journal.log"  # Replace with your actual journal log path
