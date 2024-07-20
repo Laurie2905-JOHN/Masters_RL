@@ -28,9 +28,8 @@ def sample_a2c_params(trial: optuna.Trial) -> Dict[str, Any]:
     ortho_init = trial.suggest_categorical('ortho_init', [False, True])
     activation_fn = trial.suggest_categorical('activation_fn', ['tanh', 'relu', 'elu', 'leaky_relu'])
 
-    # Adjust learning rate if schedule is linear
-    if lr_schedule == "linear":
-        learning_rate = linear_schedule(learning_rate)
+    # Get leanring rate schedule
+    learning_rate = get_learning_rate(lr_schedule_type)
 
     # Define network architecture
     net_arch_width = trial.suggest_categorical("net_arch_width", [8, 16, 32, 64, 128, 256, 512])

@@ -26,7 +26,7 @@ import yaml
 from sb3_contrib.ppo_mask import MaskablePPO
 from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
 from stable_baselines3 import A2C, PPO
-
+import math
 # Function to set up the environment
 def setup_environment(args, reward_save_path=None, eval=False):
     
@@ -89,7 +89,50 @@ def setup_environment(args, reward_save_path=None, eval=False):
     return env
 
 
+def cosine_annealing_schedule(initial_value: Union[float, str], min_lr: float = 0) -> Callable[[float], float]:
+    """
+    Cosine annealing learning rate schedule.
 
+    :param initial_value: (float or str) Initial learning rate.
+    :param min_lr: (float) Minimum learning rate.
+    :return: (function) Learning rate function.
+    """
+    if isinstance(initial_value, str):
+        initial_value = float(initial_value)
+
+    def func(progress_remaining: float) -> float:
+        """
+        Cosine annealing from initial value to min_lr.
+        :param progress_remaining: (float) Remaining training progress (1 at start, 0 at end).
+        :return: (float) Learning rate.
+        """
+        return min_lr + 0.5 * (initial_value - min_lr) * (1 + math.cos(math.pi * progress_remaining))
+
+    return func
+
+
+def exponential_decay_schedule(initial_value: Union[float, str], total_steps: int = 400000, decay_rate: float = 0.96, decay_steps: int = 100) -> Callable[[float], float]:
+    """
+    Exponential decay learning rate schedule.
+
+    :param initial_value: (float or str) Initial learning rate.
+    :param decay_rate: (float) Decay rate.
+    :param decay_steps: (int) Number of steps before decay is applied.
+    :return: (function) Learning rate function.
+    """
+    if isinstance(initial_value, str):
+        initial_value = float(initial_value)
+
+    def func(progress_remaining: float) -> float:
+        """
+        Exponential decay schedule.
+        :param progress_remaining: (float) Remaining training progress (1 at start, 0 at end).
+        :return: (float) Learning rate.
+        """
+        global_step = (1 - progress_remaining) * total_steps # Set to 400000 as tuning number 
+        return initial_value * (decay_rate ** (global_step / decay_steps))
+
+    return func
 
 
 def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
@@ -111,6 +154,19 @@ def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float
         return progress_remaining * initial_value
 
     return func
+
+def get_learning_rate(lr_schedule_type, learning_rate):
+    
+    if lr_schedule_type == "linear":
+        learning_rate = linear_schedule(learning_rate)
+    elif lr_schedule_type == "cosine":
+        learning_rate = cosine_annealing_schedule(learning_rate)
+    elif lr_schedule_type == "exponential":
+        learning_rate = exponential_decay_schedule(learning_rate)
+    elif lr_schedule_type == "constant":
+        pass # Return initial learning rate
+    return learning_rate
+
 
 # Function to select the appropriate device (CPU or GPU)
 def select_device(args):
@@ -171,13 +227,16 @@ def load_model(args, env, tensorboard_log_dir, seed):
 
 # Create a new model with the specified algorithm and hyperparameters
 def create_model(args, env, tensorboard_log_dir, seed):
+    
+    learning_rate = get_learning_rate(args.lr_schedule, args.learning_rate)
+    
     common_hyperparams = {
         'verbose': args.verbose,
         'tensorboard_log': tensorboard_log_dir,
         'device': args.device,
         'seed': seed,
         'gamma': args.gamma,
-        'learning_rate': args.learning_rate,
+        'learning_rate': learning_rate,
         'ent_coef': args.ent_coef,
         'vf_coef': args.vf_coef,
         'max_grad_norm': args.max_grad_norm,

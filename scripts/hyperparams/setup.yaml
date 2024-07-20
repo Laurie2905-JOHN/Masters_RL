@@ -1,14 +1,14 @@
 env_name: SchoolMealSelection-v3
 max_episode_steps: 175
 max_ingredients: 6
-action_scaling_factor: 2.5
+action_scaling_factor: 10
 
 algo: MASKED_PPO
-num_envs: 8
+num_envs: 4
 
 render_mode: null
 data_name: 'data'
-total_timesteps: 200000
+total_timesteps: 500000
 save_freq: 100000
 gamma: 0.99
 
@@ -19,7 +19,7 @@ hyperparams_dir: saved_models/hyperparams
 reward_dir: saved_models/reward
 
 
-log_prefix: score_shaped_no_group_nutrient_target
+log_prefix: trial_3
 save_prefix: null
 best_prefix: null
 hyperparams_prefix: null

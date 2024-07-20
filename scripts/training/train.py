@@ -9,6 +9,7 @@ from utils.train_utils import *
 from sb3_contrib.ppo_mask import MaskablePPO
 from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
 from models.callbacks.callback import *
+from utils.train_utils import get_learning_rate
 
 # Main training function
 def main(args):
@@ -197,15 +198,6 @@ if __name__ == "__main__":
             
     # Set default prefixes if not provided
     args = set_default_prefixes(args)
-
-    # Set learning rate and policy kwargs
-    learning_rate = args.learning_rate 
-
-    # Adjust learning rate if schedule is linear
-    if args.lr_schedule == "linear":
-        args.learning_rate = linear_schedule(learning_rate)
-    else:
-        args.learning_rate = learning_rate
 
     # Define policy kwargs
     args.policy_kwargs = dict(

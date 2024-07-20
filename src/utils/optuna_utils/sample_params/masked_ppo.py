@@ -2,7 +2,7 @@ from typing import Dict, Any, Union, Callable
 
 import optuna
 from torch import nn
-from utils.train_utils import linear_schedule
+from utils.train_utils import get_learning_rate
 
 
 def sample_masked_ppo_params(trial: optuna.Trial) -> Dict[str, Any]:
@@ -14,9 +14,9 @@ def sample_masked_ppo_params(trial: optuna.Trial) -> Dict[str, Any]:
     """
     batch_size = trial.suggest_categorical("batch_size", [8, 16, 32, 64, 128, 256, 512, 1024])
     n_steps = trial.suggest_categorical("n_steps", [8, 16, 32, 64, 128, 256, 512, 1024, 2048])
-    gamma = trial.suggest_categorical("gamma", [0.5, 0.8, 0.9, 0.95, 0.98, 0.99, 0.995, 0.999, 0.9999])
+    gamma = 0.99
     learning_rate = trial.suggest_float("learning_rate", 1e-5, 0.1, log=True)
-    lr_schedule = trial.suggest_categorical('lr_schedule', ['linear', 'constant'])
+    lr_schedule_type = trial.suggest_categorical('lr_schedule', ['linear', 'constant', 'cosine', 'exponential'])
     ent_coef = trial.suggest_float("ent_coef", 1e-8, 0.1, log=True)
     clip_range = trial.suggest_categorical("clip_range", [0.1, 0.2, 0.3, 0.4])
     n_epochs = trial.suggest_categorical("n_epochs", [1, 5, 10, 20])
@@ -34,10 +34,9 @@ def sample_masked_ppo_params(trial: optuna.Trial) -> Dict[str, Any]:
     # Ensure batch_size is not greater than n_steps
     if batch_size > n_steps:
         batch_size = n_steps
-
-    # Adjust learning rate if schedule is linear
-    if lr_schedule == "linear":
-        learning_rate = linear_schedule(learning_rate)
+    
+    # Get leanring rate schedule
+    learning_rate = get_learning_rate(lr_schedule_type, learning_rate)
 
     # Define network architecture
     net_arch_width = trial.suggest_categorical("net_arch_width", [8, 16, 32, 64, 128, 256, 512])

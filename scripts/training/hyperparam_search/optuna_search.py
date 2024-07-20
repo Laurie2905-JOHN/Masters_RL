@@ -26,46 +26,49 @@ from gymnasium.wrappers import TimeLimit
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from sb3_contrib.common.wrappers import ActionMasker
 from models.action_masks.masks import mask_fn
+import numpy as np
 
-def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> float:
+def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> tuple:
     # Prevent Resource Contention: When multiple trials start simultaneously, they might contend for limited computational resources
     time.sleep(random.random() * 16)
-
-    action_scaling_factor = trial.suggest_categorical("action_scaling_factor", [2.5, 5, 10])
-
-    initialization_strategy = 'zero'
     
-    env_kwargs = {
-        "ingredient_df": ingredient_df, 
-        "max_ingredients": 6, 
-        "action_scaling_factor": action_scaling_factor,
-        "initialization_strategy": initialization_strategy,
-        "seed": None,
-        "verbose": 0,
-        "initialization_strategy": 'zero',
-        "reward_type": 'shaped',
-        'gamma': sampled_hyperparams['gamma']
-    }
+    def get_env_kwargs(arg_seed):
+        return {
+            "ingredient_df": ingredient_df, 
+            "max_ingredients": 6, 
+            "action_scaling_factor": 5,
+            "initialization_strategy": 'zero',
+            "reward_type": 'shaped',
+            "gamma": 0.99, 
+            "seed": arg_seed
+        }
      
     path = os.path.abspath(f"{study_path}/trials/trial_{str(trial.number)}")
     
     if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)
 
-    def make_env():
-        env = gym.make("SchoolMealSelection-v3", **env_kwargs)
-        
-        env = TimeLimit(env, max_episode_steps=175)
-        env = Monitor(env)  # Monitoring is added to track statistics and/or save logs
-        
-        if algo == "MASKED_PPO":
-            env = ActionMasker(env, mask_fn)  # Wrap to enable masking
-        
-        return env
+    def make_env(arg_seed):
+        def _init():
+            env_kwargs = get_env_kwargs(arg_seed)
+            env = gym.make("SchoolMealSelection-v3", **env_kwargs)
+            env = TimeLimit(env, max_episode_steps=175)
+            env = Monitor(env)  # Monitoring is added to track statistics and/or save logs
+            
+            if algo == "MASKED_PPO":
+                env = ActionMasker(env, mask_fn)  # Wrap to enable masking
+            
+            return env
+        return _init
 
     # Wrap the environment with DummyVecEnv for parallel environments
-    env = make_vec_env(make_env, n_envs=8, seed=None)
-
+    def make_envs(arg_seed):
+        env = make_vec_env(make_env(arg_seed),
+                        n_envs=8,
+                        seed=arg_seed,
+                        )
+        return env
+    
     clip_obs = trial.suggest_categorical("clip_obs", [5, 10, 15])
     norm_reward = trial.suggest_categorical("norm_reward", [False, True])
 
@@ -73,75 +76,82 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         sampled_hyperparams = sample_ppo_params(trial)
     elif algo == "A2C":
         sampled_hyperparams = sample_a2c_params(trial)
-    elif algo =="MASKED_PPO":
+    elif algo == "MASKED_PPO":
         sampled_hyperparams = sample_masked_ppo_params(trial)
     else:
         raise ValueError("Invalid algorithm")
     
-    # Normalize observations and rewards
-    env = VecNormalize(
-        env,
-        norm_obs=True,
-        norm_reward=norm_reward,
-        clip_obs=clip_obs,
-        clip_reward=10,
-        gamma=sampled_hyperparams['gamma'],
-        norm_obs_keys=['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
-    )
-
-    if algo == "PPO":
-        model = PPO("MultiInputPolicy", env=env, seed=None, verbose=0, device='cuda', tensorboard_log=path, **sampled_hyperparams)
-    elif algo == "A2C":
-        model = A2C("MultiInputPolicy", env=env, seed=None, verbose=0, device='cpu', tensorboard_log=path, **sampled_hyperparams)
-    elif algo == "MASKED_PPO":
-        model = MaskablePPO("MultiInputPolicy", env=env, seed=None, verbose=0, device='cuda', tensorboard_log=path, **sampled_hyperparams)
-    else:
-        raise ValueError("Invalid algorithm")
+    rewards = []
+    seeds = [random.randint(0, 10000) for _ in range(5)]  # Use 5 different seeds for each trial
     
-    stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=20, min_evals=50, verbose=1)
-    
-    if algo != "MASKED_PPO":
-        eval_callback = TrialEvalCallback(
-            env, trial, best_model_save_path=path, log_path=path,
-            n_eval_episodes=5, eval_freq=10000, deterministic=True, callback_after_eval=stop_callback
+    for arg_seed in seeds:
+        env = make_envs(arg_seed)
+        # Normalize observations and rewards
+        env = VecNormalize(
+            env,
+            norm_obs=True,
+            norm_reward=norm_reward,
+            clip_obs=clip_obs,
+            clip_reward=10,
+            gamma=0.99,
+            norm_obs_keys=['current_selection_value']
         )
-    else:
-        eval_callback = MaskableTrialEvalCallback(
-                        env, trial, best_model_save_path=path, log_path=path,
-            n_eval_episodes=5, eval_freq=10000, deterministic=True, callback_after_eval=stop_callback
-        )
-    
-    if 'ingredient_df' in env_kwargs:
-        del env_kwargs['ingredient_df']
 
-    params = env_kwargs | sampled_hyperparams | {'clip_obs': clip_obs, 'norm_reward': norm_reward}
-    
+        if algo == "PPO":
+            model = PPO("MultiInputPolicy", env=env, seed=arg_seed, verbose=0, device='cuda', tensorboard_log=path, **sampled_hyperparams)
+        elif algo == "A2C":
+            model = A2C("MultiInputPolicy", env=env, seed=arg_seed, verbose=0, device='cpu', tensorboard_log=path, **sampled_hyperparams)
+        elif algo == "MASKED_PPO":
+            model = MaskablePPO("MultiInputPolicy", env=env, seed=arg_seed, verbose=0, device='cuda', tensorboard_log=path, **sampled_hyperparams)
+        else:
+            raise ValueError("Invalid algorithm")
+        
+        stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=20, min_evals=50, verbose=1)
+        
+        if algo != "MASKED_PPO":
+            eval_callback = TrialEvalCallback(
+                env, trial, best_model_save_path=path, log_path=path,
+                n_eval_episodes=5, eval_freq=10000, deterministic=False, callback_after_eval=stop_callback
+            )
+        else:
+            eval_callback = MaskableTrialEvalCallback(
+                env, trial, best_model_save_path=path, log_path=path,
+                n_eval_episodes=5, eval_freq=10000, deterministic=False, callback_after_eval=stop_callback
+            )
+        env_kwargs = get_env_kwargs(arg_seed)
+        if 'ingredient_df' in env_kwargs:
+            del env_kwargs['ingredient_df']
 
-    try:
-        model.learn(num_timesteps, eval_callback)
-        env.close()
-    except (AssertionError, ValueError) as e:
-        env.close()
-        print(e)
-        print("============")
-        print("Sampled params:")
-        pprint(params)
+        params = env_kwargs | sampled_hyperparams | {'clip_obs': clip_obs, 'norm_reward': norm_reward}
+        
+        try:
+            model.learn(num_timesteps, eval_callback)
+            rewards.append(eval_callback.best_mean_reward)
+            env.close()
+        except (AssertionError, ValueError) as e:
+            env.close()
+            print(e)
+            print("============")
+            print("Sampled params:")
+            pprint(params)
+            raise optuna.exceptions.TrialPruned()
+
+        del model.env
+        del model
+
+    mean_reward = np.mean(rewards)
+    std_reward = np.std(rewards)
+
+    if np.isnan(mean_reward) or np.isnan(std_reward):
         raise optuna.exceptions.TrialPruned()
 
-    is_pruned = eval_callback.is_pruned
-    reward = eval_callback.best_mean_reward
-    
-    del model.env
-    del model
-
-    if is_pruned:
-        raise optuna.exceptions.TrialPruned()
-    
     with open(f"{path}/params.txt", "w") as f:
         f.write(str(params))
-        f.write(f"\nReward: {reward}")
+        f.write(f"\nMean Reward: {mean_reward}")
+        f.write(f"\nStd Reward: {std_reward}")
 
-    return reward
+    # Returning a tuple (mean_reward, std_reward) to optimize for both mean and standard deviation
+    return mean_reward, std_reward
 
 def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
     INGREDIENT_DF = get_data()
@@ -151,9 +161,6 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
     
     db_dir = os.path.join(study_path, "db")
     os.makedirs(db_dir, exist_ok=True)  # Ensure the directory exists
-    
-    # if storage is None:
-    #     storage = f"sqlite:///{os.path.join(db_dir, f'{study_name}.db')}"
     
     if storage is None:   
         db_dir = os.path.join(study_path, "journal_storage")
@@ -172,7 +179,7 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
         sampler=sampler,
         pruner=pruner,
         load_if_exists=True,
-        direction="maximize",
+        directions=["maximize", "minimize"],  # Optimize for mean reward and minimize std deviation
     )
 
     try:
@@ -183,9 +190,9 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
 
     print("Number of finished trials: ", len(study.trials))
 
-    trial = study.best_trial
+    trial = study.best_trials[0]  # Optuna will now return multiple trials, so we take the first best trial
     print(f"Best trial: {trial.number}")
-    print("Value: ", trial.value)
+    print("Values: ", trial.values)
 
     print("Params: ")
     for key, value in trial.params.items():
