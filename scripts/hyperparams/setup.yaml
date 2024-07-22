@@ -1,16 +1,15 @@
 env_name: SchoolMealSelection-v3
 max_episode_steps: 175
 max_ingredients: 6
-action_scaling_factor: 10
+action_scaling_factor: 5
 
 algo: MASKED_PPO
-num_envs: 4
+num_envs: 8
 
 render_mode: null
 data_name: 'data'
 total_timesteps: 500000
 save_freq: 100000
-gamma: 0.99
 
 log_dir: saved_models/tensorboard
 save_dir: saved_models/checkpoints

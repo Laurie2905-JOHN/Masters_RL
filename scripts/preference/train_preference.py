@@ -1,10 +1,11 @@
 import logging
 from models.preferences.data_utils import get_child_data, initialize_child_preference_data, prepare_ml_data, prepare_ml_preferences
 from utils.process_data import get_data
-from models.preferences.prediction import fit_random_forest_classifier, predict_preference_using_model, combine_features, get_true_preference_label, print_preference_differences
+from models.preferences.prediction import fit_random_forest_classifier, predict_preference_using_model, combine_features, get_true_preference_label, print_preference_difference_and_accuracy
 from sklearn.metrics import classification_report
 import pandas as pd
 import numpy as np
+from models.preferences.voting import negotiate_ingredients_simple
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -90,7 +91,20 @@ def main(seed=4):
                 updated_known_and_predicted_preferences[child]['dislikes'].append(ingredient)
 
     # See difference in actual and predicted preferences
-    print_preference_differences(child_preference_data, updated_known_and_predicted_preferences)
+    print_preference_difference_and_accuracy(child_preference_data, updated_known_and_predicted_preferences, summary_only=True)
 
+
+    # Negotiate the ingredients
+    # Simple
+    negotiated_ingredient_order, unavailable_ingredients = negotiate_ingredients_simple(updated_known_and_predicted_preferences, ingredient_df, seed)
+    sum1 = 0
+    for key in negotiated_ingredient_order.values():
+        print(key)
+        sum1 += len(key)
+   
+            
+    print(negotiated_ingredient_order)
+    print(sum1)
+    print(unavailable_ingredients)
 if __name__ == "__main__":
     main()

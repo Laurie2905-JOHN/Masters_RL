@@ -1,6 +1,5 @@
 import os
 import shutil
-import argparse
 
 def clear_directory(directory_list):
     # Warning message
