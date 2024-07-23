@@ -133,15 +133,12 @@ def negotiate_ingredients_simple(preferences, ingredient_df, seed):
     """
     # Define the ingredient groups as columns in the one-hot encoded DataFrame
     ingredient_groups = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E', 'Bread', 'Confectionary']
-    
-    # Initialize dictionaries for negotiated ingredients and unavailable ingredients
-    negotiated_ingredients = {}
 
     # Collect votes and unavailable ingredients for all ingredients
     votes, unavailable_ingredients = collect_weighted_votes(preferences, ingredient_df, calculate_child_weight_simple, seed)
     
     # Initialize category votes dictionary with ingredient groups
-    category_votes = {group: {} for group in ingredient_groups}
+    negotiated_ingredients = {group: {} for group in ingredient_groups}
     
     # Map ingredients to their groups for efficient lookup
     ingredient_to_groups = {ingredient: group for group in ingredient_groups for ingredient in ingredient_df[ingredient_df[group] == 1]['Category7']}
@@ -151,18 +148,13 @@ def negotiate_ingredients_simple(preferences, ingredient_df, seed):
         if ingredient not in unavailable_ingredients:
             group = ingredient_to_groups.get(ingredient)
             if group:
-                category_votes[group][ingredient] = vote
+                negotiated_ingredients[group][ingredient] = vote
 
-    # Sort and store the ingredients for each category, maintaining their votes
-    for group, votes_dict in category_votes.items():
-        sorted_ingredients = sorted(votes_dict.items(), key=lambda item: item[1], reverse=True)
-        negotiated_ingredients[group] = sorted_ingredients
 
     # Handle Misc category
     misc_df = ingredient_df[(ingredient_df[ingredient_groups].sum(axis=1) == 0)]
     misc_votes = {ingredient: votes[ingredient] for ingredient in misc_df['Category7'].tolist() if ingredient in votes and ingredient not in unavailable_ingredients}
-    sorted_misc_ingredients = sorted(misc_votes.items(), key=lambda item: item[1], reverse=True)
-    negotiated_ingredients['Misc'] = sorted_misc_ingredients
+    negotiated_ingredients['Misc'] = misc_votes
 
     return negotiated_ingredients, unavailable_ingredients
 
@@ -178,15 +170,17 @@ def create_preference_score_function(ranked_ingredients):
     Returns:
     function: A function that takes an ingredient as input and returns its normalized score.
     """
-    # Flatten and normalize scores within each group
-    ingredient_scores = {}
-    for group, ingredients in ranked_ingredients.items():
-        scores = np.array([score for _, score in ingredients]).reshape(-1, 1)
-        scaler = MinMaxScaler()
-        normalized_scores = scaler.fit_transform(scores).flatten()
-        for (ingredient, _), norm_score in zip(ingredients, normalized_scores):
-            ingredient_scores[ingredient] = norm_score
-    
+    if ranked_ingredients:
+        # Flatten and normalize scores within each group
+        ingredient_scores = {}
+        for group, ingredients in ranked_ingredients.items():
+            scores = np.array([score for _, score in ingredients]).reshape(-1, 1)
+            scaler = MinMaxScaler()
+            normalized_scores = scaler.fit_transform(scores).flatten()
+            for (ingredient, _), norm_score in zip(ingredients, normalized_scores):
+                ingredient_scores[ingredient] = norm_score
+    else:
+        ingredient_scores = {}
     def score_function(ingredient):
         """
         Returns the normalized score of the given ingredient based on the ranked ingredients.
@@ -197,8 +191,8 @@ def create_preference_score_function(ranked_ingredients):
         Returns:
         float: The normalized score of the ingredient, or 'error' if the ingredient is not found.
         """
-        return ingredient_scores.get(ingredient, 'ERROR: Ingredient not found')
-    
+        # return ingredient_scores.get(ingredient, 'ERROR: Ingredient not found')
+        return ingredient_scores.get(ingredient, 0)
     return score_function
 
 # def negotiate_ingredients_complex(preferences, rf_model, preprocessor, child_data, ingredients_data):

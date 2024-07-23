@@ -171,7 +171,7 @@ class Args:
     plot_reward_history = False
     max_episode_steps = 175
     verbose = 3
-    action_scaling_factor = 2.5
+    action_scaling_factor = 2
     memory_monitor = True
     gamma = 0.99
     max_ingredients = 6
@@ -196,9 +196,9 @@ def main():
     from utils.train_utils import setup_environment, get_unique_directory
     from utils.process_data import get_data  # Ensure this import is correct
     
-    basepath = os.path.abspath(f"saved_models/evaluation/new_models")
+    basepath = os.path.abspath(f"saved_models/evaluation/best_models/V3")
 
-    filename = "SchoolMealSelection_v3_MASKED_PPO_reward_type_shaped_with_group_200000_8env_NewMASK_env_best_seed_4212743807"    
+    filename = "SchoolMealSelection_v3_MASKED_PPO_reward_type_shaped_with_group_500000_8env_NewMASK_env_best_seed_1736591515"    
 
     # if len(filename.split("_")) < 2:
     #     seed = random.randint(0, 1000)

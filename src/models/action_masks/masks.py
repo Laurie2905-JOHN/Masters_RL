@@ -5,12 +5,12 @@ def convert_unavailable_to_index(unavailable_ingredients, ingredient_df):
     indexes = ingredient_df.index[ingredient_df['Category7'].isin(unavailable_ingredients)].tolist()
     return indexes
 
-def mask_fn(self, unavailable=None) -> np.ndarray:
+def mask_fn(self) -> np.ndarray:
     """
     Generate an action mask indicating valid actions.
 
     Args:
-        unavailable (list): List of unavailable ingredients. If none, all ingredients are available.
+        None
 
     Returns:
         np.ndarray: The action mask indicating valid actions.
@@ -30,7 +30,8 @@ def mask_fn(self, unavailable=None) -> np.ndarray:
     group_info = self.env.get_wrapper_attr('group_info')
     current_selection = self.env.get_wrapper_attr('current_selection')
     ingredient_df = self.env.get_wrapper_attr('ingredient_df')
-
+    unavailable_ingredients = self.env.get_wrapper_attr('unavailable_ingredients')
+    
     extra_action = 2  # First 2 for actions [do nothing, increase], rest for ingredients
 
     # Initialize action mask with zeros
@@ -100,19 +101,19 @@ def mask_fn(self, unavailable=None) -> np.ndarray:
                 action_mask[indexes + extra_action] = 1
 
     # If unavailable ingredients are specified, block selection for these ingredients
-    action_mask = block_unavailable_ingredients(unavailable, ingredient_df, action_mask, extra_action)
-       
+    action_mask = block_unavailable_ingredients(unavailable_ingredients, ingredient_df, action_mask, extra_action)
+
     # Apply any additional action constraints
     action_mask = ingredient_action(self, ingredient_df, all_group_portion_target_met, calorie_target_met, action_mask, extra_action)
 
     return action_mask
 
-def block_unavailable_ingredients(unavailable, ingredient_df, action_mask, extra_action):
+def block_unavailable_ingredients(unavailable_ingredients, ingredient_df, action_mask, extra_action):
     """
     Blocks the selection of unavailable ingredients by updating the action mask.
 
     Parameters:
-    unavailable (list): List of unavailable ingredient names.
+    unavailable_ingredients (list): List of unavailable ingredient names.
     ingredient_df (DataFrame): DataFrame containing ingredient information.
     action_mask (list): List representing the action mask for ingredient selection.
     extra_action (int): Offset to apply to the indices in the action mask.
@@ -120,12 +121,12 @@ def block_unavailable_ingredients(unavailable, ingredient_df, action_mask, extra
     Returns:
     action_mask
     """
-    if not unavailable:
-        return
+    if not unavailable_ingredients:
+        return action_mask
 
     try:
         # Convert unavailable ingredients to their respective indexes
-        unavailable_indexes = convert_unavailable_to_index(unavailable, ingredient_df)
+        unavailable_indexes = convert_unavailable_to_index(unavailable_ingredients, ingredient_df)
 
         # Update the action mask to block these indexes
         for idx in unavailable_indexes:

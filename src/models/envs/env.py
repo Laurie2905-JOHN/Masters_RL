@@ -983,6 +983,13 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         self.current_potential  = self.calculate_potential(current_reward)
         self.gamma = gamma
         
+        self.unavailable_ingredients = []
+        
+        self.preference_target = 0.5
+        
+        from models.preferences.voting import negotiate_ingredients_simple, create_preference_score_function
+        negotiated_ingredient_order = []
+        self.preference_score_function = create_preference_score_function(negotiated_ingredient_order)
 
     def _initialize_observation_space(self) -> None:
         """

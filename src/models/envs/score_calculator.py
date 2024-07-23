@@ -1,27 +1,13 @@
-class BaseScoreCalculator:
+from abc import ABC, abstractmethod
+
+class BaseScoreCalculator(ABC):
     def __init__(self, main_instance):
         """Initialize with a reference to the main instance."""
         self.main = main_instance
 
+    @abstractmethod
     def calculate_scores(self):
-        """Calculate all scores and identify which targets are not met."""
-        nutrient_score, nutrient_target_met = self._calculate_nutrient_score()
-        cost_score, cost_target_met = self._calculate_cost_score(nutrient_target_met)
-        co2_score, co2_target_met = self._calculate_co2_score(nutrient_target_met)
-
-        # Collect all scores
-        scores = [nutrient_score, cost_score, co2_score]
-        
-        # Collect unmet targets
-        targets = []
-        if not nutrient_target_met:
-            targets.append('nutrient')
-        if not cost_target_met:
-            targets.append('cost')
-        if not co2_target_met:
-            targets.append('co2')
-
-        return scores, targets
+        pass
 
     def calculate_score(self, items, target, normalize=True):
         """Calculate a generic score and check if the target is met."""
@@ -69,7 +55,7 @@ class BaseScoreCalculator:
         preference_score = preference_score / norm_factor
         
         # Check if the preference target is met
-        preference_target_met = self._check_preference_target(self, preference_score)
+        preference_target_met = self._check_preference_target(preference_score)
         
         return preference_score, preference_target_met
     
@@ -185,7 +171,7 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
         co2_score, co2_target_met = self._calculate_co2_score(group_target_met)
         preference_score, preference_target_met = self._calculate_preference_score()
         # Collect all scores
-        scores = [nutrient_score, cost_score, co2_score, preference_score]
+        scores = [nutrient_score, cost_score, co2_score]
         
         # Collect unmet targets
         targets = []
@@ -195,8 +181,8 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
             targets.append('cost')
         if not co2_target_met:
             targets.append('co2')
-        if not preference_target_met:
-            targets.append('preference score')
+        # if not preference_target_met:
+        #     targets.append('preference score')
             
         return scores, targets
 
