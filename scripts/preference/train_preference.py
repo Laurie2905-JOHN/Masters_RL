@@ -97,14 +97,9 @@ def main(seed=4):
     # Negotiate the ingredients
     # Simple
     negotiated_ingredient_order, unavailable_ingredients = negotiate_ingredients_simple(updated_known_and_predicted_preferences, ingredient_df, seed)
-    sum1 = 0
-    for key in negotiated_ingredient_order.values():
-        print(key)
-        sum1 += len(key)
-   
-            
+
     print(negotiated_ingredient_order)
-    print(sum1)
     print(unavailable_ingredients)
+    
 if __name__ == "__main__":
     main()

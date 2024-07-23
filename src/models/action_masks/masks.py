@@ -1,11 +1,16 @@
 import numpy as np
 
-def mask_fn(self, group_target_type="count") -> np.ndarray:
+def convert_unavailable_to_index(unavailable_ingredients, ingredient_df):
+    # Get the indexes of rows where 'Category7' is in the list of unavailable ingredients
+    indexes = ingredient_df.index[ingredient_df['Category7'].isin(unavailable_ingredients)].tolist()
+    return indexes
+
+def mask_fn(self, unavailable=None) -> np.ndarray:
     """
     Generate an action mask indicating valid actions.
 
     Args:
-        group_target_type (str): Type of group target to consider. Defaults to "both".
+        unavailable (list): List of unavailable ingredients. If none, all ingredients are available.
 
     Returns:
         np.ndarray: The action mask indicating valid actions.
@@ -13,8 +18,7 @@ def mask_fn(self, group_target_type="count") -> np.ndarray:
     # Cache necessary attributes
     n_ingredients = self.env.get_wrapper_attr('n_ingredients')
     get_metrics = self.env.get_wrapper_attr('get_metrics')
-    step_to_reward = self.env.get_wrapper_attr('step_to_reward')
-
+    
     # Ensure metrics are up-to-date
     get_metrics()
 
@@ -25,6 +29,7 @@ def mask_fn(self, group_target_type="count") -> np.ndarray:
     ingredient_group_portion_targets = self.env.get_wrapper_attr('ingredient_group_portion_targets')
     group_info = self.env.get_wrapper_attr('group_info')
     current_selection = self.env.get_wrapper_attr('current_selection')
+    ingredient_df = self.env.get_wrapper_attr('ingredient_df')
 
     extra_action = 2  # First 2 for actions [do nothing, increase], rest for ingredients
 
@@ -94,6 +99,11 @@ def mask_fn(self, group_target_type="count") -> np.ndarray:
                 # If the group count target is not met, allow selection for all ingredients in this group
                 action_mask[indexes + extra_action] = 1
 
+    # If unavailable ingredients are specified, block selection for these ingredients
+    if unavailable:
+        unavailable_indexes = convert_unavailable_to_index(unavailable, ingredient_df)
+        action_mask[unavailable_indexes + extra_action] = 0
+       
     # Apply any additional action constraints
     action_mask = ingredient_action(self, all_group_portion_target_met, calorie_target_met, action_mask, extra_action)
 
@@ -123,7 +133,6 @@ def ingredient_action(self, all_group_portion_target_met, calorie_target_met, ac
 
     verbose = self.env.get_wrapper_attr('verbose')
     if verbose > 1:
-        ingredient_df = self.env.get_wrapper_attr('ingredient_df')
         print_action_mask(action_mask, ingredient_df, extra_action)
 
     return action_mask
@@ -150,16 +159,3 @@ def print_action_mask(action_mask, ingredient_df, extra_action):
     for idx in nonzero_indices:
         category_value = ingredient_df['Category7'].iloc[idx]
         print(f"{category_value}")
-
-def get_env_name_from_class(self):
-    """
-    Get the environment name from the class.
-
-    Args:
-        self: Reference to the environment wrapper.
-
-    Returns:
-        str: The name of the environment class.
-    """
-    class_name = self.env.unwrapped.__class__.__name__
-    return class_name

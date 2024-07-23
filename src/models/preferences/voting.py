@@ -113,17 +113,8 @@ def collect_weighted_votes(preferences, ingredient_df, weight_function, seed):
                 # If the ingredient is not available, add it to the set of unavailable ingredients
                 unavailable_ingredients.add(ingredient)
     
-    # Convert unavailable_ingredients to indexes
-    unavailable_ingredients_indexes = convert_unavailable_to_index(unavailable_ingredients, ingredient_df)
-    
     # Return the votes and the set of unavailable ingredients
     return votes, unavailable_ingredients
-
-
-def convert_unavailable_to_index(unavailable_ingredients, ingredient_df):
-    # Get the indexes of rows where 'Category7' is in the list of unavailable ingredients
-    indexes = ingredient_df.index[ingredient_df['Category7'].isin(unavailable_ingredients)].tolist()
-    return indexes
 
 
 def negotiate_ingredients_simple(preferences, ingredient_df, seed):
