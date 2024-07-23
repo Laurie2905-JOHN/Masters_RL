@@ -406,23 +406,6 @@ def get_feedback(preferences: Dict[str, Dict[str, list]], menu_plan: list, seed=
     return feedback  # Return the feedback dictionary
 
 
-def get_supplier_availability(ingredient_df, mean_unavailable=5, std_dev_unavailable=2, seed = None):
-    
-    ingredients = ingredient_df['Category7'].tolist()
-    
-    # Function to randomly generate supplier availability for ingredients
-    random.seed(seed)
-    
-    # Determine the number of unavailable ingredients
-    num_unavailable = max(0, int(np.random.normal(mean_unavailable, std_dev_unavailable)))
-    unavailable_ingredients = random.sample(ingredients, num_unavailable)
-    
-    # Generate supplier availability
-    supplier_availability = {ingredient: ingredient not in unavailable_ingredients for ingredient in ingredients}
-    
-    return supplier_availability
-
-
 def get_data_preprocessor():
     preprocessor = ColumnTransformer(
         transformers=[

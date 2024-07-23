@@ -5,7 +5,7 @@ from models.preferences.prediction import fit_random_forest_classifier, predict_
 from sklearn.metrics import classification_report
 import pandas as pd
 import numpy as np
-from models.preferences.voting import negotiate_ingredients_simple, create_preference_score_function
+from models.preferences.voting import IngredientNegotiator
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -95,15 +95,27 @@ def main(seed=4):
 
 
     # Negotiate the ingredients
+    previous_feedback = {}
+    previous_fairness_index = {}
+    previous_utility = {}
+    
+    Negotiator = IngredientNegotiator(seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_fairness_index, previous_utility)
+    
     # Simple
-    negotiated_ingredient_order, unavailable_ingredients = negotiate_ingredients_simple(updated_known_and_predicted_preferences, ingredient_df, seed)
-
-    print(negotiated_ingredient_order)
-    print(unavailable_ingredients)
+    negotiated_ingredient_order_simple, unavailable_ingredients_simple = Negotiator.negotiate_ingredients_simple()
+    print(negotiated_ingredient_order_simple)
+    print(unavailable_ingredients_simple)
+    preference_score_function_simple = Negotiator.create_preference_score_function(negotiated_ingredient_order_simple)
+    print(preference_score_function_simple('Carrots'))
     
-    preference_score_function = create_preference_score_function(negotiated_ingredient_order)
+    # Complex
+    negotiated_ingredient_order_complex, unavailable_ingredients_complex = Negotiator.negotiate_ingredients_complex()
+    print(negotiated_ingredient_order_complex)
+    print(unavailable_ingredients_complex)
     
-    print(preference_score_function('Carrots'))
+    preference_score_function_complex = Negotiator.create_preference_score_function(negotiated_ingredient_order_complex)
+    
+    print(preference_score_function_complex('Carrots'))
     
 if __name__ == "__main__":
     main()
