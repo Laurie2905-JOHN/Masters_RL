@@ -1,5 +1,6 @@
 from models.preferences.data_utils import get_supplier_availability
-import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
 
 def generate_ordered_list(ingredients_list):
     return {ingredient: index + 1 for index, ingredient in enumerate(ingredients_list)}
@@ -166,6 +167,39 @@ def negotiate_ingredients_simple(preferences, ingredient_df, seed):
     return negotiated_ingredients, unavailable_ingredients
 
 
+
+def create_preference_score_function(ranked_ingredients):
+    """
+    Creates a score function for picking ingredients based on ranked ingredients.
+
+    Parameters:
+    ranked_ingredients (dict): Dictionary with ingredient groups as keys and lists of tuples (ingredient, score) as values.
+
+    Returns:
+    function: A function that takes an ingredient as input and returns its normalized score.
+    """
+    # Flatten and normalize scores within each group
+    ingredient_scores = {}
+    for group, ingredients in ranked_ingredients.items():
+        scores = np.array([score for _, score in ingredients]).reshape(-1, 1)
+        scaler = MinMaxScaler()
+        normalized_scores = scaler.fit_transform(scores).flatten()
+        for (ingredient, _), norm_score in zip(ingredients, normalized_scores):
+            ingredient_scores[ingredient] = norm_score
+    
+    def score_function(ingredient):
+        """
+        Returns the normalized score of the given ingredient based on the ranked ingredients.
+
+        Parameters:
+        ingredient (str): The ingredient to look up.
+
+        Returns:
+        float: The normalized score of the ingredient, or 'error' if the ingredient is not found.
+        """
+        return ingredient_scores.get(ingredient, 'ERROR: Ingredient not found')
+    
+    return score_function
 
 # def negotiate_ingredients_complex(preferences, rf_model, preprocessor, child_data, ingredients_data):
 #     ingredient_groups = set(details['type'] for details in ingredients_data.values())
