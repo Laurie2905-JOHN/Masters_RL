@@ -49,7 +49,30 @@ class BaseScoreCalculator:
         """Check if the value is within the target range."""
         min_target, max_target = target[key]
         return min_target <= value <= max_target
-
+    
+    def _check_preference_target(self, preference_score):
+        """Check if the preference target is met."""
+        return preference_score >= self.main.preference_target
+    
+    def _calculate_preference_score(self):
+        """Calculate the preference score"""
+        
+        preference_score = 0
+        
+        current_meal_plan, _, _ = self.main.get_current_meal_plan()
+        
+        for ingredient in current_meal_plan.keys():
+            preference_score += self.main.preference_score_function(ingredient)
+        
+        norm_factor = len(current_meal_plan.keys())
+        
+        preference_score = preference_score / norm_factor
+        
+        # Check if the preference target is met
+        preference_target_met = self._check_preference_target(self, preference_score)
+        
+        return preference_score, preference_target_met
+    
 
 class ScoreCalculatorSparse(BaseScoreCalculator):
     def __init__(self, main_instance):
@@ -75,12 +98,14 @@ class ScoreCalculatorSparse(BaseScoreCalculator):
         _, nutrient_target_met = self._calculate_nutrient_score()
         _, cost_target_met = self._calculate_cost_score()
         _, co2_target_met = self._calculate_co2_score()
-
+        _, preference_target_met = self._calculate_preference_score()
+        
         # Collect binary scores based on target met status
         scores = [
             1 if nutrient_target_met else 0,
             1 if cost_target_met else 0,
-            1 if co2_target_met else 0
+            1 if co2_target_met else 0,
+            1 if preference_target_met else 0
         ]
 
         return scores
@@ -158,9 +183,9 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
         nutrient_score, nutrient_target_met = self._calculate_nutrient_score(group_target_met)
         cost_score, cost_target_met = self._calculate_cost_score(group_target_met)
         co2_score, co2_target_met = self._calculate_co2_score(group_target_met)
-
+        preference_score, preference_target_met = self._calculate_preference_score()
         # Collect all scores
-        scores = [nutrient_score, cost_score, co2_score]
+        scores = [nutrient_score, cost_score, co2_score, preference_score]
         
         # Collect unmet targets
         targets = []
@@ -170,7 +195,9 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
             targets.append('cost')
         if not co2_target_met:
             targets.append('co2')
-
+        if not preference_target_met:
+            targets.append('preference score')
+            
         return scores, targets
 
 

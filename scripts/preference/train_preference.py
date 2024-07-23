@@ -5,7 +5,7 @@ from models.preferences.prediction import fit_random_forest_classifier, predict_
 from sklearn.metrics import classification_report
 import pandas as pd
 import numpy as np
-from models.preferences.voting import negotiate_ingredients_simple
+from models.preferences.voting import negotiate_ingredients_simple, create_preference_score_function
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -100,6 +100,10 @@ def main(seed=4):
 
     print(negotiated_ingredient_order)
     print(unavailable_ingredients)
+    
+    preference_score_function = create_preference_score_function(negotiated_ingredient_order)
+    
+    print(preference_score_function('Carrots'))
     
 if __name__ == "__main__":
     main()
