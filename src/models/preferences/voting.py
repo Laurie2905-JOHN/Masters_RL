@@ -118,15 +118,26 @@ def collect_weighted_votes(preferences, ingredient_df, weight_function, seed):
 
 
 def negotiate_ingredients_simple(preferences, ingredient_df, seed):
+    """
+    Negotiates and ranks ingredients based on provided votes and availability.
+
+    Parameters:
+    preferences (dict): Dictionary with ingredient names as keys and preference scores as values.
+    ingredient_df (DataFrame): DataFrame containing ingredient information with one-hot encoded groups.
+    seed (int): Seed for random number generation (if needed).
+
+    Returns:
+    dict: Negotiated ingredients grouped and sorted by votes.
+    list: List of unavailable ingredients.
+    """
     # Define the ingredient groups as columns in the one-hot encoded DataFrame
     ingredient_groups = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E', 'Bread', 'Confectionary']
     
     # Initialize dictionaries for negotiated ingredients and unavailable ingredients
     negotiated_ingredients = {}
-    weight_function = calculate_child_weight_simple
 
     # Collect votes and unavailable ingredients for all ingredients
-    votes, unavailable_ingredients = collect_weighted_votes(preferences, ingredient_df, weight_function, seed)
+    votes, unavailable_ingredients = collect_weighted_votes(preferences, ingredient_df, calculate_child_weight_simple, seed)
     
     # Initialize category votes dictionary with ingredient groups
     category_votes = {group: {} for group in ingredient_groups}
@@ -139,17 +150,17 @@ def negotiate_ingredients_simple(preferences, ingredient_df, seed):
         if ingredient not in unavailable_ingredients:
             group = ingredient_to_groups.get(ingredient)
             if group:
-                category_votes[group][ingredient] = category_votes[group].get(ingredient, 0) + vote
+                category_votes[group][ingredient] = vote
 
-    # Sort and store the ingredients for each category
+    # Sort and store the ingredients for each category, maintaining their votes
     for group, votes_dict in category_votes.items():
-        sorted_ingredients = sorted(votes_dict, key=votes_dict.get, reverse=True)
+        sorted_ingredients = sorted(votes_dict.items(), key=lambda item: item[1], reverse=True)
         negotiated_ingredients[group] = sorted_ingredients
 
     # Handle Misc category
     misc_df = ingredient_df[(ingredient_df[ingredient_groups].sum(axis=1) == 0)]
     misc_votes = {ingredient: votes[ingredient] for ingredient in misc_df['Category7'].tolist() if ingredient in votes and ingredient not in unavailable_ingredients}
-    sorted_misc_ingredients = sorted(misc_votes, key=misc_votes.get, reverse=True)
+    sorted_misc_ingredients = sorted(misc_votes.items(), key=lambda item: item[1], reverse=True)
     negotiated_ingredients['Misc'] = sorted_misc_ingredients
 
     return negotiated_ingredients, unavailable_ingredients

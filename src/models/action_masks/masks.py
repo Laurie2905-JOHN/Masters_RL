@@ -100,17 +100,42 @@ def mask_fn(self, unavailable=None) -> np.ndarray:
                 action_mask[indexes + extra_action] = 1
 
     # If unavailable ingredients are specified, block selection for these ingredients
-    if unavailable:
-        unavailable_indexes = convert_unavailable_to_index(unavailable, ingredient_df)
-        action_mask[unavailable_indexes + extra_action] = 0
+    action_mask = block_unavailable_ingredients(unavailable, ingredient_df, action_mask, extra_action)
        
     # Apply any additional action constraints
-    action_mask = ingredient_action(self, all_group_portion_target_met, calorie_target_met, action_mask, extra_action)
+    action_mask = ingredient_action(self, ingredient_df, all_group_portion_target_met, calorie_target_met, action_mask, extra_action)
 
     return action_mask
 
+def block_unavailable_ingredients(unavailable, ingredient_df, action_mask, extra_action):
+    """
+    Blocks the selection of unavailable ingredients by updating the action mask.
 
-def ingredient_action(self, all_group_portion_target_met, calorie_target_met, action_mask, extra_action):
+    Parameters:
+    unavailable (list): List of unavailable ingredient names.
+    ingredient_df (DataFrame): DataFrame containing ingredient information.
+    action_mask (list): List representing the action mask for ingredient selection.
+    extra_action (int): Offset to apply to the indices in the action mask.
+    
+    Returns:
+    action_mask
+    """
+    if not unavailable:
+        return
+
+    try:
+        # Convert unavailable ingredients to their respective indexes
+        unavailable_indexes = convert_unavailable_to_index(unavailable, ingredient_df)
+
+        # Update the action mask to block these indexes
+        for idx in unavailable_indexes:
+            action_mask[idx + extra_action] = 0
+
+        return action_mask
+    except Exception as e:
+        print(f"Error blocking unavailable ingredients: {e}")
+
+def ingredient_action(self, ingredient_df, all_group_portion_target_met, calorie_target_met, action_mask, extra_action):
     """
     Update action mask based on whether count and portion targets for all groups are met.
 
