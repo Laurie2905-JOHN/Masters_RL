@@ -2,70 +2,114 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import random
 import copy
+from typing import Dict, List, Tuple, Callable, Union
+from pandas import pd
 
 class IngredientNegotiator:
-    def __init__(self, seed, ingredient_df, preferences, previous_feedback, previous_fairness_index, previous_utility):
-        
+    def __init__(self, seed: int, ingredient_df: pd.DataFrame, preferences: Dict[str, Dict[str, List[str]]], 
+                 previous_feedback: Dict[str, Union[int, float]], previous_fairness_index: Dict[str, Union[int, float]], 
+                 previous_utility: Dict[str, Union[int, float]]):
+        """
+        Initialize the IngredientNegotiator class.
+
+        :param seed: Random seed for reproducibility.
+        :param ingredient_df: DataFrame containing ingredient data.
+        :param preferences: Dictionary containing preferences for each child.
+        :param previous_feedback: Dictionary containing previous feedback for each child.
+        :param previous_fairness_index: Dictionary containing previous fairness index for each child.
+        :param previous_utility: Dictionary containing previous utility values for each child.
+        """
         self.seed = seed
         self.ingredient_df = ingredient_df
-        
         self.preferences = preferences
         self.feedback = previous_feedback
         self.fairness_index = previous_fairness_index
-        
         self.previous_utility = previous_utility
-        
         self.average_utility = self._calculate_average_utility(previous_utility)
-        
         self.ingredient_groups = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E', 'Bread', 'Confectionary']
         self.supplier_availability = self.get_supplier_availability()
-    
+
     @staticmethod
-    def _calculate_average_utility(previous_utility):
+    def _calculate_average_utility(previous_utility: Dict[str, Union[int, float]]) -> float:
+        """
+        Calculate the average utility from previous utility values.
+
+        :param previous_utility: Dictionary of previous utility values.
+        :return: Average utility.
+        """
         if previous_utility:
             return np.mean(list(previous_utility.values()))
-        else:
-            return 1
-        
+        return 1
+
     @staticmethod
-    def generate_ordered_list(ingredients_list):
+    def generate_ordered_list(ingredients_list: List[str]) -> Dict[str, int]:
+        """
+        Generate an ordered list of ingredients with their positions.
+
+        :param ingredients_list: List of ingredients.
+        :return: Dictionary of ingredients with their positions.
+        """
         return {ingredient: index + 1 for index, ingredient in enumerate(ingredients_list)}
 
     @staticmethod
-    def normalize_weights(weights):
+    def normalize_weights(weights: Dict[str, float]) -> Dict[str, float]:
+        """
+        Normalize the weights so that their sum is 1.
+
+        :param weights: Dictionary of weights.
+        :return: Normalized dictionary of weights.
+        """
         total_weight = sum(weights.values())
         if total_weight > 0:
             for key in weights:
                 weights[key] /= total_weight
         return weights
 
-
-
     @staticmethod
-    def create_preference_score_function(votes):
+    def create_preference_score_function(votes: Dict[str, Dict[str, float]]) -> Callable[[str], float]:
+        """
+        Create a preference score function based on votes.
+
+        :param votes: Dictionary of votes.
+        :return: Function that returns the score for a given ingredient.
+        """
+        ingredient_scores = {}
         if votes:
-            ingredient_scores = {}
             for group, ingredients in votes.items():
                 scores = np.array(list(ingredients.values())).reshape(-1, 1)
                 scaler = MinMaxScaler()
                 normalized_scores = scaler.fit_transform(scores).flatten()
                 for ingredient, norm_score in zip(ingredients.keys(), normalized_scores):
                     ingredient_scores[ingredient] = norm_score
-        else:
-            ingredient_scores = {}
 
-        def score_function(ingredient):
+        def score_function(ingredient: str) -> float:
             return ingredient_scores.get(ingredient, 0)
 
         return score_function
-    
+
     @staticmethod
-    def _multiply_weights_by_factor(weights, factor):
+    def _multiply_weights_by_factor(weights: Dict[str, float], factor: float) -> Dict[str, float]:
+        """
+        Multiply weights by a given factor.
+
+        :param weights: Dictionary of weights.
+        :param factor: Factor to multiply weights by.
+        :return: Updated dictionary of weights.
+        """
         for key in weights:
             weights[key] *= factor
         return weights
 
-    def compare_negotiated_ingredients(self, old_ingredients, new_ingredients, old_unavailable, new_unavailable):
+    def compare_negotiated_ingredients(self, old_ingredients: Dict[str, List[str]], new_ingredients: Dict[str, List[str]], 
+                                       old_unavailable: Dict[str, List[str]], new_unavailable: Dict[str, List[str]]) -> None:
+        """
+        Compare old and new negotiated ingredients and print changes.
+
+        :param old_ingredients: Dictionary of old ingredients.
+        :param new_ingredients: Dictionary of new ingredients.
+        :param old_unavailable: Dictionary of old unavailable ingredients.
+        :param new_unavailable: Dictionary of new unavailable ingredients.
+        """
         changes = {}
         all_ingredient_types = set(old_ingredients.keys()).union(new_ingredients.keys()).union(old_unavailable.keys()).union(new_unavailable.keys())
 
@@ -99,12 +143,15 @@ class IngredientNegotiator:
             for ingredient, old_pos, new_pos in order_changes:
                 print(f"{ingredient}: Pos: {old_pos} -> Pos: {new_pos}")
 
-    def collect_weighted_votes(self, weight_function):
-        
+    def collect_weighted_votes(self, weight_function: Callable[[], Dict[str, Dict[str, float]]]) -> Tuple[Dict[str, int], set]:
+        """
+        Collect weighted votes for ingredients based on preferences.
+
+        :param weight_function: Function to calculate weights.
+        :return: Tuple containing votes and a set of unavailable ingredients.
+        """
         votes = {ingredient: 0 for ingredient in self.supplier_availability}
-        
         unavailable_ingredients = set()
-        
         weights = weight_function()
 
         for child, pref in self.preferences.items():
@@ -113,29 +160,31 @@ class IngredientNegotiator:
             dislikes = set(pref["dislikes"])
 
             for ingredient in likes | neutrals | dislikes:
-                in_likes = ingredient in likes
-                in_neutrals = ingredient in neutrals
-                in_dislikes = ingredient in dislikes
-
-                if sum([in_likes, in_neutrals, in_dislikes]) > 1:
+                if sum([ingredient in likes, ingredient in neutrals, ingredient in dislikes]) > 1:
                     raise ValueError(f"Ingredient {ingredient} is found in multiple categories")
 
-                if ingredient in self.supplier_availability and self.supplier_availability[ingredient] > 0:
-                    if in_likes:
+                if self.supplier_availability.get(ingredient, 0) > 0:
+                    if ingredient in likes:
                         votes[ingredient] += 5 * weights[child]['likes']
-                    elif in_neutrals:
+                    elif ingredient in neutrals:
                         votes[ingredient] += 3 * weights[child]['neutral']
-                    elif in_dislikes:
+                    elif ingredient in dislikes:
                         votes[ingredient] += 1 * weights[child]['dislikes']
                 else:
                     unavailable_ingredients.add(ingredient)
 
         return votes, unavailable_ingredients
 
-    def negotiate_ingredients_simple(self):
+    def negotiate_ingredients_simple(self) -> Tuple[Dict[str, Dict[str, int]], set]:
+        """
+        Negotiate ingredients using a simple weight calculation.
+
+        :return: Tuple containing negotiated ingredients and a set of unavailable ingredients.
+        """
         votes, unavailable_ingredients = self.collect_weighted_votes(self.calculate_child_weight_simple)
         negotiated_ingredients = {group: {} for group in self.ingredient_groups}
-        ingredient_to_groups = {ingredient: group for group in self.ingredient_groups for ingredient in self.ingredient_df[self.ingredient_df[group] == 1]['Category7']}
+        ingredient_to_groups = {ingredient: group for group in self.ingredient_groups 
+                                for ingredient in self.ingredient_df[self.ingredient_df[group] == 1]['Category7']}
 
         for ingredient, vote in votes.items():
             if ingredient not in unavailable_ingredients:
@@ -149,17 +198,24 @@ class IngredientNegotiator:
 
         return negotiated_ingredients, unavailable_ingredients
 
-    def calculate_child_weight_simple(self):
-        weights = {}
-        for child in self.preferences.keys():
-            weights[child] = {'likes': 1, 'neutral': 1, 'dislikes': 1}
-        return weights
-    
-    def negotiate_ingredients_complex(self):
-        
+    def calculate_child_weight_simple(self) -> Dict[str, Dict[str, float]]:
+        """
+        Calculate simple weights for each child's preferences.
+
+        :return: Dictionary of weights for each child.
+        """
+        return {child: {'likes': 1, 'neutral': 1, 'dislikes': 1} for child in self.preferences.keys()}
+
+    def negotiate_ingredients_complex(self) -> Tuple[Dict[str, Dict[str, int]], set]:
+        """
+        Negotiate ingredients using a complex weight calculation.
+
+        :return: Tuple containing negotiated ingredients and a set of unavailable ingredients.
+        """
         votes, unavailable_ingredients = self.collect_weighted_votes(self.calculate_child_weight_complex)
         negotiated_ingredients = {group: {} for group in self.ingredient_groups}
-        ingredient_to_groups = {ingredient: group for group in self.ingredient_groups for ingredient in self.ingredient_df[self.ingredient_df[group] == 1]['Category7']}
+        ingredient_to_groups = {ingredient: group for group in self.ingredient_groups 
+                                for ingredient in self.ingredient_df[self.ingredient_df[group] == 1]['Category7']}
 
         for ingredient, vote in votes.items():
             if ingredient not in unavailable_ingredients:
@@ -186,88 +242,94 @@ class IngredientNegotiator:
             negotiated_ingredients[group] = dict(sorted_ingredients)
 
         return negotiated_ingredients, unavailable_ingredients
-    
-    def _normalize_for_preference_count(self, child, weights):
-        
+
+    def _normalize_for_preference_count(self, child: str, weights: Dict[str, float]) -> Dict[str, float]:
+        """
+        Normalize weights based on the number of preferences for each category.
+
+        :param child: Child identifier.
+        :param weights: Dictionary of weights for the child.
+        :return: Normalized weights.
+        """
         for category in weights.keys():
             weights[category] = weights[category] / len(self.preferences[child][category]) if len(self.preferences[child][category]) > 0 else 0
-        
         return weights
 
-    def _use_compensatory_weight_update(self, child, weights):
-        
-        if child in self.previous_utility.keys(): 
+    def _use_compensatory_weight_update(self, child: str, weights: Dict[str, float]) -> Dict[str, float]:
+        """
+        Update weights using a compensatory factor based on previous utility.
+
+        :param child: Child identifier.
+        :param weights: Dictionary of weights for the child.
+        :return: Updated weights.
+        """
+        if child in self.previous_utility.keys():
             previous_utility = self.previous_utility[child]
             distance_from_avg = previous_utility - self.average_utility
             compensatory_factor = 1 + (1 - abs(distance_from_avg / self.average_utility))
-            weights = self._multiply_weights_by_factor(weights, factor = compensatory_factor)
-            
+            weights = self._multiply_weights_by_factor(weights, factor=compensatory_factor)
         return weights
-    
-    def _use_feedback_weight_update(self, child, weights):
+
+    def _use_feedback_weight_update(self, child: str, weights: Dict[str, float]) -> Dict[str, float]:
+        """
+        Update weights using feedback.
+
+        :param child: Child identifier.
+        :param weights: Dictionary of weights for the child.
+        :return: Updated weights.
+        """
         if child in self.feedback.keys():
-            weights = self._multiply_weights_by_factor(weights, factor = 1.1)
+            weights = self._multiply_weights_by_factor(weights, factor=1.1)
         return weights
 
-    # 0.0 - 0.2: High equality
-    # 0.2 - 0.3: Moderate equality
-    # 0.3 - 0.4: Moderate inequality
-    # 0.4 - 0.6: High inequality
-    # 0.6 - 1.0: Extreme inequality
-            
-    def calculate_child_weight_complex(self, use_normalize_weights=True, use_compensatory=True, use_feedback=True, use_fairness=True, target_gini=0.1):
-        
-        # Get raw weights
+    def calculate_child_weight_complex(self, use_normalize_weights: bool = True, use_compensatory: bool = True, 
+                                       use_feedback: bool = True, use_fairness: bool = True, target_gini: float = 0.1) -> Dict[str, Dict[str, float]]:
+        """
+        Calculate complex weights for each child's preferences using various factors.
+
+        :param use_normalize_weights: Whether to normalize weights.
+        :param use_compensatory: Whether to use compensatory weight update.
+        :param use_feedback: Whether to use feedback weight update.
+        :param use_fairness: Whether to use fairness adjustment.
+        :param target_gini: Target Gini coefficient for fairness.
+        :return: Dictionary of weights for each child.
+        """
         raw_weights = self.calculate_child_weight_simple()
-        print("Raw weights:", raw_weights)  # Debugging print
-
         weights = copy.deepcopy(raw_weights)
-        
-        for child in self.preferences.keys():
 
-            # Initialize raw weights
-            print(f"Weights for {child} before normalization: {weights[child]}")  # Debugging print
-        
-            # Normalize for number of likes, neutral, dislikes so each child within each category has the same voting power 
+        for child in self.preferences.keys():
             if use_normalize_weights:
                 weights[child] = self._normalize_for_preference_count(child, weights[child])
-            print(f"Weights for {child} after normalization: {weights[child]}")  # Debugging print
-
-            # Use compensation factor to adjust weights if utility was less than the average last round
             if use_compensatory:
                 weights[child] = self._use_compensatory_weight_update(child, weights[child])
-            print(f"Weights for {child} after compensatory update: {weights[child]}")  # Debugging print
-            
-            # If child provided feedback reward for contribution
             if use_feedback:
                 weights[child] = self._use_feedback_weight_update(child, weights[child])
-            print(f"Weights for {child} after feedback update: {weights[child]}")  # Debugging print
 
-        # Calculate current Gini coefficients
         ginis, weight_category_total = self._calculate_all_gini(weights)
-        current_gini = ginis['total']  # Adjust for total voting power inequality
-        print("Current Gini coefficient:", current_gini)  # Debugging print
+        current_gini = ginis['total']
 
-        # Adjust weights for target Gini coefficient
         if use_fairness and current_gini > target_gini:
             updated_weights = self.scaling_to_adjust_weights_for_target_gini(weights, weight_category_total, current_gini, target_gini)
         else:
             updated_weights = weights
-        
-        # Calculate current Gini coefficients after adjustment
-        ginis, weight_category_total = self._calculate_all_gini(updated_weights)
-        current_gini = ginis['total']  # Adjust for total voting power inequality
-        print("Updated Gini coefficient after adjustment:", current_gini)  # Debugging print
-        
-        print("Final weights:", updated_weights)  # Debugging print
-        return updated_weights
-    
-    def scaling_to_adjust_weights_for_target_gini(self, weights, weight_category_total, current_gini, target_gini):
 
+        return updated_weights
+
+    def scaling_to_adjust_weights_for_target_gini(self, weights: Dict[str, Dict[str, float]], weight_category_total: List[float], 
+                                                  current_gini: float, target_gini: float) -> Dict[str, Dict[str, float]]:
+        """
+        Adjust weights to achieve the target Gini coefficient.
+
+        :param weights: Dictionary of weights.
+        :param weight_category_total: List of total weights for each category.
+        :param current_gini: Current Gini coefficient.
+        :param target_gini: Target Gini coefficient.
+        :return: Updated weights dictionary.
+        """
         mean_weight = np.mean(weight_category_total)
-        
-        def adjust(weight_category_total, current_gini, target_gini):
-            original_weights = weight_category_total.copy()  # Copy of the original weights
+
+        def adjust(weight_category_total: List[float], current_gini: float, target_gini: float) -> List[float]:
+            original_weights = weight_category_total.copy()
             adjustment_factor = 0.001
             iteration = 0
 
@@ -280,73 +342,72 @@ class IngredientNegotiator:
                         weight_category_total[i] -= adjustment_factor * (weight_category_total[i] - mean_weight) / mean_weight
 
                 current_gini = self._calculate_gini(weight_category_total)
-                
-            # Calculate scaling factors
-            scaling_factors = [new / old if old != 0 else 1 for new, old in zip(weight_category_total, original_weights)]
 
+            scaling_factors = [new / old if old != 0 else 1 for new, old in zip(weight_category_total, original_weights)]
             return scaling_factors
 
         scaling_factors = adjust(weight_category_total, current_gini, target_gini)
-        
         updated_weights = self._change_original_weight_dict(weights, scaling_factors)
-            
         return updated_weights
-    
+
     @staticmethod
-    def _change_original_weight_dict(weights, scaling_factors):
+    def _change_original_weight_dict(weights: Dict[str, Dict[str, float]], scaling_factors: List[float]) -> Dict[str, Dict[str, float]]:
+        """
+        Change the original weight dictionary based on scaling factors.
+
+        :param weights: Dictionary of weights.
+        :param scaling_factors: List of scaling factors.
+        :return: Updated weights dictionary.
+        """
         child_counter = 0
         for child, weight in weights.items():
             for category in weight.keys():
-                weights[child][category] += scaling_factors[child_counter] 
+                weights[child][category] += scaling_factors[child_counter]
             child_counter += 1
-            
         return weights
+
     @staticmethod
-    def _calculate_gini(weights_category):
+    def _calculate_gini(weights_category: List[float]) -> float:
+        """
+        Calculate the Gini coefficient for a list of weights.
+
+        :param weights_category: List of weights.
+        :return: Gini coefficient.
+        """
         mean_weight = sum(weights_category) / len(weights_category)
         differences_sum = sum(abs(i - j) for i in weights_category for j in weights_category)
         gini = differences_sum / (2 * len(weights_category) ** 2 * mean_weight)
         return gini
-    
-    def _calculate_all_gini(self, weights):
-        
-        # Initialize a dictionary of lists for likes, neutral, dislikes, and total
-        categories = {
-            'likes': [],
-            'neutral': [],
-            'dislikes': [],
-            'total': []
-        }
-        
-        # Iterate through the input dictionary values and populate the lists in the categories dictionary
+
+    def _calculate_all_gini(self, weights: Dict[str, Dict[str, float]]) -> Tuple[Dict[str, float], List[float]]:
+        """
+        Calculate Gini coefficients for all categories.
+
+        :param weights: Dictionary of weights.
+        :return: Tuple containing Gini coefficients and total weights.
+        """
+        categories = {'likes': [], 'neutral': [], 'dislikes': [], 'total': []}
+
         for value in weights.values():
             categories['likes'].append(value['likes'])
             categories['neutral'].append(value['neutral'])
             categories['dislikes'].append(value['dislikes'])
             categories['total'].append(value['likes'] + value['neutral'] + value['dislikes'])
-            
-        # Initialize an empty dictionary for storing Gini coefficients
-        ginis = {}
-        
-        # Calculate the Gini coefficient for each category and store it in the ginis dictionary
-        for category, values in categories.items():
-            ginis[category] = self._calculate_gini(values)
-    
+
+        ginis = {category: self._calculate_gini(values) for category, values in categories.items()}
         return ginis, categories['total']
-            
-    
-    def get_supplier_availability(self, mean_unavailable=5, std_dev_unavailable=2):
-        
+
+    def get_supplier_availability(self, mean_unavailable: int = 5, std_dev_unavailable: int = 2) -> Dict[str, bool]:
+        """
+        Generate supplier availability for ingredients.
+
+        :param mean_unavailable: Mean number of unavailable ingredients.
+        :param std_dev_unavailable: Standard deviation of unavailable ingredients.
+        :return: Dictionary of supplier availability.
+        """
         ingredients = self.ingredient_df['Category7'].tolist()
-        
-        # Function to randomly generate supplier availability for ingredients
         random.seed(self.seed)
-        
-        # Determine the number of unavailable ingredients
         num_unavailable = max(0, int(np.random.normal(mean_unavailable, std_dev_unavailable)))
         unavailable_ingredients = random.sample(ingredients, num_unavailable)
-        
-        # Generate supplier availability
         supplier_availability = {ingredient: ingredient not in unavailable_ingredients for ingredient in ingredients}
-        
         return supplier_availability
