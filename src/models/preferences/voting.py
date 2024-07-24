@@ -228,22 +228,51 @@ class IngredientNegotiator:
         misc_df = self.ingredient_df[(self.ingredient_df[self.ingredient_groups].sum(axis=1) == 0)]
         misc_votes = {ingredient: votes[ingredient] for ingredient in misc_df['Category7'].tolist() if ingredient in votes and ingredient not in unavailable_ingredients}
         negotiated_ingredients['Misc'] = misc_votes
-
-        for group, group_votes in negotiated_ingredients.items():
-            sorted_ingredients = sorted(group_votes.items(), key=lambda item: item[1], reverse=True)
-            top_10_percent = sorted_ingredients[:max(1, len(sorted_ingredients) // 10)]
-
-            for child, pref in self.preferences.items():
-                dislikes_in_top_10 = set(pref['dislikes']).intersection(dict(top_10_percent).keys())
-                if len(dislikes_in_top_10) == len(top_10_percent):
-                    for dislike in dislikes_in_top_10:
-                        group_votes[dislike] -= 1
-                        sorted_ingredients = sorted(group_votes.items(), key=lambda item: item[1], reverse=True)
-                        top_10_percent = sorted_ingredients[:max(1, len(sorted_ingredients) // 10)]
-
-            negotiated_ingredients[group] = dict(sorted_ingredients)
+        
+        self.identify_dislikes_in_top_n(negotiated_ingredients, n=10)
 
         return negotiated_ingredients, unavailable_ingredients
+
+
+    def identify_dislikes_in_top_n(self, negotiated_ingredients: Dict[str, Dict[str, int]], n: int = 5) -> Dict[str, Dict[str, List[str]]]:
+        """
+        Identify which children have all their dislikes in the top n ingredients for each group.
+
+        :param negotiated_ingredients: Updated list of negotiated ingredients.
+        :param n: Number of top ingredients to consider.
+        :return: Dictionary with children and the groups they have all dislikes in the top n ingredients.
+        """
+        # Dictionary to store the results
+        children_dislikes_in_top_n = {}
+
+        # Iterate over each group to process the ingredients
+        for group, group_votes in negotiated_ingredients.items():
+            # Skip Misc, Confectionary, and Bread groups as either too few ingredients in the database or not relevant
+            if group in ['Misc', 'Confectionary', 'Bread']:
+                continue
+
+            # Sort ingredients in the group by their votes in descending order
+            sorted_ingredients = sorted(group_votes.items(), key=lambda item: item[1], reverse=True)
+            top_n_ingredients = sorted_ingredients[:n]
+
+            # Check each child's preferences
+            for child, pref in self.preferences.items():
+                if child not in children_dislikes_in_top_n:
+                    children_dislikes_in_top_n[child] = {}
+                    
+                # Find the dislikes that are in the top n ingredients
+                dislikes_in_top_n = set(pref['dislikes']).intersection(dict(top_n_ingredients).keys())
+
+                # If all top n ingredients in this group are in the child's dislikes, record this information
+                if len(dislikes_in_top_n) == n:
+                    children_dislikes_in_top_n[child][group] = {'number': 'ALL', 'ingredients': list(dislikes_in_top_n)}
+                else:
+                    children_dislikes_in_top_n[child][group] = {'number': len(dislikes_in_top_n), 'ingredients': list(dislikes_in_top_n)}
+          
+                    
+        self.children_dislikes_in_top_n = children_dislikes_in_top_n
+
+
 
     def _normalize_for_preference_count(self, child: str, weights: Dict[str, float]) -> Dict[str, float]:
         """
@@ -425,8 +454,8 @@ class IngredientNegotiator:
         :param log_file: Path to the log file.
         """
         data_to_log = {
-            'gini_dict': self.vote_gini_dict
-            # Add any other relevant data here
+            'Gini Votes': self.vote_gini_dict,
+            'Children Dislikes in Top n': self.children_dislikes_in_top_n
         }
 
         with open(log_file, 'w') as file:

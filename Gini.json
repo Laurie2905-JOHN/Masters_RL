@@ -1,8 +1,1010 @@
 {
-    "gini_dict": {
-        "likes": 0.02620267381065734,
-        "neutral": 0.03979060538557451,
-        "dislikes": 0.057452532928637515,
-        "total": 0.008948700700185162
+    "Gini Votes": {
+        "likes": 0.02860044362716563,
+        "neutral": 0.04161726439312872,
+        "dislikes": 0.056201683152078595,
+        "total": 0.008812563462997657
+    },
+    "Children Dislikes in Top n": {
+        "child1": {
+            "Group A veg": {
+                "number": 2,
+                "ingredients": [
+                    "Leeks",
+                    "Courgettes"
+                ]
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 2,
+                "ingredients": [
+                    "Shrimps and prawns",
+                    "Trouts"
+                ]
+            },
+            "Group D": {
+                "number": 3,
+                "ingredients": [
+                    "Potatoes",
+                    "Rice grain long-grain",
+                    "Couscous"
+                ]
+            },
+            "Group E": {
+                "number": 0,
+                "ingredients": []
+            }
+        },
+        "child2": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 1,
+                "ingredients": [
+                    "Fish fingers breaded"
+                ]
+            },
+            "Group D": {
+                "number": 6,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Pasta wholemeal",
+                    "Rice grain",
+                    "Buckwheat",
+                    "Potatoes",
+                    "Noodles"
+                ]
+            },
+            "Group E": {
+                "number": 3,
+                "ingredients": [
+                    "Traditional margarine",
+                    "Parmesan",
+                    "Butter"
+                ]
+            }
+        },
+        "child3": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group D": {
+                "number": 5,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Pasta wholemeal",
+                    "Rice grain",
+                    "Noodles",
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 5,
+                "ingredients": [
+                    "Traditional margarine",
+                    "Parmesan",
+                    "Cow milk whole",
+                    "Cow milk skimmed (low fat)",
+                    "Butter"
+                ]
+            }
+        },
+        "child4": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 4,
+                "ingredients": [
+                    "Shrimps and prawns",
+                    "Pig fresh meat",
+                    "Trouts",
+                    "Salmons"
+                ]
+            },
+            "Group D": {
+                "number": 3,
+                "ingredients": [
+                    "Potatoes",
+                    "Rice grain long-grain",
+                    "Couscous"
+                ]
+            },
+            "Group E": {
+                "number": 0,
+                "ingredients": []
+            }
+        },
+        "child5": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 1,
+                "ingredients": [
+                    "Fish fingers breaded"
+                ]
+            },
+            "Group D": {
+                "number": 6,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Pasta wholemeal",
+                    "Rice grain",
+                    "Buckwheat",
+                    "Noodles",
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 4,
+                "ingredients": [
+                    "Traditional margarine",
+                    "Parmesan",
+                    "Cheese cheddar",
+                    "Mascarpone"
+                ]
+            }
+        },
+        "child6": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 3,
+                "ingredients": [
+                    "Shrimps and prawns",
+                    "Pig fresh meat",
+                    "Salmons"
+                ]
+            },
+            "Group D": {
+                "number": 3,
+                "ingredients": [
+                    "Potatoes",
+                    "New potatoes",
+                    "Couscous"
+                ]
+            },
+            "Group E": {
+                "number": 1,
+                "ingredients": [
+                    "Cow milk skimmed (low fat)"
+                ]
+            }
+        },
+        "child7": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 2,
+                "ingredients": [
+                    "Fish fingers breaded",
+                    "Sunflower seeds"
+                ]
+            },
+            "Group D": {
+                "number": 3,
+                "ingredients": [
+                    "Noodles",
+                    "Rice grain",
+                    "Pasta plain (not stuffed) uncooked"
+                ]
+            },
+            "Group E": {
+                "number": 8,
+                "ingredients": [
+                    "Traditional margarine",
+                    "Yoghurt cow milk flavoured",
+                    "Cheese cheddar",
+                    "Creme fraiche cheese",
+                    "Parmesan",
+                    "Cow milk whole",
+                    "Cow milk skimmed (low fat)",
+                    "Cream plain"
+                ]
+            }
+        },
+        "child8": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 3,
+                "ingredients": [
+                    "Ham pork",
+                    "Pig fresh meat",
+                    "Turkey fresh meat"
+                ]
+            },
+            "Group D": {
+                "number": 6,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Rice grain",
+                    "Buckwheat",
+                    "Potatoes",
+                    "Noodles",
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 4,
+                "ingredients": [
+                    "Traditional margarine",
+                    "Parmesan",
+                    "Cheese cheddar",
+                    "Butter"
+                ]
+            }
+        },
+        "child9": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 3,
+                "ingredients": [
+                    "Shrimps and prawns",
+                    "Ham pork",
+                    "Trouts"
+                ]
+            },
+            "Group D": {
+                "number": 2,
+                "ingredients": [
+                    "New potatoes",
+                    "Couscous"
+                ]
+            },
+            "Group E": {
+                "number": 2,
+                "ingredients": [
+                    "Cow milk whole",
+                    "Cow milk skimmed (low fat)"
+                ]
+            }
+        },
+        "child10": {
+            "Group A veg": {
+                "number": 3,
+                "ingredients": [
+                    "Chili peppers",
+                    "Asparagus",
+                    "Leeks"
+                ]
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 4,
+                "ingredients": [
+                    "Shrimps and prawns",
+                    "Trouts",
+                    "Salmons",
+                    "Sunflower seeds"
+                ]
+            },
+            "Group D": {
+                "number": 2,
+                "ingredients": [
+                    "Potatoes",
+                    "Rice grain long-grain"
+                ]
+            },
+            "Group E": {
+                "number": 0,
+                "ingredients": []
+            }
+        },
+        "child11": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 2,
+                "ingredients": [
+                    "Ham pork",
+                    "Sunflower seeds"
+                ]
+            },
+            "Group D": {
+                "number": 6,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Pasta wholemeal",
+                    "Rice grain",
+                    "Pasta plain (not stuffed) uncooked",
+                    "Noodles",
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 5,
+                "ingredients": [
+                    "Parmesan",
+                    "Yoghurt cow milk flavoured",
+                    "Cow milk whole",
+                    "Cow milk skimmed (low fat)",
+                    "Butter"
+                ]
+            }
+        },
+        "child12": {
+            "Group A veg": {
+                "number": 4,
+                "ingredients": [
+                    "Chili peppers",
+                    "Asparagus",
+                    "Leeks",
+                    "Courgettes"
+                ]
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 2,
+                "ingredients": [
+                    "Salmons",
+                    "Sunflower seeds"
+                ]
+            },
+            "Group D": {
+                "number": 5,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Rice grain",
+                    "Couscous",
+                    "Buckwheat",
+                    "Potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 1,
+                "ingredients": [
+                    "Cow milk skimmed (low fat)"
+                ]
+            }
+        },
+        "child13": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 3,
+                "ingredients": [
+                    "Ham pork",
+                    "Turkey fresh meat",
+                    "Sunflower seeds"
+                ]
+            },
+            "Group D": {
+                "number": 3,
+                "ingredients": [
+                    "Potatoes",
+                    "New potatoes",
+                    "Couscous"
+                ]
+            },
+            "Group E": {
+                "number": 2,
+                "ingredients": [
+                    "Mascarpone",
+                    "Cream plain"
+                ]
+            }
+        },
+        "child14": {
+            "Group A veg": {
+                "number": 1,
+                "ingredients": [
+                    "Asparagus"
+                ]
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group D": {
+                "number": 5,
+                "ingredients": [
+                    "Pasta wholemeal",
+                    "Pasta plain (not stuffed) uncooked",
+                    "Buckwheat",
+                    "Potatoes",
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 3,
+                "ingredients": [
+                    "Parmesan",
+                    "Yoghurt cow milk flavoured",
+                    "Butter"
+                ]
+            }
+        },
+        "child15": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group D": {
+                "number": 3,
+                "ingredients": [
+                    "Rice grain",
+                    "New potatoes",
+                    "Couscous"
+                ]
+            },
+            "Group E": {
+                "number": 2,
+                "ingredients": [
+                    "Mascarpone",
+                    "Cream plain"
+                ]
+            }
+        },
+        "child16": {
+            "Group A veg": {
+                "number": 2,
+                "ingredients": [
+                    "Chili peppers",
+                    "Asparagus"
+                ]
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group D": {
+                "number": 4,
+                "ingredients": [
+                    "Potatoes",
+                    "Couscous",
+                    "Buckwheat",
+                    "Rice grain long-grain"
+                ]
+            },
+            "Group E": {
+                "number": 2,
+                "ingredients": [
+                    "Cow milk skimmed (low fat)",
+                    "Creme fraiche cheese"
+                ]
+            }
+        },
+        "child17": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 5,
+                "ingredients": [
+                    "Trouts",
+                    "Shrimps and prawns",
+                    "Salmons",
+                    "Ham pork",
+                    "Pig fresh meat"
+                ]
+            },
+            "Group D": {
+                "number": 1,
+                "ingredients": [
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 0,
+                "ingredients": []
+            }
+        },
+        "child18": {
+            "Group A veg": {
+                "number": 2,
+                "ingredients": [
+                    "Leeks",
+                    "Courgettes"
+                ]
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group D": {
+                "number": 1,
+                "ingredients": [
+                    "Couscous"
+                ]
+            },
+            "Group E": {
+                "number": 1,
+                "ingredients": [
+                    "Cow milk skimmed (low fat)"
+                ]
+            }
+        },
+        "child19": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 1,
+                "ingredients": [
+                    "Turkey fresh meat"
+                ]
+            },
+            "Group D": {
+                "number": 3,
+                "ingredients": [
+                    "Potatoes",
+                    "Rice grain",
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 2,
+                "ingredients": [
+                    "Mascarpone",
+                    "Cream plain"
+                ]
+            }
+        },
+        "child20": {
+            "Group A veg": {
+                "number": 1,
+                "ingredients": [
+                    "Courgettes"
+                ]
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 2,
+                "ingredients": [
+                    "Shrimps and prawns",
+                    "Salmons"
+                ]
+            },
+            "Group D": {
+                "number": 4,
+                "ingredients": [
+                    "Potatoes",
+                    "Rice grain",
+                    "Couscous",
+                    "Rice grain long-grain"
+                ]
+            },
+            "Group E": {
+                "number": 0,
+                "ingredients": []
+            }
+        },
+        "child21": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 2,
+                "ingredients": [
+                    "Turkey fresh meat",
+                    "Coconuts"
+                ]
+            },
+            "Group D": {
+                "number": 7,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Pasta wholemeal",
+                    "Rice grain",
+                    "Pasta plain (not stuffed) uncooked",
+                    "Buckwheat",
+                    "Potatoes",
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 1,
+                "ingredients": [
+                    "Parmesan"
+                ]
+            }
+        },
+        "child22": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 1,
+                "ingredients": [
+                    "Fish fingers breaded"
+                ]
+            },
+            "Group D": {
+                "number": 5,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Pasta plain (not stuffed) uncooked",
+                    "Potatoes",
+                    "Noodles",
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 4,
+                "ingredients": [
+                    "Cow milk whole",
+                    "Cheese cheddar",
+                    "Cow milk skimmed (low fat)",
+                    "Yoghurt cow milk flavoured"
+                ]
+            }
+        },
+        "child23": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 1,
+                "ingredients": [
+                    "Turkey fresh meat"
+                ]
+            },
+            "Group D": {
+                "number": 5,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Rice grain",
+                    "Buckwheat",
+                    "Potatoes",
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 3,
+                "ingredients": [
+                    "Cow milk skimmed (low fat)",
+                    "Cheese cheddar",
+                    "Butter"
+                ]
+            }
+        },
+        "child24": {
+            "Group A veg": {
+                "number": 3,
+                "ingredients": [
+                    "Asparagus",
+                    "Leeks",
+                    "Courgettes"
+                ]
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 1,
+                "ingredients": [
+                    "Sunflower seeds"
+                ]
+            },
+            "Group D": {
+                "number": 3,
+                "ingredients": [
+                    "Potatoes",
+                    "Rice grain long-grain",
+                    "Couscous"
+                ]
+            },
+            "Group E": {
+                "number": 1,
+                "ingredients": [
+                    "Cow milk skimmed (low fat)"
+                ]
+            }
+        },
+        "child25": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 2,
+                "ingredients": [
+                    "Fish fingers breaded",
+                    "Turkey fresh meat"
+                ]
+            },
+            "Group D": {
+                "number": 7,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Pasta wholemeal",
+                    "Rice grain",
+                    "Pasta plain (not stuffed) uncooked",
+                    "Buckwheat",
+                    "Potatoes",
+                    "Noodles"
+                ]
+            },
+            "Group E": {
+                "number": 1,
+                "ingredients": [
+                    "Yoghurt cow milk flavoured"
+                ]
+            }
+        },
+        "child26": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group D": {
+                "number": 4,
+                "ingredients": [
+                    "Potatoes",
+                    "New potatoes",
+                    "Pasta plain (not stuffed) uncooked",
+                    "Buckwheat"
+                ]
+            },
+            "Group E": {
+                "number": 3,
+                "ingredients": [
+                    "Cow milk whole",
+                    "Cheese cheddar",
+                    "Butter"
+                ]
+            }
+        },
+        "child27": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 2,
+                "ingredients": [
+                    "Fish fingers breaded",
+                    "Pig fresh meat"
+                ]
+            },
+            "Group D": {
+                "number": 4,
+                "ingredients": [
+                    "Noodles",
+                    "New potatoes",
+                    "Rice grain",
+                    "Rice grain long-grain"
+                ]
+            },
+            "Group E": {
+                "number": 3,
+                "ingredients": [
+                    "Parmesan",
+                    "Cheese cheddar",
+                    "Butter"
+                ]
+            }
+        },
+        "child28": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 1,
+                "ingredients": [
+                    "Ham pork"
+                ]
+            },
+            "Group D": {
+                "number": 4,
+                "ingredients": [
+                    "Potatoes",
+                    "Rice grain",
+                    "New potatoes",
+                    "Couscous"
+                ]
+            },
+            "Group E": {
+                "number": 1,
+                "ingredients": [
+                    "Cream plain"
+                ]
+            }
+        },
+        "child29": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group D": {
+                "number": 3,
+                "ingredients": [
+                    "Rice grain",
+                    "Pasta wholemeal",
+                    "Rice grain long-grain"
+                ]
+            },
+            "Group E": {
+                "number": 3,
+                "ingredients": [
+                    "Cheese cheddar",
+                    "Cow milk skimmed (low fat)",
+                    "Yoghurt cow milk flavoured"
+                ]
+            }
+        },
+        "child30": {
+            "Group A veg": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group A fruit": {
+                "number": 0,
+                "ingredients": []
+            },
+            "Group BC": {
+                "number": 4,
+                "ingredients": [
+                    "Shrimps and prawns",
+                    "Ham pork",
+                    "Salmons",
+                    "Turkey fresh meat"
+                ]
+            },
+            "Group D": {
+                "number": 2,
+                "ingredients": [
+                    "Potatoes",
+                    "New potatoes"
+                ]
+            },
+            "Group E": {
+                "number": 1,
+                "ingredients": [
+                    "Cow milk skimmed (low fat)"
+                ]
+            }
+        }
     }
 }
