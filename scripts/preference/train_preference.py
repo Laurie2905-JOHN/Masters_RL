@@ -1,11 +1,12 @@
 import logging
-from models.preferences.data_utils import get_child_data, initialize_child_preference_data, prepare_ml_data, prepare_ml_preferences
+from models.preferences.data_utils import get_child_data, initialize_child_preference_data, prepare_ml_data, prepare_ml_preferences, get_feedback
 from utils.process_data import get_data
 from models.preferences.prediction import fit_random_forest_classifier, predict_preference_using_model, combine_features, get_true_preference_label, print_preference_difference_and_accuracy
 from sklearn.metrics import classification_report
 import pandas as pd
 import numpy as np
 from models.preferences.voting import IngredientNegotiator
+from models.preferences.sentiment_analysis import get_sentiment_and_update_data, display_feedback_changes, display_incorrect_feedback_changes
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -91,6 +92,7 @@ def main(seed=4):
                 updated_known_and_predicted_preferences[child]['dislikes'].append(ingredient)
 
     # See difference in actual and predicted preferences
+    print("Accuracy Pre Feedback:")
     print_preference_difference_and_accuracy(child_preference_data, updated_known_and_predicted_preferences, summary_only=True)
 
 
@@ -103,21 +105,39 @@ def main(seed=4):
     
     # Simple
     negotiated_ingredient_order_simple, unavailable_ingredients_simple = Negotiator.negotiate_ingredients_simple()
-    print(negotiated_ingredient_order_simple)
-    print(unavailable_ingredients_simple)
+    # print(negotiated_ingredient_order_simple)
+    # print(unavailable_ingredients_simple)
     preference_score_function_simple = Negotiator.create_preference_score_function(negotiated_ingredient_order_simple)
-    print(preference_score_function_simple('Carrots'))
+    # print(preference_score_function_simple('Carrots'))
     
     # Complex
     negotiated_ingredient_order_complex, unavailable_ingredients_complex = Negotiator.negotiate_ingredients_complex()
-    print(negotiated_ingredient_order_complex)
-    print(unavailable_ingredients_complex)
+    # print(negotiated_ingredient_order_complex)
+    # print(unavailable_ingredients_complex)
     
     preference_score_function_complex = Negotiator.create_preference_score_function(negotiated_ingredient_order_complex)
     
-    print(preference_score_function_complex('Carrots'))
+    # print(preference_score_function_complex('Carrots'))
     
     Negotiator.close(log_file="Gini.json")
+    
+    
+    # Feedback
+
+    menu_plan = ['Wheat bread and rolls white (refined flour)', 'Potatoes', 'Sour cream plain', 'Bacon', 'Sweet corn', 'Cauliflowers']
+    feedback = get_feedback(child_preference_data, menu_plan, seed=seed)
+    
+    changes, updated_preferences_with_feedback, accuracy, incorrect_comments = get_sentiment_and_update_data(updated_known_and_predicted_preferences, feedback, menu_plan, plot_confusion_matrix=False)
+
+    display_feedback_changes(changes, child_preference_data)
+    
+    display_incorrect_feedback_changes(incorrect_comments)
+    
+    print("Sentiment Accuracy:", accuracy)
+    
+    print("Accuracy After Feedback:")
+    print_preference_difference_and_accuracy(child_preference_data, updated_preferences_with_feedback, summary_only=True)
+
     
 if __name__ == "__main__":
     main()

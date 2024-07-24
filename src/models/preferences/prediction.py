@@ -117,13 +117,13 @@ def print_preference_difference_and_accuracy(preferences, updated_preferences, s
 
 
 
-def get_true_preference_label(ingredient, unknown_child_preference, child):
+def get_true_preference_label(ingredient, child_preference, child):
     """
     Get the true preference label for a given ingredient.
 
     Args:
         ingredient (str): The ingredient to check.
-        unknown_child_preference (list): List of ingredients with unknown preference.
+        child_preference (list): List of ingredients with unknown preference.
         child (str): The key to access the child's preferences in the preferences dictionary.
 
     Returns:
@@ -133,11 +133,11 @@ def get_true_preference_label(ingredient, unknown_child_preference, child):
         ValueError: If the ingredient is not found in the preferences.
     """
 
-    if ingredient in unknown_child_preference[child]['unknown']["likes"]:
+    if ingredient in child_preference[child]['unknown']["likes"] + child_preference[child]['known']["likes"]:
         true_label = 2
-    elif ingredient in unknown_child_preference[child]['unknown']["neutral"]:
+    elif ingredient in child_preference[child]['unknown']["neutral"] + child_preference[child]['known']["neutral"]:
         true_label = 1
-    elif ingredient in unknown_child_preference[child]['unknown']["dislikes"]:
+    elif ingredient in child_preference[child]['unknown']["dislikes"] + child_preference[child]['known']["dislikes"]:
         true_label = 0
     else:
         raise ValueError(f"Ingredient {ingredient} not found in preferences")

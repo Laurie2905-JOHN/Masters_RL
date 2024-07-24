@@ -16,14 +16,14 @@ def analyze_sentiment(comment, sentiment_analyzer):
     else:
         return 'neutral'
 
-def extract_preferences_and_update_data(preferences, feedback, ingredient_list, plot_confusion_matrix=False):
+def get_sentiment_and_update_data(preferences, feedback, menu_plan, plot_confusion_matrix=False):
     changes = []
     incorrect_comments = []
     true_labels = []
     pred_labels = []
     
     # Mapping for confusion matrix
-    label_mapping = {'likes': 0, 'neutral': 1, 'dislikes': 2}
+    label_mapping = {'likes': 2, 'neutral': 1, 'dislikes': 0}
 
     # Check if GPU is available and set device accordingly
     device = 0 if torch.cuda.is_available() else -1
@@ -42,36 +42,31 @@ def extract_preferences_and_update_data(preferences, feedback, ingredient_list, 
                 pred_label = analyze_sentiment(sentence.strip(), sentiment_analyzer)
                 
                 # Check for mentions of each ingredient in the sentence
-                for ingredient in ingredient_list:
+                for ingredient in menu_plan:
                     if ingredient.lower() in sentence:
-                        change = {"child": child, "ingredient": ingredient, "change": ""}
+                        current_list = None
+                        # Determine current list of the ingredient
+                        if ingredient in preferences[child]["likes"]:
+                            current_list = "likes"
+                        elif ingredient in preferences[child]["dislikes"]:
+                            current_list = "dislikes"
+                        elif ingredient in preferences[child]["neutral"]:
+                            current_list = "neutral"
                         
-                        # Determine the appropriate category based on polarity
-                        if pred_label == 'likes':  
-                            if ingredient not in preferences[child]['known']["likes"]:
-                                preferences[child]['known']["likes"].append(ingredient)
-                                change["change"] = "added to likes"
-                        elif pred_label == 'dislikes':
-                            if ingredient not in preferences[child]['known']["dislikes"]:
-                                preferences[child]['known']["dislikes"].append(ingredient)
-                                change["change"] = "added to dislikes"
-                        else:
-                            pred_label = 'neutral'
-                            if ingredient not in preferences[child]['known']["neutral"]:
-                                preferences[child]['known']["neutral"].append(ingredient)
-                                change["change"] = "added to neutral"
+                        new_list = pred_label if pred_label in ["likes", "dislikes"] else "neutral"
                         
-                        # Remove ingredient from other lists
-                        if change["change"]:
-                            if change["change"] != "added to likes" and ingredient in preferences[child]['known']["likes"]:
-                                preferences[child]['known']["likes"].remove(ingredient)
-                                change["change"] += ", removed from likes"
-                            if change["change"] != "added to dislikes" and ingredient in preferences[child]['known']["dislikes"]:
-                                preferences[child]['known']['dislikes'].remove(ingredient)
-                                change["change"] += ", removed from dislikes"
-                            if change["change"] != "added to neutral" and ingredient in preferences[child]['known']["neutral"]:
-                                preferences[child]['known']["neutral"].remove(ingredient)
-                                change["change"] += ", removed from neutral"
+                        if current_list != new_list:
+                            change = {"child": child, "ingredient": ingredient, "change": ""}
+                            # Remove from current list
+                            if current_list:
+                                preferences[child][current_list].remove(ingredient)
+                                change["change"] += f"removed from {current_list}"
+                            
+                            # Add to new list
+                            preferences[child][new_list].append(ingredient)
+                            if change["change"]:
+                                change["change"] += ", "
+                            change["change"] += f"added to {new_list}"
                             
                             changes.append(change)
                         
@@ -104,15 +99,20 @@ def extract_preferences_and_update_data(preferences, feedback, ingredient_list, 
 
     return changes, preferences, accuracy, incorrect_comments
 
+from models.preferences.prediction import get_true_preference_label
 
 # Function to display the changes made to children's preferences
-def display_changes(changes):
+def display_feedback_changes(changes, child_preference_data):
+    label_mapping = {'2': 'likes', '1': 'neutral', '0': 'dislikes'}
     for change in changes:
-        print("Action Taken:\n")
-        print(f"Child {change['child']} had {change['ingredient']} {change['change']}.")
+        print(f"\nChild {change['child']} had Action:")
+        print(f"{change['ingredient']} {change['change']}.")
+        true_preference_label = get_true_preference_label(change['ingredient'], child_preference_data, change['child'])
+        print("Correct Preferences:", label_mapping[str(true_preference_label)])
         
 # Function to display incorrect comments and reasons
-def display_incorrect_comments(incorrect_comments):
+def display_incorrect_feedback_changes(incorrect_comments):
+    print("\n")
     for comment in incorrect_comments:
         print(f"Child {comment['child']} commented: '{comment['comment']}'")
         print(f"Predicted: {comment['predicted']}, Actual: {comment['actual']}\n")

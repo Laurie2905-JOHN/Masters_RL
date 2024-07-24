@@ -14,7 +14,7 @@ from imblearn.over_sampling import SMOTE
 import random
 import matplotlib.pyplot as plt
 import pandas as pd
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List
 import numpy as np
 import random
 from typing import Dict
