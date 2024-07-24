@@ -122,11 +122,11 @@ class IngredientNegotiator:
 
                 if ingredient in self.supplier_availability and self.supplier_availability[ingredient] > 0:
                     if in_likes:
-                        votes[ingredient] += 5 * weights['likes']
+                        votes[ingredient] += 5 * weights[child]['likes']
                     elif in_neutrals:
-                        votes[ingredient] += 3 * weights['neutral']
+                        votes[ingredient] += 3 * weights[child]['neutral']
                     elif in_dislikes:
-                        votes[ingredient] += 1 * weights['dislikes']
+                        votes[ingredient] += 1 * weights[child]['dislikes']
                 else:
                     unavailable_ingredients.add(ingredient)
 
@@ -150,8 +150,11 @@ class IngredientNegotiator:
         return negotiated_ingredients, unavailable_ingredients
 
     def calculate_child_weight_simple(self):
-        return {'likes': 1, 'neutral': 1, 'dislikes': 1}
-
+        weights = {}
+        for child in self.preferences.keys():
+            weights[child] = {'likes': 1, 'neutral': 1, 'dislikes': 1}
+        return weights
+    
     def negotiate_ingredients_complex(self):
         
         votes, unavailable_ingredients = self.collect_weighted_votes(self.calculate_child_weight_complex)
@@ -186,8 +189,8 @@ class IngredientNegotiator:
     
     def _normalize_for_preference_count(self, child, weights):
         
-        for key in weights:
-            weights[key] = weights[key] / len(self.preferences[child][key]) if len(self.preferences[child][key]) > 0 else 0
+        for category in weights.keys():
+            weights[category] = weights[category] / len(self.preferences[child][category]) if len(self.preferences[child][category]) > 0 else 0
         
         return weights
 
@@ -216,70 +219,121 @@ class IngredientNegotiator:
         
         # Get raw weights
         raw_weights = self.calculate_child_weight_simple()
-        
-        weights = {}
+        print("Raw weights:", raw_weights)  # Debugging print
+
+        weights = copy.deepcopy(raw_weights)
         
         for child in self.preferences.keys():
-            
+
             # Initialize raw weights
-            weights[child] = copy.deepcopy(raw_weights)
-            
+            print(f"Weights for {child} before normalization: {weights[child]}")  # Debugging print
+        
             # Normalize for number of likes, neutral, dislikes so each child within each category has the same voting power 
             if use_normalize_weights:
                 weights[child] = self._normalize_for_preference_count(child, weights[child])
+            print(f"Weights for {child} after normalization: {weights[child]}")  # Debugging print
 
             # Use compensation factor to adjust weights if utility was less than the average last round
             if use_compensatory:
                 weights[child] = self._use_compensatory_weight_update(child, weights[child])
+            print(f"Weights for {child} after compensatory update: {weights[child]}")  # Debugging print
             
             # If child provided feedback reward for contribution
             if use_feedback:
                 weights[child] = self._use_feedback_weight_update(child, weights[child])
-                
-        # Convert weights dictionary to list for Gini calculation
-        weight_values = list(weights.values())
+            print(f"Weights for {child} after feedback update: {weights[child]}")  # Debugging print
 
-        # Calculate current Gini coefficient
-        current_gini = self.calculate_gini(weight_values)
+        # Calculate current Gini coefficients
+        ginis, weight_category_total = self._calculate_all_gini(weights)
+        current_gini = ginis['total']  # Adjust for total voting power inequality
+        print("Current Gini coefficient:", current_gini)  # Debugging print
 
-        # Adjust weights to achieve the target Gini coefficient only if current Gini is below target
-        if use_fairness and current_gini < target_gini:
-            weight_values = self.adjust_weights_for_target_gini(weight_values, target_gini)
-            # Update the weights dictionary with adjusted values
-            for i, child in enumerate(weights.keys()):
-                weights[child] = weight_values[i]
-
-        return weights
-    
-    def adjust_weights_for_target_gini(self, weights, target_gini):
-        mean_weight = np.mean(weights)
+        # Adjust weights for target Gini coefficient
+        if use_fairness and current_gini > target_gini:
+            updated_weights = self.scaling_to_adjust_weights_for_target_gini(weights, weight_category_total, current_gini, target_gini)
+        else:
+            updated_weights = weights
         
-        def adjust(weights, target_gini):
-            adjustment_factor = 0.01  # Small factor to increment/decrement weights
-            current_gini = self.calculate_gini(weights)
+        # Calculate current Gini coefficients after adjustment
+        ginis, weight_category_total = self._calculate_all_gini(updated_weights)
+        current_gini = ginis['total']  # Adjust for total voting power inequality
+        print("Updated Gini coefficient after adjustment:", current_gini)  # Debugging print
+        
+        print("Final weights:", updated_weights)  # Debugging print
+        return updated_weights
+    
+    def scaling_to_adjust_weights_for_target_gini(self, weights, weight_category_total, current_gini, target_gini):
+
+        mean_weight = np.mean(weight_category_total)
+        
+        def adjust(weight_category_total, current_gini, target_gini):
+            original_weights = weight_category_total.copy()  # Copy of the original weights
+            adjustment_factor = 0.001
             iteration = 0
 
-            while current_gini > target_gini and iteration < 10000:  # Limiting to 10000 iterations to avoid infinite loop
+            while current_gini > target_gini and iteration < 10000:
                 iteration += 1
-                for i in range(len(weights)):
-                    if weights[i] < mean_weight:
-                        weights[i] += adjustment_factor * (mean_weight - weights[i]) / mean_weight
+                for i in range(len(weight_category_total)):
+                    if weight_category_total[i] < mean_weight:
+                        weight_category_total[i] += adjustment_factor * (mean_weight - weight_category_total[i]) / mean_weight
                     else:
-                        weights[i] -= adjustment_factor * (weights[i] - mean_weight) / mean_weight
+                        weight_category_total[i] -= adjustment_factor * (weight_category_total[i] - mean_weight) / mean_weight
 
-                current_gini = self.calculate_gini(weights)
+                current_gini = self._calculate_gini(weight_category_total)
+                
+            # Calculate scaling factors
+            scaling_factors = [new / old if old != 0 else 1 for new, old in zip(weight_category_total, original_weights)]
 
-            return weights
+            return scaling_factors
 
-        adjusted_weights = adjust(weights, target_gini)
-        return adjusted_weights
+        scaling_factors = adjust(weight_category_total, current_gini, target_gini)
+        
+        updated_weights = self._change_original_weight_dict(weights, scaling_factors)
+            
+        return updated_weights
     
     @staticmethod
-    def calculate_gini(weights):
-        mean_weight = sum(weights) / len(weights)
-        differences_sum = sum(abs(i - j) for i in weights for j in weights)
-        gini = differences_sum / (2 * len(weights) ** 2 * mean_weight)
+    def _change_original_weight_dict(weights, scaling_factors):
+        child_counter = 0
+        for child, weight in weights.items():
+            for category in weight.keys():
+                weights[child][category] += scaling_factors[child_counter] 
+            child_counter += 1
+            
+        return weights
+    @staticmethod
+    def _calculate_gini(weights_category):
+        mean_weight = sum(weights_category) / len(weights_category)
+        differences_sum = sum(abs(i - j) for i in weights_category for j in weights_category)
+        gini = differences_sum / (2 * len(weights_category) ** 2 * mean_weight)
         return gini
+    
+    def _calculate_all_gini(self, weights):
+        
+        # Initialize a dictionary of lists for likes, neutral, dislikes, and total
+        categories = {
+            'likes': [],
+            'neutral': [],
+            'dislikes': [],
+            'total': []
+        }
+        
+        # Iterate through the input dictionary values and populate the lists in the categories dictionary
+        for value in weights.values():
+            categories['likes'].append(value['likes'])
+            categories['neutral'].append(value['neutral'])
+            categories['dislikes'].append(value['dislikes'])
+            categories['total'].append(value['likes'] + value['neutral'] + value['dislikes'])
+            
+        # Initialize an empty dictionary for storing Gini coefficients
+        ginis = {}
+        
+        # Calculate the Gini coefficient for each category and store it in the ginis dictionary
+        for category, values in categories.items():
+            ginis[category] = self._calculate_gini(values)
+    
+        return ginis, categories['total']
+            
     
     def get_supplier_availability(self, mean_unavailable=5, std_dev_unavailable=2):
         
