@@ -117,5 +117,7 @@ def main(seed=4):
     
     print(preference_score_function_complex('Carrots'))
     
+    Negotiator.close(log_file="Gini.json")
+    
 if __name__ == "__main__":
     main()

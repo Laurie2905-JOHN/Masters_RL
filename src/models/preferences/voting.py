@@ -3,7 +3,8 @@ import numpy as np
 import random
 import copy
 from typing import Dict, List, Tuple, Callable, Union
-from pandas import pd
+import pandas as pd
+import json 
 
 class IngredientNegotiator:
     def __init__(self, seed: int, ingredient_df: pd.DataFrame, preferences: Dict[str, Dict[str, List[str]]], 
@@ -28,7 +29,8 @@ class IngredientNegotiator:
         self.average_utility = self._calculate_average_utility(previous_utility)
         self.ingredient_groups = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E', 'Bread', 'Confectionary']
         self.supplier_availability = self.get_supplier_availability()
-
+        self.vote_gini_dict = {}
+        
     @staticmethod
     def _calculate_average_utility(previous_utility: Dict[str, Union[int, float]]) -> float:
         """
@@ -309,10 +311,12 @@ class IngredientNegotiator:
         current_gini = ginis['total']
 
         if use_fairness and current_gini > target_gini:
-            updated_weights = self.scaling_to_adjust_weights_for_target_gini(weights, weight_category_total, current_gini, target_gini)
+            updated_weights, final_ginis = self.scaling_to_adjust_weights_for_target_gini(weights, weight_category_total, current_gini, target_gini)
         else:
             updated_weights = weights
+            final_ginis = ginis
 
+        self.vote_gini_dict = final_ginis  # Store the Gini coefficients
         return updated_weights
 
     def scaling_to_adjust_weights_for_target_gini(self, weights: Dict[str, Dict[str, float]], weight_category_total: List[float], 
@@ -348,7 +352,9 @@ class IngredientNegotiator:
 
         scaling_factors = adjust(weight_category_total, current_gini, target_gini)
         updated_weights = self._change_original_weight_dict(weights, scaling_factors)
-        return updated_weights
+        final_ginis, _ = self._calculate_all_gini(updated_weights)
+        
+        return updated_weights, final_ginis
 
     @staticmethod
     def _change_original_weight_dict(weights: Dict[str, Dict[str, float]], scaling_factors: List[float]) -> Dict[str, Dict[str, float]]:
@@ -411,3 +417,28 @@ class IngredientNegotiator:
         unavailable_ingredients = random.sample(ingredients, num_unavailable)
         supplier_availability = {ingredient: ingredient not in unavailable_ingredients for ingredient in ingredients}
         return supplier_availability
+    
+    def log_data(self, log_file: str) -> None:
+        """
+        Log the Gini coefficients and other relevant data to a JSON file.
+
+        :param log_file: Path to the log file.
+        """
+        data_to_log = {
+            'gini_dict': self.vote_gini_dict
+            # Add any other relevant data here
+        }
+
+        with open(log_file, 'w') as file:
+            json.dump(data_to_log, file, indent=4)
+        print(f"Data successfully logged to {log_file}")
+
+    def close(self, log_file: str) -> None:
+        """
+        Save the current state to a file and perform any necessary cleanup.
+
+        :param log_file: Path to the log file.
+        """
+        self.log_data(log_file)
+        # Perform any other necessary cleanup here
+        print("Negotiator closed and data saved.")
