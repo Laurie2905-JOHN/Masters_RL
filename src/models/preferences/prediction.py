@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import logging
 from typing import Dict, List, Union, Optional, Tuple
+import copy
 
 class PreferenceModel:
     def __init__(self, ingredient_df: pd.DataFrame, child_feature_data: Dict[str, Dict[str, Union[str, int]]], child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], apply_SMOTE: bool = False, seed: Optional[int] = None):
@@ -17,7 +18,7 @@ class PreferenceModel:
         """
         self.ingredient_df = ingredient_df
         self.child_feature_data = child_feature_data
-        self.child_preference_data = child_preference_data
+        self.child_preference_data = copy.deepcopy(child_preference_data)
         self.apply_SMOTE = apply_SMOTE
         self.seed = seed
 
@@ -324,7 +325,6 @@ class PreferenceModel:
         logging.info(f"Total Classification Report:\n{total_class_report}")
 
         updated_preferences = self.update_preferences_with_predictions(child_predictions)
-        print("Accuracy Pre Feedback:")
         self.print_preference_difference_and_accuracy(self.child_preference_data, updated_preferences, summary_only=True)
         
         return updated_preferences

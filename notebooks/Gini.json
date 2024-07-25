@@ -1,9 +1,9 @@
 {
     "Gini Votes": {
-        "likes": 0.030096910661793923,
-        "neutral": 0.0630994996059764,
-        "dislikes": 0.05420889978056459,
-        "total": 0.01136786862636695
+        "likes": 0.028057849841550807,
+        "neutral": 0.06833418619786463,
+        "dislikes": 0.05502188749400048,
+        "total": 0.010431007471355006
     },
     "Children Dislikes in Top n": {
         "child1": {
@@ -42,22 +42,25 @@
                 "ingredients": []
             },
             "Group D": {
-                "number": 2,
+                "number": 4,
                 "ingredients": [
+                    "Pasta wholemeal",
+                    "New potatoes",
                     "Pasta plain (not stuffed) uncooked",
                     "Noodles"
                 ]
             },
             "Group E": {
-                "number": 8,
+                "number": 9,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
-                    "Butter",
                     "Traditional margarine",
                     "Cheese cheddar",
-                    "Creme fraiche cheese",
+                    "Cow milk semi skimmed (half fat)",
+                    "Cow milk whole",
+                    "Butter",
                     "Cream plain",
+                    "Yoghurt cow milk flavoured",
                     "Parmesan"
                 ]
             }
@@ -76,16 +79,20 @@
                 "ingredients": []
             },
             "Group D": {
-                "number": 0,
-                "ingredients": []
+                "number": 1,
+                "ingredients": [
+                    "Pasta wholemeal"
+                ]
             },
             "Group E": {
-                "number": 4,
+                "number": 6,
                 "ingredients": [
-                    "Creme fraiche cheese",
+                    "Mascarpone",
+                    "Cow milk whole",
                     "Cream plain",
+                    "Butter",
                     "Yoghurt cow milk flavoured",
-                    "Mascarpone"
+                    "Parmesan"
                 ]
             }
         },
@@ -99,22 +106,19 @@
                 "ingredients": []
             },
             "Group BC": {
-                "number": 0,
-                "ingredients": []
+                "number": 1,
+                "ingredients": [
+                    "Ham pork"
+                ]
             },
             "Group D": {
-                "number": 4,
-                "ingredients": [
-                    "Rice grain brown",
-                    "Rice grain long-grain",
-                    "Rice grain",
-                    "Potatoes"
-                ]
+                "number": 0,
+                "ingredients": []
             },
             "Group E": {
                 "number": 1,
                 "ingredients": [
-                    "Yoghurt cow milk plain"
+                    "Mozzarella"
                 ]
             }
         },
@@ -132,17 +136,21 @@
                 "ingredients": []
             },
             "Group D": {
-                "number": 0,
-                "ingredients": []
+                "number": 2,
+                "ingredients": [
+                    "Pasta wholemeal",
+                    "New potatoes"
+                ]
             },
             "Group E": {
-                "number": 5,
+                "number": 6,
                 "ingredients": [
                     "Mascarpone",
-                    "Butter",
                     "Traditional margarine",
-                    "Creme fraiche cheese",
-                    "Cream plain"
+                    "Cream plain",
+                    "Butter",
+                    "Cow milk whole",
+                    "Yoghurt cow milk flavoured"
                 ]
             }
         },
@@ -156,26 +164,21 @@
                 "ingredients": []
             },
             "Group BC": {
-                "number": 3,
+                "number": 1,
                 "ingredients": [
-                    "Coalfish",
-                    "Sea bass",
-                    "Mackerel"
+                    "Ham pork"
                 ]
             },
             "Group D": {
-                "number": 3,
+                "number": 2,
                 "ingredients": [
-                    "Rice grain brown",
                     "Rice grain long-grain",
-                    "Couscous"
+                    "Rice grain"
                 ]
             },
             "Group E": {
-                "number": 1,
-                "ingredients": [
-                    "Yoghurt cow milk plain"
-                ]
+                "number": 0,
+                "ingredients": []
             }
         },
         "child7": {
@@ -192,16 +195,21 @@
                 "ingredients": []
             },
             "Group D": {
-                "number": 0,
-                "ingredients": []
+                "number": 1,
+                "ingredients": [
+                    "Pasta wholemeal"
+                ]
             },
             "Group E": {
-                "number": 4,
+                "number": 7,
                 "ingredients": [
-                    "Creme fraiche cheese",
+                    "Mascarpone",
+                    "Traditional margarine",
+                    "Cow milk whole",
+                    "Butter",
                     "Cream plain",
                     "Yoghurt cow milk flavoured",
-                    "Mascarpone"
+                    "Parmesan"
                 ]
             }
         },
@@ -221,21 +229,22 @@
             "Group D": {
                 "number": 3,
                 "ingredients": [
-                    "Pasta plain (not stuffed) uncooked",
                     "New potatoes",
+                    "Pasta plain (not stuffed) uncooked",
                     "Noodles"
                 ]
             },
             "Group E": {
-                "number": 8,
+                "number": 9,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
-                    "Butter",
                     "Traditional margarine",
                     "Cheese cheddar",
-                    "Creme fraiche cheese",
+                    "Cow milk semi skimmed (half fat)",
+                    "Cow milk whole",
+                    "Butter",
                     "Cream plain",
+                    "Yoghurt cow milk flavoured",
                     "Parmesan"
                 ]
             }
@@ -250,21 +259,23 @@
                 "ingredients": []
             },
             "Group BC": {
-                "number": 1,
+                "number": 2,
                 "ingredients": [
+                    "Shrimps and prawns",
                     "Ham pork"
                 ]
             },
             "Group D": {
-                "number": 1,
+                "number": 2,
                 "ingredients": [
-                    "Rice grain brown"
+                    "Rice grain long-grain",
+                    "Rice grain"
                 ]
             },
             "Group E": {
                 "number": 1,
                 "ingredients": [
-                    "Yoghurt cow milk plain"
+                    "Mozzarella"
                 ]
             }
         },
@@ -304,19 +315,21 @@
                 "ingredients": []
             },
             "Group D": {
-                "number": 1,
-                "ingredients": [
-                    "New potatoes"
-                ]
+                "number": 0,
+                "ingredients": []
             },
             "Group E": {
-                "number": 5,
+                "number": 9,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
                     "Traditional margarine",
-                    "Creme fraiche cheese",
-                    "Cream plain"
+                    "Cheese cheddar",
+                    "Cow milk semi skimmed (half fat)",
+                    "Cow milk whole",
+                    "Butter",
+                    "Cream plain",
+                    "Yoghurt cow milk flavoured",
+                    "Parmesan"
                 ]
             }
         },
@@ -334,8 +347,10 @@
                 "ingredients": []
             },
             "Group D": {
-                "number": 0,
-                "ingredients": []
+                "number": 1,
+                "ingredients": [
+                    "Potatoes"
+                ]
             },
             "Group E": {
                 "number": 0,
@@ -352,23 +367,21 @@
                 "ingredients": []
             },
             "Group BC": {
-                "number": 1,
-                "ingredients": [
-                    "Ham pork"
-                ]
+                "number": 0,
+                "ingredients": []
             },
             "Group D": {
-                "number": 2,
+                "number": 3,
                 "ingredients": [
                     "Rice grain long-grain",
-                    "Potatoes"
+                    "Potatoes",
+                    "Rice grain"
                 ]
             },
             "Group E": {
-                "number": 2,
+                "number": 1,
                 "ingredients": [
-                    "Mozzarella",
-                    "Yoghurt cow milk plain"
+                    "Cow milk semi skimmed (half fat)"
                 ]
             }
         },
@@ -392,12 +405,12 @@
             "Group E": {
                 "number": 6,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
-                    "Mozzarella",
-                    "Yoghurt cow milk plain",
-                    "Creme fraiche cheese",
-                    "Cream plain"
+                    "Cow milk semi skimmed (half fat)",
+                    "Cow milk whole",
+                    "Butter",
+                    "Cream plain",
+                    "Yoghurt cow milk flavoured"
                 ]
             }
         },
@@ -411,20 +424,19 @@
                 "ingredients": []
             },
             "Group BC": {
-                "number": 1,
-                "ingredients": [
-                    "Ham pork"
-                ]
-            },
-            "Group D": {
                 "number": 0,
                 "ingredients": []
             },
-            "Group E": {
-                "number": 1,
+            "Group D": {
+                "number": 2,
                 "ingredients": [
-                    "Yoghurt cow milk plain"
+                    "Rice grain long-grain",
+                    "Rice grain"
                 ]
+            },
+            "Group E": {
+                "number": 0,
+                "ingredients": []
             }
         },
         "child16": {
@@ -459,22 +471,21 @@
                 "ingredients": []
             },
             "Group BC": {
-                "number": 0,
-                "ingredients": []
+                "number": 1,
+                "ingredients": [
+                    "Ham pork"
+                ]
             },
             "Group D": {
-                "number": 4,
+                "number": 1,
                 "ingredients": [
-                    "Rice grain brown",
-                    "Rice grain long-grain",
-                    "Rice grain",
-                    "Potatoes"
+                    "Rice grain"
                 ]
             },
             "Group E": {
                 "number": 1,
                 "ingredients": [
-                    "Yoghurt cow milk plain"
+                    "Mozzarella"
                 ]
             }
         },
@@ -517,14 +528,14 @@
                 "number": 3,
                 "ingredients": [
                     "Rice grain long-grain",
-                    "Rice grain",
-                    "Potatoes"
+                    "Potatoes",
+                    "Rice grain"
                 ]
             },
             "Group E": {
                 "number": 1,
                 "ingredients": [
-                    "Yoghurt cow milk plain"
+                    "Cow milk semi skimmed (half fat)"
                 ]
             }
         },
@@ -560,27 +571,30 @@
                 "ingredients": []
             },
             "Group BC": {
-                "number": 0,
-                "ingredients": []
+                "number": 1,
+                "ingredients": [
+                    "Anchovies"
+                ]
             },
             "Group D": {
                 "number": 3,
                 "ingredients": [
-                    "Pasta plain (not stuffed) uncooked",
                     "New potatoes",
+                    "Pasta plain (not stuffed) uncooked",
                     "Noodles"
                 ]
             },
             "Group E": {
-                "number": 8,
+                "number": 9,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
-                    "Butter",
                     "Traditional margarine",
                     "Cheese cheddar",
-                    "Creme fraiche cheese",
+                    "Cow milk semi skimmed (half fat)",
+                    "Cow milk whole",
+                    "Butter",
                     "Cream plain",
+                    "Yoghurt cow milk flavoured",
                     "Parmesan"
                 ]
             }
@@ -605,13 +619,13 @@
             "Group E": {
                 "number": 8,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
-                    "Butter",
                     "Traditional margarine",
-                    "Cheese cheddar",
-                    "Creme fraiche cheese",
+                    "Cow milk semi skimmed (half fat)",
+                    "Cow milk whole",
+                    "Butter",
                     "Cream plain",
+                    "Yoghurt cow milk flavoured",
                     "Parmesan"
                 ]
             }
@@ -630,31 +644,31 @@
                 "ingredients": []
             },
             "Group D": {
-                "number": 1,
+                "number": 3,
                 "ingredients": [
-                    "New potatoes"
+                    "New potatoes",
+                    "Pasta plain (not stuffed) uncooked",
+                    "Noodles"
                 ]
             },
             "Group E": {
                 "number": 8,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
-                    "Butter",
                     "Traditional margarine",
-                    "Cheese cheddar",
-                    "Creme fraiche cheese",
+                    "Cow milk semi skimmed (half fat)",
+                    "Cow milk whole",
+                    "Butter",
                     "Cream plain",
+                    "Yoghurt cow milk flavoured",
                     "Parmesan"
                 ]
             }
         },
         "child24": {
             "Group A veg": {
-                "number": 1,
-                "ingredients": [
-                    "Asparagus"
-                ]
+                "number": 0,
+                "ingredients": []
             },
             "Group A fruit": {
                 "number": 0,
@@ -683,27 +697,30 @@
                 "ingredients": []
             },
             "Group BC": {
-                "number": 0,
-                "ingredients": []
+                "number": 1,
+                "ingredients": [
+                    "Anchovies"
+                ]
             },
             "Group D": {
                 "number": 3,
                 "ingredients": [
-                    "Pasta plain (not stuffed) uncooked",
                     "New potatoes",
+                    "Pasta plain (not stuffed) uncooked",
                     "Noodles"
                 ]
             },
             "Group E": {
-                "number": 8,
+                "number": 9,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
-                    "Butter",
                     "Traditional margarine",
                     "Cheese cheddar",
-                    "Creme fraiche cheese",
+                    "Cow milk semi skimmed (half fat)",
+                    "Cow milk whole",
+                    "Butter",
                     "Cream plain",
+                    "Yoghurt cow milk flavoured",
                     "Parmesan"
                 ]
             }
@@ -722,19 +739,22 @@
                 "ingredients": []
             },
             "Group D": {
-                "number": 0,
-                "ingredients": []
+                "number": 1,
+                "ingredients": [
+                    "New potatoes"
+                ]
             },
             "Group E": {
-                "number": 7,
+                "number": 8,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
-                    "Butter",
                     "Traditional margarine",
-                    "Creme fraiche cheese",
+                    "Cow milk semi skimmed (half fat)",
+                    "Cow milk whole",
+                    "Butter",
                     "Cream plain",
-                    "Parmesan"
+                    "Yoghurt cow milk flavoured",
+                    "Mozzarella"
                 ]
             }
         },
@@ -748,25 +768,30 @@
                 "ingredients": []
             },
             "Group BC": {
-                "number": 0,
-                "ingredients": []
+                "number": 1,
+                "ingredients": [
+                    "Pig fresh meat"
+                ]
             },
             "Group D": {
                 "number": 2,
                 "ingredients": [
-                    "New potatoes",
-                    "Pasta wholemeal"
+                    "Pasta plain (not stuffed) uncooked",
+                    "Noodles"
                 ]
             },
             "Group E": {
-                "number": 6,
+                "number": 9,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
-                    "Mozzarella",
-                    "Yoghurt cow milk plain",
-                    "Creme fraiche cheese",
-                    "Cream plain"
+                    "Traditional margarine",
+                    "Cheese cheddar",
+                    "Cow milk semi skimmed (half fat)",
+                    "Cow milk whole",
+                    "Butter",
+                    "Cream plain",
+                    "Yoghurt cow milk flavoured",
+                    "Parmesan"
                 ]
             }
         },
@@ -787,15 +812,14 @@
                 "number": 3,
                 "ingredients": [
                     "Rice grain long-grain",
-                    "Rice grain",
-                    "Potatoes"
+                    "Potatoes",
+                    "Rice grain"
                 ]
             },
             "Group E": {
-                "number": 2,
+                "number": 1,
                 "ingredients": [
-                    "Mozzarella",
-                    "Yoghurt cow milk plain"
+                    "Cow milk semi skimmed (half fat)"
                 ]
             }
         },
@@ -813,8 +837,9 @@
                 "ingredients": []
             },
             "Group D": {
-                "number": 2,
+                "number": 3,
                 "ingredients": [
+                    "Pasta wholemeal",
                     "Pasta plain (not stuffed) uncooked",
                     "Noodles"
                 ]
@@ -822,13 +847,13 @@
             "Group E": {
                 "number": 8,
                 "ingredients": [
-                    "Yoghurt cow milk flavoured",
                     "Mascarpone",
-                    "Butter",
                     "Traditional margarine",
                     "Cheese cheddar",
-                    "Creme fraiche cheese",
+                    "Cow milk whole",
+                    "Butter",
                     "Cream plain",
+                    "Yoghurt cow milk flavoured",
                     "Parmesan"
                 ]
             }
@@ -843,19 +868,22 @@
                 "ingredients": []
             },
             "Group BC": {
-                "number": 0,
-                "ingredients": []
-            },
-            "Group D": {
                 "number": 1,
                 "ingredients": [
-                    "Rice grain brown"
+                    "Ham pork"
+                ]
+            },
+            "Group D": {
+                "number": 2,
+                "ingredients": [
+                    "Rice grain long-grain",
+                    "Rice grain"
                 ]
             },
             "Group E": {
                 "number": 1,
                 "ingredients": [
-                    "Yoghurt cow milk plain"
+                    "Mozzarella"
                 ]
             }
         }

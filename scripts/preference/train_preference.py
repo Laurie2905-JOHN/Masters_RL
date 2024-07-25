@@ -37,19 +37,24 @@ def main(seed=4):
     Negotiator.close(log_file="Gini.json")
     
     # Feedback
-    menu_plan = ['Wheat bread and rolls white (refined flour)', 'Potatoes', 'Sour cream plain', 'Bacon', 'Sweet corn', 'Cauliflowers']
+    menu_plan = ['Wheat bread and rolls white (refined flour)', 'Potatoes', 'Sour cream plain', 'Trouts', 'Pepper', 'Cauliflowers']
     
     Sentiment = SentimentAnalyzer(child_preference_data_copy, menu_plan, seed=seed)
     
-    changes, updated_preferences_with_feedback, accuracy, incorrect_comments, feedback_given = Sentiment.get_sentiment_and_update_data(updated_known_and_predicted_preferences, plot_confusion_matrix=False)
+    changes, updated_true_preferences_with_feedback, accuracy, incorrect_comments, feedback_given = Sentiment.get_sentiment_and_update_data(plot_confusion_matrix=False)
 
-    Sentiment.display_feedback_changes(changes, child_preference_data)
+    Sentiment.display_feedback_changes(changes, updated_true_preferences_with_feedback)
     Sentiment.display_incorrect_feedback_changes(incorrect_comments)
     
     print("Sentiment Accuracy:", accuracy)
     
-    print("Accuracy After Feedback:")
+    print("\nAccuracy After Feedback:")
     Predictor.print_preference_difference_and_accuracy(child_preference_data_copy, updated_preferences_with_feedback, summary_only=True)
+    
+    updated_preferences_with_feedback_copy = copy.deepcopy(updated_preferences_with_feedback)
+    
+    Predictor = PreferenceModel(ingredient_df, child_feature_data, child_preference_data_copy, apply_SMOTE=True, seed=seed)
+    updated_known_and_predicted_preferences = Predictor.run_pipeline()
 
 if __name__ == "__main__":
-    main(seed=43)
+    main(seed=33)

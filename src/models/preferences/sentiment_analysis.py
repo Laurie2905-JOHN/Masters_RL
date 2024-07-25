@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from models.preferences.prediction import PreferenceModel
 import random
 from typing import Dict, List, Tuple, Union, Optional
-
+import copy
+import numpy as np
 
 class SentimentAnalyzer:
     def __init__(self, true_preferences, menu_plan, model_name: str = "finiteautomata/bertweet-base-sentiment-analysis", seed: int = 42):
@@ -14,11 +15,13 @@ class SentimentAnalyzer:
         Initialize the sentiment analyzer with the specified model.
         """
         self.device = 0 if torch.cuda.is_available() else -1
+        self.true_preferences = copy.deepcopy(true_preferences)
         self.sentiment_analyzer = pipeline('sentiment-analysis', model=model_name, device=self.device)
         self.menu_plan = menu_plan
         self.label_mapping = {'likes': 2, 'neutral': 1, 'dislikes': 0}
-        self.feedback = self.get_feedback(true_preferences, seed)
-        
+        self.feedback = self.get_feedback()
+        self.changes = []
+        self.incorrect_comments = []
         
     def analyze_sentiment(self, comment: str) -> str:
         """
@@ -36,13 +39,11 @@ class SentimentAnalyzer:
         else:
             raise ValueError(f"Unknown sentiment label: {label}")
 
-    def get_sentiment_and_update_data(self, preferences: Dict[str, Dict[str, List[str]]], plot_confusion_matrix: bool = False) -> Tuple[List[Dict[str, Union[str, List[str]]]], Dict[str, Dict[str, List[str]]], float, List[Dict[str, str]]]:
+    def get_sentiment_and_update_data(self, plot_confusion_matrix: bool = False) -> Tuple[List[Dict[str, Union[str, List[str]]]], Dict[str, Dict[str, List[str]]], float, List[Dict[str, str]]]:
         # Preference input here are the predicted ones and are updated with the feedback
         """
         Analyze feedback, update preferences, and return changes, updated preferences, accuracy, and incorrect comments.
         """
-        changes = []
-        incorrect_comments = []
         true_labels = []
         pred_labels = []
         feedback = self.feedback
@@ -57,16 +58,16 @@ class SentimentAnalyzer:
 
                     for ingredient in self.menu_plan:
                         if ingredient.lower() in sentence:
-                            current_preference = self.get_current_preference_label(preferences, child, ingredient)
+                            current_preference = self.get_current_preference_label(child, ingredient)
                             
                             if current_preference != pred_label:
-                                changes.append(self.update_preferences(preferences, child, ingredient, current_preference, pred_label))
+                                self.changes.append(self.update_preferences(child, ingredient, current_preference, pred_label))
 
                             true_labels.append(correct_action[ingredient])
                             pred_labels.append(pred_label)
 
                             if pred_label != correct_action[ingredient]:
-                                incorrect_comments.append({
+                                self.incorrect_comments.append({
                                     "child": child,
                                     "comment": sentence,
                                     "predicted": pred_label,
@@ -78,22 +79,24 @@ class SentimentAnalyzer:
         if plot_confusion_matrix and true_labels:
             self.plot_confusion_matrix(true_labels, pred_labels)
 
-        return changes, preferences, accuracy, incorrect_comments, feedback
+        return self.true_preferences, accuracy, feedback
 
-    @staticmethod
-    def get_current_preference_label(preferences: Dict[str, Dict[str, List[str]]], child: str, ingredient: str) -> Optional[str]:
+    def get_current_preference_label(self, child: str, ingredient: str) -> Optional[str]:
         """
-        Get the current preference list (likes, dislikes, neutral) for a given ingredient.
-        """
-        if ingredient in preferences[child]["likes"]:
+        Get the current preference list (likes, dislikes, neutral) for a given ingredient and updated the known list with feedback.
+        """ 
+        if ingredient in self.true_preferences[child]['known']["likes"]:
             return "likes"
-        elif ingredient in preferences[child]["dislikes"]:
+        elif ingredient in self.true_preferences[child]['known']["dislikes"]:
             return "dislikes"
-        elif ingredient in preferences[child]["neutral"]:
+        elif ingredient in self.true_preferences[child]['known']["neutral"]:
             return "neutral"
-        return None
-
-    def update_preferences(self, preferences: Dict[str, Dict[str, List[str]]], child: str, ingredient: str, current_preference: Optional[str], new_preference: str) -> Dict[str, Union[str, List[str]]]:
+        elif ingredient in self.true_preferences[child]['unknown']["likes"] + self.true_preferences[child]['unknown']["dislikes"]  + self.true_preferences[child]['unknown']["neutral"]: 
+            return "unknown"
+        else: 
+            raise ValueError(f"Ingredient {ingredient} not found in preferences for child {child}")
+        
+    def update_preferences(self, child: str, ingredient: str, current_preference: Optional[str], new_preference: str) -> Dict[str, Union[str, List[str]]]:
         """
         Update the preferences of a child for a given ingredient and return the change details.
         In Python, dictionaries are mutable objects, so when you modify them within a function, the changes are reflected outside the function as well.
@@ -101,10 +104,19 @@ class SentimentAnalyzer:
         """
         change = {"child": child, "ingredient": ingredient, "change": ""}
         if current_preference:
-            preferences[child][current_preference].remove(ingredient)
+            if current_preference == "unknown":
+                for category in self.true_preferences[child]['unknown']:
+                    if ingredient in self.true_preferences[child]['unknown'][category]:
+                        self.true_preferences[child]['unknown'][category].remove(ingredient)
+                        self.true_preferences[child]['known'][new_preference].append(ingredient)
+                        break
+            else:
+                self.true_preferences[child]['known'][current_preference].remove(ingredient)
+                self.true_preferences[child]['known'][new_preference].append(ingredient)
+                
             change["change"] += f"removed from {current_preference}"
 
-        preferences[child][new_preference].append(ingredient)
+        
         if change["change"]:
             change["change"] += ", "
         change["change"] += f"added to {new_preference}"
@@ -130,10 +142,27 @@ class SentimentAnalyzer:
         plt.title('Confusion Matrix')
         plt.show()
 
-    def get_feedback(self, true_preferences: Dict[str, Dict[str, Dict[str, List[str]]]], seed: Optional[int] = None) -> Dict[str, Dict[str, Union[str, Dict[str, str]]]]:
+    @staticmethod
+    def generate_random_indices(n, mean_length, std_dev_length):
+        
+        # Generate a random length for the list
+        length = int(np.random.normal(loc=mean_length, scale=std_dev_length))
+        
+        # Clamp the length to ensure it is within a reasonable range [0, n]
+        length = max(0, min(n, length))
+        
+        # Generate a list of unique random indices of the specified length
+        indices = np.random.choice(n, size=length, replace=False)
+        
+        return indices.tolist()
+
+    def get_feedback(self, average_exclude: int = 5, std_dev_exclude: int = 2, seed: Optional[int] = None) -> Dict[str, Dict[str, Union[str, Dict[str, str]]]]:
+
         """
-        Generate feedback based on true_preferences (preferences are the true initialized ones, no error) and menu plan, providing randomized comments on the ingredients.
+        Generate feedback based on true_preferences (preferences are the true initialized ones, no error) and menu plan,
+        providing randomized comments on the ingredients. Exclude an average of average_exclude children with a standard deviation of std_dev_exclude.
         """
+        
         comments = [
             # List of comment templates and their corresponding feedback types
             ("Didn't like the {} and {} in the dish, but the {} was tasty.", ["dislikes", "dislikes", "likes"]),
@@ -183,10 +212,22 @@ class SentimentAnalyzer:
             ("The {} was delicious, but the {} wasn't enjoyable.", ["likes", "dislikes"])
         ]
 
-        random.seed(seed)
-        feedback = {}
 
-        for child, prefs in true_preferences.items():
+        feedback = {}
+        
+        # Randomly set children not to include feedback
+        num_children = len(self.true_preferences.keys())
+        children = list(self.true_preferences.keys())
+        # Generated random indexes between 0 to n-1 and 0 - n long
+        random_indices = self.generate_random_indices(num_children, average_exclude, std_dev_exclude)
+
+        # Directly map the indices to children to exclude
+        children_to_exclude = [children[idx] for idx in random_indices]
+
+        for child, prefs in self.true_preferences.items():
+            if child in children_to_exclude:
+                continue
+            
             available_ingredients = {
                 "likes": prefs['known']['likes'] + prefs['unknown']['likes'],
                 "neutral": prefs['known']['neutral'] + prefs['unknown']['neutral'],
@@ -220,28 +261,27 @@ class SentimentAnalyzer:
 
         return feedback
 
-    @staticmethod
-    def display_feedback_changes(changes: List[Dict[str, Union[str, List[str]]]], child_preference_data: Dict[str, Dict[str, List[str]]]) -> None:
+    def display_feedback_changes(self, original_preferences) -> None:
         """
         Display the changes made to children's preferences.
         """
+        
         label_mapping = {'2': 'likes', '1': 'neutral', '0': 'dislikes'}
-        for change in changes:
+        for change in self.changes:
             print(f"\nChild {change['child']} had Action:")
             print(f"{change['ingredient']} {change['change']}.")
-            true_preference_label = PreferenceModel.get_true_preference_label(child_preference_data, change['ingredient'], change['child'])
+            true_preference_label = PreferenceModel.get_true_preference_label(original_preferences, change['ingredient'], change['child'])
             if label_mapping[str(true_preference_label)] == change['change'].split(" ")[-1]:
                 pass
-                print("Correct Preferences:", label_mapping[str(true_preference_label)])
+                print("Correct Action")
             else:
-                print("Incorrect Preferences:", label_mapping[str(true_preference_label)])
+                print("Incorrect Preferences: should be", label_mapping[str(true_preference_label)])
 
-    @staticmethod
-    def display_incorrect_feedback_changes(incorrect_comments: List[Dict[str, str]]) -> None:
+    def display_incorrect_feedback_changes(self) -> None:
         """
         Display the incorrect comments and the reasons for incorrect predictions.
         """
         print("\n")
-        for comment in incorrect_comments:
+        for comment in self.incorrect_comments:
             print(f"Child {comment['child']} commented: '{comment['comment']}'")
             print(f"Predicted: {comment['predicted']}, Actual: {comment['actual']}\n")
