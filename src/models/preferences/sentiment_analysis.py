@@ -14,10 +14,10 @@ class SentimentAnalyzer:
         """
         Initialize the sentiment analyzer with the specified model.
         """
-        self.device = 0 if torch.cuda.is_available() else -1
+        self.device = 'cpu'
         self.true_preferences = copy.deepcopy(true_preferences)
         self.sentiment_analyzer = pipeline('sentiment-analysis', model=model_name, device=self.device)
-        self.menu_plan = menu_plan
+        self.menu_plan = [ingredient for ingredient in menu_plan.values()]
         self.label_mapping = {'likes': 2, 'neutral': 1, 'dislikes': 0}
         self.feedback = self.get_feedback()
         self.changes = []

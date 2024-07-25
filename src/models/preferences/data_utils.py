@@ -4,8 +4,9 @@ import plotly.express as px
 import random
 import matplotlib.pyplot as plt
 import pandas as pd
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List
 import random
+import numpy as np
 
 def get_child_data():
     # Function to get feature data on children
@@ -305,3 +306,72 @@ def plot_3d_mca_interactive(X, y):
     fig = px.scatter_3d(df, x='MC1', y='MC2', z='MC3', color='Preference', 
                         title='3D MCA Interactive Plot', labels={'Preference': 'Preference'})
     fig.show()
+
+
+
+def print_preference_difference_and_accuracy(child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], updated_preferences: Dict[str, Dict[str, List[str]]], summary_only: bool = False) -> None:
+    """
+    Print the differences between actual and predicted preferences, and calculate accuracy.
+    """
+    total_actual = {'likes': 0, 'neutral': 0, 'dislikes': 0}
+    total_correct = {'likes': 0, 'neutral': 0, 'dislikes': 0}
+
+    def conditional_print(condition: bool, message: str) -> None:
+        if condition:
+            print(message)
+
+    accuracies = []
+
+    for child in child_preference_data:
+        total_actual_child = {'likes': 0, 'neutral': 0, 'dislikes': 0}
+        total_correct_child = {'likes': 0, 'neutral': 0, 'dislikes': 0}
+
+        actual = {
+            'likes': child_preference_data[child]['known']['likes'] + child_preference_data[child].get('unknown', {}).get('likes', []),
+            'neutral': child_preference_data[child]['known']['neutral'] + child_preference_data[child].get('unknown', {}).get('neutral', []),
+            'dislikes': child_preference_data[child]['known']['dislikes'] + child_preference_data[child].get('unknown', {}).get('dislikes', [])
+        }
+
+        predicted = {
+            'likes': updated_preferences[child]['likes'],
+            'neutral': updated_preferences[child]['neutral'],
+            'dislikes': updated_preferences[child]['dislikes']
+        }
+
+        conditional_print(not summary_only, f"\nDifference for {child}:")
+
+        for category in ['likes', 'neutral', 'dislikes']:
+            conditional_print(not summary_only, f"Actual {category.capitalize()} but Predicted Differently:")
+            for ingredient in actual[category]:
+                total_actual[category] += 1
+                total_actual_child[category] += 1
+                if ingredient in predicted[category]:
+                    total_correct[category] += 1
+                    total_correct_child[category] += 1
+                else:
+                    if ingredient in predicted['neutral'] and category != 'neutral':
+                        conditional_print(not summary_only, f"  {ingredient} (Actual: {category.capitalize()}, Predicted: Neutral)")
+                    elif ingredient in predicted['dislikes'] and category == 'likes':
+                        conditional_print(not summary_only, f"  {ingredient} (Actual: {category.capitalize()}, Predicted: Dislike)")
+                    elif ingredient in predicted['likes'] and category == 'dislikes':
+                        conditional_print(not summary_only, f"  {ingredient} (Actual: {category.capitalize()}, Predicted: Like)")
+
+        child_total_actual = sum(total_actual_child.values())
+        child_total_correct = sum(total_correct_child.values())
+        if child_total_actual > 0:
+            accuracy = child_total_correct / child_total_actual
+            accuracies.append(accuracy)
+            conditional_print(not summary_only, f"Accuracy for {child}: {accuracy:.2f}")
+        else:
+            accuracies.append(0)
+
+    if len(accuracies) > 0:
+        overall_accuracy = np.mean(accuracies)
+        accuracy_std_dev = np.std(accuracies)
+        conditional_print(True, f"\nOverall Accuracy of Preferences: {overall_accuracy:.6f}")
+        conditional_print(True, f"Standard Deviation of Accuracies: {accuracy_std_dev:.6f}")
+        return overall_accuracy, accuracy_std_dev
+    else:
+        conditional_print(True, "No data to calculate overall accuracy and standard deviation.")
+    
+    

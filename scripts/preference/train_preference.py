@@ -1,60 +1,67 @@
 import logging
-import copy
-from models.preferences.data_utils import get_child_data, initialize_child_preference_data
+from models.preferences.data_utils import get_child_data, initialize_child_preference_data, print_preference_difference_and_accuracy
 from utils.process_data import get_data
 from models.preferences.prediction import PreferenceModel
 from models.preferences.voting import IngredientNegotiator
 from models.preferences.sentiment_analysis import SentimentAnalyzer
+from models.preferences.menu_generator import RandomMenuGenerator
+from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def main(seed=4):
+def main(weight_function: str, seed: Optional[int] = None, iterations: int = 10):
     ingredient_df = get_data("data.csv")
     child_feature_data = get_child_data()
     child_preference_data = initialize_child_preference_data(child_feature_data, ingredient_df, split=0.5, seed=seed, plot_graphs=False)
-
-    # Make a deep copy of the child_preference_data to avoid modifying the original
-    child_preference_data_copy = copy.deepcopy(child_preference_data)
     
-    Predictor = PreferenceModel(ingredient_df, child_feature_data, child_preference_data_copy, apply_SMOTE=True, seed=seed)
+    # Initialize menu generator
+    menu_generator = RandomMenuGenerator(seed=seed)
+    
+    # Initial Prediction of Preferences
+    Predictor = PreferenceModel(ingredient_df, child_feature_data, child_preference_data, apply_SMOTE=True, seed=seed)
     updated_known_and_predicted_preferences = Predictor.run_pipeline()
-
-    # Negotiate the ingredients
+    print_preference_difference_and_accuracy(child_preference_data, updated_known_and_predicted_preferences, summary_only=True)
+    
     previous_feedback = {}
     previous_fairness_index = {}
     previous_utility = {}
     
-    Negotiator = IngredientNegotiator(seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_fairness_index, previous_utility)
-    
-    # Simple
-    negotiated_ingredient_order_simple, unavailable_ingredients_simple = Negotiator.negotiate_ingredients_simple()
-    preference_score_function_simple = Negotiator.create_preference_score_function(negotiated_ingredient_order_simple)
-    
-    # Complex
-    negotiated_ingredient_order_complex, unavailable_ingredients_complex = Negotiator.negotiate_ingredients_complex()
-    preference_score_function_complex = Negotiator.create_preference_score_function(negotiated_ingredient_order_complex)
-    
-    Negotiator.close(log_file="Gini.json")
-    
-    # Feedback
-    menu_plan = ['Wheat bread and rolls white (refined flour)', 'Potatoes', 'Sour cream plain', 'Trouts', 'Pepper', 'Cauliflowers']
-    
-    Sentiment = SentimentAnalyzer(child_preference_data_copy, menu_plan, seed=seed)
-    
-    changes, updated_true_preferences_with_feedback, accuracy, incorrect_comments, feedback_given = Sentiment.get_sentiment_and_update_data(plot_confusion_matrix=False)
+    for i in range(iterations):
+        logging.info(f"Iteration {i+1}")
+        
+        # Initial Negotiation of Ingredients
+        Negotiator = IngredientNegotiator(seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_fairness_index, previous_utility)
+        
+        if weight_function == "simple":
+            # Simple
+            negotiated, unavailable = Negotiator.negotiate_ingredients_simple()
+        elif weight_function == "complex":
+            # Complex
+            negotiated, unavailable = Negotiator.negotiate_ingredients_complex()
+        else:
+            raise ValueError("Invalid weight function")
+        
+        # Close negotiator to get initial gini stats on voting
+        Negotiator.close(log_file=f"Gini_iteration_{i+1}.json")
+        
+        # Generate random menu
+        menu_plan = menu_generator.generate_random_menu(negotiated, unavailable)
+        
+        # Sentiment analysis and get updated preference list
+        Sentiment = SentimentAnalyzer(child_preference_data, menu_plan, seed=seed)
+        updated_true_preferences_with_feedback, accuracy, feedback_given = Sentiment.get_sentiment_and_update_data(plot_confusion_matrix=False)
 
-    Sentiment.display_feedback_changes(changes, updated_true_preferences_with_feedback)
-    Sentiment.display_incorrect_feedback_changes(incorrect_comments)
-    
-    print("Sentiment Accuracy:", accuracy)
-    
-    print("\nAccuracy After Feedback:")
-    Predictor.print_preference_difference_and_accuracy(child_preference_data_copy, updated_preferences_with_feedback, summary_only=True)
-    
-    updated_preferences_with_feedback_copy = copy.deepcopy(updated_preferences_with_feedback)
-    
-    Predictor = PreferenceModel(ingredient_df, child_feature_data, child_preference_data_copy, apply_SMOTE=True, seed=seed)
-    updated_known_and_predicted_preferences = Predictor.run_pipeline()
+        logging.info(f"Sentiment Accuracy: {accuracy}")
+        
+        # Update predictor with new preferences
+        Predictor = PreferenceModel(ingredient_df, child_feature_data, updated_true_preferences_with_feedback, apply_SMOTE=True, seed=seed)
+        updated_known_and_predicted_preferences = Predictor.run_pipeline()
+        
+        print_preference_difference_and_accuracy(child_preference_data, updated_known_and_predicted_preferences, summary_only=True)
+        
+        previous_feedback = feedback_given
+        previous_fairness_index = {}
+        previous_utility = {}
 
 if __name__ == "__main__":
-    main(seed=33)
+    main(weight_function="simple", seed=None, iterations=10)

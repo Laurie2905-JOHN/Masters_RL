@@ -455,7 +455,7 @@ class IngredientNegotiator:
         """
         data_to_log = {
             'Gini Votes': self.vote_gini_dict,
-            'Children Dislikes in Top n': self.children_dislikes_in_top_n
+            # 'Children Dislikes in Top n': self.children_dislikes_in_top_n
         }
 
         with open(log_file, 'w') as file:

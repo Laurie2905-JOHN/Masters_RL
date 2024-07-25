@@ -189,71 +189,6 @@ class PreferenceModel:
         else:
             raise ValueError(f"Ingredient {ingredient} not found in preferences")
 
-    @staticmethod
-    def print_preference_difference_and_accuracy(child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], updated_preferences: Dict[str, Dict[str, List[str]]], summary_only: bool = False) -> None:
-        """
-        Print the differences between actual and predicted preferences, and calculate accuracy.
-        """
-        total_actual = {'likes': 0, 'neutral': 0, 'dislikes': 0}
-        total_correct = {'likes': 0, 'neutral': 0, 'dislikes': 0}
-
-        def conditional_print(condition: bool, message: str) -> None:
-            if condition:
-                print(message)
-
-        accuracies = []
-
-        for child in child_preference_data:
-            total_actual_child = {'likes': 0, 'neutral': 0, 'dislikes': 0}
-            total_correct_child = {'likes': 0, 'neutral': 0, 'dislikes': 0}
-
-            actual = {
-                'likes': child_preference_data[child]['known']['likes'] + child_preference_data[child].get('unknown', {}).get('likes', []),
-                'neutral': child_preference_data[child]['known']['neutral'] + child_preference_data[child].get('unknown', {}).get('neutral', []),
-                'dislikes': child_preference_data[child]['known']['dislikes'] + child_preference_data[child].get('unknown', {}).get('dislikes', [])
-            }
-
-            predicted = {
-                'likes': updated_preferences[child]['likes'],
-                'neutral': updated_preferences[child]['neutral'],
-                'dislikes': updated_preferences[child]['dislikes']
-            }
-
-            conditional_print(not summary_only, f"\nDifference for {child}:")
-
-            for category in ['likes', 'neutral', 'dislikes']:
-                conditional_print(not summary_only, f"Actual {category.capitalize()} but Predicted Differently:")
-                for ingredient in actual[category]:
-                    total_actual[category] += 1
-                    total_actual_child[category] += 1
-                    if ingredient in predicted[category]:
-                        total_correct[category] += 1
-                        total_correct_child[category] += 1
-                    else:
-                        if ingredient in predicted['neutral'] and category != 'neutral':
-                            conditional_print(not summary_only, f"  {ingredient} (Actual: {category.capitalize()}, Predicted: Neutral)")
-                        elif ingredient in predicted['dislikes'] and category == 'likes':
-                            conditional_print(not summary_only, f"  {ingredient} (Actual: {category.capitalize()}, Predicted: Dislike)")
-                        elif ingredient in predicted['likes'] and category == 'dislikes':
-                            conditional_print(not summary_only, f"  {ingredient} (Actual: {category.capitalize()}, Predicted: Like)")
-
-            child_total_actual = sum(total_actual_child.values())
-            child_total_correct = sum(total_correct_child.values())
-            if child_total_actual > 0:
-                accuracy = child_total_correct / child_total_actual
-                accuracies.append(accuracy)
-                conditional_print(not summary_only, f"Accuracy for {child}: {accuracy:.2f}")
-            else:
-                accuracies.append(0)
-
-        if len(accuracies) > 0:
-            overall_accuracy = np.mean(accuracies)
-            accuracy_std_dev = np.std(accuracies)
-            conditional_print(True, f"\nOverall Accuracy of Preferences: {overall_accuracy:.6f}")
-            conditional_print(True, f"Standard Deviation of Accuracies: {accuracy_std_dev:.6f}")
-        else:
-            conditional_print(True, "No data to calculate overall accuracy and standard deviation.")
-
     def ml_model_test(self, X_test: pd.DataFrame, y_test: pd.Series) -> None:
         """
         Test the trained model and print evaluation metrics and confusion matrix.
@@ -316,16 +251,15 @@ class PreferenceModel:
                 total_predicted_preferences.append(predicted_preference)
                 total_true_preferences.append(batch_labels[i])
 
-        for child in child_predictions:
-            if child_predictions[child]:
-                child_class_report = classification_report(child_true_labels[child], child_predictions[child])
-                logging.info(f"{child} Classification Report:\n{child_class_report}")
+        # for child in child_predictions:
+            # if child_predictions[child]:
+                # child_class_report = classification_report(child_true_labels[child], child_predictions[child])
+                # logging.info(f"{child} Classification Report:\n{child_class_report}")
 
         total_class_report = classification_report(total_true_preferences, total_predicted_preferences)
         logging.info(f"Total Classification Report:\n{total_class_report}")
 
         updated_preferences = self.update_preferences_with_predictions(child_predictions)
-        self.print_preference_difference_and_accuracy(self.child_preference_data, updated_preferences, summary_only=True)
         
         return updated_preferences
 
