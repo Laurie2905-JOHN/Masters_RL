@@ -176,7 +176,34 @@ class IngredientNegotiator:
                     unavailable_ingredients.add(ingredient)
 
         return votes, unavailable_ingredients
+    
+    def negotiate_ingredients(self, weight_function: str) -> Tuple[Dict[str, Dict[str, int]], set]:
+        """
+        Negotiate ingredients based on the specified weight function.
 
+        Parameters:
+        weight_function (str): The weight function to use for negotiation. 
+                            It can be either 'simple' or 'complex'.
+
+        Returns:
+        Tuple[Dict[str, Dict[str, int]], set]: 
+            - negotiated (Dict[str, Dict[str, int]]): A dictionary containing the negotiated ingredients.
+            - unavailable (set): A set of ingredients that are unavailable.
+        """
+        
+        if weight_function == "simple":
+            # Use the simple negotiation method
+            negotiated, unavailable = self.negotiate_ingredients_simple()
+        elif weight_function == "complex":
+            # Use the complex negotiation method
+            negotiated, unavailable = self.negotiate_ingredients_complex()
+        else:
+            # Raise an error if the weight function is invalid
+            raise ValueError("Invalid weight function")
+
+        return negotiated, unavailable
+
+    
     def negotiate_ingredients_simple(self) -> Tuple[Dict[str, Dict[str, int]], set]:
         """
         Negotiate ingredients using a simple weight calculation.

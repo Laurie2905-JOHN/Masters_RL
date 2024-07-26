@@ -262,6 +262,71 @@ def plot_histograms(scores: list, preferences: Dict[str, list]) -> None:
     plt.tight_layout()
     plt.show()
 
+def plot_accuracies(prediction_accuracies, prediction_std_devs, sentiment_accuracies, iterations, save_path):
+    """Function to plot the accuracies and standard deviations over iterations and save the plot to a specified file path."""
+    plt.figure(figsize=(18, 6))
+
+    # Plot Prediction Accuracy
+    plt.subplot(1, 3, 1)
+    plt.plot(range(1, iterations + 2), prediction_accuracies, marker='o', linestyle='-', label='Prediction Accuracy')
+    plt.xlabel('Iteration')
+    plt.ylabel('Accuracy')
+    plt.title('Prediction Accuracy per Iteration')
+    plt.legend()
+    plt.grid(True)
+
+    # Plot Prediction Standard Deviation
+    plt.subplot(1, 3, 2)
+    plt.plot(range(1, iterations + 2), prediction_std_devs, marker='o', linestyle='-', color='green', label='Prediction Std Dev')
+    plt.xlabel('Iteration')
+    plt.ylabel('Standard Deviation')
+    plt.title('Prediction Standard Deviation per Iteration')
+    plt.legend()
+    plt.grid(True)
+
+    # Plot Sentiment Accuracy
+    plt.subplot(1, 3, 3)
+    plt.plot(range(1, iterations + 2), sentiment_accuracies, marker='o', linestyle='-', color='orange', label='Sentiment Accuracy')
+    plt.xlabel('Iteration')
+    plt.ylabel('Accuracy')
+    plt.title('Sentiment Accuracy per Iteration')
+    plt.legend()
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()
+
+def plot_child_accuracies(child_accuracies, save_path):
+    """Function to plot the accuracies of each child over iterations and save the plot to a specified file path."""
+    iterations = len(child_accuracies)
+
+    plt.figure(figsize=(12, 8))
+
+    # Prepare data for plotting
+    children = list(child_accuracies[0].keys())
+    accuracies_per_child = {child: [] for child in children}
+
+    for iteration_data in child_accuracies:
+        for child, accuracy in iteration_data.items():
+            accuracies_per_child[child].append(accuracy)
+
+    # Plot accuracies for each child
+    for child, accuracies in accuracies_per_child.items():
+        plt.plot(range(1, iterations + 1), accuracies, marker='o', label=f'Child {child}')
+
+    plt.xlabel('Iteration')
+    plt.ylabel("Percent Known")
+    plt.title('Child Percent Known per Iteration')
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()
+    
+    
+    
+    
+
 # Function to plot 2D MCA components
 def plot_2d_mca(X, y):
     plt.figure(figsize=(8, 6))
@@ -385,8 +450,8 @@ def print_preference_difference_and_accuracy(child_preference_data: Dict[str, Di
 
 
 def calculate_percent_of_known_ingredients_to_unknown(updated_true_preferences_with_feedback):
+    
     percent_known = {}
-    total_known_preferences = 0
     
     for child in updated_true_preferences_with_feedback:
         known = 0
@@ -400,7 +465,5 @@ def calculate_percent_of_known_ingredients_to_unknown(updated_true_preferences_w
             percent_known[child] = (known / total) * 100
         else:
             percent_known[child] = 0
-
-        total_known_preferences += known
     
-    return percent_known, total_known_preferences
+    return percent_known

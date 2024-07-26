@@ -1,0 +1,9 @@
+iterations: 10
+seed: 42
+ingredient_df: "path/to/ingredient_df.csv"
+updated_known_and_predicted_preferences: "path/to/updated_known_and_predicted_preferences.csv"
+model_name: "sentiment_model"
+weight_function: "simple"
+updated_true_preferences_with_feedback: "path/to/updated_true_preferences_with_feedback.csv"
+child_feature_data: "path/to/child_feature_data.csv"
+child_preference_data: "path/to/child_preference_data.csv"

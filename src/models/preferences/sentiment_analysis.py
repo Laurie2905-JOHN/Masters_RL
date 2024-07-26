@@ -14,16 +14,29 @@ class SentimentAnalyzer:
         """
         Initialize the sentiment analyzer with the specified model.
         """
-        self.device = 'cpu'
         self.current_known_and_unknown_preferences = copy.deepcopy(current_known_and_unknown_preferences)
-        self.sentiment_analyzer = pipeline('sentiment-analysis', model=model_name, device=self.device)
+        
+        model_name_dict = {
+                            'roberta': "cardiffnlp/twitter-roberta-base-sentiment",
+                            'bertweet':  "finiteautomata/bertweet-base-sentiment-analysis",
+                            'distilroberta':  "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis",
+                            '5_star':  "nlptown/bert-base-multilingual-uncased-sentiment",
+                            'perfect': "perfect",
+                            }
+        
+        model = model_name_dict[model_name]
+        
         self.menu_plan = [ingredient for ingredient in menu_plan.values()]
         self.label_mapping = {'likes': 2, 'neutral': 1, 'dislikes': 0}
         self.feedback = self.get_feedback()
         self.changes = []
         self.incorrect_comments = []
         self.is_star_model = "nlptown/bert-base-multilingual-uncased-sentiment" in model_name
-        
+        self.is_perfect_prediction = "perfect" in model_name
+    
+        if not self.is_perfect_prediction:
+            self.sentiment_analyzer = pipeline('sentiment-analysis', model=model, device=device)
+            
     def analyze_sentiment(self, comment: str) -> str:
         """
         Analyze the sentiment of a given comment and return the corresponding label.
@@ -66,11 +79,19 @@ class SentimentAnalyzer:
 
             for sentence in comments:
                 if sentence.strip():
-                    pred_label = self.analyze_sentiment(sentence.strip())
-
+                    
+                    if not self.is_perfect_prediction:
+                        pred_label = self.analyze_sentiment(sentence.strip())
+                        
                     for ingredient in self.menu_plan:
+                        
                         if ingredient.lower() in sentence:
-                            # pred_label = correct_action[ingredient]
+                            
+                            if self.is_perfect_prediction:
+                                if ingredient == "Peas":
+                                    pass
+                                pred_label = correct_action[ingredient]
+                                
                             current_preference = self.get_current_preference_label(child, ingredient)
                             
                             if current_preference != pred_label:
