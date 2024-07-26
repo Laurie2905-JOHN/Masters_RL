@@ -227,25 +227,34 @@ def initialize_child_preference_data(child_data: Dict[str, Dict[str, Any]], ingr
     return all_data
 
 def plot_histograms(scores: list, preferences: Dict[str, list]) -> None:
+    total_ingredients = len(scores)
+    likes_count = len(preferences["likes"])
+    neutral_count = len(preferences["neutral"])
+    dislikes_count = len(preferences["dislikes"])
+
+    likes_percent = (likes_count / total_ingredients) * 100
+    neutral_percent = (neutral_count / total_ingredients) * 100
+    dislikes_percent = (dislikes_count / total_ingredients) * 100
+
     plt.figure(figsize=(15, 5))
 
     plt.subplot(1, 3, 1)
     plt.hist([score for ingredient, score in scores if ingredient in preferences["likes"]], bins=20, color='green', alpha=0.7, label='Like')
-    plt.title('Like Scores')
+    plt.title(f'Like Scores ({likes_percent:.2f}%)')
     plt.xlabel('Score')
     plt.ylabel('Frequency')
     plt.legend()
 
     plt.subplot(1, 3, 2)
     plt.hist([score for ingredient, score in scores if ingredient in preferences["neutral"]], bins=20, color='blue', alpha=0.7, label='Neutral')
-    plt.title('Neutral Scores')
+    plt.title(f'Neutral Scores ({neutral_percent:.2f}%)')
     plt.xlabel('Score')
     plt.ylabel('Frequency')
     plt.legend()
 
     plt.subplot(1, 3, 3)
     plt.hist([score for ingredient, score in scores if ingredient in preferences["dislikes"]], bins=20, color='red', alpha=0.7, label='Dislike')
-    plt.title('Dislike Scores')
+    plt.title(f'Dislike Scores ({dislikes_percent:.2f}%)')
     plt.xlabel('Score')
     plt.ylabel('Frequency')
     plt.legend()
@@ -373,5 +382,25 @@ def print_preference_difference_and_accuracy(child_preference_data: Dict[str, Di
         return overall_accuracy, accuracy_std_dev
     else:
         conditional_print(True, "No data to calculate overall accuracy and standard deviation.")
+
+
+def calculate_percent_of_known_ingredients_to_unknown(updated_true_preferences_with_feedback):
+    percent_known = {}
+    total_known_preferences = 0
     
+    for child in updated_true_preferences_with_feedback:
+        known = 0
+        unknown = 0
+        for category in ["likes", "neutral", "dislikes"]:
+            known += len(updated_true_preferences_with_feedback[child]["known"][category])
+            unknown += len(updated_true_preferences_with_feedback[child]["unknown"][category])
+
+        total = known + unknown
+        if total > 0:  # To avoid division by zero
+            percent_known[child] = (known / total) * 100
+        else:
+            percent_known[child] = 0
+
+        total_known_preferences += known
     
+    return percent_known, total_known_preferences

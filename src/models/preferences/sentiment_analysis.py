@@ -2,42 +2,54 @@ from transformers import pipeline
 import torch
 import re
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-import matplotlib.pyplot as plt
 from models.preferences.prediction import PreferenceModel
+import matplotlib.pyplot as plt
 import random
 from typing import Dict, List, Tuple, Union, Optional
 import copy
 import numpy as np
 
 class SentimentAnalyzer:
-    def __init__(self, true_preferences, menu_plan, model_name: str = "finiteautomata/bertweet-base-sentiment-analysis", seed: int = 42):
+    def __init__(self, current_known_and_unknown_preferences, menu_plan, model_name: str = "finiteautomata/bertweet-base-sentiment-analysis", seed: int = 42):
         """
         Initialize the sentiment analyzer with the specified model.
         """
         self.device = 'cpu'
-        self.true_preferences = copy.deepcopy(true_preferences)
+        self.current_known_and_unknown_preferences = copy.deepcopy(current_known_and_unknown_preferences)
         self.sentiment_analyzer = pipeline('sentiment-analysis', model=model_name, device=self.device)
         self.menu_plan = [ingredient for ingredient in menu_plan.values()]
         self.label_mapping = {'likes': 2, 'neutral': 1, 'dislikes': 0}
         self.feedback = self.get_feedback()
         self.changes = []
         self.incorrect_comments = []
+        self.is_star_model = "nlptown/bert-base-multilingual-uncased-sentiment" in model_name
         
     def analyze_sentiment(self, comment: str) -> str:
         """
         Analyze the sentiment of a given comment and return the corresponding label.
         """
         result = self.sentiment_analyzer(comment)
-        label = result[0]['label']
-
-        if label == 'POS':
-            return 'likes'
-        elif label == 'NEG':
-            return 'dislikes'
-        elif label == 'NEU':
-            return 'neutral'
+        
+        if self.is_star_model:
+            # For 5-star model
+            star_rating = int(result[0]['label'].split()[0])
+            if star_rating >= 4:
+                return 'likes'
+            elif star_rating <= 2:
+                return 'dislikes'
+            else:
+                return 'neutral'
         else:
-            raise ValueError(f"Unknown sentiment label: {label}")
+            # For 3-class sentiment model
+            label = result[0]['label']
+            if label in ['POS', 'LABEL_2', 'positive']:
+                return 'likes'
+            elif label in ['NEG', 'LABEL_0', 'negative']:
+                return 'dislikes'
+            elif label in ['NEU', 'LABEL_1', 'neutral']:
+                return 'neutral'
+            else:
+                raise ValueError(f"Unknown sentiment label: {label}")
 
     def get_sentiment_and_update_data(self, plot_confusion_matrix: bool = False) -> Tuple[List[Dict[str, Union[str, List[str]]]], Dict[str, Dict[str, List[str]]], float, List[Dict[str, str]]]:
         # Preference input here are the predicted ones and are updated with the feedback
@@ -58,10 +70,12 @@ class SentimentAnalyzer:
 
                     for ingredient in self.menu_plan:
                         if ingredient.lower() in sentence:
+                            # pred_label = correct_action[ingredient]
                             current_preference = self.get_current_preference_label(child, ingredient)
                             
                             if current_preference != pred_label:
-                                self.changes.append(self.update_preferences(child, ingredient, current_preference, pred_label))
+                                change = self.update_preferences(child, ingredient, current_preference, pred_label)
+                                self.changes.append(change)
 
                             true_labels.append(correct_action[ingredient])
                             pred_labels.append(pred_label)
@@ -79,19 +93,19 @@ class SentimentAnalyzer:
         if plot_confusion_matrix and true_labels:
             self.plot_confusion_matrix(true_labels, pred_labels)
 
-        return self.true_preferences, accuracy, feedback
+        return self.current_known_and_unknown_preferences, accuracy, feedback
 
     def get_current_preference_label(self, child: str, ingredient: str) -> Optional[str]:
         """
-        Get the current preference list (likes, dislikes, neutral) for a given ingredient and updated the known list with feedback.
+        Get the current preference list (likes, dislikes, neutral) or unknown.
         """ 
-        if ingredient in self.true_preferences[child]['known']["likes"]:
+        if ingredient in self.current_known_and_unknown_preferences[child]['known']["likes"]:
             return "likes"
-        elif ingredient in self.true_preferences[child]['known']["dislikes"]:
+        elif ingredient in self.current_known_and_unknown_preferences[child]['known']["dislikes"]:
             return "dislikes"
-        elif ingredient in self.true_preferences[child]['known']["neutral"]:
+        elif ingredient in self.current_known_and_unknown_preferences[child]['known']["neutral"]:
             return "neutral"
-        elif ingredient in self.true_preferences[child]['unknown']["likes"] + self.true_preferences[child]['unknown']["dislikes"]  + self.true_preferences[child]['unknown']["neutral"]: 
+        elif ingredient in self.current_known_and_unknown_preferences[child]['unknown']["likes"] + self.current_known_and_unknown_preferences[child]['unknown']["dislikes"]  + self.current_known_and_unknown_preferences[child]['unknown']["neutral"]: 
             return "unknown"
         else: 
             raise ValueError(f"Ingredient {ingredient} not found in preferences for child {child}")
@@ -103,23 +117,18 @@ class SentimentAnalyzer:
         Therefore no need to return preferences
         """
         change = {"child": child, "ingredient": ingredient, "change": ""}
-        if current_preference:
-            if current_preference == "unknown":
-                for category in self.true_preferences[child]['unknown']:
-                    if ingredient in self.true_preferences[child]['unknown'][category]:
-                        self.true_preferences[child]['unknown'][category].remove(ingredient)
-                        self.true_preferences[child]['known'][new_preference].append(ingredient)
-                        break
-            else:
-                self.true_preferences[child]['known'][current_preference].remove(ingredient)
-                self.true_preferences[child]['known'][new_preference].append(ingredient)
-                
-            change["change"] += f"removed from {current_preference}"
+        if current_preference == "unknown":
+            for category in self.current_known_and_unknown_preferences[child]['unknown']:
+                if ingredient in self.current_known_and_unknown_preferences[child]['unknown'][category]:
+                    self.current_known_and_unknown_preferences[child]['unknown'][category].remove(ingredient)
+                    self.current_known_and_unknown_preferences[child]['known'][new_preference].append(ingredient)
+                    change["change"] += f"removed from {category} (unknown), added to {new_preference}"
+                    break
+        else:
+            self.current_known_and_unknown_preferences[child]['known'][current_preference].remove(ingredient)
+            self.current_known_and_unknown_preferences[child]['known'][new_preference].append(ingredient)
+            change["change"] += f"removed from {current_preference}, added to {new_preference}"
 
-        
-        if change["change"]:
-            change["change"] += ", "
-        change["change"] += f"added to {new_preference}"
         return change
 
     def calculate_accuracy(self, true_labels: List[str], pred_labels: List[str]) -> float:
@@ -137,7 +146,7 @@ class SentimentAnalyzer:
         cm = confusion_matrix([self.label_mapping[label] for label in true_labels],
                               [self.label_mapping[label] for label in pred_labels],
                               labels=[0, 1, 2])
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['likes', 'neutral', 'dislikes'])
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['dislikes', 'neutral', 'likes'])
         disp.plot(cmap=plt.cm.Blues)
         plt.title('Confusion Matrix')
         plt.show()
@@ -156,78 +165,167 @@ class SentimentAnalyzer:
         
         return indices.tolist()
 
-    def get_feedback(self, average_exclude: int = 5, std_dev_exclude: int = 2, seed: Optional[int] = None) -> Dict[str, Dict[str, Union[str, Dict[str, str]]]]:
+    def sample_comments(self, comments: List[Tuple[str, List[str]]], likes_percent: int, neutral_percent: int, dislikes_percent: int, sample_size: int) -> List[Tuple[str, List[str]]]:
+        """
+        Sample comments based on the specified proportions for likes, neutral, and dislikes.
 
+        Parameters:
+        comments (List[Tuple[str, List[str]]]): The list of comment templates and their feedback types.
+        likes_percent (int): The percentage of comments that should be 'likes'.
+        neutral_percent (int): The percentage of comments that should be 'neutral'.
+        dislikes_percent (int): The percentage of comments that should be 'dislikes'.
+        sample_size (int): The total number of comments to sample.
+
+        Returns:
+        List[Tuple[str, List[str]]]: The sampled list of comments.
         """
-        Generate feedback based on true_preferences (preferences are the true initialized ones, no error) and menu plan,
-        providing randomized comments on the ingredients. Exclude an average of average_exclude children with a standard deviation of std_dev_exclude.
-        """
+        percent_sum = likes_percent + neutral_percent + dislikes_percent
+
+        if percent_sum != 100:
+            raise ValueError(f"The sum of likes_percent, neutral_percent, and dislikes_percent must equal 100. Equals {percent_sum}")
         
+        likes_comments = [comment for comment in comments if 'likes' in comment[1]]
+        neutral_comments = [comment for comment in comments if 'neutral' in comment[1]]
+        dislikes_comments = [comment for comment in comments if 'dislikes' in comment[1]]
+
+        likes_sample_size = int(sample_size * (likes_percent / 100))
+        neutral_sample_size = int(sample_size * (neutral_percent / 100))
+        dislikes_sample_size = int(sample_size * (dislikes_percent / 100))
+
+        sampled_likes = self.sample_with_replacement(likes_comments, likes_sample_size)
+        sampled_neutral = self.sample_with_replacement(neutral_comments, neutral_sample_size)
+        sampled_dislikes = self.sample_with_replacement(dislikes_comments, dislikes_sample_size)
+
+        # Combine sampled comments and fill the rest if sample sizes are less than required
+        sampled_comments = sampled_likes + sampled_neutral + sampled_dislikes
+        remaining_sample_size = sample_size - len(sampled_comments)
+
+        if remaining_sample_size > 0:
+            remaining_comments = self.sample_with_replacement(comments, remaining_sample_size)
+            sampled_comments += remaining_comments
+
+        # Shuffle the sampled comments to ensure randomness
+        random.shuffle(sampled_comments)
+
+        return sampled_comments
+
+    def sample_with_replacement(self, population: List[Tuple[str, List[str]]], k: int) -> List[Tuple[str, List[str]]]:
+        """
+        Sample k elements from the population with replacement.
+
+        Parameters:
+        population (List): The population to sample from.
+        k (int): The number of elements to sample.
+
+        Returns:
+        List: The sampled elements.
+        """
+        if len(population) == 0:
+            raise ValueError("Population must contain at least one element to sample from.")
+        return [random.choice(population) for _ in range(k)]
+
+    def get_feedback(self, average_exclude: int = 5, std_dev_exclude: int = 2, seed: Optional[int] = None) -> Dict[str, Dict[str, Union[str, Dict[str, str]]]]:
+        """
+        Generate feedback based on current_known_and_unknown_preferences (preferences are the true initialized ones, no error) and menu plan,
+        providing randomized comments on the ingredients. Exclude an average of average_exclude children with a standard deviation of std_dev_exclude.
+
+        Parameters:
+        average_exclude (int): The average number of children to exclude from feedback.
+        std_dev_exclude (int): The standard deviation for the number of children to exclude.
+        seed (Optional[int]): Seed for random number generators to ensure reproducibility.
+
+        Returns:
+        Dict[str, Dict[str, Union[str, Dict[str, str]]]]: A dictionary containing feedback comments and the correct actions for each child.
+        """
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
+
         comments = [
-            # List of comment templates and their corresponding feedback types
-            ("Didn't like the {} and {} in the dish, but the {} was tasty.", ["dislikes", "dislikes", "likes"]),
-            ("Did not enjoy the {} and {}.", ["dislikes", "dislikes"]),
-            ("Enjoyed the {} and {}, but was okay with the {}.", ["likes", "likes", "neutral"]),
-            ("Loved the {}, but didn't like the {} and {}.", ["likes", "dislikes", "dislikes"]),
-            ("The {} was great, but the {} was just okay.", ["likes", "neutral"]),
-            ("Didn't enjoy the {}, but the {} was okay.", ["dislikes", "neutral"]),
-            ("Loved the {} and {}, but not the {}.", ["likes", "likes", "dislikes"]),
-            ("Loved the {}, but the {} was not appealing.", ["likes", "dislikes"]),
-            ("Enjoyed the {}, but the {} was not liked.", ["likes", "dislikes"]),
-            ("Didn't like the {}, {} and {} together.", ["dislikes", "dislikes", "dislikes"]),
-            ("Really liked the {} with {} and the {} was tasty.", ["likes", "likes", "likes"]),
-            ("Didn't like the {} in the dish, but the {} was fine.", ["dislikes", "neutral"]),
-            ("Enjoyed the {} and {}, but not the {}.", ["likes", "likes", "dislikes"]),
-            ("Didn't like the {} and {}.", ["dislikes", "dislikes"]),
-            ("The {} and {} were amazing, but didn't enjoy the {} much.", ["likes", "likes", "dislikes"]),
-            ("Loved the {} and {}, but not the {}.", ["likes", "likes", "dislikes"]),
-            ("Didn't enjoy the {} much, but the {} was okay.", ["dislikes", "neutral"]),
-            ("The {} and {} dish was great.", ["likes", "likes"]),
-            ("Didn't like the {}.", ["dislikes"]),
-            ("Enjoyed the {} and {}.", ["likes", "likes"]),
             ("Loved the {} and {}.", ["likes", "likes"]),
-            ("Didn't like the {} and the {}.", ["dislikes", "dislikes"]),
-            ("Enjoyed the {} and {}, but the {} was okay.", ["likes", "likes", "neutral"]),
-            ("Didn't like the {} and {} in the dish.", ["dislikes", "dislikes"]),
-            ("Didn't like the {}, but the {} was okay.", ["dislikes", "neutral"]),
-            ("Enjoyed the {} and {}, but didn't like the {}.", ["likes", "likes", "dislikes"]),
-            ("Didn't like the {}.", ["dislikes"]),
-            ("Loved the {} and {}, but the {} was not liked.", ["likes", "likes", "dislikes"]),
-            ("Didn't like the {}, but the {} was okay.", ["dislikes", "neutral"]),
+            ("Really liked the {} with {} and the {} was tasty.", ["likes", "likes", "likes"]),
             ("Enjoyed the {} and {}.", ["likes", "likes"]),
-            ("Liked the {} but not the {}.", ["likes", "dislikes"]),
-            ("The {} was fine, but the {} wasn't good.", ["neutral", "dislikes"]),
-            ("The {} and {} were great, but the {} was not.", ["likes", "likes", "dislikes"]),
-            ("The {} was tasty, but the {} wasn't.", ["likes", "dislikes"]),
-            ("The {} was okay, but the {} wasn't appealing.", ["neutral", "dislikes"]),
-            ("Didn't like the {}, but the {} was good.", ["dislikes", "likes"]),
-            ("The {} and {} were okay, but the {} wasn't.", ["neutral", "neutral", "dislikes"]),
+            ("Loved the {} and {}, but the {} was not liked.", ["likes", "likes", "dislikes"]),
+            ("The {} and {} dish was great.", ["likes", "likes"]),
+            ("Loved the {} and {}, but not the {}.", ["likes", "likes", "dislikes"]),
+            ("The {} and {} were amazing, but didn't enjoy the {} much.", ["likes", "likes", "dislikes"]),
+            ("Enjoyed the {} and {}, but was okay with the {}.", ["likes", "likes", "neutral"]),
+            ("Enjoyed the {} and {}, but not the {}.", ["likes", "likes", "dislikes"]),
             ("Really liked the {}, but the {} was too strong.", ["likes", "dislikes"]),
             ("Enjoyed the {}, but the {} was too bland.", ["likes", "dislikes"]),
-            ("The {} was fine, but the {} needed more flavor.", ["neutral", "dislikes"]),
-            ("Loved the {}, but the {} was not good.", ["likes", "dislikes"]),
-            ("Didn't enjoy the {}, but the {} was okay.", ["dislikes", "neutral"]),
+            ("Loved the {}, but didn't like the {}.", ["likes", "dislikes"]),
             ("The {} was good, but the {} was not to my taste.", ["likes", "dislikes"]),
             ("Enjoyed the {}, but the {} was too overpowering.", ["likes", "dislikes"]),
-            ("The {} was delicious, but the {} wasn't enjoyable.", ["likes", "dislikes"])
+            ("The {} was delicious, but the {} wasn't enjoyable.", ["likes", "dislikes"]),
+            ("Didn't like the {}, but the {} was good.", ["dislikes", "likes"]),
+            ("Loved the {}, but the {} was not appealing.", ["likes", "dislikes"]),
+            ("The {} was tasty, but the {} wasn't.", ["likes", "dislikes"]),
+            ("Loved the {}.", ["likes"]),
+            ("The {} was tasty.", ["likes"]),
+            ("Enjoyed the {}.", ["likes"]),
+            ("The {} was great.", ["likes"]),
+            ("Loved the {} and the {}.", ["likes", "likes"]),
+            ("Really liked the {}, {} and {}.", ["likes", "likes", "likes"]),
+            ("Enjoyed the {}, but the {} was not my favorite.", ["likes", "dislikes"]),
+            ("Loved the {}, but the {} was just okay.", ["likes", "neutral"]),
+            ("The {} was fantastic, but the {} was not as good.", ["likes", "dislikes"]),
+            ("Really liked the {} and {}.", ["likes", "likes"]),
+            ("Enjoyed the {} and the {}.", ["likes", "likes"]),
+            ("Loved the {} and {}, but the {} was just okay.", ["likes", "neutral"]),
+            ("The {} was great, but the {} was just okay.", ["likes", "neutral"]),
+            ("Really liked the {}, but the {} was just okay.", ["likes", "neutral"]),
+            ("Enjoyed the {}, but the {} was fine.", ["likes", "neutral"]),
+            ("The {} was good, and the {} was okay.", ["likes", "neutral"]),
+            ("Enjoyed the {} and {}, but the {} was okay.", ["likes", "likes", "neutral"]),
+            ("The {} and {} were good, but the {} was just okay.", ["likes", "likes", "neutral"]),
+            ("Loved the {}, but the {} was just okay.", ["likes", "neutral"]),
+            ("Enjoyed the {}, but the {} was okay.", ["likes", "neutral"]),
+            ("The {} was fantastic, but the {} was okay.", ["likes", "neutral"]),
+            ("Loved the {} and {}, but the {} was just okay.", ["likes", "neutral"]),
+            ("The {} was great, and the {} was okay.", ["likes", "neutral"]),
+            ("Loved the {} and {}, but the {} was not as good.", ["likes", "neutral"]),
+            ("Really liked the {}, but the {} was okay.", ["likes", "neutral"]),
+            ("The {} was fine, but the {} wasn't good.", ["neutral", "dislikes"]),
+            ("Didn't enjoy the {} much, but the {} was okay.", ["dislikes", "neutral"]),
+            ("Didn't enjoy the {}, but the {} was okay.", ["dislikes", "neutral"]),
+            ("Didn't like the {} in the dish, but the {} was fine.", ["dislikes", "neutral"]),
+            ("The {} was okay, but the {} wasn't appealing.", ["neutral", "dislikes"]),
+            ("Enjoyed the {} and {}, but the {} was okay.", ["likes", "likes", "neutral"]),
+            ("Didn't like the {}, but the {} was okay.", ["dislikes", "neutral"]),
+            ("The {} was fine, but the {} needed more flavor.", ["neutral", "dislikes"]),
+            ("Enjoyed the {}, but the {} was just okay.", ["likes", "neutral"]),
+            ("The {} was fine, and the {} was just okay.", ["neutral", "neutral"]),
+            ("Didn't enjoy the {}, but the {} was okay.", ["dislikes", "neutral"]),
+            ("The {} was okay, and the {} was fine.", ["neutral", "neutral"]),
+            ("The {} was just okay, but the {} was good.", ["neutral", "likes"]),
+            ("Did not enjoy the {} and {}.", ["dislikes", "dislikes"]),
+            ("Didn't like the {} and {}.", ["dislikes", "dislikes"]),
+            ("Didn't like the {} and {} in the dish.", ["dislikes", "dislikes"]),
+            ("Didn't like the {}.", ["dislikes"]),
+            ("Didn't like the {} in the dish.", ["dislikes"]),
+            ("Didn't like the {}, but the {} was fine.", ["dislikes", "neutral"]),
+            ("Didn't enjoy the {}.", ["dislikes"]),
+            ("Didn't like the {} at all.", ["dislikes"]),
+            ("Didn't enjoy the {}, and the {} was bad.", ["dislikes", "dislikes"]),
         ]
 
-
         feedback = {}
-        
-        # Randomly set children not to include feedback
-        num_children = len(self.true_preferences.keys())
-        children = list(self.true_preferences.keys())
-        # Generated random indexes between 0 to n-1 and 0 - n long
+
+        # Randomly exclude a certain number of children from the feedback process
+        num_children = len(self.current_known_and_unknown_preferences.keys())
+        children = list(self.current_known_and_unknown_preferences.keys())
+        # Generate random indices for children to exclude based on the average and standard deviation provided
         random_indices = self.generate_random_indices(num_children, average_exclude, std_dev_exclude)
 
-        # Directly map the indices to children to exclude
+        # Map the generated indices to the actual children to exclude
         children_to_exclude = [children[idx] for idx in random_indices]
 
-        for child, prefs in self.true_preferences.items():
+        # Generate feedback for each child except those that are excluded
+        for child, prefs in self.current_known_and_unknown_preferences.items():
             if child in children_to_exclude:
                 continue
-            
+
+            # Aggregate known and unknown preferences for each feedback type (likes, neutral, dislikes)
             available_ingredients = {
                 "likes": prefs['known']['likes'] + prefs['unknown']['likes'],
                 "neutral": prefs['known']['neutral'] + prefs['unknown']['neutral'],
@@ -236,10 +334,12 @@ class SentimentAnalyzer:
 
             valid_comments = []
 
-            for comment_template, feedback_types in comments:
+            # Sample comments based on specified proportions for likes, neutral, and dislikes
+            for comment_template, feedback_types in self.sample_comments(comments, likes_percent=60, neutral_percent=20, dislikes_percent=20, sample_size=len(comments)):
                 matched_ingredients = []
                 used_ingredients = set()
 
+                # Match ingredients to the feedback types specified in the comment template
                 for feedback_type in feedback_types:
                     for category in available_ingredients:
                         if feedback_type in category:
@@ -250,9 +350,14 @@ class SentimentAnalyzer:
                                 used_ingredients.add(chosen_ingredient)
                                 break
 
+                # Ensure that all required ingredients are matched before adding the comment to valid comments
                 if len(matched_ingredients) == len(feedback_types):
                     valid_comments.append((comment_template, matched_ingredients, feedback_types))
 
+            # Filter out comments that do not match the number of ingredients
+            valid_comments = [comment for comment in valid_comments if comment[0].count("{}") == len(comment[1])]
+
+            # Select a random valid comment and generate the feedback entry for the child
             if valid_comments:
                 comment_template, matched_ingredients, feedback_types = random.choice(valid_comments)
                 comment = comment_template.format(*matched_ingredients)
@@ -260,6 +365,7 @@ class SentimentAnalyzer:
                 feedback[child] = {"comment": comment, "correct_action": correct_action}
 
         return feedback
+
 
     def display_feedback_changes(self, original_preferences) -> None:
         """
@@ -285,3 +391,4 @@ class SentimentAnalyzer:
         for comment in self.incorrect_comments:
             print(f"Child {comment['child']} commented: '{comment['comment']}'")
             print(f"Predicted: {comment['predicted']}, Actual: {comment['actual']}\n")
+

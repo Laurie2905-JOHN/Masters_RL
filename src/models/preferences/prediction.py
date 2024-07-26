@@ -256,8 +256,8 @@ class PreferenceModel:
                 # child_class_report = classification_report(child_true_labels[child], child_predictions[child])
                 # logging.info(f"{child} Classification Report:\n{child_class_report}")
 
-        total_class_report = classification_report(total_true_preferences, total_predicted_preferences)
-        logging.info(f"Total Classification Report:\n{total_class_report}")
+        # total_class_report = classification_report(total_true_preferences, total_predicted_preferences)
+        # logging.info(f"Total Classification Report:\n{total_class_report}")
 
         updated_preferences = self.update_preferences_with_predictions(child_predictions)
         
