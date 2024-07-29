@@ -2,7 +2,7 @@ import random
 from typing import Dict, List, Set, Optional
 
 class RandomMenuGenerator:
-    def __init__(self, seed: Optional[int] = None):
+    def __init__(self, menu_plan_length: int = 10, seed: Optional[int] = None):
         """
         Initializes the RandomMenuGenerator with an optional seed for randomization.
 
@@ -11,6 +11,8 @@ class RandomMenuGenerator:
         self.seed = seed
         self.random = random.Random(seed)
         self.generated_count = 1
+        self.menu_plan_length = menu_plan_length
+        
         # Only remove from these groups as other groups do not have the count number to remove from
         self.groups_to_remove_from = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E']
 
@@ -90,8 +92,8 @@ class RandomMenuGenerator:
         """
         self.initialize_ingredient_in_groups(negotiated, unavailable)
         
-        if self.generated_count >= 11:
-            print("\nGenerated 10 meal plans, resetting ingredients.")
+        if self.generated_count >= self.menu_plan_length:
+            print(f"\nGenerated {self.menu_plan_length} meal plans, resetting ingredients.")
             self.reset_ingredients()
         
         if groups_to_remove_from is None:

@@ -262,7 +262,7 @@ def plot_histograms(scores: list, preferences: Dict[str, list]) -> None:
     plt.tight_layout()
     plt.show()
 
-def plot_accuracies(prediction_accuracies, prediction_std_devs, sentiment_accuracies, iterations, save_path):
+def plot_preference_and_sentiment_accuracies(prediction_accuracies, prediction_std_devs, sentiment_accuracies, iterations, save_path):
     """Function to plot the accuracies and standard deviations over iterations and save the plot to a specified file path."""
     plt.figure(figsize=(18, 6))
 
@@ -297,7 +297,7 @@ def plot_accuracies(prediction_accuracies, prediction_std_devs, sentiment_accura
     plt.savefig(save_path)
     plt.close()
 
-def plot_child_accuracies(child_accuracies, save_path):
+def plot_individual_child_preference_accuracies(child_accuracies, save_path):
     """Function to plot the accuracies of each child over iterations and save the plot to a specified file path."""
     iterations = len(child_accuracies)
 

@@ -8,8 +8,7 @@ import json
 
 class IngredientNegotiator:
     def __init__(self, seed: int, ingredient_df: pd.DataFrame, preferences: Dict[str, Dict[str, List[str]]], 
-                 previous_feedback: Dict[str, Union[int, float]], previous_fairness_index: Dict[str, Union[int, float]], 
-                 previous_utility: Dict[str, Union[int, float]]):
+                 previous_feedback: Dict[str, Union[int, float]], previous_utility: Dict[str, Union[int, float]]):
         """
         Initialize the IngredientNegotiator class.
 
@@ -24,7 +23,6 @@ class IngredientNegotiator:
         self.ingredient_df = ingredient_df
         self.preferences = preferences
         self.feedback = previous_feedback
-        self.fairness_index = previous_fairness_index
         self.previous_utility = previous_utility
         self.average_utility = self._calculate_average_utility(previous_utility)
         self.ingredient_groups = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E', 'Bread', 'Confectionary']

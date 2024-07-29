@@ -1,13 +1,13 @@
 import logging
-import numpy as np
+import os
 
-from models.preferences.data_utils import (
+from models.preferences.preference_utils import (
     get_child_data,
     initialize_child_preference_data,
     print_preference_difference_and_accuracy,
     calculate_percent_of_known_ingredients_to_unknown,
-    plot_child_accuracies,
-    plot_accuracies,
+    plot_individual_child_preference_accuracies,
+    plot_preference_and_sentiment_accuracies,
 )
 
 from utils.process_data import get_data
@@ -15,6 +15,7 @@ from models.preferences.prediction import PreferenceModel
 from models.preferences.voting import IngredientNegotiator
 from models.preferences.sentiment_analysis import SentimentAnalyzer
 from models.preferences.menu_generator import RandomMenuGenerator
+from models.preferences.utility_calculator import MenuUtilityCalculator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -40,13 +41,18 @@ def main():
     prediction_std_devs = []
     sentiment_accuracies = []
     percent_knowns = []
+    
     previous_feedback = {}
-    previous_fairness_index = {}
     previous_utility = {}
-
+    menu_plan_length =  10
+    
     # Initialize menu generator
-    menu_generator = RandomMenuGenerator(seed=seed)
-
+    menu_generator = RandomMenuGenerator(menu_plan_length = menu_plan_length, seed=seed)
+    
+    # Initialize utility calculator
+    json_path = os.path.join(os.getcwd(), "menu_utilities.json")
+    utility_calculator = MenuUtilityCalculator(true_child_preference_data, child_feature_data, menu_plan_length = menu_plan_length, save_to_json = json_path)
+    
     # Initial prediction of preferences
     predictor = PreferenceModel(
         ingredient_df, child_feature_data, true_child_preference_data, apply_SMOTE=apply_SMOTE, seed=seed
@@ -65,13 +71,16 @@ def main():
     
     # Initial negotiation of ingredients
     negotiator = IngredientNegotiator(
-        seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_fairness_index, previous_utility
+        seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_utility
     )
     
     negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function)
 
-    # Generate inital random menu based on negotiated list
+    # Generate random menu based on negotiated list
     menu_plan = menu_generator.generate_random_menu(negotiated_ingredients, unavailable_ingredients)
+    
+    # Calculate the predicted utility for all children for a given meal plan
+    previous_utility = utility_calculator.calculate_day_menu_utility(updated_known_and_predicted_preferences, menu_plan)
 
     # Sentiment analysis initiation, initially with true preference data and will adapt it to updated preferences from feedback
     sentiment_analyzer = SentimentAnalyzer(
@@ -80,12 +89,16 @@ def main():
     
     # Get updated preferences from feedback the sentiment accuracy and feedback given
     updated_known_unknown_preferences_with_feedback, sentiment_accuracy, feedback_given = sentiment_analyzer.get_sentiment_and_update_data(plot_confusion_matrix=False)
+    
+    # Assign the feedback given to the previous feedback for complex weight calculation
+    previous_feedback = feedback_given
 
     # Calculate the percentage of known ingredients to unknown ingredients
     percent_of_known_preferences = calculate_percent_of_known_ingredients_to_unknown(updated_known_unknown_preferences_with_feedback)
     
     percent_knowns.append(percent_of_known_preferences)
     sentiment_accuracies.append(sentiment_accuracy)
+
 
     for i in range(iterations):
         
@@ -111,15 +124,18 @@ def main():
 
         # Initial negotiation of ingredients
         negotiator = IngredientNegotiator(
-            seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_fairness_index, previous_utility
+            seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_utility
         )
 
         # Negotiate ingredients
         negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function)
-
+        
         # Generate random menu based on negotiated list
         menu_plan = menu_generator.generate_random_menu(negotiated_ingredients, unavailable_ingredients)
         
+        # Calculate the predicted utility for all children for a given meal plan
+        previous_utility = utility_calculator.calculate_day_menu_utility(updated_known_and_predicted_preferences, menu_plan)
+                        
         # Sentiment analysis initiation
         sentiment_analyzer = SentimentAnalyzer(
             updated_known_unknown_preferences_with_feedback, menu_plan, model_name=model_name, seed=seed
@@ -128,6 +144,9 @@ def main():
         # Get updated preferences from feedback the sentiment accuracy and feedback given
         updated_known_unknown_preferences_with_feedback, sentiment_accuracy, feedback_given = sentiment_analyzer.get_sentiment_and_update_data(plot_confusion_matrix=False)
 
+        # Assign the feedback given to the previous feedback for complex weight calculation
+        previous_feedback = feedback_given
+        
         # Calculate the percentage of known ingredients to unknown ingredients
         percent_of_known_preferences = calculate_percent_of_known_ingredients_to_unknown(updated_known_unknown_preferences_with_feedback)
         
@@ -136,14 +155,12 @@ def main():
         
         # Log sentiment analysis results
         logging.info(f"Iteration {i + 1} - Sentiment Accuracy: {sentiment_accuracy}, Percent Known: {percent_of_known_preferences}")
-
-        previous_feedback = feedback_given
-        previous_fairness_index = {}
-        previous_utility = {}
+        
+        
 
     # Plot and save the accuracies
-    plot_accuracies(prediction_accuracies, prediction_std_devs, sentiment_accuracies, iterations, 'accuracy_plot.png')
-    plot_child_accuracies(percent_knowns, 'child_accuracies_plot.png')
+    plot_preference_and_sentiment_accuracies(prediction_accuracies, prediction_std_devs, sentiment_accuracies, iterations, 'accuracy_plot.png')
+    plot_individual_child_preference_accuracies(percent_knowns, 'child_accuracies_plot.png')
 
 
 if __name__ == "__main__":
