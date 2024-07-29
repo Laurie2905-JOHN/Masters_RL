@@ -1,6 +1,6 @@
 import logging
 import os
-
+import json
 from models.preferences.preference_utils import (
     get_child_data,
     initialize_child_preference_data,
@@ -8,6 +8,8 @@ from models.preferences.preference_utils import (
     calculate_percent_of_known_ingredients_to_unknown,
     plot_individual_child_preference_accuracies,
     plot_preference_and_sentiment_accuracies,
+    plot_utilities_and_mape,
+    plot_utilities_from_json,
 )
 
 from utils.process_data import get_data
@@ -22,12 +24,31 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Parameters
 weight_function = 'complex'
-iterations = 100
+iterations = 10
 seed = None
 model_name = 'perfect'
 apply_SMOTE = True
 initial_split = 0.5
-menu_plan_length =  10
+menu_plan_length = 10
+
+# Directory paths
+base_dir = os.path.abspath(os.path.dirname(__file__))
+data_dir = os.path.join(base_dir, 'saved_data', 'data')
+graphs_dir = os.path.join(base_dir, 'saved_data', 'graphs')
+
+# Ensure directories exist
+os.makedirs(data_dir, exist_ok=True)
+os.makedirs(graphs_dir, exist_ok=True)
+
+# Determine the run number
+existing_runs = [d for d in os.listdir(data_dir) if d.startswith('run_')]
+run_number = len(existing_runs) + 1
+
+# Create run directories
+run_data_dir = os.path.join(data_dir, f'run_{run_number}')
+run_graphs_dir = os.path.join(graphs_dir, f'run_{run_number}')
+os.makedirs(run_data_dir, exist_ok=True)
+os.makedirs(run_graphs_dir, exist_ok=True)
 
 # :param use_normalize_total_voting_weight: Whether to normalize weights by total number of preferences.
 # :param use_normalize_vote_categories : Whether to normalize vote categories by total number of preferences.
@@ -53,6 +74,12 @@ def main():
         child_feature_data, ingredient_df, split=initial_split, seed=seed, plot_graphs=False
     )
 
+    # # Save initial data to files
+    # ingredient_df.to_csv(os.path.join(run_data_dir, 'ingredient_data.csv'), index=False)
+    # child_feature_data.to_csv(os.path.join(run_data_dir, 'child_feature_data.csv'), index=False)
+    with open(os.path.join(run_data_dir, 'true_child_preference_data.json'), 'w') as f:
+        json.dump(true_child_preference_data, f)
+
     # Lists to store accuracy values
     prediction_accuracies = []
     prediction_std_devs = []
@@ -62,17 +89,17 @@ def main():
     previous_feedback = {}
     previous_utility = {}
     
-    
     # Initialize menu generator
-    menu_generator = RandomMenuGenerator(menu_plan_length = menu_plan_length, seed=seed)
+    menu_generator = RandomMenuGenerator(menu_plan_length=menu_plan_length, seed=seed)
     
     # Initialize utility calculator
-    json_path = os.path.join(os.getcwd(), "menu_utilities.json")
-    utility_calculator = MenuUtilityCalculator(true_child_preference_data, child_feature_data, menu_plan_length = menu_plan_length, save_to_json = json_path)
+    json_path = os.path.join(run_data_dir, "menu_utilities.json")
+    utility_calculator = MenuUtilityCalculator(true_child_preference_data, child_feature_data, menu_plan_length=menu_plan_length, save_to_json=json_path)
     
     # Initial prediction of preferences
+    file_path = os.path.join(run_data_dir, "preferences_visualization.png")
     predictor = PreferenceModel(
-        ingredient_df, child_feature_data, true_child_preference_data, apply_SMOTE=apply_SMOTE, seed=seed
+        ingredient_df, child_feature_data, true_child_preference_data, visualize_data=True, apply_SMOTE=apply_SMOTE, file_path = file_path, seed=seed
     )
     updated_known_and_predicted_preferences = predictor.run_pipeline()
 
@@ -92,6 +119,13 @@ def main():
     )
     
     negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function)
+    
+    # Calculate week and day
+    week = 1
+    day = 1
+    
+    # Save negotiation results
+    negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
 
     # Generate random menu based on negotiated list
     menu_plan = menu_generator.generate_random_menu(negotiated_ingredients, unavailable_ingredients)
@@ -116,14 +150,15 @@ def main():
     percent_knowns.append(percent_of_known_preferences)
     sentiment_accuracies.append(sentiment_accuracy)
 
-
     for i in range(iterations):
-        
-        logging.info(f"Day {i + 1}")
+        week = (i // 5) + 1
+        day = (i % 5) + 1
+
+        logging.info(f"Week {week}, Day {day} - Iteration {i + 1}")
         
         # Prediction of preferences based on expected preferences from sentiment analysis
         predictor = PreferenceModel(
-            ingredient_df, child_feature_data, updated_known_unknown_preferences_with_feedback, apply_SMOTE=apply_SMOTE, seed=seed
+            ingredient_df, child_feature_data, updated_known_unknown_preferences_with_feedback, visualize_data=False, apply_SMOTE=apply_SMOTE, seed=seed
         )
         
         updated_known_and_predicted_preferences = predictor.run_pipeline()
@@ -134,7 +169,7 @@ def main():
         )
         
         # Log prediction results
-        logging.info(f"Day {i + 1} - Prediction Accuracy: {accuracy}, Std Dev: {std_dev}")
+        logging.info(f"Week {week}, Day {day} - Prediction Accuracy: {accuracy}, Std Dev: {std_dev}")
 
         prediction_accuracies.append(accuracy)
         prediction_std_devs.append(std_dev)
@@ -146,6 +181,9 @@ def main():
 
         # Negotiate ingredients
         negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function)
+        
+        # Save negotiation results
+        negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
         
         # Generate random menu based on negotiated list
         menu_plan = menu_generator.generate_random_menu(negotiated_ingredients, unavailable_ingredients)
@@ -171,14 +209,15 @@ def main():
         sentiment_accuracies.append(sentiment_accuracy)
         
         # Log sentiment analysis results
-        logging.info(f"Day {i + 1} - Sentiment Accuracy: {sentiment_accuracy}, Percent Known: {percent_of_known_preferences}")
-        
-        
+        logging.info(f"Week {week}, Day {day} - Sentiment Accuracy: {sentiment_accuracy}, Percent Known: {percent_of_known_preferences}")
 
     # Plot and save the accuracies
-    plot_preference_and_sentiment_accuracies(prediction_accuracies, prediction_std_devs, sentiment_accuracies, iterations, 'accuracy_plot.png')
-    plot_individual_child_preference_accuracies(percent_knowns, 'child_accuracies_plot.png')
-
-
+    plot_preference_and_sentiment_accuracies(prediction_accuracies, prediction_std_devs, sentiment_accuracies, iterations, os.path.join(run_graphs_dir, 'accuracy_plot.png'))
+    plot_individual_child_preference_accuracies(percent_knowns, os.path.join(run_graphs_dir, 'child_accuracies_plot.png'))
+    # Plot and save the utilities
+    plot_utilities_and_mape(os.path.join(run_data_dir, "menu_utilities.json"), run_graphs_dir)
+    plot_utilities_from_json(os.path.join(run_data_dir, "menu_utilities.json"), run_graphs_dir)
+    
+    
 if __name__ == "__main__":
     main()

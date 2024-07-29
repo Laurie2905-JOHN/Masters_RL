@@ -5,6 +5,7 @@ import copy
 from typing import Dict, List, Tuple, Callable, Union
 import pandas as pd
 import json 
+import os 
 
 class IngredientNegotiator:
     def __init__(self, seed: int, ingredient_df: pd.DataFrame, preferences: Dict[str, Dict[str, List[str]]], 
@@ -495,27 +496,43 @@ class IngredientNegotiator:
         supplier_availability = {ingredient: ingredient not in unavailable_ingredients for ingredient in ingredients}
         return supplier_availability
     
-    def log_data(self, log_file: str) -> None:
+    def log_data(self, log_file: str, week: int, day: int) -> None:
         """
         Log the Gini coefficients and other relevant data to a JSON file.
 
         :param log_file: Path to the log file.
+        :param week: Week number.
+        :param day: Day number.
         """
         data_to_log = {
+            'Week': week,
+            'Day': day,
             'Gini Votes': self.vote_gini_dict,
-            # 'Children Dislikes in Top n': self.children_dislikes_in_top_n
+            'Children Dislikes in Top n': self.children_dislikes_in_top_n
         }
 
+        if os.path.exists(log_file):
+            with open(log_file, 'r') as file:
+                existing_data = json.load(file)
+            if not isinstance(existing_data, list):
+                existing_data = [existing_data]
+        else:
+            existing_data = []
+
+        existing_data.append(data_to_log)
+
         with open(log_file, 'w') as file:
-            json.dump(data_to_log, file, indent=4)
+            json.dump(existing_data, file, indent=4)
         print(f"Data successfully logged to {log_file}")
 
-    def close(self, log_file: str) -> None:
+    def close(self, log_file: str, week: int, day: int) -> None:
         """
         Save the current state to a file and perform any necessary cleanup.
 
         :param log_file: Path to the log file.
+        :param week: Week number.
+        :param day: Day number.
         """
-        self.log_data(log_file)
+        self.log_data(log_file, week, day)
         # Perform any other necessary cleanup here
         print("Negotiator closed and data saved.")

@@ -2,11 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import random
-import matplotlib.pyplot as plt
-import pandas as pd
 from typing import Dict, Any, Tuple, List
-import random
 import numpy as np
+import json
 
 def get_child_data():
     # Function to get feature data on children
@@ -324,7 +322,166 @@ def plot_individual_child_preference_accuracies(child_accuracies, save_path):
     plt.close()
     
     
+import json
+import matplotlib.pyplot as plt
+
+def plot_utilities_from_json(file_path: str, save_path: str = None) -> None:
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+
+    def save_or_show_plot(filename: str = None):
+        if save_path and filename:
+            plt.savefig(f"{save_path}/{filename}")
+        else:
+            plt.show()
+        plt.close()
+
+    weeks = len(data)
+
+    # Utility types and their sum keys
+    utilities = ["true_raw_utility", "predicted_raw_utility", "true_utility", "predicted_utility"]
+    sums = ["sum_true_raw_utility", "sum_predicted_raw_utility", "sum_true_utility", "sum_predicted_utility"]
+
+    # Plot each type of utility for all weeks and days
+    for utility in utilities:
+        plt.figure(figsize=(12, 6))
+        children_data = {}
+        for week_data in data:
+            week = week_data["week"]
+            for day, day_data in week_data[utility].items():
+                for child, value in day_data.items():
+                    if child not in children_data:
+                        children_data[child] = []
+                    children_data[child].append((f'Week {week}, Day {day}', value))
+
+        for child, values in children_data.items():
+            x, y = zip(*values)
+            plt.plot(x, y, label=f'Child {child}')
+        
+        plt.title(f'{utility.replace("_", " ").title()} per Child')
+        plt.xlabel('Day and Week')
+        plt.ylabel('Utility')
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.25), ncol=6)
+        plt.xticks(rotation=45)
+        plt.xticks(range(0, len(x), max(1, len(x)//10)), rotation=45)  # Reduce number of x-ticks
+        save_or_show_plot(f'{utility}_per_child.png')
+
+    # Plot daily Gini coefficients for all weeks
+    plt.figure(figsize=(12, 6))
+    daily_gini_true = []
+    daily_gini_pred = []
+    days_labels = []
+    for week_data in data:
+        week = week_data["week"]
+        for day, gini_data in week_data["daily_gini_coefficients"].items():
+            daily_gini_true.append(gini_data["true_gini"])
+            daily_gini_pred.append(gini_data["predicted_gini"])
+            days_labels.append(f'Week {week}, Day {day}')
+    plt.plot(days_labels, daily_gini_true, label='True Gini')
+    plt.plot(days_labels, daily_gini_pred, label='Predicted Gini')
+    plt.title('Daily Gini Coefficients')
+    plt.xlabel('Day and Week')
+    plt.ylabel('Coefficient')
+    plt.legend(loc='lower center', ncol=2)
+    plt.xticks(rotation=45)
+    plt.xticks(range(0, len(days_labels), max(1, len(days_labels)//10)), rotation=45)  # Reduce number of x-ticks
+    save_or_show_plot('daily_gini_coefficients.png')
+
+    # Plot cumulative Gini coefficients per week
+    plt.figure(figsize=(12, 6))
+    cumulative_gini_true = []
+    cumulative_gini_pred = []
+    week_labels = []
+    for week_data in data:
+        week = week_data["week"]
+        cumulative_gini = week_data["cumulative_gini_coefficients"][-1]  # Get the last cumulative Gini for each week
+        cumulative_gini_true.append(cumulative_gini["true_cumulative_gini"])
+        cumulative_gini_pred.append(cumulative_gini["predicted_cumulative_gini"])
+        week_labels.append(f'Week {week}')
+    plt.plot(week_labels, cumulative_gini_true, label='True Cumulative Gini')
+    plt.plot(week_labels, cumulative_gini_pred, label='Predicted Cumulative Gini')
+    plt.title('Cumulative Gini Coefficients per Week')
+    plt.xlabel('Week')
+    plt.ylabel('Coefficient')
+    plt.legend(loc='lower center', ncol=2)
+    plt.xticks(rotation=45)
+    plt.xticks(range(0, len(week_labels), max(1, len(week_labels)//10)), rotation=45)  # Reduce number of x-ticks
+    save_or_show_plot('cumulative_gini_coefficients.png')
     
+    
+
+
+def calculate_mape(true_values: Dict[str, float], predicted_values: Dict[str, float]) -> float:
+    """
+    Calculate the Mean Absolute Percentage Error (MAPE) between true and predicted values.
+    """
+    mape = 100 * sum(abs(true_values[child] - predicted_values[child]) / true_values[child] for child in true_values) / len(true_values)
+    return mape
+
+def plot_mape(days_labels: List[str], true_utility: List[Dict[str, float]], predicted_utility: List[Dict[str, float]], title: str, save_path: str = None) -> None:
+    """
+    Plot the Mean Absolute Percentage Error (MAPE) between true and predicted utility.
+    """
+    mape_values = []
+
+    for true_values, predicted_values in zip(true_utility, predicted_utility):
+        mape = calculate_mape(true_values, predicted_values)
+        mape_values.append(mape)
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(days_labels, mape_values, label='MAPE')
+    plt.title(f'MAPE for {title}')
+    plt.xlabel('Day and Week')
+    plt.ylabel('MAPE (%)')
+    plt.xticks(range(0, len(days_labels), max(1, len(days_labels) // 10)), rotation=45)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=2)
+    save_or_show_plot(f'MAPE_{title}.png', save_path)
+
+def save_or_show_plot(filename: str = None, save_path: str = None):
+    """
+    Save the plot to the specified path if given, otherwise show the plot.
+    """
+    if save_path and filename:
+        plt.savefig(f"{save_path}/{filename}")
+    else:
+        plt.show()
+    plt.close()
+
+def plot_utilities_and_mape(file_path: str, save_path: str = None) -> None:
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+
+    # Utility types and their sum keys
+    sums = ["sum_true_utility", "sum_predicted_utility"]
+
+    # Plot sums of utilities for all weeks
+    for sum_utility in sums:
+        plt.figure(figsize=(12, 6))
+        all_days = []
+        all_values = []
+        true_utility_per_day = []
+        predicted_utility_per_day = []
+        for week_data in data:
+            week = week_data["week"]
+            days = sorted(week_data[sum_utility].keys(), key=int)
+            values = [week_data[sum_utility][day] for day in days]
+            true_utility = [week_data["true_utility"][day] for day in days]
+            predicted_utility = [week_data["predicted_utility"][day] for day in days]
+            all_days.extend([f'Week {week}, Day {day}' for day in days])
+            all_values.extend(values)
+            true_utility_per_day.extend(true_utility)
+            predicted_utility_per_day.extend(predicted_utility)
+        plt.plot(all_days, all_values)
+        title = f'{sum_utility.replace("_", " ").title()} per Day'
+        plt.title(title)
+        plt.xlabel('Day and Week')
+        plt.ylabel('Sum of Utilities')
+        plt.xticks(range(0, len(all_days), max(1, len(all_days) // 10)), rotation=45)
+        save_or_show_plot(f'{sum_utility}_per_day.png', save_path)
+
+        # Calculate and plot accuracy (MAPE) between true and predicted utility cumulative sums
+        plot_mape(all_days, true_utility_per_day, predicted_utility_per_day, title, save_path)
+
     
 
 # Function to plot 2D MCA components
