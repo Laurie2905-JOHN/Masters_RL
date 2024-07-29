@@ -6,7 +6,7 @@ from models.preferences.preference_utils import (
     initialize_child_preference_data,
     print_preference_difference_and_accuracy,
     calculate_percent_of_known_ingredients_to_unknown,
-    plot_individual_child_preference_accuracies,
+    plot_individual_child_known_percent,
     plot_preference_and_sentiment_accuracies,
     plot_utilities_and_mape,
     plot_utilities_from_json,
@@ -23,13 +23,13 @@ from models.preferences.utility_calculator import MenuUtilityCalculator
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Parameters
-weight_function = 'complex'
-iterations = 10
+iterations = 5
 seed = None
 model_name = 'perfect'
 apply_SMOTE = True
 initial_split = 0.5
 menu_plan_length = 10
+weight_function = 'simple'
 
 # Directory paths
 base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -50,13 +50,7 @@ run_graphs_dir = os.path.join(graphs_dir, f'run_{run_number}')
 os.makedirs(run_data_dir, exist_ok=True)
 os.makedirs(run_graphs_dir, exist_ok=True)
 
-# :param use_normalize_total_voting_weight: Whether to normalize weights by total number of preferences.
-# :param use_normalize_vote_categories : Whether to normalize vote categories by total number of preferences.
-# :param use_compensatory: Whether to use compensatory weight update.
-# :param use_feedback: Whether to use feedback weight update.
-# :param use_fairness: Whether to use fairness adjustment.
-# :param target_gini: Target Gini coefficient for fairness.
-
+# Complex weight function arguments
 complex_weight_func_args = {
     'use_normalize_total_voting_weight': False,
     'use_normalize_vote_categories': True,
@@ -74,9 +68,6 @@ def main():
         child_feature_data, ingredient_df, split=initial_split, seed=seed, plot_graphs=False
     )
 
-    # # Save initial data to files
-    # ingredient_df.to_csv(os.path.join(run_data_dir, 'ingredient_data.csv'), index=False)
-    # child_feature_data.to_csv(os.path.join(run_data_dir, 'child_feature_data.csv'), index=False)
     with open(os.path.join(run_data_dir, 'true_child_preference_data.json'), 'w') as f:
         json.dump(true_child_preference_data, f)
 
@@ -97,9 +88,9 @@ def main():
     utility_calculator = MenuUtilityCalculator(true_child_preference_data, child_feature_data, menu_plan_length=menu_plan_length, save_to_json=json_path)
     
     # Initial prediction of preferences
-    file_path = os.path.join(run_data_dir, "preferences_visualization.png")
+    file_path = os.path.join(run_graphs_dir, "preferences_visualization.png")
     predictor = PreferenceModel(
-        ingredient_df, child_feature_data, true_child_preference_data, visualize_data=True, apply_SMOTE=apply_SMOTE, file_path = file_path, seed=seed
+        ingredient_df, child_feature_data, true_child_preference_data, visualize_data=True, apply_SMOTE=apply_SMOTE, file_path=file_path, seed=seed
     )
     updated_known_and_predicted_preferences = predictor.run_pipeline()
 
@@ -118,7 +109,7 @@ def main():
         seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_utility, complex_weight_func_args
     )
     
-    negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function)
+    negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function='complex')
     
     # Calculate week and day
     week = 1
@@ -127,8 +118,8 @@ def main():
     # Save negotiation results
     negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
 
-    # Generate random menu based on negotiated list
-    menu_plan = menu_generator.generate_random_menu(negotiated_ingredients, unavailable_ingredients)
+    # Generate menu based on negotiated list
+    menu_plan = menu_generator.generate_best_menu(negotiated_ingredients, unavailable_ingredients)
     
     # Calculate the predicted utility for all children for a given meal plan
     previous_utility = utility_calculator.calculate_day_menu_utility(updated_known_and_predicted_preferences, menu_plan)
@@ -180,13 +171,13 @@ def main():
         )
 
         # Negotiate ingredients
-        negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function)
+        negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function=weight_function)
         
         # Save negotiation results
         negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
         
-        # Generate random menu based on negotiated list
-        menu_plan = menu_generator.generate_random_menu(negotiated_ingredients, unavailable_ingredients)
+        # Generate menu based on negotiated list
+        menu_plan = menu_generator.generate_best_menu(negotiated_ingredients, unavailable_ingredients)
         
         # Calculate the predicted utility for all children for a given meal plan
         previous_utility = utility_calculator.calculate_day_menu_utility(updated_known_and_predicted_preferences, menu_plan)
@@ -210,14 +201,18 @@ def main():
         
         # Log sentiment analysis results
         logging.info(f"Week {week}, Day {day} - Sentiment Accuracy: {sentiment_accuracy}, Percent Known: {percent_of_known_preferences}")
-
+    
+    utility_calculator.close()
+    
     # Plot and save the accuracies
     plot_preference_and_sentiment_accuracies(prediction_accuracies, prediction_std_devs, sentiment_accuracies, iterations, os.path.join(run_graphs_dir, 'accuracy_plot.png'))
-    plot_individual_child_preference_accuracies(percent_knowns, os.path.join(run_graphs_dir, 'child_accuracies_plot.png'))
+    plot_individual_child_known_percent(percent_knowns, os.path.join(run_graphs_dir, 'child_known_percent_plot.png'))
     # Plot and save the utilities
     plot_utilities_and_mape(os.path.join(run_data_dir, "menu_utilities.json"), run_graphs_dir)
     plot_utilities_from_json(os.path.join(run_data_dir, "menu_utilities.json"), run_graphs_dir)
     
+    # Plot the top 10 menus
+    menu_generator.plot_top_menus(top_n=10, save_path=os.path.join(run_graphs_dir, "top_menus.png"))
     
 if __name__ == "__main__":
     main()

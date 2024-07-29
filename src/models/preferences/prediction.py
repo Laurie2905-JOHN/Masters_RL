@@ -12,6 +12,10 @@ import copy
 import prince
 import os 
 import logging 
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.cluster import KMeans
+import prince
 
 class PreferenceModel:
     def __init__(self, ingredient_df: pd.DataFrame, child_feature_data: Dict[str, Dict[str, Union[str, int]]], child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], apply_SMOTE: bool = False, visualize_data: bool = False, file_path: str = None, seed: Optional[int] = None):
@@ -32,7 +36,7 @@ class PreferenceModel:
 
         self.rf_model = RandomForestClassifier()
         self.rf_model.fit(self.X, self.y)
-        
+
     def visualize_known_data(self, file_path) -> None:
         """
         Visualize the known data using MCA and save the plot to a file.
@@ -51,23 +55,24 @@ class PreferenceModel:
         df_mca = mca.transform(features)
         df_mca['class_label'] = class_labels.values
 
-        # Get distinct colors for each class label using CUD palette
-        unique_labels = class_labels.unique()
-        cud_palette = ["#0072B2", "#E69F00", "#009E73", "#D55E00", "#CC79A7", "#F0E442", "#56B4E9", "#999999", "#F0E442"]
-        color_dict = {label: cud_palette[i % len(cud_palette)] for i, label in enumerate(unique_labels)}
+        # Apply KMeans clustering
+        kmeans = KMeans(n_clusters=3, random_state=42)
+        clusters = kmeans.fit_predict(df_mca[[0, 1]])
+        df_mca['cluster'] = clusters
 
-        # Assign colors to each point based on the class label
-        colors = [color_dict[label] for label in df_mca['class_label']]
+        # Define color palette
+        palette = ['red', 'black', 'blue']
+        cluster_colors = [palette[label] for label in df_mca['cluster']]
 
         # Plot the results
         fig, ax = plt.subplots(figsize=(10, 8))
 
-        # Scatter plot of MCA results, color-coded by class labels
-        scatter = ax.scatter(df_mca[0], df_mca[1], c=colors, alpha=0.6)
+        # Scatter plot of MCA results, color-coded by cluster labels
+        scatter = ax.scatter(df_mca[0], df_mca[1], c=cluster_colors, alpha=0.6)
 
         # Add a legend
-        handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_dict[label], markersize=10, label=label) for label in unique_labels]
-        ax.legend(title='Class Label', handles=handles)
+        handles = [plt.Line2D([0], [0], marker='o', color=palette[i], markersize=10, label=f'Cluster {i}') for i in range(3)]
+        ax.legend(title='Cluster', handles=handles)
 
         # Calculate and display variance explained by each component
         eigenvalues = mca.eigenvalues_

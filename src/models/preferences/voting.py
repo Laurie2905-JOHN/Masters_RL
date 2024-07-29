@@ -30,6 +30,7 @@ class IngredientNegotiator:
         self.supplier_availability = self.get_supplier_availability()
         self.vote_gini_dict = {}
         self.complex_weight_func_args = complex_weight_func_args
+        self.children_dislikes_in_top_n = {}
         
     @staticmethod
     def _calculate_average_utility(previous_utility: Dict[str, Union[int, float]]) -> float:
