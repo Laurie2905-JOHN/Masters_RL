@@ -21,12 +21,29 @@ from models.preferences.utility_calculator import MenuUtilityCalculator
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Parameters
-weight_function = 'simple'
-iterations = 500
+weight_function = 'complex'
+iterations = 100
 seed = None
 model_name = 'perfect'
 apply_SMOTE = True
 initial_split = 0.5
+menu_plan_length =  10
+
+# :param use_normalize_total_voting_weight: Whether to normalize weights by total number of preferences.
+# :param use_normalize_vote_categories : Whether to normalize vote categories by total number of preferences.
+# :param use_compensatory: Whether to use compensatory weight update.
+# :param use_feedback: Whether to use feedback weight update.
+# :param use_fairness: Whether to use fairness adjustment.
+# :param target_gini: Target Gini coefficient for fairness.
+
+complex_weight_func_args = {
+    'use_normalize_total_voting_weight': False,
+    'use_normalize_vote_categories': True,
+    'use_compensatory': True,
+    'use_feedback': True,
+    'use_fairness': True,
+    'target_gini': 0.15,
+}
 
 def main():
     # Load data
@@ -44,7 +61,7 @@ def main():
     
     previous_feedback = {}
     previous_utility = {}
-    menu_plan_length =  10
+    
     
     # Initialize menu generator
     menu_generator = RandomMenuGenerator(menu_plan_length = menu_plan_length, seed=seed)
@@ -71,7 +88,7 @@ def main():
     
     # Initial negotiation of ingredients
     negotiator = IngredientNegotiator(
-        seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_utility
+        seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_utility, complex_weight_func_args
     )
     
     negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function)
@@ -102,7 +119,7 @@ def main():
 
     for i in range(iterations):
         
-        logging.info(f"Iteration {i + 1}")
+        logging.info(f"Day {i + 1}")
         
         # Prediction of preferences based on expected preferences from sentiment analysis
         predictor = PreferenceModel(
@@ -117,14 +134,14 @@ def main():
         )
         
         # Log prediction results
-        logging.info(f"Iteration {i + 1} - Prediction Accuracy: {accuracy}, Std Dev: {std_dev}")
+        logging.info(f"Day {i + 1} - Prediction Accuracy: {accuracy}, Std Dev: {std_dev}")
 
         prediction_accuracies.append(accuracy)
         prediction_std_devs.append(std_dev)
 
         # Initial negotiation of ingredients
         negotiator = IngredientNegotiator(
-            seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_utility
+            seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_utility, complex_weight_func_args
         )
 
         # Negotiate ingredients
@@ -154,7 +171,7 @@ def main():
         sentiment_accuracies.append(sentiment_accuracy)
         
         # Log sentiment analysis results
-        logging.info(f"Iteration {i + 1} - Sentiment Accuracy: {sentiment_accuracy}, Percent Known: {percent_of_known_preferences}")
+        logging.info(f"Day {i + 1} - Sentiment Accuracy: {sentiment_accuracy}, Percent Known: {percent_of_known_preferences}")
         
         
 

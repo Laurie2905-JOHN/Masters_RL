@@ -88,8 +88,6 @@ class SentimentAnalyzer:
                         if ingredient.lower() in sentence:
                             
                             if self.is_perfect_prediction:
-                                if ingredient == "Peas":
-                                    pass
                                 pred_label = correct_action[ingredient]
                                 
                             current_preference = self.get_current_preference_label(child, ingredient)

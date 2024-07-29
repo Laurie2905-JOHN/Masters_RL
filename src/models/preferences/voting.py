@@ -8,7 +8,7 @@ import json
 
 class IngredientNegotiator:
     def __init__(self, seed: int, ingredient_df: pd.DataFrame, preferences: Dict[str, Dict[str, List[str]]], 
-                 previous_feedback: Dict[str, Union[int, float]], previous_utility: Dict[str, Union[int, float]]):
+                 previous_feedback: Dict[str, Union[int, float]], previous_utility: Dict[str, Union[int, float]], complex_weight_func_args: Dict[str, bool]):
         """
         Initialize the IngredientNegotiator class.
 
@@ -28,6 +28,7 @@ class IngredientNegotiator:
         self.ingredient_groups = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E', 'Bread', 'Confectionary']
         self.supplier_availability = self.get_supplier_availability()
         self.vote_gini_dict = {}
+        self.complex_weight_func_args = complex_weight_func_args
         
     @staticmethod
     def _calculate_average_utility(previous_utility: Dict[str, Union[int, float]]) -> float:
@@ -299,7 +300,7 @@ class IngredientNegotiator:
 
 
 
-    def _normalize_for_preference_count(self, child: str, weights: Dict[str, float]) -> Dict[str, float]:
+    def _normalize_for_vote_categories(self, child: str, weights: Dict[str, float]) -> Dict[str, float]:
         """
         Normalize weights based on the number of preferences for each category.
 
@@ -309,6 +310,19 @@ class IngredientNegotiator:
         """
         for category in weights.keys():
             weights[category] = weights[category] / len(self.preferences[child][category]) if len(self.preferences[child][category]) > 0 else 0
+        return weights
+    
+    def _normalize_for_total_preference_count(self, child: str, weights: Dict[str, float]) -> Dict[str, float]:
+        """
+        Normalize weights based on the total number of preferences.
+
+        :param child: Child identifier.
+        :param weights: Dictionary of weights for the child.
+        :return: Normalized weights.
+        """
+        total_preferences = sum([len(pref) for pref in self.preferences[child].values()])
+        for category in weights.keys():
+            weights[category] = weights[category] / total_preferences if total_preferences > 0 else 0
         return weights
 
     def _use_compensatory_weight_update(self, child: str, weights: Dict[str, float]) -> Dict[str, float]:
@@ -322,7 +336,7 @@ class IngredientNegotiator:
         if child in self.previous_utility.keys():
             previous_utility = self.previous_utility[child]
             distance_from_avg = previous_utility - self.average_utility
-            compensatory_factor = 1 + (1 - abs(distance_from_avg / self.average_utility))
+            compensatory_factor = 1 + (5 * (1 - abs(distance_from_avg / self.average_utility)))
             weights = self._multiply_weights_by_factor(weights, factor=compensatory_factor)
         return weights
 
@@ -335,27 +349,31 @@ class IngredientNegotiator:
         :return: Updated weights.
         """
         if child in self.feedback.keys():
-            weights = self._multiply_weights_by_factor(weights, factor=1.1)
+            weights = self._multiply_weights_by_factor(weights, factor=4)
         return weights
 
-    def calculate_child_weight_complex(self, use_normalize_weights: bool = True, use_compensatory: bool = True, 
-                                       use_feedback: bool = True, use_fairness: bool = True, target_gini: float = 0.1) -> Dict[str, Dict[str, float]]:
+    def calculate_child_weight_complex(self) -> Dict[str, Dict[str, float]]:
         """
         Calculate complex weights for each child's preferences using various factors.
-
-        :param use_normalize_weights: Whether to normalize weights.
-        :param use_compensatory: Whether to use compensatory weight update.
-        :param use_feedback: Whether to use feedback weight update.
-        :param use_fairness: Whether to use fairness adjustment.
-        :param target_gini: Target Gini coefficient for fairness.
+        
         :return: Dictionary of weights for each child.
         """
+        
+        use_normalize_total_voting_weight = self.complex_weight_func_args['use_normalize_total_voting_weight']
+        use_normalize_vote_categories = self.complex_weight_func_args['use_normalize_vote_categories']
+        use_compensatory = self.complex_weight_func_args['use_compensatory']
+        use_feedback = self.complex_weight_func_args['use_feedback']
+        use_fairness = self.complex_weight_func_args['use_fairness']
+        target_gini = self.complex_weight_func_args['target_gini']
+        
         raw_weights = self.calculate_child_weight_simple()
         weights = copy.deepcopy(raw_weights)
 
         for child in self.preferences.keys():
-            if use_normalize_weights:
-                weights[child] = self._normalize_for_preference_count(child, weights[child])
+            if use_normalize_total_voting_weight:
+                weights[child] = self._normalize_for_total_preference_count(child, weights[child])
+            if use_normalize_vote_categories:
+                weights[child] = self._normalize_for_vote_categories(child, weights[child])
             if use_compensatory:
                 weights[child] = self._use_compensatory_weight_update(child, weights[child])
             if use_feedback:
@@ -363,9 +381,10 @@ class IngredientNegotiator:
 
         ginis, weight_category_total = self._calculate_all_gini(weights)
         current_gini = ginis['total']
-
+        print("Current gini", current_gini)
         if use_fairness and current_gini > target_gini:
             updated_weights, final_ginis = self.scaling_to_adjust_weights_for_target_gini(weights, weight_category_total, current_gini, target_gini)
+            print(final_ginis)
         else:
             updated_weights = weights
             final_ginis = ginis
@@ -388,7 +407,7 @@ class IngredientNegotiator:
 
         def adjust(weight_category_total: List[float], current_gini: float, target_gini: float) -> List[float]:
             original_weights = weight_category_total.copy()
-            adjustment_factor = 0.001
+            adjustment_factor = 0.01
             iteration = 0
 
             while current_gini > target_gini and iteration < 10000:
@@ -419,12 +438,16 @@ class IngredientNegotiator:
         :param scaling_factors: List of scaling factors.
         :return: Updated weights dictionary.
         """
+        # Create a deep copy of the weights dictionary
+        updated_weights = copy.deepcopy(weights)
+        
         child_counter = 0
-        for child, weight in weights.items():
+        for child, weight in updated_weights.items():
             for category in weight.keys():
-                weights[child][category] += scaling_factors[child_counter]
+                updated_weights[child][category] *= scaling_factors[child_counter]
             child_counter += 1
-        return weights
+            
+        return updated_weights
 
     @staticmethod
     def _calculate_gini(weights_category: List[float]) -> float:
