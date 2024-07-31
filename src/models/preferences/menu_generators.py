@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 class RandomMenuGenerator:
-    def __init__(self, menu_plan_length: int = 10, seed: Optional[int] = None):
+    def __init__(self, menu_plan_length: int = 10, weight_type: str = None, probability_best: int = 0.5, seed: Optional[int] = None):
         """
         Initializes the RandomMenuGenerator with an optional seed for randomization.
         
@@ -15,7 +15,10 @@ class RandomMenuGenerator:
         self.generated_count = 1
         self.menu_plan_length = menu_plan_length
         self.menu_counter = Counter()
-
+        self.selected_ingredients = set()
+        self.weight_type = weight_type
+        self.probability_best = probability_best
+        
         # Only remove from these groups as other groups do not have the count number to remove from
         self.groups_to_remove_from = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E']
 
@@ -29,6 +32,7 @@ class RandomMenuGenerator:
         """
         self.negotiated = negotiated
         self.unavailable = unavailable or set()
+        
         self.ingredient_groups = list(negotiated.keys())
 
         # Initialize dictionaries
@@ -39,7 +43,7 @@ class RandomMenuGenerator:
         # Populate dictionaries and normalize scores
         for group, items in self.negotiated.items():
             for ingredient, score in items.items():
-                if ingredient not in self.unavailable:
+                if ingredient not in self.unavailable and ingredient not in self.selected_ingredients:
                     self.ingredients_in_groups[group].append(ingredient)
                     self.ingredients_scores[group].append(score)
                     self.total_scores[group] += score
@@ -89,58 +93,18 @@ class RandomMenuGenerator:
         :return: A list of randomly selected ingredients.
         :raises ValueError: If there are not enough ingredients in the group to sample the requested number of items.
         """
+        
         if len(self.ingredients_in_groups[group]) < num_items:
             raise ValueError(f"Not enough ingredients in group {group} to sample {num_items} items")
         items = self.ingredients_in_groups[group]
-        weights = self.normalized_scores[group]
+        if self.weight_type == "score":
+            weights = self.normalized_scores[group]
+        elif self.weight_type == "random":
+            weights = None
+            
         return self.random.choices(items, weights=weights, k=num_items)
     
-    def generate_best_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, groups_to_remove_from: Optional[List[str]] = None) -> Dict[str, str]:
-        """
-        Generates a menu by selecting the best item from each ingredient group. If no ingredients are available,
-        it resets the ingredients.
-        
-        :param negotiated: A dictionary where keys are ingredient groups and values are dictionaries of ingredients with their scores.
-        :param unavailable: A set of unavailable ingredients.
-        :param groups_to_remove_from: List of groups to remove selected items from.
-        :return: A dictionary representing the generated menu.
-        """
-        self.initialize_ingredient_in_groups(negotiated, unavailable)
-        
-        if self.generated_count > self.menu_plan_length:
-            print(f"\nGenerated {self.menu_plan_length} meal plans, resetting ingredients.")
-            self.reset_ingredients()
-        
-        if groups_to_remove_from is None:
-            groups_to_remove_from = self.groups_to_remove_from
-        
-        menu = {}
-        for group in self.ingredient_groups:
-            try:
-                item = self.generate_best_item(group)
-                menu[group] = item
-                # Remove chosen ingredients from the specified groups
-                if group in groups_to_remove_from:
-                    index = self.ingredients_in_groups[group].index(item)
-                    self.total_scores[group] -= self.ingredients_scores[group][index]
-                    del self.ingredients_in_groups[group][index]
-                    del self.ingredients_scores[group][index]
-                    self.normalize_scores()
-            except ValueError as e:
-                print(f"Error generating item for group {group}: {e}")
-                self.reset_ingredients()
-                break
-        
-        # Convert the menu dictionary to a tuple to track frequency
-        menu_tuple = tuple(sorted(menu.items()))
-        self.menu_counter[menu_tuple] += 1
-        
-        print("\nGenerated meal plan number", self.generated_count)
-        print(list(menu.values()))
-        self.generated_count += 1
-        return menu
-
-    def generate_probabilistic_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, groups_to_remove_from: Optional[List[str]] = None, probability_best: float = 0.5) -> Dict[str, str]:
+    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None) -> Dict[str, str]:
         """
         Generates a menu by selecting an item from each ingredient group with a certain probability of choosing
         the best item and a complementary probability of choosing a random item. If no ingredients are available,
@@ -149,7 +113,6 @@ class RandomMenuGenerator:
         :param negotiated: A dictionary where keys are ingredient groups and values are dictionaries of ingredients with their scores.
         :param unavailable: A set of unavailable ingredients.
         :param groups_to_remove_from: List of groups to remove selected items from.
-        :param probability_best: Probability of choosing the best item.
         :return: A dictionary representing the generated menu.
         """
         self.initialize_ingredient_in_groups(negotiated, unavailable)
@@ -158,28 +121,18 @@ class RandomMenuGenerator:
             print(f"\nGenerated {self.menu_plan_length} meal plans, resetting ingredients.")
             self.reset_ingredients()
         
-        if groups_to_remove_from is None:
-            groups_to_remove_from = self.groups_to_remove_from
-        
         menu = {}
         for group in self.ingredient_groups:
             try:
-                if self.random.random() < probability_best:
+                if self.random.random() < self.probability_best:
                     item = self.generate_best_item(group)
                 else:
                     item = self.generate_random_item(group, 1)[0]
                 menu[group] = item
-                # Remove chosen ingredients from the specified groups
-                if group in groups_to_remove_from:
-                    index = self.ingredients_in_groups[group].index(item)
-                    self.total_scores[group] -= self.ingredients_scores[group][index]
-                    del self.ingredients_in_groups[group][index]
-                    del self.ingredients_scores[group][index]
-                    self.normalize_scores()
-            except ValueError as e:
-                print(f"Error generating item for group {group}: {e}")
-                self.reset_ingredients()
-                break
+                if group in self.groups_to_remove_from:
+                    self.selected_ingredients.add(item)
+            except ValueError(f"Error generating item for group {group}"):
+                raise 
         
         # Convert the menu dictionary to a tuple to track frequency
         menu_tuple = tuple(sorted(menu.items()))
@@ -194,6 +147,7 @@ class RandomMenuGenerator:
         """
         Resets the ingredients and their scores to the original state and normalizes the scores.
         """
+        self.selected_ingredients.clear()
         self.ingredients_in_groups = {group: items.copy() for group, items in self.original_ingredients_in_groups.items()}
         self.ingredients_scores = {group: scores.copy() for group, scores in self.original_ingredients_scores.items()}
         self.total_scores = self.original_total_scores.copy()

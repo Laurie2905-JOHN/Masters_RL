@@ -8,6 +8,7 @@ from gymnasium.envs.registration import register
 import os
 from collections import deque
 from models.envs.score_calculator import ScoreCalculatorSparse, ScoreCalculatorShaped
+from models.preferences.voting import IngredientNegotiator
 
 class BaseEnvironment(gym.Env):
     """
@@ -969,15 +970,16 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
-        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo, gamma)
+                 initialization_strategy: str = 'zero', negotiated_ingredients: list = [], unavailable_ingredients: list = [],  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
+        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, negotiated_ingredients, unavailable_ingredients, initialization_strategy, max_episode_steps, algo, gamma)
         
         self.step_to_reward = self.calculate_step_to_reward()
-                                    # Nutrient, group, cost, co2
-        self.score_weights = np.array([2, 1, 1])
+                                    # Nutrient, cost, co2, preference
+        self.score_weights = np.array([2, 1, 1, 1])
+        
         self.max_score = np.sum(self.score_weights)
 
-        self.scores = [0, 0, 0]
+        self.scores = [0, 0, 0, 0]
         
         current_reward = np.dot(self.scores, self.score_weights)
         self.current_potential  = self.calculate_potential(current_reward)
@@ -985,11 +987,12 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         
         self.unavailable_ingredients = []
         
-        self.preference_target = 0.5
+        self.preference_target = 0
         
-        from models.preferences.voting import negotiate_ingredients_simple, create_preference_score_function
-        negotiated_ingredient_order = []
-        self.preference_score_function = create_preference_score_function(negotiated_ingredient_order)
+        self.preference_score_function = IngredientNegotiator.create_preference_score_function(negotiated_ingredients)
+        
+        # Set as an attribute for the mask function
+        self.unavailable_ingredients = unavailable_ingredients
 
     def _initialize_observation_space(self) -> None:
         """
@@ -1017,6 +1020,7 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         self.reward_dict['nutrient_score'] = 0
         self.reward_dict['cost_score'] = 0
         self.reward_dict['co2g_score'] = 0
+        self.reward_dict['preference_score'] = 0
         
         # Initialize additional rewards
         self.reward_dict['targets_not_met'] = []
@@ -1048,7 +1052,7 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         obs['nutrient_score'] = np.array([self.scores[0]], dtype=np.float64)
         obs['cost_score'] = np.array([self.scores[1]], dtype=np.float64)
         obs['co2_g_score'] = np.array([self.scores[2]], dtype=np.float64)
-
+        obs['preference_score'] = np.array([self.scores[3]], dtype=np.float64)
 
         return obs
     
@@ -1103,6 +1107,7 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         self.reward_dict['nutrient_score'] = self.scores[0]
         self.reward_dict['cost_score'] = self.scores[1]
         self.reward_dict['co2g_score'] = self.scores[2]
+        self.reward_dict['preference_score'] = self.scores[3]
         self.reward_dict['targets_not_met'] = targets_not_met
         
         # Calculate the immediate reward based on the current scores
@@ -1131,7 +1136,7 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
             self.reward_dict['bonus_score'] = self.bonus_score
             shaped_reward += self.bonus_score  # Additional reward for meeting all target
         else: # If some targets are met, give bonus score based on number of targets met
-            self.reward_dict['bonus_score'] = 3 - len(targets_not_met)
+            self.reward_dict['bonus_score'] = len(self.scores) - len(targets_not_met)
             shaped_reward += self.reward_dict['bonus_score']
     
         return shaped_reward, terminated
@@ -1181,6 +1186,13 @@ if __name__ == '__main__':
     from gymnasium.wrappers import TimeLimit
     from stable_baselines3.common.monitor import Monitor
     from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage, plot_reward_distribution, set_seed
+    
+    from models.preferences.preference_utils import (
+        get_child_data,
+        initialize_child_preference_data,
+    )
+    from models.preferences.prediction import PreferenceModel
+    
     reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '')
     from models.envs.env import * 
     class Args:
@@ -1221,6 +1233,20 @@ if __name__ == '__main__':
 
     print("Environment is valid!")
     
+    child_feature_data = get_child_data()
+    true_child_preference_data = initialize_child_preference_data(
+        child_feature_data, args.ingredient_df, split=0.5, seed=None, plot_graphs=False
+    )
+    
+    # Initial prediction of preferences
+    file_path = os.path.join("saved_models/preference", "preferences_visualization.png")
+    
+    predictor = PreferenceModel(
+        args.ingredient_df, child_feature_data, true_child_preference_data, visualize_data=True, apply_SMOTE=True, file_path=file_path, seed=None
+    )
+    
+    updated_known_and_predicted_preferences = predictor.run_pipeline()
+    
     del env
 
     env_kwargs = {
@@ -1231,7 +1257,9 @@ if __name__ == '__main__':
         "seed": args.seed,
         'initialization_strategy': args.initialization_strategy,
         "verbose": args.verbose,
-        "reward_type":  args.reward_type
+        "reward_type":  args.reward_type,
+        "negotiated_ingredients": [],
+        "unavailable_ingredients": [],
         }
 
     # from models.wrappers.common import RewardTrackingWrapper

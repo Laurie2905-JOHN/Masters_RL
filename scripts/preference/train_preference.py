@@ -16,20 +16,27 @@ from utils.process_data import get_data
 from models.preferences.prediction import PreferenceModel
 from models.preferences.voting import IngredientNegotiator
 from models.preferences.sentiment_analysis import SentimentAnalyzer
-from models.preferences.menu_generator import RandomMenuGenerator
+from models.preferences.menu_generators import RandomMenuGenerator
+from models.preferences.rl_menu_generator import RLMenuGenerator
 from models.preferences.utility_calculator import MenuUtilityCalculator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Parameters
-iterations = 5
-seed = None
+iterations = 30
+seed = 10
 model_name = 'perfect'
 apply_SMOTE = True
 initial_split = 0.5
-menu_plan_length = 10
 weight_function = 'simple'
+
+# Set to zero for complete randomness
+probability_best = 0
+# Random is all equal and score is based on the score of the ingredient in terms of the negotiated list
+# weight_type = "random"
+weight_type = "score"
+menu_plan_length = 10
 
 # Directory paths
 base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -60,6 +67,7 @@ complex_weight_func_args = {
     'target_gini': 0.15,
 }
 
+
 def main():
     # Load data
     ingredient_df = get_data("data.csv")
@@ -81,7 +89,7 @@ def main():
     previous_utility = {}
     
     # Initialize menu generator
-    menu_generator = RandomMenuGenerator(menu_plan_length=menu_plan_length, seed=seed)
+    menu_generator = RandomMenuGenerator(menu_plan_length = menu_plan_length, weight_type = weight_type, probability_best = probability_best, seed = seed)
     
     # Initialize utility calculator
     json_path = os.path.join(run_data_dir, "menu_utilities.json")
@@ -119,7 +127,7 @@ def main():
     negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
 
     # Generate menu based on negotiated list
-    menu_plan = menu_generator.generate_best_menu(negotiated_ingredients, unavailable_ingredients)
+    menu_plan = menu_generator.generate_menu(negotiated_ingredients, unavailable_ingredients)
     
     # Calculate the predicted utility for all children for a given meal plan
     previous_utility = utility_calculator.calculate_day_menu_utility(updated_known_and_predicted_preferences, menu_plan)
@@ -177,7 +185,7 @@ def main():
         negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
         
         # Generate menu based on negotiated list
-        menu_plan = menu_generator.generate_best_menu(negotiated_ingredients, unavailable_ingredients)
+        menu_plan = menu_generator.generate_menu(negotiated_ingredients, unavailable_ingredients)
         
         # Calculate the predicted utility for all children for a given meal plan
         previous_utility = utility_calculator.calculate_day_menu_utility(updated_known_and_predicted_preferences, menu_plan)

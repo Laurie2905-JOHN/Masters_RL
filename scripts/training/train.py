@@ -9,7 +9,6 @@ from utils.train_utils import *
 from sb3_contrib.ppo_mask import MaskablePPO
 from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
 from models.callbacks.callback import *
-from utils.train_utils import get_learning_rate
 
 # Main training function
 def main(args):

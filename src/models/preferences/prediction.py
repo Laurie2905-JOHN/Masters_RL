@@ -12,10 +12,9 @@ import copy
 import prince
 import os 
 import logging 
-import matplotlib.pyplot as plt
-import pandas as pd
 from sklearn.cluster import KMeans
-import prince
+from sklearn.metrics import adjusted_rand_score
+from matplotlib.patches import Ellipse
 
 class PreferenceModel:
     def __init__(self, ingredient_df: pd.DataFrame, child_feature_data: Dict[str, Dict[str, Union[str, int]]], child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], apply_SMOTE: bool = False, visualize_data: bool = False, file_path: str = None, seed: Optional[int] = None):
@@ -32,14 +31,38 @@ class PreferenceModel:
         self.X, self.y, self.preprocessor = self.prepare_ml_data()
         
         if visualize_data:
-            self.visualize_known_data(file_path)
+            self.visualize_complete_data(file_path)
 
         self.rf_model = RandomForestClassifier()
         self.rf_model.fit(self.X, self.y)
 
-    def visualize_known_data(self, file_path) -> None:
+    @staticmethod
+    def plot_ellipse(ax, data, color, label):
         """
-        Visualize the known data using MCA and save the plot to a file.
+        Plot an ellipse around the data points corresponding to a particular cluster or class label.
+        """
+        if len(data) > 1:
+            cov = np.cov(data, rowvar=False)
+            mean = np.mean(data, axis=0)
+
+            # Eigen decomposition
+            eigenvalues, eigenvectors = np.linalg.eigh(cov)
+            order = eigenvalues.argsort()[::-1]
+            eigenvalues, eigenvectors = eigenvalues[order], eigenvectors[:, order]
+
+            # Calculate the angle of the ellipse
+            vx, vy = eigenvectors[:, 0]
+            theta = np.arctan2(vy, vx)
+
+            # Width and height of the ellipse
+            width, height = 2 * np.sqrt(eigenvalues)
+            
+            ellipse = Ellipse(mean, width, height, angle=np.degrees(theta), edgecolor=color, facecolor='none', label=label)
+            ax.add_patch(ellipse)
+
+    def visualize_complete_data(self, file_path) -> None:
+        """
+        Visualize the complete data using MCA and save the plot to a file.
         """
         df = self.get_complete_preference_df()
         
@@ -60,26 +83,52 @@ class PreferenceModel:
         clusters = kmeans.fit_predict(df_mca[[0, 1]])
         df_mca['cluster'] = clusters
 
+        # Calculate clustering accuracy
+        clustering_accuracy = adjusted_rand_score(df_mca['class_label'], df_mca['cluster'])
+
         # Define color palette
         palette = ['red', 'black', 'blue']
         cluster_colors = [palette[label] for label in df_mca['cluster']]
+        
+        # Define a distinct color palette for class labels
+        unique_labels = class_labels.unique()
+        label_palette = ['#0072B2', '#E69F00', '#009E73', '#D55E00', '#CC79A7', '#F0E442', '#56B4E9', '#999999']
+        color_dict = {label: label_palette[i % len(label_palette)] for i, label in enumerate(unique_labels)}
+        class_colors = [color_dict[label] for label in df_mca['class_label']]
 
-        # Plot the results
-        fig, ax = plt.subplots(figsize=(10, 8))
+        # Create subplots
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(20, 8))
 
-        # Scatter plot of MCA results, color-coded by cluster labels
-        scatter = ax.scatter(df_mca[0], df_mca[1], c=cluster_colors, alpha=0.6)
+        # Plot MCA results with class labels
+        axes[0].scatter(df_mca[0], df_mca[1], c=class_colors, alpha=0.6)
+        handles_class = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_dict[label], markersize=10, label=label) for label in unique_labels]
+        axes[0].legend(title='Class Label', handles=handles_class)
+        axes[0].set_title('MCA of One-Hot Encoded Data with Class Labels')
+        axes[0].set_xlabel('MCA 1')
+        axes[0].set_ylabel('MCA 2')
 
-        # Add a legend
-        handles = [plt.Line2D([0], [0], marker='o', color=palette[i], markersize=10, label=f'Cluster {i}') for i in range(3)]
-        ax.legend(title='Cluster', handles=handles)
+        # Draw ellipses for class labels
+        for label in unique_labels:
+            data_points = df_mca[df_mca['class_label'] == label][[0, 1]].values
+            self.plot_ellipse(axes[0], data_points, color_dict[label], label)
+
+        # Plot MCA results with cluster labels
+        axes[1].scatter(df_mca[0], df_mca[1], c=cluster_colors, alpha=0.6)
+        handles_cluster = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=palette[i], markersize=10, label=f'Cluster {i}') for i in range(3)]
+        axes[1].legend(title='Cluster', handles=handles_cluster)
+        axes[1].set_title('MCA of One-Hot Encoded Data with KMeans Clusters')
+        axes[1].set_xlabel('MCA 1')
+        axes[1].set_ylabel('MCA 2')
+
+        # Draw ellipses for clusters
+        for cluster in range(3):
+            data_points = df_mca[df_mca['cluster'] == cluster][[0, 1]].values
+            self.plot_ellipse(axes[1], data_points, palette[cluster], f'Cluster {cluster}')
 
         # Calculate and display variance explained by each component
         eigenvalues = mca.eigenvalues_
         variance_explained = [val / sum(eigenvalues) for val in eigenvalues]
-        ax.set_title(f'MCA of One-Hot Encoded Data\nVariance Explained: MCA 1 = {variance_explained[0]:.2%}, MCA 2 = {variance_explained[1]:.2%}')
-        ax.set_xlabel(f'MCA 1 ({variance_explained[0]:.2%} variance)')
-        ax.set_ylabel(f'MCA 2 ({variance_explained[1]:.2%} variance)')
+        fig.suptitle(f'MCA of One-Hot Encoded Data\nVariance Explained: MCA 1 = {variance_explained[0]:.2%}, MCA 2 = {variance_explained[1]:.2%}\nClustering Accuracy: {clustering_accuracy:.2%}', fontsize=16)
 
         # Save the plot
         plt.savefig(file_path)

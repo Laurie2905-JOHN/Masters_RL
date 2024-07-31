@@ -171,7 +171,7 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
         co2_score, co2_target_met = self._calculate_co2_score(group_target_met)
         preference_score, preference_target_met = self._calculate_preference_score()
         # Collect all scores
-        scores = [nutrient_score, cost_score, co2_score]
+        scores = [nutrient_score, cost_score, co2_score, preference_score]
         
         # Collect unmet targets
         targets = []
@@ -181,8 +181,8 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
             targets.append('cost')
         if not co2_target_met:
             targets.append('co2')
-        # if not preference_target_met:
-        #     targets.append('preference score')
+        if not preference_target_met:
+            targets.append('preference score')
             
         return scores, targets
 
