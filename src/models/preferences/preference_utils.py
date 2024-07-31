@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import random
-from typing import Dict, Any, Tuple, List
+from typing import Dict, Any, Tuple, List, Callable
 import numpy as np
 import json
 from scipy.ndimage import gaussian_filter1d
@@ -225,6 +225,37 @@ def initialize_child_preference_data(child_data: Dict[str, Dict[str, Any]], ingr
 
     return all_data
 
+from sklearn.preprocessing import MinMaxScaler
+
+def create_preference_score_function(negotiated: Dict[str, Dict[str, float]], unavailable: List[str]) -> Callable[[str], float]:
+    """
+    Create a preference score function based on negotiated ingredients, excluding unavailable ingredients.
+
+    :param negotiated: Dictionary of negotiated ingredients and their scores.
+    :param unavailable: List of unavailable ingredients.
+    :return: Function that returns the score for a given ingredient.
+    """
+    ingredient_scores = {}
+    if negotiated:
+        for group, ingredients in negotiated.items():
+            # Filter out unavailable ingredients
+            available_ingredients = {k: v for k, v in ingredients.items() if k not in unavailable}
+            
+            if available_ingredients:
+                scores = np.array(list(available_ingredients.values())).reshape(-1, 1)
+                scaler = MinMaxScaler()
+                normalized_scores = scaler.fit_transform(scores).flatten()
+                for ingredient, norm_score in zip(available_ingredients.keys(), normalized_scores):
+                    ingredient_scores[ingredient] = norm_score
+
+    def score_function(ingredient: str) -> float:
+        if ingredient not in ingredient_scores.keys():
+            raise ValueError(f"Ingredient '{ingredient}' not found in negotiated ingredients.")
+        else:
+            return ingredient_scores[ingredient]
+
+    return score_function
+    
 def plot_histograms(scores: list, preferences: Dict[str, list]) -> None:
     total_ingredients = len(scores)
     likes_count = len(preferences["likes"])

@@ -1,4 +1,4 @@
-from sklearn.preprocessing import MinMaxScaler
+
 import numpy as np
 import random
 import copy
@@ -8,8 +8,8 @@ import json
 import os 
 
 class IngredientNegotiator:
-    def __init__(self, seed: int, ingredient_df: pd.DataFrame, preferences: Dict[str, Dict[str, List[str]]], 
-                 previous_feedback: Dict[str, Union[int, float]], previous_utility: Dict[str, Union[int, float]], complex_weight_func_args: Dict[str, bool]):
+    def __init__(self, seed: int, ingredient_df: pd.DataFrame, preferences: Dict[str, Dict[str, List[str]]], complex_weight_func_args: Dict[str, bool] = {},
+                 previous_feedback: Dict[str, Union[int, float]] = {}, previous_utility: Dict[str, Union[int, float]]  =  {}):
         """
         Initialize the IngredientNegotiator class.
 
@@ -67,28 +67,6 @@ class IngredientNegotiator:
             for key in weights:
                 weights[key] /= total_weight
         return weights
-
-    @staticmethod
-    def create_preference_score_function(votes: Dict[str, Dict[str, float]]) -> Callable[[str], float]:
-        """
-        Create a preference score function based on votes.
-
-        :param votes: Dictionary of votes.
-        :return: Function that returns the score for a given ingredient.
-        """
-        ingredient_scores = {}
-        if votes:
-            for group, ingredients in votes.items():
-                scores = np.array(list(ingredients.values())).reshape(-1, 1)
-                scaler = MinMaxScaler()
-                normalized_scores = scaler.fit_transform(scores).flatten()
-                for ingredient, norm_score in zip(ingredients.keys(), normalized_scores):
-                    ingredient_scores[ingredient] = norm_score
-
-        def score_function(ingredient: str) -> float:
-            return ingredient_scores.get(ingredient, 0)
-
-        return score_function
 
     @staticmethod
     def _multiply_weights_by_factor(weights: Dict[str, float], factor: float) -> Dict[str, float]:

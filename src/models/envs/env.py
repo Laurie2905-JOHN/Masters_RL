@@ -9,6 +9,7 @@ import os
 from collections import deque
 from models.envs.score_calculator import ScoreCalculatorSparse, ScoreCalculatorShaped
 from models.preferences.voting import IngredientNegotiator
+from typing import Dict
 
 class BaseEnvironment(gym.Env):
     """
@@ -19,7 +20,7 @@ class BaseEnvironment(gym.Env):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO', gamma: float = 0.99):
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {}, max_episode_steps: int = 100, algo: str = 'PPO', gamma: float = 0.99):
         super().__init__()
 
         self._initialize_parameters(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, initialization_strategy, max_episode_steps, algo, gamma)
@@ -960,6 +961,8 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
                         reward += 1
         return reward
 
+from models.preferences.preference_utils import create_preference_score_function
+        
 class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
     """
     A custom Gym environment for selecting school meals that meet certain nutritional and environmental criteria.
@@ -970,8 +973,8 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', negotiated_ingredients: list = [], unavailable_ingredients: list = [],  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
-        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, negotiated_ingredients, unavailable_ingredients, initialization_strategy, max_episode_steps, algo, gamma)
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
+        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma)
         
         self.step_to_reward = self.calculate_step_to_reward()
                                     # Nutrient, cost, co2, preference
@@ -985,11 +988,9 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         self.current_potential  = self.calculate_potential(current_reward)
         self.gamma = gamma
         
-        self.unavailable_ingredients = []
-        
         self.preference_target = 0
         
-        self.preference_score_function = IngredientNegotiator.create_preference_score_function(negotiated_ingredients)
+        self.preference_score_function = create_preference_score_function(negotiated_ingredients, unavailable_ingredients)
         
         # Set as an attribute for the mask function
         self.unavailable_ingredients = unavailable_ingredients
@@ -1009,6 +1010,7 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
             'nutrient_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
             'cost_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
             'co2_g_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+            'preference_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
         })
     
     def initialize_rewards(self) -> None:
@@ -1213,7 +1215,7 @@ if __name__ == '__main__':
         vecnorm_clip_reward = 10
         vecnorm_epsilon = 1e-8 
         vecnorm_norm_obs_keys = None
-        ingredient_df = get_data("small_data.csv")
+        ingredient_df = get_data("data.csv")
         seed = 10
         env_name = 'SchoolMealSelection-v3'
         initialization_strategy = 'zero'
@@ -1221,7 +1223,43 @@ if __name__ == '__main__':
         vecnorm_norm_obs_keys = ['current_selection_value']
         reward_type = 'shaped'
         algo = 'MASKED_PPO'
+    
     args = Args()
+    
+    child_feature_data = get_child_data()
+    true_child_preference_data = initialize_child_preference_data(
+        child_feature_data, args.ingredient_df, split=0.5, seed=args.seed, plot_graphs=False
+    )
+    
+    predictor = PreferenceModel(
+        args.ingredient_df, child_feature_data, true_child_preference_data, visualize_data=False, apply_SMOTE=True, seed=args.seed
+    )
+    
+    updated_known_and_predicted_preferences = predictor.run_pipeline()
+    
+    # Initial negotiation of ingredients
+    negotiator = IngredientNegotiator(
+        args.seed, args.ingredient_df, updated_known_and_predicted_preferences
+    )
+    
+    negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function='simple')
+    
+    args.negotiated_ingredients = negotiated_ingredients
+    args.unavailable_ingredients = unavailable_ingredients
+    
+
+    env_kwargs = {
+        "ingredient_df": args.ingredient_df,
+        "max_ingredients": args.max_ingredients,
+        "action_scaling_factor": args.action_scaling_factor,
+        "render_mode": args.render_mode,
+        "seed": args.seed,
+        'initialization_strategy': args.initialization_strategy,
+        "verbose": args.verbose,
+        "reward_type":  args.reward_type,
+        "negotiated_ingredients": args.negotiated_ingredients,
+        "unavailable_ingredients": args.unavailable_ingredients,
+        }
 
     num_episodes = 500
     
@@ -1233,35 +1271,9 @@ if __name__ == '__main__':
 
     print("Environment is valid!")
     
-    child_feature_data = get_child_data()
-    true_child_preference_data = initialize_child_preference_data(
-        child_feature_data, args.ingredient_df, split=0.5, seed=None, plot_graphs=False
-    )
-    
-    # Initial prediction of preferences
-    file_path = os.path.join("saved_models/preference", "preferences_visualization.png")
-    
-    predictor = PreferenceModel(
-        args.ingredient_df, child_feature_data, true_child_preference_data, visualize_data=True, apply_SMOTE=True, file_path=file_path, seed=None
-    )
-    
-    updated_known_and_predicted_preferences = predictor.run_pipeline()
     
     del env
-
-    env_kwargs = {
-        "ingredient_df": args.ingredient_df,
-        "max_ingredients": args.max_ingredients,
-        "action_scaling_factor": args.action_scaling_factor,
-        "render_mode": args.render_mode,
-        "seed": args.seed,
-        'initialization_strategy': args.initialization_strategy,
-        "verbose": args.verbose,
-        "reward_type":  args.reward_type,
-        "negotiated_ingredients": [],
-        "unavailable_ingredients": [],
-        }
-
+    
     # from models.wrappers.common import RewardTrackingWrapper
     
     # def make_env():

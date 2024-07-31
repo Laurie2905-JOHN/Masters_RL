@@ -99,8 +99,12 @@ def main(args):
        
     eval_callback_class = MaskableEvalCallback if args.algo == "MASKED_PPO" else EvalCallback
 
+    eval_env = setup_environment(args, reward_save_path=reward_save_path)
+    eval_env.training = False
+    eval_env.norm_reward = False
+    
     eval_callback = eval_callback_class(
-        eval_env=setup_environment(args, reward_save_path=reward_save_path),  # Set up the eval environment,
+        eval_env=eval_env, 
         best_model_save_path=best_model_path,
         callback_on_new_best=save_vecnormalize_best_callback,
         n_eval_episodes=5,

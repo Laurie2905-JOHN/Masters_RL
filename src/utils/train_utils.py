@@ -43,7 +43,7 @@ def setup_environment(args, reward_save_path=None, eval=False):
                 "gamma": args.gamma,
                 "max_episode_steps": args.max_episode_steps,
                 "negotiated_ingredients": args.negotiated_ingredients,
-                "unaivailable_ingredients": args.unavailable_ingredients
+                "unavailable_ingredients": args.unavailable_ingredients,
                 }
         
     def make_env():

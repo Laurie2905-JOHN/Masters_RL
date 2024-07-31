@@ -130,10 +130,12 @@ class PreferenceModel:
         variance_explained = [val / sum(eigenvalues) for val in eigenvalues]
         fig.suptitle(f'MCA of One-Hot Encoded Data\nVariance Explained: MCA 1 = {variance_explained[0]:.2%}, MCA 2 = {variance_explained[1]:.2%}\nClustering Accuracy: {clustering_accuracy:.2%}', fontsize=16)
 
-        # Save the plot
-        plt.savefig(file_path)
-        plt.close()
-
+        if file_path:
+            # Save the plot
+            plt.savefig(file_path)
+            plt.close()
+        else:
+            plt.show()
         
     def get_complete_preference_df(self) -> pd.DataFrame:
         """

@@ -17,25 +17,25 @@ from models.preferences.prediction import PreferenceModel
 from models.preferences.voting import IngredientNegotiator
 from models.preferences.sentiment_analysis import SentimentAnalyzer
 from models.preferences.menu_generators import RandomMenuGenerator
-from models.preferences.rl_menu_generator import RLMenuGenerator
+from models.preferences.menu_generators import RLMenuGenerator
 from models.preferences.utility_calculator import MenuUtilityCalculator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Parameters
-iterations = 30
-seed = 10
+iterations = 185
+seed = None
 model_name = 'perfect'
 apply_SMOTE = True
 initial_split = 0.5
 weight_function = 'simple'
 
 # Set to zero for complete randomness
-probability_best = 0
+probability_best = 0.8
 # Random is all equal and score is based on the score of the ingredient in terms of the negotiated list
-# weight_type = "random"
-weight_type = "score"
+weight_type = "random"
+# weight_type = "score"
 menu_plan_length = 10
 
 # Directory paths
@@ -67,6 +67,7 @@ complex_weight_func_args = {
     'target_gini': 0.15,
 }
 
+menu_generator_type = "RL"
 
 def main():
     # Load data
@@ -89,8 +90,12 @@ def main():
     previous_utility = {}
     
     # Initialize menu generator
-    menu_generator = RandomMenuGenerator(menu_plan_length = menu_plan_length, weight_type = weight_type, probability_best = probability_best, seed = seed)
     
+    if menu_generator_type != "RL":
+        menu_generator = RandomMenuGenerator(menu_plan_length = menu_plan_length, weight_type = weight_type, probability_best = probability_best, seed = seed)
+    else:
+        menu_generator = RLMenuGenerator(ingredient_df, menu_plan_length = menu_plan_length, weight_type = weight_type, seed = seed, model_save_path = 'rl_model')
+
     # Initialize utility calculator
     json_path = os.path.join(run_data_dir, "menu_utilities.json")
     utility_calculator = MenuUtilityCalculator(true_child_preference_data, child_feature_data, menu_plan_length=menu_plan_length, save_to_json=json_path)
@@ -117,7 +122,7 @@ def main():
         seed, ingredient_df, updated_known_and_predicted_preferences, previous_feedback, previous_utility, complex_weight_func_args
     )
     
-    negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function='complex')
+    negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function=weight_function)
     
     # Calculate week and day
     week = 1
