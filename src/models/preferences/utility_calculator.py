@@ -81,11 +81,11 @@ class MenuUtilityCalculator:
                           (self.max_raw_utility - self.min_raw_utility)) * 1.5
 
     def calculate_day_menu_utility(self, predicted_preferences: Dict[str, Dict[str, List[str]]], 
-                                   menu_plan: Dict[str, str]) -> Dict[str, float]:
+                                   menu_plan: list) -> Dict[str, float]:
         """
         Calculate the utility of the day's menu for each child.
         """
-        logging.info(f"Calculating utilities for meal plan #{self.generated_count + 1}: {list(menu_plan.values())}")
+        logging.info(f"Calculating utilities for meal plan #{self.generated_count + 1}: {menu_plan}")
         
         if self.generated_count >= self.menu_plan_length:
             logging.info(f"Reached {self.menu_plan_length} meal plans. Resetting utilities and saving data.")
@@ -99,7 +99,7 @@ class MenuUtilityCalculator:
         self.predicted_utility[self.day] = {child: 0 for child in self.child_feature_data.keys()}
 
         for child in self.child_feature_data.keys():
-            for ingredient in menu_plan.values():
+            for ingredient in menu_plan:
                 self.true_raw_utility[self.day][child] += self.get_ingredient_util(self.true_preferences, child, ingredient)
                 self.predicted_raw_utility[self.day][child] += self.get_ingredient_util(predicted_preferences, child, ingredient)
             

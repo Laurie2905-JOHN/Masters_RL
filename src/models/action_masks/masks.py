@@ -31,7 +31,6 @@ def mask_fn(self) -> np.ndarray:
     current_selection = self.env.get_wrapper_attr('current_selection')
     ingredient_df = self.env.get_wrapper_attr('ingredient_df')
     unavailable_ingredients = self.env.get_wrapper_attr('unavailable_ingredients')
-    
     extra_action = 2  # First 2 for actions [do nothing, increase], rest for ingredients
 
     # Initialize action mask with zeros

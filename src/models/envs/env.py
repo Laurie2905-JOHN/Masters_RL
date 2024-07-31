@@ -10,6 +10,7 @@ from collections import deque
 from models.envs.score_calculator import ScoreCalculatorSparse, ScoreCalculatorShaped
 from models.preferences.voting import IngredientNegotiator
 from typing import Dict
+from models.preferences.preference_utils import create_preference_score_function
 
 class BaseEnvironment(gym.Env):
     """
@@ -570,6 +571,9 @@ class BaseEnvironment(gym.Env):
             'Running_average_count_targets_not_met': running_average_targets_not_met,
             'current_meal_plan': current_meal_plan
         }
+        
+        if self.reward_dict['preference_score']:
+            info['preference_score'] = self.reward_dict['preference_score']
 
         return info
 
@@ -960,8 +964,6 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
                     if action[1] == idx:
                         reward += 1
         return reward
-
-from models.preferences.preference_utils import create_preference_score_function
         
 class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
     """

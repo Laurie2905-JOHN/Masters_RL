@@ -26,7 +26,7 @@ class SentimentAnalyzer:
         
         model = model_name_dict[model_name]
         
-        self.menu_plan = [ingredient for ingredient in menu_plan.values()]
+        self.menu_plan = menu_plan
         self.label_mapping = {'likes': 2, 'neutral': 1, 'dislikes': 0}
         self.feedback = self.get_feedback()
         self.changes = []

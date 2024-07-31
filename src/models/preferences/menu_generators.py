@@ -13,6 +13,8 @@ from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
 from models.callbacks.callback import *
 import argparse
 import os
+import json
+
 from utils.train_utils import (
     setup_environment, 
     get_unique_directory, 
@@ -23,9 +25,9 @@ from utils.train_utils import (
     set_seed, 
     ensure_dir_exists, 
     load_model, 
-    create_model
+    create_model,
+    save_hyperparams,
 )
-from utils.process_data import get_data
 from sb3_contrib.common.maskable.utils import get_action_masks
 
 
@@ -177,7 +179,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
             
         return self.random.choices(items, weights=weights, k=num_items)
     
-    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None) -> Dict[str, str]:
+    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, save_paths = None, week=0, day=0) -> Dict[str, str]:
         """
         Generates a menu by selecting an item from each ingredient group with a certain probability of choosing
         the best item and a complementary probability of choosing a random item. If no ingredients are available,
@@ -213,7 +215,38 @@ class RandomMenuGenerator(BaseMenuGenerator):
         print("\nGenerated meal plan number", self.generated_count)
         print(list(menu.values()))
         self.generated_count += 1
-        return menu
+        
+                # Save data to JSON
+        data_to_save = {
+            'week': week,
+            'day': day,
+            'meal_plan': list(menu.values()),
+        }
+    
+        if save_paths and 'data' in save_paths:
+            json_filename = os.path.join(save_paths['data'], 'Random_menu_results.json')
+
+            # Load existing data if the file exists
+            if os.path.exists(json_filename):
+                with open(json_filename, 'r') as json_file:
+                    existing_data = json.load(json_file)
+            else:
+                existing_data = []
+
+            # Append new data
+            existing_data.append(data_to_save)
+
+            # Save updated data
+            with open(json_filename, 'w') as json_file:
+                json.dump(existing_data, json_file, indent=4)
+        
+        # Save the meal plan
+        if save_paths['data']:
+            with open(os.path.join(save_paths['data'], f'final_meal_plan_week_{week}_day_{day}.txt'), 'w') as f:
+                for item in menu.values():
+                    f.write(f"{item}\n")
+                    
+        return list(menu.values())
 
     def reset_ingredients(self) -> None:
         """
@@ -229,11 +262,12 @@ class RandomMenuGenerator(BaseMenuGenerator):
 
 
 class RLMenuGenerator(BaseMenuGenerator):
-    def __init__(self, ingredient_df: Dict[str, Dict[str, float]], menu_plan_length: int = 10, weight_type: str = None, seed: Optional[int] = None, model_save_path: str = 'rl_model'):
+    def __init__(self, ingredient_df: Dict[str, Dict[str, float]], menu_plan_length: int = 10, weight_type: str = None, seed: Optional[int] = None, model_save_path: str = 'rl_model', load_model_from_file = False):
         super().__init__(menu_plan_length, weight_type, seed)
         self.model_save_path = model_save_path
         self.ingredient_df = ingredient_df
-
+        self.load_model_from_file = load_model_from_file
+        
     def train_rl_model(self, negotiated_ingredients, unavailable_ingredients: Optional[Set[str]] = None) -> MaskablePPO:
         setup_params = load_yaml("scripts/hyperparams/setup_preference.yaml")
         algo_hyperparams_dir = "scripts/hyperparams/masked_ppo.yaml"
@@ -253,10 +287,12 @@ class RLMenuGenerator(BaseMenuGenerator):
             activation_fn=get_activation_fn(args.activation_fn),
             ortho_init=args.ortho_init
         )
-        if args.seed is None:
-            args.seed = generate_random_seeds(1)[0]
-        if type(args.seed) is not int:
-            raise ValueError("Seed must be an integer")
+        
+        args.seed = self.seed
+        if not isinstance(args.seed, (int, type(None))):
+            raise ValueError("Seed must be an integer or None")
+
+        
         args.device = select_device(args)
         set_seed(args.seed, args.device)
         print(f"Using device: {args.device}")
@@ -314,7 +350,8 @@ class RLMenuGenerator(BaseMenuGenerator):
             save_path=best_model_path
         )
         
-        eval_env = setup_environment(args, reward_save_path=reward_save_path),
+        args.num_envs = 1
+        eval_env = setup_environment(args, reward_save_path=reward_save_path)
         
         eval_callback = MaskableEvalCallback(
             eval_env=eval_env,
@@ -332,7 +369,7 @@ class RLMenuGenerator(BaseMenuGenerator):
         info_logger_callback = InfoLoggerCallback()
         callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
         
-        if load_model:
+        if self.load_model_from_file:
             model = load_model(args, env, tensorboard_log_dir, args.seed)
         else:
             model.set_logger(new_logger)
@@ -340,8 +377,8 @@ class RLMenuGenerator(BaseMenuGenerator):
             env.close()
             
         return model, eval_env
-    
-    def evaluate_model(self, model, env, num_episodes=10, deterministic=False):
+
+    def evaluate_model(self, model, env, num_episodes, deterministic):
         predictions = []
         for episode in range(num_episodes):
             obs = env.reset()
@@ -363,12 +400,10 @@ class RLMenuGenerator(BaseMenuGenerator):
                         info['nutrient_averages'],
                         info['ingredient_group_count'],
                         info['ingredient_environment_count'],
-                        info['consumption_average'],
                         info['cost'],
                         info['co2_g'],
-                        info['reward'],
                         info['group_portions'],
-                        info['targets_not_met_count'],
+                        info['preference_score'],
                         info['current_meal_plan'],
                     ))
                     break
@@ -379,23 +414,25 @@ class RLMenuGenerator(BaseMenuGenerator):
         keys = dicts[0].keys()
         return {key: np.mean([d[key] for d in dicts]) for key in keys}
 
-    def plot_results(self, predictions, num_episodes, save_path):
+    def plot_results(self, predictions, num_episodes, save_paths, week, day):
         flattened_predictions = [pred for episode in predictions for pred in episode]
-        nutrient_averages, ingredient_group_counts, ingredient_environment_counts, consumption_averages, costs, co2_g, _, group_portions, _, current_meal_plan = zip(*flattened_predictions)
+        nutrient_averages, ingredient_group_counts, ingredient_environment_counts, costs, co2_g, group_portions, preference_score, current_meal_plan = zip(*flattened_predictions)
         avg_nutrient_averages = self.average_dicts(nutrient_averages)
         avg_ingredient_group_counts = self.average_dicts(ingredient_group_counts)
         avg_ingredient_environment_counts = self.average_dicts(ingredient_environment_counts)
-        avg_consumption_averages = self.average_dicts(consumption_averages)
+        avg_preference_score = np.mean(preference_score)
         avg_cost = self.average_dicts(costs)
         avg_co2_g = self.average_dicts(co2_g)
         avg_group_portions = self.average_dicts(group_portions)
-        avg_consumption_averages['cost'] = avg_cost['cost']
-        avg_consumption_averages['co2_g'] = avg_co2_g['co2_g']
+        avg_nutrient_averages['co2_g'] = avg_co2_g['co2_g']
+        avg_misc_averages = {}
+        avg_misc_averages['cost'] = avg_cost['cost']
+        avg_misc_averages['preference_score'] = avg_preference_score
         targets = {
             'nutrients': {
                 'calories': (530, 'range'), 'fat': (20.6, 'max'), 'saturates': (6.5, 'max'),
                 'carbs': (70.6, 'min'), 'sugar': (15.5, 'max'), 'fibre': (4.2, 'min'),
-                'protein': (7.5, 'min'), 'salt': (1, 'max')
+                'protein': (7.5, 'min'), 'salt': (1, 'max'), 'co2_g': (800, 'max')
             },
             'ingredient_groups': {
                 'fruit': (1, 'min'), 'veg': (1, 'min'), 'protein': (1, 'min'),
@@ -406,9 +443,8 @@ class RLMenuGenerator(BaseMenuGenerator):
                 'animal_welfare': (0.5, 'min'), 'rainforest': (0.5, 'min'), 'water': (0.5, 'min'),
                 'co2_rating': (0.5, 'min')
             },
-            'consumption_cost_co2_g': {
-                'average_mean_consumption': (5.8, 'min'), 'average_cv_ingredients': (8.5, 'min'),
-                'cost': (2, 'max'), 'co2_g': (800, 'max'),
+            'preference_and_cost': {
+                'cost': (2, 'max'), 'preference_score': (0.5, 'min')
             },
             'group_portions': {
                 'fruit': ((40, 130), 'range1'), 'veg': ((40, 80), 'range1'), 'protein': ((40, 90), 'range1'),
@@ -416,11 +452,11 @@ class RLMenuGenerator(BaseMenuGenerator):
                 'bread': ((50, 70), 'range1'), 'confectionary': ((0, 0), 'range1')
             },
         }
-        fig = plt.figure(figsize=(16, 8))
-        gs = fig.add_gridspec(4, 2)
-        axs = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1]), fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[1, 1]),
-               fig.add_subplot(gs[2, 0]), fig.add_subplot(gs[2, 1]), fig.add_subplot(gs[3, 0]), fig.add_subplot(gs[3, 1])]
+        # Create a figure with a 3x2 grid of subplots
+        fig, axs = plt.subplots(3, 2, figsize=(16, 8))
+        axs = axs.flatten()  # Flatten the 2D array of axes to a 1D array for easy iteration
         font_size = 8
+        
         def plot_bars(ax, data, title, targets=None, rotation=0):
             labels = list(data.keys())
             values = list(data.values())
@@ -451,44 +487,74 @@ class RLMenuGenerator(BaseMenuGenerator):
         plot_bars(axs[0], avg_nutrient_averages, 'Nutrient Average Over ', targets['nutrients'])
         plot_bars(axs[1], avg_ingredient_group_counts, 'Ingredient Group Count Average Over ', targets['ingredient_groups'], rotation=25)
         plot_bars(axs[2], avg_ingredient_environment_counts, 'Ingredient Environment Count Average Over ', targets['ingredient_environment'])
-        plot_bars(axs[3], avg_consumption_averages, 'Consumption and Cost Averages Over ', targets['consumption_cost_co2_g'])
+        plot_bars(axs[3], avg_misc_averages, 'Preference Score and Cost Averages Over ', targets['preference_and_cost'])
         plot_bars(axs[4], avg_group_portions, 'Group Portions Averages Over ', targets['group_portions'], rotation=25)
         
-        num_plots = min(len(current_meal_plan), 3)
+        num_plots = 1
         
-        for i in range(num_plots):
-            selected_ingredient = np.array(list(current_meal_plan[i].keys()))
-            current_selection = np.array(list(current_meal_plan[i].values()))
-            
-            bars = axs[5 + i].bar(selected_ingredient, current_selection, color='blue', width=0.5)
-            axs[5 + i].set_ylabel('Grams of Ingredient')
-            axs[5 + i].set_title(f'Selected Ingredients: Episode {i+1}')
-            axs[5 + i].set_xticks(np.arange(len(selected_ingredient)))
-            axs[5 + i].set_xticklabels(selected_ingredient, rotation=15, ha='center', fontsize=font_size)
-            axs[5 + i].set_ylim(0, max(current_selection) * 1.3)
-            
-            for bar, actual in zip(bars, current_selection):
-                height = bar.get_height()
-                axs[5 + i].annotate(f'{actual:.2f} g', xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', clip_on=True)
+        selected_ingredient = np.array(list(current_meal_plan[0].keys()))
+        current_selection = np.array(list(current_meal_plan[0].values()))
         
-        for j in range(num_plots + 5, len(axs)):
-            fig.delaxes(axs[j])
+        bars = axs[5].bar(selected_ingredient, current_selection, color='blue', width=0.5)
+        axs[5].set_ylabel('Grams of Ingredient')
+        axs[5].set_title(f'Selected Ingredients: Episode {0+1}')
+        axs[5].set_xticks(np.arange(len(selected_ingredient)))
+        axs[5].set_xticklabels(selected_ingredient, rotation=15, ha='center', fontsize=font_size)
+        axs[5].set_ylim(0, max(current_selection) * 1.3)
+        
+        for bar, actual in zip(bars, current_selection):
+            height = bar.get_height()
+            axs[5].annotate(f'{actual:.2f} g', xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', clip_on=True)
+    
             
         plt.tight_layout(pad=2.0)
         plt.subplots_adjust(hspace=1.1, wspace=0.1)
         
         # Save the figure
-        if save_path:
-            plt.savefig(os.path.join(save_path, 'results.png'))
-        plt.show()
+        try:
+            if save_paths['graphs']:
+                    graph_path = os.path.join(save_paths['graphs'], 'menu_graphs')
+                    os.makedirs(graph_path, exist_ok=True)
+                    plt.savefig(os.path.join(graph_path, f'RL_results_week_{week}_day_{day}.png'))
+        except:
+            raise ValueError("Error saving the graph")
+            
+        # Save data to JSON
+        data_to_save = {
+            'meal_plan': current_meal_plan,
+            'nutrient_averages': avg_nutrient_averages,
+            'ingredient_group_counts': avg_ingredient_group_counts,
+            'ingredient_environment_counts': avg_ingredient_environment_counts,
+            'consumption_averages': avg_misc_averages,
+            'cost': avg_cost,
+            'co2_g': avg_co2_g,
+            'group_portions': avg_group_portions
+        }
+    
+        if save_paths and 'data' in save_paths:
+            json_filename = os.path.join(save_paths['data'], 'RL_menu_results.json')
 
-    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, save_path: str = None) -> Dict[str, str]:
+            # Load existing data if the file exists
+            if os.path.exists(json_filename):
+                with open(json_filename, 'r') as json_file:
+                    existing_data = json.load(json_file)
+            else:
+                existing_data = []
+
+            # Append new data
+            existing_data.append(data_to_save)
+
+            # Save updated data
+            with open(json_filename, 'w') as json_file:
+                json.dump(existing_data, json_file, indent=4)
+
+    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, save_paths: Dict = None, week=0, day=0) -> Dict[str, str]:
         if self.generated_count > self.menu_plan_length:
             print(f"\nGenerated {self.menu_plan_length} meal plans, resetting ingredients.")
             self.reset_ingredients()
-
+        
         unavailable_ingredients = unavailable.union(self.selected_ingredients)
-        # Train the RL model
+        # Train the RL modeln
         model, eval_env = self.train_rl_model(negotiated, unavailable_ingredients)
         
         eval_env.training = False
@@ -496,28 +562,36 @@ class RLMenuGenerator(BaseMenuGenerator):
 
         # Evaluate the model
         num_episodes = 1
-        predictions = self.evaluate_model(model, eval_env, "MASKED_PPO", num_episodes, deterministic=True)
+        predictions = self.evaluate_model(model, eval_env, num_episodes, deterministic=True)
 
         # Plot and save the results
-        self.plot_results(predictions, num_episodes, save_path)
+        self.plot_results(predictions, num_episodes, save_paths, week, day)
 
         # Generate the final meal plan
         final_meal_plan = self.get_final_meal_plan(predictions)
         
         # Save the meal plan
-        if save_path:
-            with open(os.path.join(save_path, 'final_meal_plan.txt'), 'w') as f:
+        if save_paths:
+            with open(os.path.join(save_paths['data'], 'final_meal_plan.txt'), 'w') as f:
                 for item, amount in final_meal_plan.items():
                     f.write(f"{item}: {amount}\n")
         
-        self.selected_ingredients.update(final_meal_plan.keys())
-            
-        return final_meal_plan
-
+        for ingredient in final_meal_plan.keys():
+            for group, ingredients in negotiated.items():
+                if group in self.groups_to_remove_from:
+                    if ingredient in ingredients:
+                        self.selected_ingredients.add(ingredient)
+        
+        self.generated_count += 1
+        
+        return list(final_meal_plan.keys())
+    
+        
+        
     def get_final_meal_plan(self, predictions):
         # Extract the final meal plan from predictions
         flattened_predictions = [pred for episode in predictions for pred in episode]
-        _, _, _, _, _, _, _, _, _, current_meal_plan = zip(*flattened_predictions)
+        _, _, _, _, _, _, _, current_meal_plan = zip(*flattened_predictions)
         
         # Get the last meal plan as the final meal plan
         final_meal_plan = current_meal_plan[-1]
@@ -526,8 +600,5 @@ class RLMenuGenerator(BaseMenuGenerator):
 
     def reset_ingredients(self) -> None:
         self.selected_ingredients.clear()
-        self.ingredients_in_groups = {group: items.copy() for group, items in self.original_ingredients_in_groups.items()}
-        self.ingredients_scores = {group: scores.copy() for group, scores in self.original_ingredients_scores.items()}
-        self.total_scores = self.original_total_scores.copy()
         self.generated_count = 1
 

@@ -132,7 +132,7 @@ def main():
     negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
 
     # Generate menu based on negotiated list
-    menu_plan = menu_generator.generate_menu(negotiated_ingredients, unavailable_ingredients)
+    menu_plan = menu_generator.generate_menu(negotiated_ingredients, unavailable_ingredients, save_paths = {'data': run_data_dir, 'graphs': run_graphs_dir}, week=week, day=day)
     
     # Calculate the predicted utility for all children for a given meal plan
     previous_utility = utility_calculator.calculate_day_menu_utility(updated_known_and_predicted_preferences, menu_plan)
@@ -190,7 +190,7 @@ def main():
         negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
         
         # Generate menu based on negotiated list
-        menu_plan = menu_generator.generate_menu(negotiated_ingredients, unavailable_ingredients)
+        menu_plan = menu_generator.generate_menu(negotiated_ingredients, unavailable_ingredients, save_paths = {'data': run_data_dir, 'graphs': run_graphs_dir}, week=week, day=day)
         
         # Calculate the predicted utility for all children for a given meal plan
         previous_utility = utility_calculator.calculate_day_menu_utility(updated_known_and_predicted_preferences, menu_plan)
