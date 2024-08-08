@@ -11,36 +11,36 @@ from sklearn.preprocessing import MinMaxScaler
 def get_child_data():
     # Function to get feature data on children
     return {
-        "child1": {"age": 10, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
-        "child2": {"age": 9, "gender": "F", "health_consideration": "very health conscious", "favorite_cuisine": "Italian"},
-        "child3": {"age": 9, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "Italian"},
-        "child4": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
-        "child5": {"age": 11, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "Italian"},
-        "child6": {"age": 11, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
-        "child7": {"age": 9, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "Italian"},
-        "child8": {"age": 9, "gender": "F", "health_consideration": "very health conscious", "favorite_cuisine": "Italian"},
-        "child9": {"age": 10, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
-        "child10": {"age": 11, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
-        "child11": {"age": 9, "gender": "F", "health_consideration": "moderately health conscious", "favorite_cuisine": "Italian"},
-        "child12": {"age": 9, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
-        "child13": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
-        "child14": {"age": 10, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "Seafood"},
-        "child15": {"age": 11, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
-        "child16": {"age": 11, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
-        "child17": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"},
-        "child18": {"age": 9, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
-        "child19": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
-        "child20": {"age": 10, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "BBQ"},
-        "child21": {"age": 10, "gender": "F", "health_consideration": "very health conscious", "favorite_cuisine": "BBQ"},
-        "child22": {"age": 9, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "BBQ"},
-        "child23": {"age": 9, "gender": "F", "health_consideration": "moderately health conscious", "favorite_cuisine": "BBQ"},
-        "child24": {"age": 9, "gender": "M", "health_consideration": "don't care", "favorite_cuisine": "BBQ"},
-        "child25": {"age": 11, "gender": "F", "health_consideration": "very health conscious", "favorite_cuisine": "BBQ"},
-        "child26": {"age": 11, "gender": "M", "health_consideration": "moderately health conscious", "favorite_cuisine": "BBQ"},
-        "child27": {"age": 9, "gender": "F", "health_consideration": "moderately health conscious", "favorite_cuisine": "Seafood"},
-        "child28": {"age": 9, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Seafood"},
-        "child29": {"age": 9, "gender": "M", "health_consideration": "very health conscious", "favorite_cuisine": "Italian"},
-        "child30": {"age": 10, "gender": "F", "health_consideration": "don't care", "favorite_cuisine": "Italian"}
+        "child1": {"age": 10, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
+        "child2": {"age": 9, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "Italian"},
+        "child3": {"age": 9, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Italian"},
+        "child4": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
+        "child5": {"age": 11, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Italian"},
+        "child6": {"age": 11, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
+        "child7": {"age": 9, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Italian"},
+        "child8": {"age": 9, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "Italian"},
+        "child9": {"age": 10, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
+        "child10": {"age": 11, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
+        "child11": {"age": 9, "gender": "F", "health_consideration": "moderate", "favorite_cuisine": "Italian"},
+        "child12": {"age": 9, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
+        "child13": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
+        "child14": {"age": 10, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Seafood"},
+        "child15": {"age": 11, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
+        "child16": {"age": 11, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
+        "child17": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
+        "child18": {"age": 9, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
+        "child19": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
+        "child20": {"age": 10, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "BBQ"},
+        "child21": {"age": 10, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "BBQ"},
+        "child22": {"age": 9, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "BBQ"},
+        "child23": {"age": 9, "gender": "F", "health_consideration": "moderate", "favorite_cuisine": "BBQ"},
+        "child24": {"age": 9, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "BBQ"},
+        "child25": {"age": 11, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "BBQ"},
+        "child26": {"age": 11, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "BBQ"},
+        "child27": {"age": 9, "gender": "F", "health_consideration": "moderate", "favorite_cuisine": "Seafood"},
+        "child28": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
+        "child29": {"age": 9, "gender": "M", "health_consideration": "health focused", "favorite_cuisine": "Italian"},
+        "child30": {"age": 10, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian"}
     }
 
 
@@ -97,9 +97,9 @@ def initialize_child_preference_data(child_data: Dict[str, Dict[str, Any]], ingr
 
     # Factors affecting preferences with modifier values (increased impact)
     health_consideration_modifiers = {
-        "very health conscious": {"healthy": 1.5, "average": 1, "unhealthy": 0.5},
-        "moderately health conscious": {"healthy": 1.3, "average": 1, "unhealthy": 0.7},
-        "don't care": {"healthy": 0.7, "average": 1, "unhealthy": 1.3},
+        "health focused": {"healthy": 1.5, "average": 1, "unhealthy": 0.5},
+        "moderate": {"healthy": 1.3, "average": 1, "unhealthy": 0.7},
+        "indifferent": {"healthy": 0.7, "average": 1, "unhealthy": 1.3},
     }
 
     favorite_cuisine_modifiers = {

@@ -47,20 +47,25 @@ def mask_fn(self) -> np.ndarray:
         for key, portion_target in ingredient_group_portion_targets.items()
     )
     
-    # If the calorie target isn't met one has to increase the ingredients to meet this
-    calorie_target_met = self.env.get_wrapper_attr('nutrient_averages')['calories'] >= self.env.get_wrapper_attr('nutrient_target_ranges')['calories'][0]
+    # Get calorie targets
+    nutrient_averages = self.env.get_wrapper_attr('nutrient_averages')
+    nutrient_target_ranges = self.env.get_wrapper_attr('nutrient_target_ranges')
+    calorie_value = nutrient_averages['calories']
+    calorie_low_target = nutrient_target_ranges['calories'][0]
+    calorie_high_target = nutrient_target_ranges['calories'][1]
+    
+    # Determine if the calorie target is too low, within range, or too high
+    calorie_target_met = calorie_low_target <= calorie_value <= calorie_high_target
+    calorie_too_low = calorie_value < calorie_low_target
+    calorie_too_high = calorie_value > calorie_high_target
 
     target_flag = all_group_count_target_met and all_group_portion_target_met and calorie_target_met
 
-    # If all the group count targets are met, allow selection for all ingredients in that list
+    # If all targets are met, apply ingredient_action function
     if target_flag:
         selected_indexes = np.where(current_selection > 0)[0]
         for idx in selected_indexes:
             action_mask[idx + extra_action] = 1
-        action_mask[:extra_action] = [1, 1]
-        
-        return action_mask
-        
     else:
         # Iterate through each ingredient group to set the action mask
         for key, target in ingredient_group_count_targets.items():
@@ -103,7 +108,7 @@ def mask_fn(self) -> np.ndarray:
     action_mask = block_unavailable_ingredients(unavailable_ingredients, ingredient_df, action_mask, extra_action)
 
     # Apply any additional action constraints
-    action_mask = ingredient_action(self, ingredient_df, all_group_portion_target_met, calorie_target_met, action_mask, extra_action)
+    action_mask = ingredient_action(self, ingredient_df, all_group_portion_target_met, calorie_target_met, action_mask, extra_action, calorie_too_low, calorie_too_high)
 
     return action_mask
 
@@ -135,26 +140,36 @@ def block_unavailable_ingredients(unavailable_ingredients, ingredient_df, action
     except Exception as e:
         print(f"Error blocking unavailable ingredients: {e}")
 
-def ingredient_action(self, ingredient_df, all_group_portion_target_met, calorie_target_met, action_mask, extra_action):
+def ingredient_action(self, ingredient_df, all_group_portion_target_met, calorie_target_met, action_mask, extra_action, calorie_too_low, calorie_too_high):
     """
-    Update action mask based on whether count and portion targets for all groups are met.
+    Update action mask based on whether count and portion targets for all groups are met, and calorie constraints.
 
     Args:
         self: Reference to the environment wrapper.
         all_group_portion_target_met (bool): Indicator if all targets are met.
+        calorie_target_met (bool): Indicator if calorie target is met.
         action_mask (np.ndarray): Current action mask.
         extra_action (int): Number of extra actions (do nothing, increase).
+        calorie_too_low (bool): Indicator if calorie target is too low.
+        calorie_too_high (bool): Indicator if calorie target is too high.
 
     Returns:
         np.ndarray: Updated action mask.
     """
         
-    if all_group_portion_target_met and calorie_target_met:
-        # Allow all actions if both targets are met, including the do nothing signal
-        action_mask[:extra_action] = [1, 1]
-    else:
-        # If the targets are not met, only allow the increase action
+    if calorie_too_high:
+        # Only allow the do nothing action
+        action_mask[:extra_action] = [1, 0]
+    elif calorie_too_low:
+        # Only allow the increase action
         action_mask[:extra_action] = [0, 1]
+    else:
+        if all_group_portion_target_met and calorie_target_met:
+            # Allow all actions if both targets are met, including the do nothing signal
+            action_mask[:extra_action] = [1, 1]
+        else:
+            # If the targets are not met, only allow the increase action
+            action_mask[:extra_action] = [0, 1]
 
     verbose = self.env.get_wrapper_attr('verbose')
     if verbose > 1:
