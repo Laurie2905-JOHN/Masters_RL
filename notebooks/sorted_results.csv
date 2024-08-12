@@ -1,0 +1,441 @@
+Iteration,SMOTE,Model,Metric,Score,Rank
+3,False,Logistic Regression,accuracy,0.8755555555555555,1.0
+3,True,K-Nearest Neighbors,accuracy,0.8748148148148148,2.0
+3,True,Stochastic Gradient Descent,accuracy,0.8745679012345678,3.0
+3,False,Gaussian Naive Bayes,accuracy,0.874320987654321,4.0
+3,False,Stochastic Gradient Descent,accuracy,0.874320987654321,4.0
+3,False,MLP Classifier,accuracy,0.874320987654321,4.0
+3,True,Random Forest,accuracy,0.8740740740740741,7.0
+3,False,Random Forest,accuracy,0.8738271604938271,8.0
+3,True,Logistic Regression,accuracy,0.8735802469135803,9.0
+1,True,Support Vector Machine,accuracy,0.8733333333333333,10.0
+1,True,AdaBoost,accuracy,0.8733333333333333,10.0
+1,True,Gaussian Naive Bayes,accuracy,0.8733333333333333,10.0
+1,False,AdaBoost,accuracy,0.8733333333333333,10.0
+2,False,Gaussian Naive Bayes,accuracy,0.8733333333333333,10.0
+3,True,Gradient Boosting,accuracy,0.8733333333333333,10.0
+1,True,K-Nearest Neighbors,accuracy,0.8728395061728395,16.0
+1,False,Logistic Regression,accuracy,0.8728395061728395,16.0
+1,False,Random Forest,accuracy,0.8728395061728395,16.0
+1,False,MLP Classifier,accuracy,0.8728395061728395,16.0
+3,True,XGBoost,accuracy,0.8728395061728395,16.0
+3,False,XGBoost,accuracy,0.8728395061728395,16.0
+3,False,AdaBoost,accuracy,0.8728395061728395,16.0
+1,True,Logistic Regression,accuracy,0.8725925925925926,23.0
+1,True,Gradient Boosting,accuracy,0.8725925925925926,23.0
+1,False,XGBoost,accuracy,0.8725925925925926,23.0
+2,False,Random Forest,accuracy,0.8725925925925926,23.0
+3,False,Gradient Boosting,accuracy,0.8725925925925926,23.0
+1,False,Gradient Boosting,accuracy,0.8723456790123457,28.0
+3,True,Gaussian Naive Bayes,accuracy,0.8723456790123457,28.0
+4,True,Random Forest,accuracy,0.8723456790123457,28.0
+1,True,Random Forest,accuracy,0.8720987654320987,31.0
+1,True,Decision Tree,accuracy,0.8720987654320987,31.0
+1,False,Decision Tree,accuracy,0.8720987654320987,31.0
+3,True,MLP Classifier,accuracy,0.8720987654320987,31.0
+3,False,K-Nearest Neighbors,accuracy,0.8720987654320987,31.0
+4,True,Gaussian Naive Bayes,accuracy,0.8720987654320987,31.0
+1,True,XGBoost,accuracy,0.8718518518518519,37.0
+2,False,K-Nearest Neighbors,accuracy,0.8718518518518519,37.0
+3,False,Decision Tree,accuracy,0.8718518518518519,37.0
+3,True,Support Vector Machine,accuracy,0.8716049382716049,40.0
+1,True,MLP Classifier,accuracy,0.871358024691358,41.0
+1,False,Gaussian Naive Bayes,accuracy,0.871358024691358,41.0
+2,False,Stochastic Gradient Descent,accuracy,0.871358024691358,41.0
+4,True,Logistic Regression,accuracy,0.871358024691358,41.0
+4,True,Decision Tree,accuracy,0.871358024691358,41.0
+4,False,K-Nearest Neighbors,accuracy,0.871358024691358,41.0
+1,False,Support Vector Machine,accuracy,0.8711111111111111,47.0
+2,True,Logistic Regression,accuracy,0.8711111111111111,47.0
+3,False,Support Vector Machine,accuracy,0.8711111111111111,47.0
+4,True,K-Nearest Neighbors,accuracy,0.8711111111111111,47.0
+1,True,Stochastic Gradient Descent,accuracy,0.8708641975308642,51.0
+1,False,K-Nearest Neighbors,accuracy,0.8708641975308642,51.0
+1,False,Stochastic Gradient Descent,accuracy,0.8708641975308642,51.0
+3,True,AdaBoost,accuracy,0.8708641975308642,51.0
+3,True,Decision Tree,accuracy,0.8708641975308642,51.0
+4,True,AdaBoost,accuracy,0.8708641975308642,51.0
+2,True,XGBoost,accuracy,0.8706172839506173,57.0
+2,True,AdaBoost,accuracy,0.8706172839506173,57.0
+2,False,XGBoost,accuracy,0.8706172839506173,57.0
+2,False,Decision Tree,accuracy,0.8706172839506173,57.0
+2,True,Random Forest,accuracy,0.8703703703703703,61.0
+0,True,MLP Classifier,accuracy,0.8701234567901235,62.0
+4,False,Support Vector Machine,accuracy,0.8701234567901235,62.0
+4,False,Random Forest,accuracy,0.8701234567901235,62.0
+4,True,Stochastic Gradient Descent,accuracy,0.8698765432098765,65.0
+4,False,Logistic Regression,accuracy,0.8698765432098765,65.0
+2,True,Stochastic Gradient Descent,accuracy,0.8696296296296296,67.0
+2,True,MLP Classifier,accuracy,0.8696296296296296,67.0
+2,False,AdaBoost,accuracy,0.8696296296296296,67.0
+0,False,Support Vector Machine,accuracy,0.8693827160493827,70.0
+2,False,MLP Classifier,accuracy,0.8693827160493827,70.0
+4,False,XGBoost,accuracy,0.8693827160493827,70.0
+2,True,K-Nearest Neighbors,accuracy,0.8688888888888889,73.0
+2,False,Gradient Boosting,accuracy,0.8688888888888889,73.0
+2,True,Gaussian Naive Bayes,accuracy,0.8683950617283951,75.0
+4,True,Gradient Boosting,accuracy,0.8683950617283951,75.0
+4,True,MLP Classifier,accuracy,0.8683950617283951,75.0
+4,False,Stochastic Gradient Descent,accuracy,0.8683950617283951,75.0
+0,True,Decision Tree,accuracy,0.8681481481481481,79.0
+4,False,AdaBoost,accuracy,0.8681481481481481,79.0
+2,False,Logistic Regression,accuracy,0.8679012345679012,81.0
+2,False,Support Vector Machine,accuracy,0.8679012345679012,81.0
+0,False,K-Nearest Neighbors,accuracy,0.8676543209876543,83.0
+0,False,Stochastic Gradient Descent,accuracy,0.8676543209876543,83.0
+2,True,Decision Tree,accuracy,0.8676543209876543,83.0
+4,False,Gradient Boosting,accuracy,0.8676543209876543,83.0
+2,True,Support Vector Machine,accuracy,0.8674074074074074,87.0
+2,True,Gradient Boosting,accuracy,0.8674074074074074,87.0
+4,False,Gaussian Naive Bayes,accuracy,0.8674074074074074,87.0
+4,True,XGBoost,accuracy,0.8671604938271605,90.0
+4,False,Decision Tree,accuracy,0.8671604938271605,90.0
+0,True,XGBoost,accuracy,0.8669135802469136,92.0
+4,False,MLP Classifier,accuracy,0.8669135802469136,92.0
+0,True,Gradient Boosting,accuracy,0.8666666666666667,94.0
+0,True,Stochastic Gradient Descent,accuracy,0.8666666666666667,94.0
+0,True,Random Forest,accuracy,0.8661728395061729,96.0
+4,True,Support Vector Machine,accuracy,0.8661728395061729,96.0
+0,True,K-Nearest Neighbors,accuracy,0.8659259259259259,98.0
+0,True,Gaussian Naive Bayes,accuracy,0.8659259259259259,98.0
+0,False,Gaussian Naive Bayes,accuracy,0.8659259259259259,98.0
+0,False,Gradient Boosting,accuracy,0.8651851851851852,101.0
+0,False,AdaBoost,accuracy,0.8651851851851852,101.0
+0,False,MLP Classifier,accuracy,0.8651851851851852,101.0
+0,True,Logistic Regression,accuracy,0.8644444444444445,104.0
+0,False,Decision Tree,accuracy,0.8644444444444445,104.0
+0,True,AdaBoost,accuracy,0.8641975308641975,106.0
+0,False,XGBoost,accuracy,0.8639506172839506,107.0
+0,False,Random Forest,accuracy,0.8634567901234568,108.0
+0,True,Support Vector Machine,accuracy,0.8624691358024691,109.0
+0,False,Logistic Regression,accuracy,0.8614814814814815,110.0
+3,False,Decision Tree,f1_macro,0.6676204286534786,1.0
+3,False,Gradient Boosting,f1_macro,0.6672923448613315,2.0
+1,False,K-Nearest Neighbors,f1_macro,0.6664649610566404,3.0
+1,True,MLP Classifier,f1_macro,0.6664258570027572,4.0
+1,True,Support Vector Machine,f1_macro,0.6657168847075111,5.0
+1,False,XGBoost,f1_macro,0.665695366055939,6.0
+1,True,Decision Tree,f1_macro,0.6656825770226394,7.0
+3,False,Gaussian Naive Bayes,f1_macro,0.6654189015270705,8.0
+1,False,Stochastic Gradient Descent,f1_macro,0.6653273989419777,9.0
+1,True,K-Nearest Neighbors,f1_macro,0.6652840072279582,10.0
+1,True,Stochastic Gradient Descent,f1_macro,0.6652207481301023,11.0
+3,True,Gaussian Naive Bayes,f1_macro,0.6650589352255334,12.0
+1,False,AdaBoost,f1_macro,0.6650384402201992,13.0
+1,True,Random Forest,f1_macro,0.66491524786662,14.0
+1,True,AdaBoost,f1_macro,0.6648634168198351,15.0
+1,False,Decision Tree,f1_macro,0.6647544967372101,16.0
+3,False,Support Vector Machine,f1_macro,0.6646749600827007,17.0
+3,True,MLP Classifier,f1_macro,0.664617198058601,18.0
+1,True,XGBoost,f1_macro,0.6646019467608137,19.0
+1,True,Gradient Boosting,f1_macro,0.6645783178891642,20.0
+1,False,Gradient Boosting,f1_macro,0.6645691541862637,21.0
+1,True,Logistic Regression,f1_macro,0.664557287147702,22.0
+1,False,Random Forest,f1_macro,0.6643960845354768,23.0
+4,True,XGBoost,f1_macro,0.6643929011334697,24.0
+3,False,AdaBoost,f1_macro,0.6643806805978462,25.0
+2,False,Gaussian Naive Bayes,f1_macro,0.6643471985137879,26.0
+1,False,Support Vector Machine,f1_macro,0.664317889565141,27.0
+3,False,MLP Classifier,f1_macro,0.6643035939373346,28.0
+3,True,AdaBoost,f1_macro,0.6641875387895055,29.0
+3,False,Logistic Regression,f1_macro,0.6641441985714464,30.0
+2,False,AdaBoost,f1_macro,0.6641034800122168,31.0
+2,False,Decision Tree,f1_macro,0.6640560506270037,32.0
+3,False,Stochastic Gradient Descent,f1_macro,0.6640151033873049,33.0
+2,False,Support Vector Machine,f1_macro,0.6639842304463088,34.0
+1,False,Logistic Regression,f1_macro,0.663960616404907,35.0
+1,False,Gaussian Naive Bayes,f1_macro,0.6638929472078434,36.0
+2,False,Logistic Regression,f1_macro,0.6637973686143512,37.0
+1,False,MLP Classifier,f1_macro,0.6637636634954959,38.0
+3,False,K-Nearest Neighbors,f1_macro,0.6636698468990732,39.0
+3,True,XGBoost,f1_macro,0.6635977840140572,40.0
+3,False,Random Forest,f1_macro,0.6635905357573478,41.0
+2,False,MLP Classifier,f1_macro,0.6635383218597061,42.0
+2,False,Gradient Boosting,f1_macro,0.6634984029569749,43.0
+3,True,Logistic Regression,f1_macro,0.6634755646283889,44.0
+3,False,XGBoost,f1_macro,0.6633440121025328,45.0
+3,True,Random Forest,f1_macro,0.6633164333573851,46.0
+4,False,Support Vector Machine,f1_macro,0.6631734080200449,47.0
+3,True,Stochastic Gradient Descent,f1_macro,0.662507643936483,48.0
+4,True,Support Vector Machine,f1_macro,0.6624915188071088,49.0
+3,True,K-Nearest Neighbors,f1_macro,0.6623949849412787,50.0
+2,True,Stochastic Gradient Descent,f1_macro,0.6623801377382957,51.0
+2,True,MLP Classifier,f1_macro,0.6623388867413118,52.0
+3,True,Decision Tree,f1_macro,0.6622718999053232,53.0
+4,False,XGBoost,f1_macro,0.6622623202659401,54.0
+3,True,Support Vector Machine,f1_macro,0.6622555374342899,55.0
+4,False,MLP Classifier,f1_macro,0.6620284520923634,56.0
+4,True,MLP Classifier,f1_macro,0.6619610205650773,57.0
+2,False,XGBoost,f1_macro,0.6619176889619915,58.0
+1,True,Gaussian Naive Bayes,f1_macro,0.6619130748376899,59.0
+2,True,XGBoost,f1_macro,0.6618614523763473,60.0
+4,True,Stochastic Gradient Descent,f1_macro,0.6618521940849067,61.0
+4,True,Random Forest,f1_macro,0.6618508929865479,62.0
+4,True,AdaBoost,f1_macro,0.6618408404853089,63.0
+4,False,Decision Tree,f1_macro,0.6617860981552417,64.0
+4,False,Stochastic Gradient Descent,f1_macro,0.6617752975265018,65.0
+4,False,Random Forest,f1_macro,0.6617237530045953,66.0
+2,False,Random Forest,f1_macro,0.6617033635559496,67.0
+2,False,K-Nearest Neighbors,f1_macro,0.6616526337399675,68.0
+2,False,Stochastic Gradient Descent,f1_macro,0.6615781867930763,69.0
+4,False,K-Nearest Neighbors,f1_macro,0.6614977250476533,70.0
+0,False,XGBoost,f1_macro,0.6614763885909111,71.0
+2,True,Support Vector Machine,f1_macro,0.6614590656038196,72.0
+4,True,Gaussian Naive Bayes,f1_macro,0.6613167003683956,73.0
+4,True,K-Nearest Neighbors,f1_macro,0.6612886258991102,74.0
+3,True,Gradient Boosting,f1_macro,0.6612208053885602,75.0
+4,False,AdaBoost,f1_macro,0.6611856804778491,76.0
+2,True,AdaBoost,f1_macro,0.6611243902855588,77.0
+4,True,Logistic Regression,f1_macro,0.6611009894649946,78.0
+4,False,Gaussian Naive Bayes,f1_macro,0.6609978654404831,79.0
+2,True,K-Nearest Neighbors,f1_macro,0.6609059523281826,80.0
+2,True,Gaussian Naive Bayes,f1_macro,0.660890088509066,81.0
+4,True,Decision Tree,f1_macro,0.6607580699321745,82.0
+2,True,Random Forest,f1_macro,0.6603507836615798,83.0
+2,True,Gradient Boosting,f1_macro,0.6603014456308286,84.0
+4,False,Logistic Regression,f1_macro,0.6602342062127712,85.0
+0,False,AdaBoost,f1_macro,0.6599068960256158,86.0
+4,False,Gradient Boosting,f1_macro,0.6599025577772939,87.0
+4,True,Gradient Boosting,f1_macro,0.6598619982467155,88.0
+0,True,Gaussian Naive Bayes,f1_macro,0.6597440609613829,89.0
+0,True,MLP Classifier,f1_macro,0.6596813738129288,90.0
+0,True,Decision Tree,f1_macro,0.6595458877711035,91.0
+2,True,Decision Tree,f1_macro,0.6594786031766934,92.0
+0,True,Support Vector Machine,f1_macro,0.6593804125668485,93.0
+0,True,AdaBoost,f1_macro,0.6591555587914506,94.0
+2,True,Logistic Regression,f1_macro,0.6591349901875957,95.0
+0,False,MLP Classifier,f1_macro,0.6591219731301214,96.0
+0,True,Stochastic Gradient Descent,f1_macro,0.6590948850289786,97.0
+0,True,XGBoost,f1_macro,0.6590567058011624,98.0
+0,False,Random Forest,f1_macro,0.6588136938587397,99.0
+0,False,Decision Tree,f1_macro,0.6587006735937777,100.0
+0,False,Gradient Boosting,f1_macro,0.658421570471368,101.0
+0,False,Support Vector Machine,f1_macro,0.6583607901288487,102.0
+0,True,Gradient Boosting,f1_macro,0.658010531305926,103.0
+0,False,Stochastic Gradient Descent,f1_macro,0.6579964985833303,104.0
+0,True,K-Nearest Neighbors,f1_macro,0.6578537179548436,105.0
+0,True,Logistic Regression,f1_macro,0.657835993223792,106.0
+0,False,Gaussian Naive Bayes,f1_macro,0.6575626809601401,107.0
+0,False,K-Nearest Neighbors,f1_macro,0.6571387362549038,108.0
+0,True,Random Forest,f1_macro,0.6557742728949318,109.0
+0,False,Logistic Regression,f1_macro,0.6556412582107776,110.0
+1,False,Support Vector Machine,precision_macro,0.6932135054636808,1.0
+1,False,MLP Classifier,precision_macro,0.6931876147189675,2.0
+1,False,XGBoost,precision_macro,0.692955419404577,3.0
+1,False,Logistic Regression,precision_macro,0.6928853028530796,4.0
+1,False,Gradient Boosting,precision_macro,0.6928428264224281,5.0
+1,False,Gaussian Naive Bayes,precision_macro,0.692339197506047,6.0
+1,False,Decision Tree,precision_macro,0.6920726951350517,7.0
+1,False,K-Nearest Neighbors,precision_macro,0.6918276814961009,8.0
+1,True,Random Forest,precision_macro,0.6917515032829897,9.0
+1,True,Support Vector Machine,precision_macro,0.6916958437678031,10.0
+1,True,MLP Classifier,precision_macro,0.6915916208805186,11.0
+1,True,Stochastic Gradient Descent,precision_macro,0.6914014453834059,12.0
+1,False,AdaBoost,precision_macro,0.6913164000120522,13.0
+3,False,Random Forest,precision_macro,0.6909059827828112,14.0
+1,True,K-Nearest Neighbors,precision_macro,0.6908956111500814,15.0
+3,False,AdaBoost,precision_macro,0.6907500066237448,16.0
+3,False,Support Vector Machine,precision_macro,0.6907469757254542,17.0
+1,False,Random Forest,precision_macro,0.6907325003389384,18.0
+1,True,Decision Tree,precision_macro,0.6904754912561,19.0
+3,False,MLP Classifier,precision_macro,0.6903871046110182,20.0
+3,False,Gradient Boosting,precision_macro,0.6903116300553238,21.0
+3,False,XGBoost,precision_macro,0.6901178582700999,22.0
+1,True,XGBoost,precision_macro,0.690011799865252,23.0
+1,False,Stochastic Gradient Descent,precision_macro,0.6899626800347511,24.0
+1,True,Logistic Regression,precision_macro,0.6898701226824,25.0
+1,True,AdaBoost,precision_macro,0.6898239558465328,26.0
+3,True,K-Nearest Neighbors,precision_macro,0.6897428795472659,27.0
+3,False,Stochastic Gradient Descent,precision_macro,0.6897186029793317,28.0
+4,False,Logistic Regression,precision_macro,0.6897163974665478,29.0
+3,False,Logistic Regression,precision_macro,0.6897107174502985,30.0
+3,True,Stochastic Gradient Descent,precision_macro,0.6896148305605256,31.0
+4,False,Decision Tree,precision_macro,0.689347578244716,32.0
+4,False,MLP Classifier,precision_macro,0.6891517752611562,33.0
+3,True,Logistic Regression,precision_macro,0.689136248893625,34.0
+3,False,Gaussian Naive Bayes,precision_macro,0.6891286270535844,35.0
+1,True,Gaussian Naive Bayes,precision_macro,0.6890710131119158,36.0
+1,True,Gradient Boosting,precision_macro,0.6888324375296144,37.0
+2,False,Random Forest,precision_macro,0.6888132831183822,38.0
+2,False,XGBoost,precision_macro,0.688493116743737,39.0
+2,False,Gaussian Naive Bayes,precision_macro,0.6883399392789893,40.0
+3,False,K-Nearest Neighbors,precision_macro,0.6883025635416768,41.0
+4,False,Gaussian Naive Bayes,precision_macro,0.6882612690335594,42.0
+3,True,Gaussian Naive Bayes,precision_macro,0.6880938620859232,43.0
+3,True,AdaBoost,precision_macro,0.6880270505487569,44.0
+3,True,Random Forest,precision_macro,0.6879386784175501,45.0
+4,False,Gradient Boosting,precision_macro,0.687712294999737,46.0
+3,True,XGBoost,precision_macro,0.6876644130590114,47.0
+2,False,Logistic Regression,precision_macro,0.6876037483279525,48.0
+4,True,K-Nearest Neighbors,precision_macro,0.6875441083292572,49.0
+3,True,Support Vector Machine,precision_macro,0.6875027956590196,50.0
+3,True,Decision Tree,precision_macro,0.6872486314205135,51.0
+0,True,Gradient Boosting,precision_macro,0.6872030293444064,52.0
+2,False,K-Nearest Neighbors,precision_macro,0.687200298705972,53.0
+4,True,Support Vector Machine,precision_macro,0.6871327582077964,54.0
+4,False,Support Vector Machine,precision_macro,0.6870498548493912,55.0
+2,False,Support Vector Machine,precision_macro,0.6870445062496137,56.0
+3,False,Decision Tree,precision_macro,0.6869075275777021,57.0
+0,False,K-Nearest Neighbors,precision_macro,0.6868790856760251,58.0
+4,False,Random Forest,precision_macro,0.6868601946204368,59.0
+2,False,AdaBoost,precision_macro,0.6868433707397376,60.0
+2,False,MLP Classifier,precision_macro,0.686818090566624,61.0
+4,False,K-Nearest Neighbors,precision_macro,0.6868017808048104,62.0
+3,True,MLP Classifier,precision_macro,0.6867721053148066,63.0
+0,False,Gaussian Naive Bayes,precision_macro,0.6866961026194558,64.0
+0,False,XGBoost,precision_macro,0.6866807270870918,65.0
+0,False,Gradient Boosting,precision_macro,0.6865849516623734,66.0
+4,False,AdaBoost,precision_macro,0.6865098494785828,67.0
+2,False,Gradient Boosting,precision_macro,0.6864721741139774,68.0
+2,False,Decision Tree,precision_macro,0.6864276763361215,69.0
+0,False,Stochastic Gradient Descent,precision_macro,0.6863641477424366,70.0
+0,False,MLP Classifier,precision_macro,0.6863216700855486,71.0
+4,False,XGBoost,precision_macro,0.6863022161275735,72.0
+4,False,Stochastic Gradient Descent,precision_macro,0.6861968502690299,73.0
+0,True,Random Forest,precision_macro,0.6861291548878574,74.0
+4,True,XGBoost,precision_macro,0.6860791740650398,75.0
+0,False,Support Vector Machine,precision_macro,0.6860560326420193,76.0
+0,True,Decision Tree,precision_macro,0.686041423570595,77.0
+4,True,Decision Tree,precision_macro,0.6859703911343347,78.0
+4,True,Logistic Regression,precision_macro,0.6859322108968248,79.0
+2,True,Logistic Regression,precision_macro,0.6859015911539605,80.0
+3,True,Gradient Boosting,precision_macro,0.685879426092016,81.0
+4,True,Random Forest,precision_macro,0.6857115314167185,82.0
+4,True,Gradient Boosting,precision_macro,0.6856810947398546,83.0
+4,True,AdaBoost,precision_macro,0.6856373399224287,84.0
+2,True,K-Nearest Neighbors,precision_macro,0.6855914158035251,85.0
+0,True,Support Vector Machine,precision_macro,0.6854032522539681,86.0
+0,True,Gaussian Naive Bayes,precision_macro,0.6853762560047739,87.0
+0,False,Decision Tree,precision_macro,0.6853498758854755,88.0
+0,False,AdaBoost,precision_macro,0.6853366322271773,89.0
+2,True,Support Vector Machine,precision_macro,0.6851721187881916,90.0
+2,False,Stochastic Gradient Descent,precision_macro,0.6851229711975665,91.0
+4,True,MLP Classifier,precision_macro,0.6849620695105028,92.0
+0,False,Logistic Regression,precision_macro,0.6849314661776453,93.0
+2,True,Gaussian Naive Bayes,precision_macro,0.6847846062519116,94.0
+4,True,Gaussian Naive Bayes,precision_macro,0.6846968850208631,95.0
+2,True,Gradient Boosting,precision_macro,0.6845499724332271,96.0
+0,True,Stochastic Gradient Descent,precision_macro,0.6845250815235697,97.0
+0,True,AdaBoost,precision_macro,0.6845162643244846,98.0
+0,True,XGBoost,precision_macro,0.6844792733319486,99.0
+2,True,Random Forest,precision_macro,0.6843324878021203,100.0
+2,True,Stochastic Gradient Descent,precision_macro,0.6842194635053074,101.0
+2,True,AdaBoost,precision_macro,0.6838169947560621,102.0
+0,False,Random Forest,precision_macro,0.6837199551339987,103.0
+2,True,XGBoost,precision_macro,0.6836581815353714,104.0
+4,True,Stochastic Gradient Descent,precision_macro,0.6831605435257952,105.0
+2,True,Decision Tree,precision_macro,0.6830731136889983,106.0
+0,True,MLP Classifier,precision_macro,0.6828689337390454,107.0
+0,True,Logistic Regression,precision_macro,0.6827839997356484,108.0
+0,True,K-Nearest Neighbors,precision_macro,0.6826889038416956,109.0
+2,True,MLP Classifier,precision_macro,0.6823967239443522,110.0
+3,False,Logistic Regression,recall_macro,0.643839503178986,1.0
+2,False,Support Vector Machine,recall_macro,0.6434249746986989,2.0
+3,False,Random Forest,recall_macro,0.643208403960075,3.0
+2,False,AdaBoost,recall_macro,0.6431036291790315,4.0
+3,False,Gaussian Naive Bayes,recall_macro,0.6429954027976288,5.0
+2,False,Logistic Regression,recall_macro,0.6428838287549024,6.0
+3,True,Support Vector Machine,recall_macro,0.6425770331405549,7.0
+2,False,Gradient Boosting,recall_macro,0.6424856349680237,8.0
+3,False,XGBoost,recall_macro,0.6419486700916863,9.0
+2,True,XGBoost,recall_macro,0.6419361268893091,10.0
+3,True,AdaBoost,recall_macro,0.6418388808370485,11.0
+2,False,Gaussian Naive Bayes,recall_macro,0.6418385409463764,12.0
+2,False,MLP Classifier,recall_macro,0.6418335264727821,13.0
+2,False,K-Nearest Neighbors,recall_macro,0.6418143019845404,14.0
+2,True,Stochastic Gradient Descent,recall_macro,0.6415817364431804,15.0
+3,False,K-Nearest Neighbors,recall_macro,0.6415741037753622,16.0
+4,True,Random Forest,recall_macro,0.6415557126932556,17.0
+1,True,Logistic Regression,recall_macro,0.6415119590382612,18.0
+3,False,Stochastic Gradient Descent,recall_macro,0.6414735100617777,19.0
+1,False,Decision Tree,recall_macro,0.6414045660629937,20.0
+1,False,Logistic Regression,recall_macro,0.6413463307927425,21.0
+3,False,Decision Tree,recall_macro,0.6412605088993315,22.0
+3,True,Gradient Boosting,recall_macro,0.6412285192938589,23.0
+3,True,Stochastic Gradient Descent,recall_macro,0.6412252896083535,24.0
+3,True,Decision Tree,recall_macro,0.6411953563915789,25.0
+1,True,Stochastic Gradient Descent,recall_macro,0.6410942008724685,26.0
+3,True,K-Nearest Neighbors,recall_macro,0.6409459626413474,27.0
+1,True,Decision Tree,recall_macro,0.6409344205066794,28.0
+2,True,Gaussian Naive Bayes,recall_macro,0.6408935752508256,29.0
+3,True,Logistic Regression,recall_macro,0.6408767470419541,30.0
+1,False,Stochastic Gradient Descent,recall_macro,0.640862586713062,31.0
+3,False,Gradient Boosting,recall_macro,0.6408569607481864,32.0
+1,False,Gradient Boosting,recall_macro,0.640805184848946,33.0
+4,True,Stochastic Gradient Descent,recall_macro,0.6407269956233534,34.0
+2,True,Decision Tree,recall_macro,0.6407234260471757,35.0
+1,False,Support Vector Machine,recall_macro,0.6407188011500091,36.0
+3,False,Support Vector Machine,recall_macro,0.6407063759234504,37.0
+1,False,K-Nearest Neighbors,recall_macro,0.6405782452724617,38.0
+2,False,Stochastic Gradient Descent,recall_macro,0.6405474289637965,39.0
+4,False,Random Forest,recall_macro,0.6405338304404304,40.0
+3,False,MLP Classifier,recall_macro,0.6404741502727626,41.0
+3,True,MLP Classifier,recall_macro,0.6404072129769212,42.0
+3,False,AdaBoost,recall_macro,0.6403953992416438,43.0
+4,True,Decision Tree,recall_macro,0.640371653795271,44.0
+1,True,XGBoost,recall_macro,0.6403536522895921,45.0
+4,False,Stochastic Gradient Descent,recall_macro,0.6403140300163012,46.0
+3,True,Random Forest,recall_macro,0.6401054318361679,47.0
+1,False,XGBoost,recall_macro,0.6400702622309453,48.0
+3,True,Gaussian Naive Bayes,recall_macro,0.6400312017631804,49.0
+2,True,Logistic Regression,recall_macro,0.6400157004759071,50.0
+1,True,AdaBoost,recall_macro,0.6399654874499018,51.0
+4,True,AdaBoost,recall_macro,0.6398382584951112,52.0
+1,False,MLP Classifier,recall_macro,0.6398350784953611,53.0
+1,True,Random Forest,recall_macro,0.6398166874132547,54.0
+2,True,Gradient Boosting,recall_macro,0.6397908855781838,55.0
+2,False,XGBoost,recall_macro,0.6397586740578572,56.0
+4,False,Logistic Regression,recall_macro,0.6397432907464025,57.0
+1,False,Random Forest,recall_macro,0.6397099059292686,58.0
+2,True,K-Nearest Neighbors,recall_macro,0.6395169129754439,59.0
+4,False,Support Vector Machine,recall_macro,0.6393797047592202,60.0
+2,False,Random Forest,recall_macro,0.6392749299781768,61.0
+4,False,K-Nearest Neighbors,recall_macro,0.6392631162428994,62.0
+2,True,Support Vector Machine,recall_macro,0.639255705489935,63.0
+4,True,Support Vector Machine,recall_macro,0.6392261121638327,64.0
+1,True,Support Vector Machine,recall_macro,0.6391613492325077,65.0
+1,False,AdaBoost,recall_macro,0.6389649543640792,66.0
+1,True,MLP Classifier,recall_macro,0.6389229358114181,67.0
+1,False,Gaussian Naive Bayes,recall_macro,0.638876174385772,68.0
+1,True,K-Nearest Neighbors,recall_macro,0.6388737781064019,69.0
+2,True,AdaBoost,recall_macro,0.638854775533014,70.0
+4,False,Gaussian Naive Bayes,recall_macro,0.6387589743781699,71.0
+4,True,Logistic Regression,recall_macro,0.638619931688102,72.0
+1,True,Gradient Boosting,recall_macro,0.6384214121409126,73.0
+4,True,XGBoost,recall_macro,0.638398006585212,74.0
+4,False,AdaBoost,recall_macro,0.6383947768997065,75.0
+3,True,XGBoost,recall_macro,0.6381962076667616,76.0
+4,True,Gradient Boosting,recall_macro,0.6380997950206362,77.0
+4,True,MLP Classifier,recall_macro,0.6380338091067483,78.0
+4,False,XGBoost,recall_macro,0.6379844294868783,79.0
+2,True,Random Forest,recall_macro,0.6379518283901242,80.0
+4,False,Decision Tree,recall_macro,0.6378874053494714,81.0
+2,False,Decision Tree,recall_macro,0.6377536487336071,82.0
+4,True,K-Nearest Neighbors,recall_macro,0.637725228704312,83.0
+2,True,MLP Classifier,recall_macro,0.63765422831683,84.0
+4,False,Gradient Boosting,recall_macro,0.6375382512917906,85.0
+1,True,Gaussian Naive Bayes,recall_macro,0.6374752731485545,86.0
+4,False,MLP Classifier,recall_macro,0.6368557160643116,87.0
+0,True,Gradient Boosting,recall_macro,0.6367344529650687,88.0
+0,True,Gaussian Naive Bayes,recall_macro,0.6365320922410924,89.0
+4,True,Gaussian Naive Bayes,recall_macro,0.636420518198366,90.0
+0,True,Support Vector Machine,recall_macro,0.6360832958517808,91.0
+0,False,MLP Classifier,recall_macro,0.6359901128911609,92.0
+0,True,K-Nearest Neighbors,recall_macro,0.6358229217724072,93.0
+0,True,MLP Classifier,recall_macro,0.635720543270734,94.0
+0,False,Gaussian Naive Bayes,recall_macro,0.6355395317137604,95.0
+0,True,Stochastic Gradient Descent,recall_macro,0.6355347391550199,96.0
+0,True,AdaBoost,recall_macro,0.63540839329212,97.0
+0,True,Decision Tree,recall_macro,0.6353897802951597,98.0
+0,False,Support Vector Machine,recall_macro,0.634710474753186,99.0
+0,True,Logistic Regression,recall_macro,0.634365230162355,100.0
+0,False,Random Forest,recall_macro,0.6340572612512001,101.0
+0,False,Logistic Regression,recall_macro,0.6336986897376122,102.0
+0,False,Gradient Boosting,recall_macro,0.6334581516377618,103.0
+0,False,Decision Tree,recall_macro,0.6332791467837308,104.0
+0,False,Stochastic Gradient Descent,recall_macro,0.6332501649489097,105.0
+0,True,Random Forest,recall_macro,0.6332143341666503,106.0
+0,False,XGBoost,recall_macro,0.6329655519077002,107.0
+0,True,XGBoost,recall_macro,0.6326873982375014,108.0
+0,False,AdaBoost,recall_macro,0.6322655769800682,109.0
+0,False,K-Nearest Neighbors,recall_macro,0.6319584414750484,110.0

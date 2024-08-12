@@ -85,15 +85,21 @@ def get_modifiers(
     vegetable_mod = other_modifiers["vegetables_factor"][gender] if ingredient_category1 == "Vegetables and vegetable products" else 1
     meat_mod = other_modifiers["meat_factor"][gender] if ingredient_category1 == "Meat and meat products" else 1
     random_mod = random.uniform(other_modifiers["random_factor"][0], other_modifiers["random_factor"][1])
-
+    
     return (health_mod * favorite_mod * taste_mod * colour_mod * gender_mod * age_mod * 
-            texture_mod * group_mod * fruit_mod * vegetable_mod * meat_mod * random_mod)
+            texture_mod * group_mod * fruit_mod * vegetable_mod * meat_mod)
 
-def initialize_child_preference_data(child_data: Dict[str, Dict[str, Any]], ingredient_df: pd.DataFrame, split: float = 0.8, seed: int = None, plot_graphs: bool = False) -> Tuple[Dict[str, Dict[str, list]], Dict[str, Dict[str, list]]]:
+def initialize_child_preference_data(child_data: Dict[str, Dict[str, Any]], ingredient_df: pd.DataFrame, split: float = 0.5, seed: int = None, plot_graphs: bool = False, child_key_plot: str = None) -> Tuple[Dict[str, Dict[str, list]], Dict[str, Dict[str, list]]]:
     random.seed(seed)
     children_data = {}
-    all_scores = []
-    all_preferences = {"likes": [], "neutral": [], "dislikes": []}
+    all_scores = {}
+    
+    try:
+        if child_key_plot is not None and child_key_plot not in child_data:
+            raise ValueError(f"Child key '{child_key_plot}' not found in child_data.")
+    except ValueError as e:
+        print(e)
+        child_key_plot = None  # Reset child_key_plot to None to handle the case gracefully
 
     # Factors affecting preferences with modifier values (increased impact)
     health_consideration_modifiers = {
@@ -101,11 +107,18 @@ def initialize_child_preference_data(child_data: Dict[str, Dict[str, Any]], ingr
         "moderate": {"healthy": 1.3, "average": 1, "unhealthy": 0.7},
         "indifferent": {"healthy": 0.7, "average": 1, "unhealthy": 1.3},
     }
+    
+    # Factors affecting like/neutral/dislike ration with health conciousness. The more health focused you are the less picky
+    health_consideration_modifiers_ratio = {
+        "health focused": {'likes': 0.7, 'neutral': 0.2, 'dislikes': 0.1},
+        "moderate": {'likes': 0.5, 'neutral': 0.3, 'dislikes': 0.2},
+        "indifferent": {'likes': 0.35, 'neutral': 0.25, 'dislikes': 0.4}
+    }
 
     favorite_cuisine_modifiers = {
-        "BBQ": {"Meat and meat products": 1.4},
+        "BBQ": {"Meat and meat products": 2},
         "Seafood": {"Fish seafood amphibians reptiles and invertebrates": 1.4},
-        "Italian": {"Anchovies": 1.4, "Aubergines": 1.4, "Noodles": 1.4, "Pasta plain (not stuffed) uncooked": 1.4, "Pasta wholemeal": 1.4, "Tomatoes": 1.4},
+        "Italian": {"Anchovies": 2, "Aubergines": 2, "Noodles": 2, "Pasta plain (not stuffed) uncooked": 2, "Pasta wholemeal": 2, "Tomatoes": 2},
     }
 
     taste_modifiers = {
@@ -128,20 +141,20 @@ def initialize_child_preference_data(child_data: Dict[str, Dict[str, Any]], ingr
     }
 
     gender_modifiers = {
-        "M": 0.7,
-        "F": 1.3,
+        "M": 0.5,
+        "F": 1.5,
     }
 
     age_modifiers = {
-        9: 0.7,
+        9: 0.5,
         10: 1,
-        11: 1.3,
+        11: 1.5,
     }
 
     texture_modifiers = {
         "Crunchy": 0.7,
         "Soft": 1.3,
-        "Soft/Crunchy": 0.6,
+        "Soft/Crunchy": 0.2,
         "Firm": 1.3,
         "Leafy": 1,
         "Grainy": 1,
@@ -155,7 +168,7 @@ def initialize_child_preference_data(child_data: Dict[str, Dict[str, Any]], ingr
         "fruit_factor": 1.3,
         "vegetables_factor": {"M": 0.7, "F": 1.3},
         "meat_factor": {"M": 1.3, "F": 0.7},
-        "random_factor": [0.7, 1.3]
+        "random_factor": [0.8, 1.2],
     }
 
     vegetable_groups = {
@@ -176,56 +189,143 @@ def initialize_child_preference_data(child_data: Dict[str, Dict[str, Any]], ingr
         "Group F": 0.9 
     }
 
+    # Step 1: Calculate scores for each child individually and accumulate them in all_scores
+    all_labeled_scores = []  # Initialize list to store labeled scores
     for child_key, features in child_data.items():
-        preferences = {"likes": [], "neutral": [], "dislikes": []}
         child_scores = []
 
         for _, row in ingredient_df.iterrows():
             score = get_modifiers(features, row, health_consideration_modifiers, favorite_cuisine_modifiers, taste_modifiers,
-                                  colour_modifiers, gender_modifiers, age_modifiers, texture_modifiers, other_modifiers,
-                                  vegetable_groups, group_probabilities_modifiers)
-            child_scores.append((row["Category7"], score))
+                                colour_modifiers, gender_modifiers, age_modifiers, texture_modifiers, other_modifiers,
+                                vegetable_groups, group_probabilities_modifiers)
+            child_scores.append((row["Category7"], score))  # Store score along with the ingredient
 
+        # Sort scores for this child
         child_scores.sort(key=lambda x: x[1], reverse=True)
-        all_scores.extend(child_scores)
 
+        # Determine the number of likes, neutral, and dislikes
         num_ingredients = len(child_scores)
-        num_likes = int(0.6 * num_ingredients)
-        num_neutral = int(0.2 * num_ingredients)
+        ratio = health_consideration_modifiers_ratio[child_data[child_key]['health_consideration']]
+        
+        num_likes = int(ratio['likes'] * num_ingredients)
+        num_neutral = int(ratio['neutral'] * num_ingredients)
         num_dislikes = num_ingredients - num_likes - num_neutral
 
-        preferences["likes"] = [ingredient for ingredient, _ in child_scores[:num_likes]]
-        preferences["neutral"] = [ingredient for ingredient, _ in child_scores[num_likes:num_likes + num_neutral]]
-        preferences["dislikes"] = [ingredient for ingredient, _ in child_scores[num_likes + num_neutral:]]
+        # Label the scores and store them in all_labeled_scores
+        for ingredient, score in child_scores[:num_likes]:
+            all_labeled_scores.append((child_key, ingredient, score, 'likes'))
+        for ingredient, score in child_scores[num_likes:num_likes + num_neutral]:
+            all_labeled_scores.append((child_key, ingredient, score, 'neutral'))
+        for ingredient, score in child_scores[num_likes + num_neutral:]:
+            all_labeled_scores.append((child_key, ingredient, score, 'dislikes'))
 
-        all_preferences["likes"].extend(preferences["likes"])
-        all_preferences["neutral"].extend(preferences["neutral"])
-        all_preferences["dislikes"].extend(preferences["dislikes"])
-
-        children_data[child_key] = preferences
-
+    # Step 2: Generate known and unknown preferences
     all_data = {}
-
-    for child_key, preferences in children_data.items():
+    for child_key in child_data.keys():
         known_preferences = {"likes": [], "neutral": [], "dislikes": []}
         unknown_preferences = {"likes": [], "neutral": [], "dislikes": []}
 
         for category in ["likes", "neutral", "dislikes"]:
-            total_items = len(preferences[category])
+            # Filter ingredients for the current child and category
+            category_items = [ingredient for c, ingredient, score, label in all_labeled_scores if c == child_key and label == category]
+            
+            # Shuffle the list of ingredients randomly
+            random.shuffle(category_items)
+            
+            # Determine the split index
+            total_items = len(category_items)
             split_index = int(total_items * split)
-            known_preferences[category] = preferences[category][:split_index]
-            unknown_preferences[category] = preferences[category][split_index:]
+            
+            # Split into known and unknown preferences
+            known_preferences[category] = category_items[:split_index]
+            unknown_preferences[category] = category_items[split_index:]
 
         all_data[child_key] = {
             "known": known_preferences,
             "unknown": unknown_preferences
         }
-
+    # Step 3: Optional plotting of histograms
     if plot_graphs:
-        plot_histograms(all_scores, all_preferences)
+        plot_histograms(all_labeled_scores, all_data, child_key=child_key_plot)
 
     return all_data
 
+    
+def plot_histograms(all_scores: List[Tuple[str, str, float, str]], all_preferences: Dict[str, Dict[str, Dict[str, list]]], child_key: str = None, fontsize: int = 15) -> None:
+    # If no specific child_key is provided, plot for all children
+    if child_key is None:
+        # Plot for all children
+        filtered_scores = [(ingredient, score, label) for c_key, ingredient, score, label in all_scores]
+        title = "Score Distribution for All Children"
+        
+        # Select a random child for individual plotting
+        random_child_key = random.choice(list(all_preferences.keys()))
+        random_filtered_scores = [(ingredient, score, label) for c_key, ingredient, score, label in all_scores if c_key == random_child_key]
+        random_title = f"Score Distribution for Child {random_child_key[5:7]}"
+    else:
+        # Plot for the specified child
+        filtered_scores = [(ingredient, score, label) for c_key, ingredient, score, label in all_scores if c_key == child_key]
+        title = f"Score Distribution for Child {child_key[5:7]}"
+        random_filtered_scores = None
+        random_title = None
+
+    # Function to plot a histogram given filtered scores and a title
+    def plot_histogram(ax, filtered_scores, title, fontsize):
+        like_scores = [score for _, score, label in filtered_scores if label == 'likes']
+        neutral_scores = [score for _, score, label in filtered_scores if label == 'neutral']
+        dislike_scores = [score for _, score, label in filtered_scores if label == 'dislikes']
+
+        # Sort for debugging purposes
+        like_scores.sort(reverse=True)
+        neutral_scores.sort(reverse=True)
+        dislike_scores.sort(reverse=True)
+    
+        # Calculate total number of scores
+        total_scores = len(like_scores) + len(neutral_scores) + len(dislike_scores)
+    
+        # Calculate percentages
+        likes_percent = (len(like_scores) / total_scores) * 100 if total_scores > 0 else 0
+        neutral_percent = (len(neutral_scores) / total_scores) * 100 if total_scores > 0 else 0
+        dislikes_percent = (len(dislike_scores) / total_scores) * 100 if total_scores > 0 else 0
+
+        # Create bins for the histograms based on all scores
+        all_scores_combined = like_scores + neutral_scores + dislike_scores
+        if not all_scores_combined:
+            print("No scores to display.")
+            return
+    
+        # Calculate bin edges using numpy
+        bins = np.linspace(min(all_scores_combined), max(all_scores_combined), 21)  # 20 bins
+
+        likes_label = f'Like ({likes_percent:.1f}\\%)'
+        neutral_label = f'Neutral ({neutral_percent:.1f}\\%)'
+        dislikes_label = f'Dislike ({dislikes_percent:.1f}\\%)'
+
+        # Plot histograms in a stacked manner using the calculated bin edges
+        ax.hist([like_scores, neutral_scores, dislike_scores], bins=bins, stacked=True, color=['green', 'blue', 'red'], 
+                label=[likes_label, neutral_label, dislikes_label])
+
+        ax.set_title(title, fontsize=fontsize)
+        ax.tick_params(axis='both', which='major', labelsize=fontsize-2)
+        ax.legend(fontsize=fontsize-1, loc='best')
+
+
+    # Create subplots
+    if random_filtered_scores:
+        fig, axs = plt.subplots(2, 1, figsize=(8, 6))
+        plot_histogram(axs[0], filtered_scores, title, fontsize)
+        plot_histogram(axs[1], random_filtered_scores, random_title, fontsize)
+        # Set shared x-label and y-label
+        fig.text(0.5, 0.04, 'Score', ha='center', fontsize=fontsize)
+        fig.text(0.04, 0.5, 'Frequency', va='center', rotation='vertical', fontsize=fontsize)
+    else:
+        fig, ax = plt.subplots(1, 1, figsize=(10, 4))
+        plot_histogram(ax, filtered_scores, title, fontsize)
+        ax.set_xlabel('Score', fontsize=fontsize)
+        ax.set_ylabel('Frequency', fontsize=fontsize)
+    
+    plt.tight_layout(rect=[0.04, 0.04, 1, 1])  # Adjust layout to make space for shared labels
+    plt.show()
 
 def create_preference_score_function(negotiated_ingredients: set[str, Dict[str, float]], unavailable_ingredients: set[str]) -> Callable[[str], float]:
     """
@@ -255,42 +355,6 @@ def create_preference_score_function(negotiated_ingredients: set[str, Dict[str, 
             return ingredient_scores[ingredient]
 
     return score_function
-    
-def plot_histograms(scores: list, preferences: Dict[str, list]) -> None:
-    total_ingredients = len(scores)
-    likes_count = len(preferences["likes"])
-    neutral_count = len(preferences["neutral"])
-    dislikes_count = len(preferences["dislikes"])
-
-    likes_percent = (likes_count / total_ingredients) * 100
-    neutral_percent = (neutral_count / total_ingredients) * 100
-    dislikes_percent = (dislikes_count / total_ingredients) * 100
-
-    plt.figure(figsize=(15, 5))
-
-    plt.subplot(1, 3, 1)
-    plt.hist([score for ingredient, score in scores if ingredient in preferences["likes"]], bins=20, color='green', alpha=0.7, label='Like')
-    plt.title(f'Like Scores ({likes_percent:.2f}%)')
-    plt.xlabel('Score')
-    plt.ylabel('Frequency')
-    plt.legend()
-
-    plt.subplot(1, 3, 2)
-    plt.hist([score for ingredient, score in scores if ingredient in preferences["neutral"]], bins=20, color='blue', alpha=0.7, label='Neutral')
-    plt.title(f'Neutral Scores ({neutral_percent:.2f}%)')
-    plt.xlabel('Score')
-    plt.ylabel('Frequency')
-    plt.legend()
-
-    plt.subplot(1, 3, 3)
-    plt.hist([score for ingredient, score in scores if ingredient in preferences["dislikes"]], bins=20, color='red', alpha=0.7, label='Dislike')
-    plt.title(f'Dislike Scores ({dislikes_percent:.2f}%)')
-    plt.xlabel('Score')
-    plt.ylabel('Frequency')
-    plt.legend()
-
-    plt.tight_layout()
-    plt.show()
 
 def plot_preference_and_sentiment_accuracies(prediction_accuracies, prediction_std_devs, sentiment_accuracies, iterations, save_path):
     """Function to plot the accuracies and standard deviations over iterations and save the plot to a specified file path."""
@@ -540,9 +604,13 @@ def plot_mape(days_labels: List[str], true_utility: List[Dict[str, float]], pred
     save_or_show_plot(f'MAPE_{title}.png', save_path)
 
 
-def print_preference_difference_and_accuracy(child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], updated_preferences: Dict[str, Dict[str, List[str]]], summary_only: bool = False) -> None:
+def print_preference_difference_and_accuracy(
+    child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], 
+    updated_preferences: Dict[str, Dict[str, List[str]]], 
+    summary_only: bool = False
+) -> Tuple[float, float, List[str], List[str]]:
     """
-    Print the differences between actual and predicted preferences, and calculate accuracy.
+    Print the differences between actual and predicted preferences, calculate accuracy, and return lists of true and predicted labels.
     """
     total_actual = {'likes': 0, 'neutral': 0, 'dislikes': 0}
     total_correct = {'likes': 0, 'neutral': 0, 'dislikes': 0}
@@ -552,6 +620,8 @@ def print_preference_difference_and_accuracy(child_preference_data: Dict[str, Di
             print(message)
 
     accuracies = []
+    true_labels = []
+    predicted_labels = []
 
     for child in child_preference_data:
         total_actual_child = {'likes': 0, 'neutral': 0, 'dislikes': 0}
@@ -572,20 +642,29 @@ def print_preference_difference_and_accuracy(child_preference_data: Dict[str, Di
         conditional_print(not summary_only, f"\nDifference for {child}:")
 
         for category in ['likes', 'neutral', 'dislikes']:
-            conditional_print(not summary_only, f"Actual {category.capitalize()} but Predicted Differently:")
             for ingredient in actual[category]:
                 total_actual[category] += 1
                 total_actual_child[category] += 1
+
+                # Accumulate true and predicted labels
+                true_labels.append(category)
                 if ingredient in predicted[category]:
+                    predicted_labels.append(category)
                     total_correct[category] += 1
                     total_correct_child[category] += 1
                 else:
-                    if ingredient in predicted['neutral'] and category != 'neutral':
+                    if ingredient in predicted['neutral']:
+                        predicted_labels.append('neutral')
                         conditional_print(not summary_only, f"  {ingredient} (Actual: {category.capitalize()}, Predicted: Neutral)")
                     elif ingredient in predicted['dislikes'] and category == 'likes':
+                        predicted_labels.append('dislikes')
                         conditional_print(not summary_only, f"  {ingredient} (Actual: {category.capitalize()}, Predicted: Dislike)")
                     elif ingredient in predicted['likes'] and category == 'dislikes':
+                        predicted_labels.append('likes')
                         conditional_print(not summary_only, f"  {ingredient} (Actual: {category.capitalize()}, Predicted: Like)")
+                    else:
+                        # If the ingredient doesn't match any predicted category, add a placeholder or skip
+                        predicted_labels.append('unknown')
 
         child_total_actual = sum(total_actual_child.values())
         child_total_correct = sum(total_correct_child.values())
@@ -601,9 +680,12 @@ def print_preference_difference_and_accuracy(child_preference_data: Dict[str, Di
         accuracy_std_dev = np.std(accuracies)
         conditional_print(True, f"\nOverall Accuracy of Preferences: {overall_accuracy:.6f}")
         conditional_print(True, f"Standard Deviation of Accuracies: {accuracy_std_dev:.6f}")
-        return overall_accuracy, accuracy_std_dev
     else:
+        overall_accuracy = 0
+        accuracy_std_dev = 0
         conditional_print(True, "No data to calculate overall accuracy and standard deviation.")
+
+    return overall_accuracy, accuracy_std_dev
 
 
 def calculate_percent_of_known_ingredients_to_unknown(updated_true_preferences_with_feedback):

@@ -8,6 +8,8 @@ import random
 from typing import Dict, List, Tuple, Union, Optional
 import copy
 import numpy as np
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from textblob import TextBlob
 
 class SentimentAnalyzer:
     def __init__(self, current_known_and_unknown_preferences, menu_plan, model_name: str = "finiteautomata/bertweet-base-sentiment-analysis", seed: int = 42):
@@ -22,26 +24,37 @@ class SentimentAnalyzer:
                             'distilroberta':  "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis",
                             '5_star':  "nlptown/bert-base-multilingual-uncased-sentiment",
                             'perfect': "perfect",
+                            'TextBlob': "TextBlob",
+                            'Vader': "Vader"
                             }
         
         model = model_name_dict[model_name]
+        
+        self.model_name = model
         
         self.menu_plan = menu_plan
         self.label_mapping = {'likes': 2, 'neutral': 1, 'dislikes': 0}
         self.feedback = self.get_feedback()
         self.changes = []
         self.incorrect_comments = []
-        self.is_star_model = "nlptown/bert-base-multilingual-uncased-sentiment" in model_name
+        self.is_star_model = "5_star" in model_name
         self.is_perfect_prediction = "perfect" in model_name
     
-        if not self.is_perfect_prediction:
-            self.sentiment_analyzer = pipeline('sentiment-analysis', model=model, device=device)
+        if not self.is_perfect_prediction and model_name != "TextBlob" and model_name != "Vader":
+            self.sentiment_analyzer = pipeline('sentiment-analysis', model=model, device='cpu')
+        elif model_name == "TextBlob":
+            self.sentiment_analyzer = TextBlob
+        elif model_name == "Vader":
+            self.sentiment_analyzer = SentimentIntensityAnalyzer()
+        else:
+            raise ValueError(f"Unknown model name: {model_name}")
             
     def analyze_sentiment(self, comment: str) -> str:
         """
         Analyze the sentiment of a given comment and return the corresponding label.
         """
-        result = self.sentiment_analyzer(comment)
+        if self.model_name != "Vader":
+            result = self.sentiment_analyzer(comment)
         
         if self.is_star_model:
             # For 5-star model
@@ -49,6 +62,31 @@ class SentimentAnalyzer:
             if star_rating >= 4:
                 return 'likes'
             elif star_rating <= 2:
+                return 'dislikes'
+            else:
+                return 'neutral'
+            
+        elif self.model_name == "TextBlob":
+            # For TextBlob model
+            polarity = result.sentiment.polarity
+            if polarity > 0.45:
+                return 'likes'
+            elif polarity < 0.2:
+                return 'dislikes'
+            else:
+                return 'neutral'
+            
+        elif self.model_name == "Vader":
+            
+            vs = self.sentiment_analyzer.polarity_scores(comment)
+            
+            # Use the compound score to determine sentiment
+            compound_score = vs['compound']
+
+            # Classify based on the compound score
+            if compound_score >= 0.4:
+                return 'likes'
+            elif compound_score <= 0.2:
                 return 'dislikes'
             else:
                 return 'neutral'
@@ -96,7 +134,10 @@ class SentimentAnalyzer:
                                 change = self.update_preferences(child, ingredient, current_preference, pred_label)
                                 self.changes.append(change)
 
-                            true_labels.append(correct_action[ingredient])
+                            try:
+                                true_labels.append(correct_action[ingredient])
+                            except KeyError:
+                                true_labels.append(None)
                             pred_labels.append(pred_label)
 
                             if pred_label != correct_action[ingredient]:
@@ -112,7 +153,7 @@ class SentimentAnalyzer:
         if plot_confusion_matrix and true_labels:
             self.plot_confusion_matrix(true_labels, pred_labels)
 
-        return self.current_known_and_unknown_preferences, accuracy, feedback
+        return self.current_known_and_unknown_preferences, accuracy, feedback, true_labels, pred_labels
 
     def get_current_preference_label(self, child: str, ingredient: str) -> Optional[str]:
         """
@@ -167,7 +208,7 @@ class SentimentAnalyzer:
                               labels=[0, 1, 2])
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['dislikes', 'neutral', 'likes'])
         disp.plot(cmap=plt.cm.Blues)
-        plt.title('Confusion Matrix')
+        plt.title(f'Confusion Matrix for {self.model_name}')
         plt.show()
 
     @staticmethod
@@ -354,7 +395,7 @@ class SentimentAnalyzer:
             valid_comments = []
 
             # Sample comments based on specified proportions for likes, neutral, and dislikes
-            for comment_template, feedback_types in self.sample_comments(comments, likes_percent=60, neutral_percent=20, dislikes_percent=20, sample_size=len(comments)):
+            for comment_template, feedback_types in self.sample_comments(comments, likes_percent=40, neutral_percent=20, dislikes_percent=40, sample_size=len(comments)):
                 matched_ingredients = []
                 used_ingredients = set()
 

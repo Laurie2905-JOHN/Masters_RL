@@ -1,5 +1,12 @@
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression, SGDClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
+from xgboost import XGBClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from imblearn.over_sampling import SMOTE
@@ -15,9 +22,10 @@ import logging
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score
 from matplotlib.patches import Ellipse
+from sklearn.preprocessing import LabelEncoder
 
 class PreferenceModel:
-    def __init__(self, ingredient_df: pd.DataFrame, child_feature_data: Dict[str, Dict[str, Union[str, int]]], child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], apply_SMOTE: bool = False, visualize_data: bool = False, file_path: str = None, seed: Optional[int] = None):
+    def __init__(self, ingredient_df: pd.DataFrame, child_feature_data: Dict[str, Dict[str, Union[str, int]]], child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], apply_SMOTE: bool = False, model_name: str = "Random Forest", visualize_data: bool = False, file_path: str = None, seed: Optional[int] = None):
         """
         Initialize the PreferenceModel class and prepare data for machine learning.
         """
@@ -26,15 +34,37 @@ class PreferenceModel:
         self.child_preference_data = copy.deepcopy(child_preference_data)
         self.apply_SMOTE = apply_SMOTE
         self.seed = seed
-
+        
+        self.label_encoder = LabelEncoder()
+        self.label_encoder.fit(['dislikes', 'neutral', 'likes'])
+        
         self.ml_child_preferences = self.prepare_ml_preferences()
         self.X, self.y, self.preprocessor = self.prepare_ml_data()
         
         if visualize_data:
             self.visualize_complete_data(file_path)
 
-        self.rf_model = RandomForestClassifier()
-        self.rf_model.fit(self.X, self.y)
+        self.model = self.get_model(model_name)
+        
+        self.model.fit(self.X, self.y)
+        
+    @staticmethod
+    def get_model(name="Random Forest"):
+        # Initialize the models with hyperparameters
+        models = {
+            "Logistic Regression": LogisticRegression(solver='liblinear', C=1.0, max_iter=10000),
+            "Support Vector Machine": SVC(C=1.0, kernel='rbf', probability=True),
+            "XGBoost": XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, eval_metric='logloss'),
+            "Random Forest": RandomForestClassifier(n_estimators=100, max_depth=None, criterion='gini'),
+            "Gradient Boosting": GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3),
+            "AdaBoost": AdaBoostClassifier(n_estimators=50, learning_rate=1.0, algorithm='SAMME.R'),
+            "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='auto'),
+            "Decision Tree": DecisionTreeClassifier(criterion='gini', splitter='best', max_depth=None),
+            "Gaussian Naive Bayes": GaussianNB(),
+            "Stochastic Gradient Descent": SGDClassifier(loss='hinge', alpha=0.0001, max_iter=1000, tol=1e-3),
+            "MLP Classifier": MLPClassifier(hidden_layer_sizes=(100,), activation='relu', solver='adam', max_iter=200)
+        }
+        return models[name]
 
     @staticmethod
     def plot_ellipse(ax, data, color, label):
@@ -209,7 +239,7 @@ class PreferenceModel:
         df = self.get_complete_preference_df()
 
         # Dropping unknown preferences
-        known_df = df[df['known_unknown'] == 'known'].drop(columns=['known_unknown', 'child'])
+        known_df = df[df['known_unknown'] == 'known'].drop(columns=['known_unknown'])
 
         preprocessor = self.get_data_preprocessor()
         
@@ -217,12 +247,17 @@ class PreferenceModel:
         preprocessor.fit(df.drop(columns=['preference', 'known_unknown']))
 
         X = known_df.drop(columns=['preference'])
-        y = known_df["preference"].values
 
-        preprocessor.fit(X)
+        y = self.label_encoder.fit_transform(known_df["preference"].values)
+
+        # preprocessor.fit(X)
 
         # Apply the transformations and prepare the dataset
         X_transformed = preprocessor.transform(X)
+        
+        # Check if X_transformed is sparse, and convert to dense if necessary
+        if hasattr(X_transformed, 'toarray'):
+            X_transformed = X_transformed.toarray()
 
         if self.apply_SMOTE:
             X, y = self.apply_smote(X_transformed, y)
@@ -278,6 +313,7 @@ class PreferenceModel:
         }
 
         child_features = {
+            "child": child,
             "age": self.child_feature_data[child]["age"],
             "gender": self.child_feature_data[child]["gender"],
             "health_consideration": self.child_feature_data[child]["health_consideration"],
@@ -293,9 +329,18 @@ class PreferenceModel:
         """
         Predict preferences using the trained model and preprocessor.
         """
+        # Apply the preprocessor transformations
         X_preprocessed = self.preprocessor.transform(df)
-        y_pred = self.rf_model.predict(X_preprocessed)
+
+        # Check if X_preprocessed is sparse, and convert to dense if necessary
+        if hasattr(X_preprocessed, 'toarray'):
+            X_preprocessed = X_preprocessed.toarray()
+
+        # Predict using the trained model
+        y_pred = self.model.predict(X_preprocessed)
+        
         return y_pred
+
 
     @staticmethod
     def get_true_preference_label(child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], ingredient: str, child: str) -> str:
@@ -311,35 +356,11 @@ class PreferenceModel:
         else:
             raise ValueError(f"Ingredient {ingredient} not found in preferences")
 
-    def ml_model_test(self, X_test: pd.DataFrame, y_test: pd.Series) -> None:
-        """
-        Test the trained model and print evaluation metrics and confusion matrix.
-        """
-        y_pred = self.rf_model.predict(X_test)
-
-        accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred, average='weighted')
-        recall = recall_score(y_test, y_pred, average='weighted')
-        f1 = f1_score(y_test, y_pred, average='weighted')
-        conf_matrix = confusion_matrix(y_test, y_pred)
-        class_report = classification_report(y_test, y_pred)
-
-        print("Accuracy: {:.2f}%".format(accuracy * 100))
-        print("Precision: {:.2f}%".format(precision * 100))
-        print("Recall: {:.2f}%".format(recall * 100))
-        print("F1 Score: {:.2f}%".format(f1 * 100))
-        print("Classification Report:\n", class_report)
-
-        plt.figure(figsize=(10, 7))
-        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=self.label_encoder.classes_, yticklabels=self.label_encoder.classes_)
-        plt.xlabel('Predicted')
-        plt.ylabel('Actual')
-        plt.title('Confusion Matrix')
-        plt.show()
-
-    def run_pipeline(self) -> None:
+    def run_pipeline(self) -> float:
         """
         Run the entire preference prediction and evaluation pipeline.
+        Returns:
+            float: The accuracy of the predictions.
         """
         total_predicted_preferences = []
         total_true_preferences = []
@@ -355,7 +376,7 @@ class PreferenceModel:
             for ingredient in preferences['unknown']:
                 child_and_ingredient_feature_df = self.combine_features(ingredient, child)
                 batch_data.append(child_and_ingredient_feature_df)
-                true_label = self.get_true_preference_label(self.child_preference_data, ingredient, child)
+                true_label = self.label_encoder.transform([self.get_true_preference_label(self.child_preference_data, ingredient, child)])[0]
                 batch_labels.append(true_label)
                 child_indices.append(child)
 
@@ -373,23 +394,27 @@ class PreferenceModel:
                 total_predicted_preferences.append(predicted_preference)
                 total_true_preferences.append(batch_labels[i])
 
+
+        # Optionally, you can log the classification report as well
         total_class_report = classification_report(total_true_preferences, total_predicted_preferences)
         logging.info(f"Total Classification Report:\n{total_class_report}")
 
+        # Update preferences with the predictions
         updated_preferences = self.update_preferences_with_predictions(child_predictions)
-        
-        return updated_preferences
+    
+        # Return the accuracy
+        return updated_preferences, total_true_preferences, total_predicted_preferences
 
     def update_preferences_with_predictions(self, child_predictions: Dict[str, List[int]]) -> Dict[str, Dict[str, List[str]]]:
         """
         Update preferences with the model predictions.
         """
+        child_predictions_update = {}
+        for child, values in child_predictions.items():
+            child_predictions_update[child] = self.label_encoder.inverse_transform(values)
+        
         updated_preferences = {}
         for child, preferences in self.ml_child_preferences.items():
-            predicted_likes = {
-                ingredient: 'like' if pred == 2 else ('neutral' if pred == 1 else 'dislike')
-                for ingredient, pred in zip(preferences['unknown'], child_predictions[child])
-            }
 
             if child not in updated_preferences:
                 updated_preferences[child] = {
@@ -397,8 +422,11 @@ class PreferenceModel:
                     'neutral': preferences.get('neutral', []),
                     'dislikes': preferences.get('dislikes', [])
                 }
-
-            for ingredient, pred in zip(preferences['unknown'], child_predictions[child]):
+                
+            if isinstance(child_predictions_update['child1'][0], int):
+                child_predictions_update[child] = self.label_encoder.inverse_transform(child_predictions_update[child])
+                
+            for ingredient, pred in zip(preferences['unknown'], child_predictions_update[child]):
                 updated_preferences[child][pred].append(ingredient)
 
         return updated_preferences
