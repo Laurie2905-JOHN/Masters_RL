@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import random
-from typing import Dict, Any, Tuple, List, Callable
+from typing import Dict, Any, Tuple, List, Callable, Optional
 import numpy as np
 import json
 from scipy.ndimage import gaussian_filter1d
@@ -360,9 +360,15 @@ def plot_preference_and_sentiment_accuracies(prediction_accuracies, prediction_s
     """Function to plot the accuracies and standard deviations over iterations and save the plot to a specified file path."""
     plt.figure(figsize=(18, 6))
 
+    # Unpack tuples into separate lists
+    simple_accuracies, complex_accuracies = zip(*prediction_accuracies)
+    simple_std_devs, complex_std_devs = zip(*prediction_std_devs)
+    simple_sentiment_accuracies, complex_sentiment_accuracies = zip(*sentiment_accuracies)
+
     # Plot Prediction Accuracy
     plt.subplot(1, 3, 1)
-    plt.plot(range(1, iterations + 2), prediction_accuracies, marker='o', linestyle='-', label='Prediction Accuracy')
+    plt.plot(range(1, iterations + 1), simple_accuracies, marker='o', linestyle='-', label='Simple Prediction Accuracy')
+    plt.plot(range(1, iterations + 1), complex_accuracies, marker='x', linestyle='-', label='Complex Prediction Accuracy')
     plt.xlabel('Iteration')
     plt.ylabel('Accuracy')
     plt.title('Prediction Accuracy per Iteration')
@@ -371,7 +377,8 @@ def plot_preference_and_sentiment_accuracies(prediction_accuracies, prediction_s
 
     # Plot Prediction Standard Deviation
     plt.subplot(1, 3, 2)
-    plt.plot(range(1, iterations + 2), prediction_std_devs, marker='o', linestyle='-', color='green', label='Prediction Std Dev')
+    plt.plot(range(1, iterations + 1), simple_std_devs, marker='o', linestyle='-', color='green', label='Simple Prediction Std Dev')
+    plt.plot(range(1, iterations + 1), complex_std_devs, marker='x', linestyle='-', color='blue', label='Complex Prediction Std Dev')
     plt.xlabel('Iteration')
     plt.ylabel('Standard Deviation')
     plt.title('Prediction Standard Deviation per Iteration')
@@ -380,7 +387,8 @@ def plot_preference_and_sentiment_accuracies(prediction_accuracies, prediction_s
 
     # Plot Sentiment Accuracy
     plt.subplot(1, 3, 3)
-    plt.plot(range(1, iterations + 2), sentiment_accuracies, marker='o', linestyle='-', color='orange', label='Sentiment Accuracy')
+    plt.plot(range(1, iterations + 2), simple_sentiment_accuracies, marker='o', linestyle='-', color='orange', label='Simple Sentiment Accuracy')
+    plt.plot(range(1, iterations + 2), complex_sentiment_accuracies, marker='x', linestyle='-', color='purple', label='Complex Sentiment Accuracy')
     plt.xlabel('Iteration')
     plt.ylabel('Accuracy')
     plt.title('Sentiment Accuracy per Iteration')
@@ -390,7 +398,7 @@ def plot_preference_and_sentiment_accuracies(prediction_accuracies, prediction_s
     plt.tight_layout()
     plt.savefig(save_path)
     plt.close()
-
+    
 def plot_individual_child_known_percent(child_known_percents, save_path):
     """Function to plot the accuracies of each child over iterations and save the plot to a specified file path."""
     iterations = len(child_known_percents)
@@ -398,20 +406,22 @@ def plot_individual_child_known_percent(child_known_percents, save_path):
     plt.figure(figsize=(12, 8))
 
     # Prepare data for plotting
-    children = list(child_known_percents[0].keys())
-    known_per_child = {child: [] for child in children}
+    children = list(child_known_percents[0][0].keys())
+    known_per_child_simple = {child: [] for child in children}
+    known_per_child_complex = {child: [] for child in children}
 
-    for iteration_data in child_known_percents:
-        for child, percent in iteration_data.items():
-            known_per_child[child].append(percent)
+    for simple_data, complex_data in child_known_percents:
+        for child in children:
+            known_per_child_simple[child].append(simple_data[child])
+            known_per_child_complex[child].append(complex_data[child])
 
     # Select 5 random children
     selected_children = random.sample(children, 5)
     
     # Plot percent for each child
     for child in selected_children:
-        percent = known_per_child[child]
-        plt.plot(range(1, iterations + 1), percent, marker='o', label=f'Child {child}')
+        plt.plot(range(1, iterations + 1), known_per_child_simple[child], marker='o', linestyle='-', label=f'Simple - Child {child}')
+        plt.plot(range(1, iterations + 1), known_per_child_complex[child], marker='x', linestyle='--', label=f'Complex - Child {child}')
 
     plt.xlabel('Iteration')
     plt.ylabel("Percent Known")
@@ -420,12 +430,17 @@ def plot_individual_child_known_percent(child_known_percents, save_path):
     plt.tight_layout()
     plt.savefig(save_path)
     plt.close()
+
     
 
 def plot_utilities_from_json(file_path: str, save_path: str = None) -> None:
     with open(file_path, 'r') as file:
         data = json.load(file)
 
+    if 'complex' in file_path:
+        name_ext = 'complex'
+    else:
+        name_ext = 'simple'
     weeks = len(data)
 
     # Utility types and their sum keys
@@ -461,7 +476,7 @@ def plot_utilities_from_json(file_path: str, save_path: str = None) -> None:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.25), ncol=6)
         plt.xticks(rotation=45)
         plt.xticks(range(0, len(x), max(1, len(x)//10)), rotation=45)  # Reduce number of x-ticks
-        save_or_show_plot(f'{utility}_per_child.png', save_path)
+        save_or_show_plot(f'{utility}_per_child_{name_ext}.png', save_path)
 
     # Plot daily Gini coefficients for all weeks
     plt.figure(figsize=(12, 6))
@@ -486,7 +501,7 @@ def plot_utilities_from_json(file_path: str, save_path: str = None) -> None:
     plt.legend(loc='lower center', ncol=2)
     plt.xticks(rotation=45)
     plt.xticks(range(0, len(days_labels), max(1, len(days_labels)//10)), rotation=45)  # Reduce number of x-ticks
-    save_or_show_plot('daily_gini_coefficients.png', save_path)
+    save_or_show_plot(f'daily_gini_coefficients{name_ext}.png', save_path)
 
     # Plot daily Gini coefficients for all weeks
     plt.figure(figsize=(12, 6))
@@ -509,7 +524,7 @@ def plot_utilities_from_json(file_path: str, save_path: str = None) -> None:
     plt.legend(loc='lower center', ncol=2)
     plt.xticks(rotation=45)
     plt.xticks(range(0, len(days_labels), max(1, len(days_labels)//10)), rotation=45)  # Reduce number of x-ticks
-    save_or_show_plot('daily_gini_coefficients.png')
+    save_or_show_plot(f'daily_gini_coefficients_{name_ext}.png', save_path)
 
     # Plot cumulative Gini coefficients per week
     plt.figure(figsize=(12, 6))
@@ -532,14 +547,28 @@ def plot_utilities_from_json(file_path: str, save_path: str = None) -> None:
     plt.legend(loc='lower center', ncol=2)
     plt.xticks(rotation=45)
     plt.xticks(range(0, len(week_labels), max(1, len(week_labels)//10)), rotation=45)  # Reduce number of x-ticks
-    save_or_show_plot('cumulative_gini_coefficients.png')
+    save_or_show_plot(f'cumulative_gini_coefficients_{name_ext}.png', save_path)
     
 
-def calculate_mape(true_values: Dict[str, float], predicted_values: Dict[str, float]) -> float:
+def calculate_mape(true_values: Dict[str, float], predicted_values: Dict[str, float]) -> Optional[float]:
     """
     Calculate the Mean Absolute Percentage Error (MAPE) between true and predicted values.
+    Return None if division by zero would occur.
     """
-    mape = 100 * sum(abs(true_values[child] - predicted_values[child]) / true_values[child] for child in true_values) / len(true_values)
+    mape_sum = 0
+    valid_count = 0
+    
+    for child in true_values:
+        if true_values[child] != 0:
+            mape_sum += abs(true_values[child] - predicted_values[child]) / true_values[child]
+            valid_count += 1
+        else:
+            return None  # Return None if true value is zero
+    
+    if valid_count == 0:
+        return None
+    
+    mape = 100 * mape_sum / valid_count
     return mape
 
 def save_or_show_plot(filename: str, save_path: str = None) -> None:
@@ -552,6 +581,11 @@ def save_or_show_plot(filename: str, save_path: str = None) -> None:
 def plot_utilities_and_mape(file_path: str, save_path: str = None) -> None:
     with open(file_path, 'r') as file:
         data = json.load(file)
+        
+    if 'complex' in file_path:
+        name_ext = 'complex'
+    else:
+        name_ext = 'simple'
 
     # Utility types and their sum keys
     sums = ["sum_true_utility", "sum_predicted_utility"]
@@ -579,29 +613,38 @@ def plot_utilities_and_mape(file_path: str, save_path: str = None) -> None:
         plt.xlabel('Day and Week')
         plt.ylabel('Sum of Utilities')
         plt.xticks(range(0, len(all_days), max(1, len(all_days) // 10)), rotation=45)
-        save_or_show_plot(f'{sum_utility}_per_day.png', save_path)
+        save_or_show_plot(f'{sum_utility}_per_day_{name_ext}.png', save_path)
 
     # Calculate and plot accuracy (MAPE) between true and predicted utility cumulative sums
-    plot_mape(all_days, true_utility_per_day, predicted_utility_per_day, title, save_path)
+    plot_mape(all_days, true_utility_per_day, predicted_utility_per_day, title, save_path, name_ext)
 
-def plot_mape(days_labels: List[str], true_utility: List[Dict[str, float]], predicted_utility: List[Dict[str, float]], title: str, save_path: str = None) -> None:
+def plot_mape(days_labels: List[str], true_utility: List[Dict[str, float]], predicted_utility: List[Dict[str, float]], title: str, save_path: str = None, name_ext: str = 'NA') -> None:
     """
     Plot the Mean Absolute Percentage Error (MAPE) between true and predicted utility.
     """
     mape_values = []
+    filtered_days_labels = []
 
-    for true_values, predicted_values in zip(true_utility, predicted_utility):
+    for day, (true_values, predicted_values) in enumerate(zip(true_utility, predicted_utility)):
         mape = calculate_mape(true_values, predicted_values)
-        mape_values.append(mape)
+        if mape is not None:
+            mape_values.append(mape)
+            filtered_days_labels.append(days_labels[day])
+        else:
+            mape_values.append(None)  # Appending None to maintain alignment with days_labels
+    
+    # Filter out None values before plotting
+    mape_values = [value for value in mape_values if value is not None]
+    filtered_days_labels = [days_labels[i] for i in range(len(days_labels)) if mape_values[i] is not None]
 
     plt.figure(figsize=(12, 6))
-    plt.plot(days_labels, mape_values, label='MAPE')
+    plt.plot(filtered_days_labels, mape_values, label='MAPE')
     plt.title(f'MAPE for {title}')
     plt.xlabel('Day and Week')
     plt.ylabel('MAPE (%)')
-    plt.xticks(range(0, len(days_labels), max(1, len(days_labels) // 10)), rotation=45)
+    plt.xticks(range(0, len(filtered_days_labels), max(1, len(filtered_days_labels) // 10)), rotation=45)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=2)
-    save_or_show_plot(f'MAPE_{title}.png', save_path)
+    save_or_show_plot(f'MAPE_{title}_{name_ext}.png', save_path)
 
 
 def print_preference_difference_and_accuracy(

@@ -59,9 +59,9 @@ class MenuUtilityCalculator:
         if ingredient in preferences[child]["likes"]:
             return 5
         elif ingredient in preferences[child]["dislikes"]:
-            return 1
+            return -5
         elif ingredient in preferences[child]["neutral"]:
-            return 3
+            return 2
         else: 
             raise ValueError(f"Ingredient {ingredient} not found in preferences for child {child}")
 
@@ -72,13 +72,14 @@ class MenuUtilityCalculator:
         if previous_day_utility is None:
             return 1.0  # No penalty or bonus for the first day
         if previous_day_utility <= self.min_raw_utility:
-            return 0.0  # Full penalty
+            return 1  # Full penalty
         elif previous_day_utility >= self.max_raw_utility:
-            return 2.0  # Full bonus
+            return 1  # Full bonus
         else:
-            # Linear scaling between self.min_raw_utility and self.max_raw_utility
-            return 0.5 + ((previous_day_utility - self.min_raw_utility) / 
-                          (self.max_raw_utility - self.min_raw_utility)) * 1.5
+            return 1
+            # # Linear scaling between self.min_raw_utility and self.max_raw_utility
+            # return 0.5 + ((previous_day_utility - self.min_raw_utility) / 
+            #               (self.max_raw_utility - self.min_raw_utility)) * 1.5
 
     def calculate_day_menu_utility(self, predicted_preferences: Dict[str, Dict[str, List[str]]], 
                                    menu_plan: list) -> Dict[str, float]:

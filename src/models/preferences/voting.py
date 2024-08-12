@@ -2,7 +2,7 @@
 import numpy as np
 import random
 import copy
-from typing import Dict, List, Tuple, Callable, Union
+from typing import Dict, List, Tuple, Callable, Union, Set
 import pandas as pd
 import json 
 import os 
@@ -29,6 +29,8 @@ class IngredientNegotiator:
         self.ingredient_groups = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E', 'Bread', 'Confectionary']
         self.supplier_availability = self.get_supplier_availability()
         self.vote_gini_dict = {}
+        if complex_weight_func_args == {}:
+            raise ValueError("Complex weight function arguments must be provided.")
         self.complex_weight_func_args = complex_weight_func_args
         self.children_dislikes_in_top_n = {}
         
@@ -148,63 +150,36 @@ class IngredientNegotiator:
                     if ingredient in likes:
                         votes[ingredient] += 5 * weights[child]['likes']
                     elif ingredient in neutrals:
-                        votes[ingredient] += 3 * weights[child]['neutral']
+                        votes[ingredient] += 2 * weights[child]['neutral']
                     elif ingredient in dislikes:
-                        votes[ingredient] += 1 * weights[child]['dislikes']
+                        votes[ingredient] += -5 * weights[child]['dislikes']
                 else:
                     unavailable_ingredients.add(ingredient)
 
         return votes, unavailable_ingredients
-    
-    def negotiate_ingredients(self, weight_function: str) -> Tuple[Dict[str, Dict[str, int]], set]:
-        """
-        Negotiate ingredients based on the specified weight function.
 
-        Parameters:
-        weight_function (str): The weight function to use for negotiation. 
-                            It can be either 'simple' or 'complex'.
-
-        Returns:
-        Tuple[Dict[str, Dict[str, int]], set]: 
-            - negotiated (Dict[str, Dict[str, int]]): A dictionary containing the negotiated ingredients.
-            - unavailable (set): A set of ingredients that are unavailable.
-        """
+    # Function to populate negotiated ingredients based on the votes
+    def populate_negotiated_ingredients(self, votes, negotiated_ingredients, unavailable_ingredients):
         
-        if weight_function == "simple":
-            # Use the simple negotiation method
-            negotiated, unavailable = self.negotiate_ingredients_simple()
-        elif weight_function == "complex":
-            # Use the complex negotiation method
-            negotiated, unavailable = self.negotiate_ingredients_complex()
-        else:
-            # Raise an error if the weight function is invalid
-            raise ValueError("Invalid weight function")
-
-        return negotiated, unavailable
-
-    
-    def negotiate_ingredients_simple(self) -> Tuple[Dict[str, Dict[str, int]], set]:
-        """
-        Negotiate ingredients using a simple weight calculation.
-
-        :return: Tuple containing negotiated ingredients and a set of unavailable ingredients.
-        """
-        votes, unavailable_ingredients = self.collect_weighted_votes(self.calculate_child_weight_simple)
-        negotiated_ingredients = {group: {} for group in self.ingredient_groups}
-        ingredient_to_groups = {ingredient: group for group in self.ingredient_groups 
-                                for ingredient in self.ingredient_df[self.ingredient_df[group] == 1]['Category7']}
-
+        # Map ingredients to their respective groups
+        ingredient_to_groups = {
+            ingredient: group for group in self.ingredient_groups 
+            for ingredient in self.ingredient_df[self.ingredient_df[group] == 1]['Category7']
+        }
+        
         for ingredient, vote in votes.items():
             if ingredient not in unavailable_ingredients:
                 group = ingredient_to_groups.get(ingredient)
                 if group:
                     negotiated_ingredients[group][ingredient] = vote
-
+        
+        # Handle miscellaneous ingredients
         misc_df = self.ingredient_df[(self.ingredient_df[self.ingredient_groups].sum(axis=1) == 0)]
-        misc_votes = {ingredient: votes[ingredient] for ingredient in misc_df['Category7'].tolist() if ingredient in votes and ingredient not in unavailable_ingredients}
+        misc_votes = {
+            ingredient: votes[ingredient] for ingredient in misc_df['Category7'].tolist() 
+            if ingredient in votes and ingredient not in unavailable_ingredients
+        }
         negotiated_ingredients['Misc'] = misc_votes
-
-        return negotiated_ingredients, unavailable_ingredients
 
     def calculate_child_weight_simple(self) -> Dict[str, Dict[str, float]]:
         """
@@ -214,30 +189,36 @@ class IngredientNegotiator:
         """
         return {child: {'likes': 1, 'neutral': 1, 'dislikes': 1} for child in self.preferences.keys()}
 
-    def negotiate_ingredients_complex(self) -> Tuple[Dict[str, Dict[str, int]], set]:
+    def negotiate_ingredients(self) -> Tuple[Dict[str, Dict[str, int]], Dict[str, Dict[str, int]], Set[str]]:
         """
-        Negotiate ingredients using a complex weight calculation.
+        Negotiate ingredients using both simple and complex child weight calculations.
 
-        :return: Tuple containing negotiated ingredients and a set of unavailable ingredients.
+        :return: Tuple containing two dictionaries of negotiated ingredients (for simple and complex votes) 
+                 and a set of unavailable ingredients.
         """
-        votes, unavailable_ingredients = self.collect_weighted_votes(self.calculate_child_weight_complex)
-        negotiated_ingredients = {group: {} for group in self.ingredient_groups}
-        ingredient_to_groups = {ingredient: group for group in self.ingredient_groups 
-                                for ingredient in self.ingredient_df[self.ingredient_df[group] == 1]['Category7']}
-
-        for ingredient, vote in votes.items():
-            if ingredient not in unavailable_ingredients:
-                group = ingredient_to_groups.get(ingredient)
-                if group:
-                    negotiated_ingredients[group][ingredient] = vote
-
-        misc_df = self.ingredient_df[(self.ingredient_df[self.ingredient_groups].sum(axis=1) == 0)]
-        misc_votes = {ingredient: votes[ingredient] for ingredient in misc_df['Category7'].tolist() if ingredient in votes and ingredient not in unavailable_ingredients}
-        negotiated_ingredients['Misc'] = misc_votes
         
-        self.identify_dislikes_in_top_n(negotiated_ingredients, n=10)
-
-        return negotiated_ingredients, unavailable_ingredients
+        # Collect votes using both simple and complex strategies
+        votes_simple, unavailable_ingredients = self.collect_weighted_votes(self.calculate_child_weight_simple)
+        votes_complex, _ = self.collect_weighted_votes(self.calculate_child_weight_complex)
+        
+        # Initialize negotiated ingredients for both voting strategies
+        negotiated_ingredients_simple = {group: {} for group in self.ingredient_groups}
+        negotiated_ingredients_complex = {group: {} for group in self.ingredient_groups}
+    
+        # Populate negotiated ingredients for both simple and complex votes
+        self.populate_negotiated_ingredients(votes_simple, negotiated_ingredients_simple, unavailable_ingredients)
+        self.populate_negotiated_ingredients(votes_complex, negotiated_ingredients_complex, unavailable_ingredients)
+        
+        # Identify dislikes in top N ingredients for both sets
+        self.children_dislikes_in_top_n_simple = self.identify_dislikes_in_top_n(negotiated_ingredients_simple, n=10)
+        self.children_dislikes_in_top_n_complex = self.identify_dislikes_in_top_n(negotiated_ingredients_complex, n=10)
+        
+        # Calculate and store Gini coefficients for the simple method
+        ginis_simple, _ = self._calculate_all_gini(self.calculate_child_weight_simple())
+        self.vote_gini_dict_simple = ginis_simple
+        
+        # Return both sets of negotiated ingredients and the set of unavailable ingredients
+        return negotiated_ingredients_simple, negotiated_ingredients_complex, unavailable_ingredients
 
 
     def identify_dislikes_in_top_n(self, negotiated_ingredients: Dict[str, Dict[str, int]], n: int = 5) -> Dict[str, Dict[str, List[str]]]:
@@ -369,7 +350,7 @@ class IngredientNegotiator:
             updated_weights = weights
             final_ginis = ginis
 
-        self.vote_gini_dict = final_ginis  # Store the Gini coefficients
+        self.vote_gini_dict_complex = final_ginis  # Store the Gini coefficients for the complex method
         return updated_weights
 
     def scaling_to_adjust_weights_for_target_gini(self, weights: Dict[str, Dict[str, float]], weight_category_total: List[float], 
@@ -477,7 +458,7 @@ class IngredientNegotiator:
     
     def log_data(self, log_file: str, week: int, day: int) -> None:
         """
-        Log the Gini coefficients and other relevant data to a JSON file.
+        Log the Gini coefficients and other relevant data for both simple and complex methods to a JSON file.
 
         :param log_file: Path to the log file.
         :param week: Week number.
@@ -486,8 +467,14 @@ class IngredientNegotiator:
         data_to_log = {
             'Week': week,
             'Day': day,
-            'Gini Votes': self.vote_gini_dict,
-            'Children Dislikes in Top n': self.children_dislikes_in_top_n
+            'Simple Method': {
+                'Gini Votes': self.vote_gini_dict_simple,
+                'Children Dislikes in Top n': self.children_dislikes_in_top_n_simple
+            },
+            'Complex Method': {
+                'Gini Votes': self.vote_gini_dict_complex,
+                'Children Dislikes in Top n': self.children_dislikes_in_top_n_complex
+            }
         }
 
         if os.path.exists(log_file):
@@ -504,14 +491,14 @@ class IngredientNegotiator:
             json.dump(existing_data, file, indent=4)
         print(f"Data successfully logged to {log_file}")
 
+        
     def close(self, log_file: str, week: int, day: int) -> None:
         """
-        Save the current state to a file and perform any necessary cleanup.
+        Save the current state for both simple and complex methods to a file and perform any necessary cleanup.
 
         :param log_file: Path to the log file.
         :param week: Week number.
         :param day: Day number.
         """
         self.log_data(log_file, week, day)
-        # Perform any other necessary cleanup here
         print("Negotiator closed and data saved.")

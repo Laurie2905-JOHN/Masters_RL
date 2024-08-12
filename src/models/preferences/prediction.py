@@ -9,8 +9,7 @@ from xgboost import XGBClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
-from imblearn.over_sampling import SMOTE
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
+from sklearn.metrics import classification_report
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,14 +24,13 @@ from matplotlib.patches import Ellipse
 from sklearn.preprocessing import LabelEncoder
 
 class PreferenceModel:
-    def __init__(self, ingredient_df: pd.DataFrame, child_feature_data: Dict[str, Dict[str, Union[str, int]]], child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], apply_SMOTE: bool = False, model_name: str = "Random Forest", visualize_data: bool = False, file_path: str = None, seed: Optional[int] = None):
+    def __init__(self, ingredient_df: pd.DataFrame, child_feature_data: Dict[str, Dict[str, Union[str, int]]], child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], model_name: str = "MLP Classifier", visualize_data: bool = False, file_path: str = None, seed: Optional[int] = None):
         """
         Initialize the PreferenceModel class and prepare data for machine learning.
         """
         self.ingredient_df = ingredient_df
         self.child_feature_data = child_feature_data
         self.child_preference_data = copy.deepcopy(child_preference_data)
-        self.apply_SMOTE = apply_SMOTE
         self.seed = seed
         
         self.label_encoder = LabelEncoder()
@@ -49,21 +47,25 @@ class PreferenceModel:
         self.model.fit(self.X, self.y)
         
     @staticmethod
-    def get_model(name="Random Forest"):
-        # Initialize the models with hyperparameters
+    def get_model(name="MLP Classifier"):
+        # Initialize the models with hyperparameters from tuning results
         models = {
-            "Logistic Regression": LogisticRegression(solver='liblinear', C=1.0, max_iter=10000),
-            "Support Vector Machine": SVC(C=1.0, kernel='rbf', probability=True),
-            "XGBoost": XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, eval_metric='logloss'),
-            "Random Forest": RandomForestClassifier(n_estimators=100, max_depth=None, criterion='gini'),
-            "Gradient Boosting": GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3),
-            "AdaBoost": AdaBoostClassifier(n_estimators=50, learning_rate=1.0, algorithm='SAMME.R'),
-            "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='auto'),
-            "Decision Tree": DecisionTreeClassifier(criterion='gini', splitter='best', max_depth=None),
-            "Gaussian Naive Bayes": GaussianNB(),
-            "Stochastic Gradient Descent": SGDClassifier(loss='hinge', alpha=0.0001, max_iter=1000, tol=1e-3),
-            "MLP Classifier": MLPClassifier(hidden_layer_sizes=(100,), activation='relu', solver='adam', max_iter=200)
+            "Logistic Regression": LogisticRegression(solver='liblinear', C=1.0, max_iter=10000, class_weight='balanced'),
+            "Support Vector Machine": SVC(C=0.0033922720321681796, kernel='rbf', gamma=0.0002471412567416406, probability=True, class_weight='balanced'),
+            "XGBoost": XGBClassifier(n_estimators=214, learning_rate=0.0015221379497286794, max_depth=6, subsample=0.6228265600766979, colsample_bytree=0.7421589270173782, scale_pos_weight=2.4741969781216535, eval_metric='logloss'),
+            "Random Forest": RandomForestClassifier(n_estimators=182, max_depth=18, min_samples_split=7, min_samples_leaf=4, max_features='log2', criterion='gini', class_weight='balanced'),
+            "Gradient Boosting": GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3),  # No class_weight parameter
+            "AdaBoost": AdaBoostClassifier(n_estimators=50, learning_rate=1.0, algorithm='SAMME.R'),  # No class_weight parameter
+            "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='auto'),  # No class_weight parameter
+            "Decision Tree": DecisionTreeClassifier(criterion='entropy', splitter='best', max_depth=15, min_samples_split=19, min_samples_leaf=3, max_features='log2', class_weight='balanced'),
+            "Gaussian Naive Bayes": GaussianNB(),  # No class_weight parameter
+            "Stochastic Gradient Descent": SGDClassifier(loss='hinge', alpha=0.0001, max_iter=1000, tol=1e-3, class_weight='balanced'),
+            "MLP Classifier": MLPClassifier(hidden_layer_sizes=(100,), activation='logistic', solver='lbfgs', alpha=0.0001448702585671116, learning_rate='adaptive', max_iter=2000)  # No class_weight parameter
         }
+        
+        if name not in models.keys():
+            raise ValueError(f"Model {name} not found in the list of models.")
+        
         return models[name]
 
     @staticmethod
@@ -250,8 +252,6 @@ class PreferenceModel:
 
         y = self.label_encoder.fit_transform(known_df["preference"].values)
 
-        # preprocessor.fit(X)
-
         # Apply the transformations and prepare the dataset
         X_transformed = preprocessor.transform(X)
         
@@ -259,12 +259,7 @@ class PreferenceModel:
         if hasattr(X_transformed, 'toarray'):
             X_transformed = X_transformed.toarray()
 
-        if self.apply_SMOTE:
-            X, y = self.apply_smote(X_transformed, y)
-        else:
-            X = X_transformed
-
-        return X, y, preprocessor
+        return X_transformed, y, preprocessor
 
     @staticmethod
     def get_data_preprocessor() -> ColumnTransformer:
@@ -285,17 +280,6 @@ class PreferenceModel:
             ],
         )
         return preprocessor
-
-    @staticmethod
-    def apply_smote(X: pd.DataFrame, y: np.ndarray) -> Tuple[pd.DataFrame, np.ndarray]:
-        """
-        Apply SMOTE to balance the classes.
-        """
-        # Convert sparse matrix to dense format
-        X_dense = X.toarray() if hasattr(X, 'toarray') else X
-        smote = SMOTE(random_state=42)
-        X_res, y_res = smote.fit_resample(X_dense, y)
-        return X_res, y_res
 
     def combine_features(self, ingredient: str, child: str) -> pd.DataFrame:
         """
@@ -403,7 +387,7 @@ class PreferenceModel:
         updated_preferences = self.update_preferences_with_predictions(child_predictions)
     
         # Return the accuracy
-        return updated_preferences, total_true_preferences, total_predicted_preferences
+        return updated_preferences, total_true_preferences, total_predicted_preferences, self.label_encoder
 
     def update_preferences_with_predictions(self, child_predictions: Dict[str, List[int]]) -> Dict[str, Dict[str, List[str]]]:
         """

@@ -85,7 +85,7 @@ class BaseMenuGenerator(ABC):
         plt.close()
     
     @abstractmethod
-    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None) -> Dict[str, str]:
+    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, final_meal_plan_filename: str = 'NA') -> Dict[str, str]:
         pass
 
 
@@ -179,7 +179,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
             
         return self.random.choices(items, weights=weights, k=num_items)
     
-    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, save_paths = None, week=0, day=0) -> Dict[str, str]:
+    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, final_meal_plan_filename: str = 'NA', save_paths = None, week=0, day=0) -> Dict[str, str]:
         """
         Generates a menu by selecting an item from each ingredient group with a certain probability of choosing
         the best item and a complementary probability of choosing a random item. If no ingredients are available,
@@ -205,8 +205,8 @@ class RandomMenuGenerator(BaseMenuGenerator):
                 menu[group] = item
                 if group in self.groups_to_remove_from:
                     self.selected_ingredients.add(item)
-            except ValueError(f"Error generating item for group {group}"):
-                raise 
+            except Exception as e:  # or use a specific exception instead of `Exception`
+                raise ValueError(f"Error generating item for group {group}: {e}")
         
         # Convert the menu dictionary to a tuple to track frequency
         menu_tuple = tuple(sorted(menu.items()))
@@ -216,10 +216,15 @@ class RandomMenuGenerator(BaseMenuGenerator):
         print(list(menu.values()))
         self.generated_count += 1
         
-                # Save data to JSON
+        if "complex" in final_meal_plan_filename:
+            type = "complex"
+        else:
+            type = "simple"
+        # Save data to JSON
         data_to_save = {
             'week': week,
             'day': day,
+            'type': type,
             'meal_plan': list(menu.values()),
         }
     
@@ -242,7 +247,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
         
         # Save the meal plan
         if save_paths['data']:
-            with open(os.path.join(save_paths['data'], f'final_meal_plan_week_{week}_day_{day}.txt'), 'w') as f:
+            with open(os.path.join(save_paths['data'], f'{final_meal_plan_filename}_week_{week}_day_{day}.txt'), 'w') as f:
                 for item in menu.values():
                     f.write(f"{item}\n")
                     
@@ -548,7 +553,7 @@ class RLMenuGenerator(BaseMenuGenerator):
             with open(json_filename, 'w') as json_file:
                 json.dump(existing_data, json_file, indent=4)
 
-    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, save_paths: Dict = None, week=0, day=0) -> Dict[str, str]:
+    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, final_meal_plan_filename: str = 'NA', save_paths: Dict = None, week=0, day=0) -> Dict[str, str]:
         if self.generated_count > self.menu_plan_length:
             print(f"\nGenerated {self.menu_plan_length} meal plans, resetting ingredients.")
             self.reset_ingredients()
@@ -572,7 +577,7 @@ class RLMenuGenerator(BaseMenuGenerator):
         
         # Save the meal plan
         if save_paths:
-            with open(os.path.join(save_paths['data'], 'final_meal_plan.txt'), 'w') as f:
+            with open(os.path.join(save_paths['data'],  f'{final_meal_plan_filename}_week_{week}_day_{day}.txt'), 'w') as f:
                 for item, amount in final_meal_plan.items():
                     f.write(f"{item}: {amount}\n")
         

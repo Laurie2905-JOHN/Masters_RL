@@ -28,6 +28,9 @@ class SentimentAnalyzer:
                             'Vader': "Vader"
                             }
         
+        if model_name not in model_name_dict.keys():
+            raise ValueError(f"Unknown model name: {model_name}")
+        
         model = model_name_dict[model_name]
         
         self.model_name = model
@@ -38,16 +41,16 @@ class SentimentAnalyzer:
         self.changes = []
         self.incorrect_comments = []
         self.is_star_model = "5_star" in model_name
+
         self.is_perfect_prediction = "perfect" in model_name
-    
-        if not self.is_perfect_prediction and model_name != "TextBlob" and model_name != "Vader":
-            self.sentiment_analyzer = pipeline('sentiment-analysis', model=model, device='cpu')
-        elif model_name == "TextBlob":
-            self.sentiment_analyzer = TextBlob
-        elif model_name == "Vader":
-            self.sentiment_analyzer = SentimentIntensityAnalyzer()
-        else:
-            raise ValueError(f"Unknown model name: {model_name}")
+
+        if not self.is_perfect_prediction:
+            if model_name == "TextBlob":
+                self.sentiment_analyzer = TextBlob
+            elif model_name == "Vader":
+                self.sentiment_analyzer = SentimentIntensityAnalyzer()
+            else:
+                self.sentiment_analyzer = pipeline('sentiment-analysis', model=model, device='cpu')
             
     def analyze_sentiment(self, comment: str) -> str:
         """
