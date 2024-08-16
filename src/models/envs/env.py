@@ -174,7 +174,7 @@ class BaseEnvironment(gym.Env):
         self.co2_fu_rating = np.array([self.rating_to_int[val] for val in ingredient_df['CO2 FU Rating'].values], dtype=np.float32)
         self.co2_g = {'co2_g': 0.0}
         self.co2_g_per_1g = ingredient_df['CO2_g_per_100g'].values.astype(np.float32) / 100
-        self.target_co2_g_per_meal = 1000  # Temporary CO2 target
+        self.target_co2_g_per_meal = 500  # Temporary CO2 target
 
     def _initialize_consumption_data(self, ingredient_df) -> None:
         self.mean_g_per_day = ingredient_df['Mean_g_per_day'].values.astype(np.float32)
@@ -202,14 +202,7 @@ class BaseEnvironment(gym.Env):
             'water': 0,
             'co2_rating': 0,
         }
-        self.consumption_average = {
-            'average_mean_consumption': 0.0,
-            'average_cv_ingredients': 0.0
-        }
-        self.consumption_target = {
-            'average_mean_consumption': 5.8,
-            'average_cv_ingredients': 8.5
-        }
+
         self.target_not_met_counters = Counter()
         
         self.targets_not_met_history = deque(maxlen=10)
@@ -251,7 +244,6 @@ class BaseEnvironment(gym.Env):
             'environment_counts': spaces.Box(low=-1, high=1, shape=(len(self.ingredient_environment_count),), dtype=np.float64),
             'cost': spaces.Box(low=0, high=10, shape=(1,), dtype=np.float64),
             'co2_g': spaces.Box(low=0, high=5000, shape=(1,), dtype=np.float64),
-            'consumption': spaces.Box(low=0, high=100, shape=(len(self.consumption_average),), dtype=np.float64)
         })
         
     def _initialize_target_flags(self) -> dict:
@@ -281,7 +273,7 @@ class BaseEnvironment(gym.Env):
     def get_metrics(self) -> None:
         """
         Calculate various metrics based on the current selection of ingredients.
-        Metrics include nutrient averages, ingredient group counts and portions, environmental impact, cost, and consumption averages.
+        Metrics include nutrient averages, ingredient group counts and portions, environmental impact, cost averages.
         """
         self.total_quantity_ratio = self.current_selection / (sum(self.current_selection) + 1e-9)
         self.nutrient_averages = self._calculate_nutrient_averages()
@@ -292,7 +284,6 @@ class BaseEnvironment(gym.Env):
         self.ingredient_environment_count = self._calculate_ingredient_environment_count()
         self.menu_cost = self._calculate_cost()
         self.co2_g = self._calculate_co2g()
-        self.consumption_average = self._calculate_consumption_average()
 
     def _calculate_nutrient_averages(self) -> dict:
         """
@@ -352,16 +343,6 @@ class BaseEnvironment(gym.Env):
             'rainforest': _round_to_nearest_rating(sum(self.rainforest_rating * self.total_quantity_ratio)),
             'water': _round_to_nearest_rating(sum(self.water_scarcity_rating * self.total_quantity_ratio)),
             'co2_rating': _round_to_nearest_rating(sum(self.co2_fu_rating * self.total_quantity_ratio)),
-        }
-
-    def _calculate_consumption_average(self) -> dict:
-        """
-        Calculate the average consumption values based on the current selection of ingredients.
-        Returns a dictionary of average mean consumption and coefficient of variation.
-        """
-        return {
-            'average_mean_consumption': sum(self.mean_g_per_day * self.total_quantity_ratio),
-            'average_cv_ingredients': sum(self.coefficient_of_variation * self.total_quantity_ratio)
         }
 
     def _calculate_cost(self) -> dict:
@@ -538,7 +519,6 @@ class BaseEnvironment(gym.Env):
         obs['environment_counts'] = np.array(list(self.ingredient_environment_count.values()), dtype=np.float64)
         obs['cost'] = np.array(list(self.menu_cost.values()), dtype=np.float64)
         obs['co2_g'] = np.array(list(self.co2_g.values()), dtype=np.float64)
-        obs['consumption'] = np.array(list(self.consumption_average.values()), dtype=np.float64)
 
         return obs
 
@@ -562,7 +542,6 @@ class BaseEnvironment(gym.Env):
             'nutrient_averages': self.nutrient_averages,
             'ingredient_group_count': self.ingredient_group_count,
             'ingredient_environment_count': self.ingredient_environment_count,
-            'consumption_average': self.consumption_average,
             'cost': self.menu_cost,
             'co2_g': self.co2_g,
             'reward': self.reward_dict,
@@ -979,12 +958,12 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma)
         
         self.step_to_reward = self.calculate_step_to_reward()
-                                    # Nutrient, cost, co2, preference
-        self.score_weights = np.array([2, 1, 1, 1])
+                                    # Nutrient, cost, co2, env, preference
+        self.score_weights = np.array([2, 1, 1, 1, 1])
         
         self.max_score = np.sum(self.score_weights)
 
-        self.scores = [0, 0, 0, 0]
+        self.scores = [0, 0, 0, 0, 0]
         
         current_reward = np.dot(self.scores, self.score_weights)
         self.current_potential  = self.calculate_potential(current_reward)
@@ -1012,6 +991,7 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
             'nutrient_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
             'cost_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
             'co2_g_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+            'env_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
             'preference_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
         })
     
@@ -1023,12 +1003,12 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         self.reward_dict = {}
         self.reward_dict['nutrient_score'] = 0
         self.reward_dict['cost_score'] = 0
-        self.reward_dict['co2g_score'] = 0
+        self.reward_dict['co2_score'] = 0
+        self.reward_dict['environment_score'] = 0
         self.reward_dict['preference_score'] = 0
-        
+        self.reward_dict['bonus_score'] = 0
         # Initialize additional rewards
         self.reward_dict['targets_not_met'] = []
-        self.reward_dict['bonus_score'] = 0
     
     
     def _get_obs(self) -> dict:
@@ -1056,7 +1036,8 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         obs['nutrient_score'] = np.array([self.scores[0]], dtype=np.float64)
         obs['cost_score'] = np.array([self.scores[1]], dtype=np.float64)
         obs['co2_g_score'] = np.array([self.scores[2]], dtype=np.float64)
-        obs['preference_score'] = np.array([self.scores[3]], dtype=np.float64)
+        obs['env_score'] = np.array([self.scores[3]], dtype=np.float64)
+        obs['preference_score'] = np.array([self.scores[4]], dtype=np.float64)
 
         return obs
     
@@ -1110,8 +1091,9 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         
         self.reward_dict['nutrient_score'] = self.scores[0]
         self.reward_dict['cost_score'] = self.scores[1]
-        self.reward_dict['co2g_score'] = self.scores[2]
-        self.reward_dict['preference_score'] = self.scores[3]
+        self.reward_dict['co2_score'] = self.scores[2]
+        self.reward_dict['environment_score'] = self.scores[3]
+        self.reward_dict['preference_score'] = self.scores[4]
         self.reward_dict['targets_not_met'] = targets_not_met
         
         # Calculate the immediate reward based on the current scores
@@ -1139,9 +1121,6 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
             print("All targets met!")
             self.reward_dict['bonus_score'] = self.bonus_score
             shaped_reward += self.bonus_score  # Additional reward for meeting all target
-        else: # If some targets are met, give bonus score based on number of targets met
-            self.reward_dict['bonus_score'] = len(self.scores) - len(targets_not_met)
-            shaped_reward += self.reward_dict['bonus_score']
     
         return shaped_reward, terminated
 

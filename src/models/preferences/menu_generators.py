@@ -245,12 +245,6 @@ class RandomMenuGenerator(BaseMenuGenerator):
             with open(json_filename, 'w') as json_file:
                 json.dump(existing_data, json_file, indent=4)
         
-        # Save the meal plan
-        if save_paths['data']:
-            with open(os.path.join(save_paths['data'], f'{final_meal_plan_filename}_week_{week}_day_{day}.txt'), 'w') as f:
-                for item in menu.values():
-                    f.write(f"{item}\n")
-                    
         return list(menu.values())
 
     def reset_ingredients(self) -> None:
@@ -406,7 +400,7 @@ class RLMenuGenerator(BaseMenuGenerator):
                         info['ingredient_group_count'],
                         info['ingredient_environment_count'],
                         info['cost'],
-                        info['co2_g'],
+                        info['co2'],
                         info['group_portions'],
                         info['preference_score'],
                         info['current_meal_plan'],
@@ -574,12 +568,6 @@ class RLMenuGenerator(BaseMenuGenerator):
 
         # Generate the final meal plan
         final_meal_plan = self.get_final_meal_plan(predictions)
-        
-        # Save the meal plan
-        if save_paths:
-            with open(os.path.join(save_paths['data'],  f'{final_meal_plan_filename}_week_{week}_day_{day}.txt'), 'w') as f:
-                for item, amount in final_meal_plan.items():
-                    f.write(f"{item}: {amount}\n")
         
         for ingredient in final_meal_plan.keys():
             for group, ingredients in negotiated.items():

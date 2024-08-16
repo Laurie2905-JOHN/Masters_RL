@@ -26,11 +26,21 @@ class IngredientNegotiator:
         self.feedback = previous_feedback
         self.previous_utility = previous_utility
         self.average_utility = self._calculate_average_utility(previous_utility)
+        
+        # Map ingredients to their respective groups
         self.ingredient_groups = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E', 'Bread', 'Confectionary']
+        self.ingredient_to_groups = {
+            ingredient: group for group in self.ingredient_groups 
+            for ingredient in self.ingredient_df[self.ingredient_df[group] == 1]['Category7']
+        }
+        
+        
         self.supplier_availability = self.get_supplier_availability()
         self.vote_gini_dict = {}
+        
         if complex_weight_func_args == {}:
             raise ValueError("Complex weight function arguments must be provided.")
+        
         self.complex_weight_func_args = complex_weight_func_args
         self.children_dislikes_in_top_n = {}
         
@@ -150,7 +160,7 @@ class IngredientNegotiator:
                     if ingredient in likes:
                         votes[ingredient] += 5 * weights[child]['likes']
                     elif ingredient in neutrals:
-                        votes[ingredient] += 2 * weights[child]['neutral']
+                        votes[ingredient] += 1 * weights[child]['neutral']
                     elif ingredient in dislikes:
                         votes[ingredient] += -5 * weights[child]['dislikes']
                 else:
@@ -161,15 +171,9 @@ class IngredientNegotiator:
     # Function to populate negotiated ingredients based on the votes
     def populate_negotiated_ingredients(self, votes, negotiated_ingredients, unavailable_ingredients):
         
-        # Map ingredients to their respective groups
-        ingredient_to_groups = {
-            ingredient: group for group in self.ingredient_groups 
-            for ingredient in self.ingredient_df[self.ingredient_df[group] == 1]['Category7']
-        }
-        
         for ingredient, vote in votes.items():
             if ingredient not in unavailable_ingredients:
-                group = ingredient_to_groups.get(ingredient)
+                group = self.ingredient_to_groups.get(ingredient)
                 if group:
                     negotiated_ingredients[group][ingredient] = vote
         
@@ -297,7 +301,7 @@ class IngredientNegotiator:
         if child in self.previous_utility.keys():
             previous_utility = self.previous_utility[child]
             distance_from_avg = previous_utility - self.average_utility
-            compensatory_factor = 1 + (5 * (1 - abs(distance_from_avg / self.average_utility)))
+            compensatory_factor = 1 + (5 * (1 - distance_from_avg / self.average_utility))
             weights = self._multiply_weights_by_factor(weights, factor=compensatory_factor)
         return weights
 
@@ -441,9 +445,11 @@ class IngredientNegotiator:
         ginis = {category: self._calculate_gini(values) for category, values in categories.items()}
         return ginis, categories['total']
 
-    def get_supplier_availability(self, mean_unavailable: int = 5, std_dev_unavailable: int = 2) -> Dict[str, bool]:
+    def get_supplier_availability(self, mean_unavailable: int = 10, std_dev_unavailable: int = 5) -> Dict[str, bool]:
         """
         Generate supplier availability for ingredients.
+
+        Ensures that no group is left without any available ingredients.
 
         :param mean_unavailable: Mean number of unavailable ingredients.
         :param std_dev_unavailable: Standard deviation of unavailable ingredients.
@@ -451,9 +457,27 @@ class IngredientNegotiator:
         """
         ingredients = self.ingredient_df['Category7'].tolist()
         random.seed(self.seed)
-        num_unavailable = max(0, int(np.random.normal(mean_unavailable, std_dev_unavailable)))
-        unavailable_ingredients = random.sample(ingredients, num_unavailable)
-        supplier_availability = {ingredient: ingredient not in unavailable_ingredients for ingredient in ingredients}
+        
+        while True:
+            num_unavailable = max(0, int(np.random.normal(mean_unavailable, std_dev_unavailable)))
+            unavailable_ingredients = random.sample(ingredients, num_unavailable)
+            supplier_availability = {ingredient: ingredient not in unavailable_ingredients for ingredient in ingredients}
+            
+            # Track available ingredients in each group
+            groups_availability = {}
+            for ingredient, group in self.ingredient_to_groups.items():
+                if group not in groups_availability:
+                    groups_availability[group] = 0
+                if supplier_availability[ingredient]:
+                    groups_availability[group] += 1
+            
+            # Check if any group has all ingredients unavailable
+            all_groups_have_available_ingredients = all(count > 0 for count in groups_availability.values())
+
+            # If all groups have at least one available ingredient, break the loop
+            if all_groups_have_available_ingredients:
+                break
+
         return supplier_availability
     
     def log_data(self, log_file: str, week: int, day: int) -> None:

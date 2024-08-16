@@ -7,41 +7,60 @@ import numpy as np
 import json
 from scipy.ndimage import gaussian_filter1d
 from sklearn.preprocessing import MinMaxScaler
+import json
+import os
+
+def save_negotiated_and_unavailable_ingredients(args, file_path):
+    # Ensure the directory exists
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Prepare the data to be saved
+    data_to_save = {
+        'negotiated_ingredients': args.negotiated_ingredients,
+        'unavailable_ingredients': list(args.unavailable_ingredients)
+    }
+
+    # Save data as JSON
+    with open(file_path, 'w') as json_file:
+        json.dump(data_to_save, json_file, indent=4)
 
 def get_child_data():
     # Function to get feature data on children
     return {
-        "child1": {"age": 10, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
-        "child2": {"age": 9, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "Italian"},
-        "child3": {"age": 9, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Italian"},
-        "child4": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
-        "child5": {"age": 11, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Italian"},
-        "child6": {"age": 11, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
-        "child7": {"age": 9, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Italian"},
-        "child8": {"age": 9, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "Italian"},
-        "child9": {"age": 10, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
-        "child10": {"age": 11, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
-        "child11": {"age": 9, "gender": "F", "health_consideration": "moderate", "favorite_cuisine": "Italian"},
-        "child12": {"age": 9, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
-        "child13": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
-        "child14": {"age": 10, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Seafood"},
-        "child15": {"age": 11, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
-        "child16": {"age": 11, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
-        "child17": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian"},
-        "child18": {"age": 9, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
-        "child19": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
-        "child20": {"age": 10, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "BBQ"},
-        "child21": {"age": 10, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "BBQ"},
-        "child22": {"age": 9, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "BBQ"},
-        "child23": {"age": 9, "gender": "F", "health_consideration": "moderate", "favorite_cuisine": "BBQ"},
-        "child24": {"age": 9, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "BBQ"},
-        "child25": {"age": 11, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "BBQ"},
-        "child26": {"age": 11, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "BBQ"},
-        "child27": {"age": 9, "gender": "F", "health_consideration": "moderate", "favorite_cuisine": "Seafood"},
-        "child28": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood"},
-        "child29": {"age": 9, "gender": "M", "health_consideration": "health focused", "favorite_cuisine": "Italian"},
-        "child30": {"age": 10, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian"}
-    }
+    "child1": {"age": 10, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Italian", "feedback_chance": 0},
+    "child2": {"age": 9, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "Italian", "feedback_chance": 0.5},
+    "child3": {"age": 9, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Italian", "feedback_chance": 1},
+    "child4": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian", "feedback_chance": 0},
+    "child5": {"age": 11, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Italian", "feedback_chance": 1},
+    "child6": {"age": 11, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian", "feedback_chance": 0},
+    "child7": {"age": 9, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Italian", "feedback_chance": 1},
+    "child8": {"age": 9, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "Italian", "feedback_chance": 0},
+    "child9": {"age": 10, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian", "feedback_chance": 0},
+    "child10": {"age": 11, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Italian", "feedback_chance": 0.5},
+    "child11": {"age": 9, "gender": "F", "health_consideration": "moderate", "favorite_cuisine": "Italian", "feedback_chance": 0.5},
+    "child12": {"age": 9, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Italian", "feedback_chance": 1},
+    "child13": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood", "feedback_chance": 1},
+    "child14": {"age": 10, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "Seafood", "feedback_chance": 0},
+    "child15": {"age": 11, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood", "feedback_chance": 0.5},
+    "child16": {"age": 11, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Seafood", "feedback_chance": 0},
+    "child17": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian", "feedback_chance": 1},
+    "child18": {"age": 9, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "Seafood", "feedback_chance": 1},
+    "child19": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood", "feedback_chance": 0.5},
+    "child20": {"age": 10, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "BBQ", "feedback_chance": 0},
+    "child21": {"age": 10, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "BBQ", "feedback_chance": 0.5},
+    "child22": {"age": 9, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "BBQ", "feedback_chance": 0.5},
+    "child23": {"age": 9, "gender": "F", "health_consideration": "moderate", "favorite_cuisine": "BBQ", "feedback_chance": 0.5},
+    "child24": {"age": 9, "gender": "M", "health_consideration": "indifferent", "favorite_cuisine": "BBQ", "feedback_chance": 0},
+    "child25": {"age": 11, "gender": "F", "health_consideration": "health focused", "favorite_cuisine": "BBQ", "feedback_chance": 1},
+    "child26": {"age": 11, "gender": "M", "health_consideration": "moderate", "favorite_cuisine": "BBQ", "feedback_chance": 0.5},
+    "child27": {"age": 9, "gender": "F", "health_consideration": "moderate", "favorite_cuisine": "Seafood", "feedback_chance": 0.5},
+    "child28": {"age": 9, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Seafood", "feedback_chance": 0.5},
+    "child29": {"age": 9, "gender": "M", "health_consideration": "health focused", "favorite_cuisine": "Italian", "feedback_chance": 0},
+    "child30": {"age": 10, "gender": "F", "health_consideration": "indifferent", "favorite_cuisine": "Italian", "feedback_chance": 1}
+}
+
 
 
 def get_modifiers(
@@ -633,12 +652,12 @@ def plot_mape(days_labels: List[str], true_utility: List[Dict[str, float]], pred
         else:
             mape_values.append(None)  # Appending None to maintain alignment with days_labels
     
-    # Filter out None values before plotting
-    mape_values = [value for value in mape_values if value is not None]
-    filtered_days_labels = [days_labels[i] for i in range(len(days_labels)) if mape_values[i] is not None]
+    # Filter out None values from both lists together
+    filtered_mape_values = [value for value in mape_values if value is not None]
+    filtered_days_labels = [days_labels[i] for i in range(len(mape_values)) if mape_values[i] is not None]
 
     plt.figure(figsize=(12, 6))
-    plt.plot(filtered_days_labels, mape_values, label='MAPE')
+    plt.plot(filtered_days_labels, filtered_mape_values, label='MAPE')
     plt.title(f'MAPE for {title}')
     plt.xlabel('Day and Week')
     plt.ylabel('MAPE (%)')

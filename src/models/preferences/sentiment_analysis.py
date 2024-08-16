@@ -12,14 +12,14 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
 
 class SentimentAnalyzer:
-    def __init__(self, current_known_and_unknown_preferences, menu_plan, model_name: str = "finiteautomata/bertweet-base-sentiment-analysis", seed: int = 42):
+    def __init__(self, current_known_and_unknown_preferences, menu_plan, child_data, label_mapping, model_name: str = "Vader", seed: int = 42):
         """
         Initialize the sentiment analyzer with the specified model.
         """
         self.current_known_and_unknown_preferences = copy.deepcopy(current_known_and_unknown_preferences)
         
         model_name_dict = {
-                            'roberta': "cardiffnlp/twitter-roberta-base-sentiment",
+                            'roberta': "cardiffnlp/twitter-roberta-base-sentiment-latest",
                             'bertweet':  "finiteautomata/bertweet-base-sentiment-analysis",
                             'distilroberta':  "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis",
                             '5_star':  "nlptown/bert-base-multilingual-uncased-sentiment",
@@ -36,8 +36,8 @@ class SentimentAnalyzer:
         self.model_name = model
         
         self.menu_plan = menu_plan
-        self.label_mapping = {'likes': 2, 'neutral': 1, 'dislikes': 0}
-        self.feedback = self.get_feedback()
+        self.label_mapping = label_mapping
+        self.feedback = self.get_feedback(child_data)
         self.changes = []
         self.incorrect_comments = []
         self.is_star_model = "5_star" in model_name
@@ -128,6 +128,13 @@ class SentimentAnalyzer:
                         
                         if ingredient.lower() in sentence:
                             
+                            try:
+                                correct_action[ingredient]
+                            except KeyError:
+                                print(f"Ingredient {ingredient} not found in correct_action for child {child}. Assigning None Value")
+                                correct_action[ingredient] = None
+                    
+                            
                             if self.is_perfect_prediction:
                                 pred_label = correct_action[ingredient]
                                 
@@ -137,10 +144,8 @@ class SentimentAnalyzer:
                                 change = self.update_preferences(child, ingredient, current_preference, pred_label)
                                 self.changes.append(change)
 
-                            try:
-                                true_labels.append(correct_action[ingredient])
-                            except KeyError:
-                                true_labels.append(None)
+
+                            true_labels.append(correct_action[ingredient])
                             pred_labels.append(pred_label)
 
                             if pred_label != correct_action[ingredient]:
@@ -287,14 +292,13 @@ class SentimentAnalyzer:
             raise ValueError("Population must contain at least one element to sample from.")
         return [random.choice(population) for _ in range(k)]
 
-    def get_feedback(self, average_exclude: int = 5, std_dev_exclude: int = 2, seed: Optional[int] = None) -> Dict[str, Dict[str, Union[str, Dict[str, str]]]]:
+    def get_feedback(self, child_data: Dict[str, Dict[str, Union[str, float]]], seed: Optional[int] = None) -> Dict[str, Dict[str, Union[str, Dict[str, str]]]]:
         """
         Generate feedback based on current_known_and_unknown_preferences (preferences are the true initialized ones, no error) and menu plan,
-        providing randomized comments on the ingredients. Exclude an average of average_exclude children with a standard deviation of std_dev_exclude.
+        providing randomized comments on the ingredients. The feedback participation is determined by each child's feedback chance.
 
         Parameters:
-        average_exclude (int): The average number of children to exclude from feedback.
-        std_dev_exclude (int): The standard deviation for the number of children to exclude.
+        child_data (Dict[str, Dict[str, Union[str, float]]]): A dictionary containing data for each child, including their feedback chance.
         seed (Optional[int]): Seed for random number generators to ensure reproducibility.
 
         Returns:
@@ -374,19 +378,15 @@ class SentimentAnalyzer:
 
         feedback = {}
 
-        # Randomly exclude a certain number of children from the feedback process
-        num_children = len(self.current_known_and_unknown_preferences.keys())
-        children = list(self.current_known_and_unknown_preferences.keys())
-        # Generate random indices for children to exclude based on the average and standard deviation provided
-        random_indices = self.generate_random_indices(num_children, average_exclude, std_dev_exclude)
-
-        # Map the generated indices to the actual children to exclude
-        children_to_exclude = [children[idx] for idx in random_indices]
-
-        # Generate feedback for each child except those that are excluded
+        # Generate feedback for each child based on their feedback chance
         for child, prefs in self.current_known_and_unknown_preferences.items():
-            if child in children_to_exclude:
-                continue
+            feedback_chance = child_data[child]["feedback_chance"]
+
+            # Determine if the child should provide feedback
+            if feedback_chance == 0:
+                continue  # Child does not provide feedback
+            elif feedback_chance == 0.5 and random.random() > 0.5:
+                continue  # Child has a 50% chance to not provide feedback
 
             # Aggregate known and unknown preferences for each feedback type (likes, neutral, dislikes)
             available_ingredients = {
@@ -429,22 +429,20 @@ class SentimentAnalyzer:
 
         return feedback
 
-
     def display_feedback_changes(self, original_preferences) -> None:
         """
         Display the changes made to children's preferences.
         """
         
-        label_mapping = {'2': 'likes', '1': 'neutral', '0': 'dislikes'}
         for change in self.changes:
             print(f"\nChild {change['child']} had Action:")
             print(f"{change['ingredient']} {change['change']}.")
             true_preference_label = PreferenceModel.get_true_preference_label(original_preferences, change['ingredient'], change['child'])
-            if label_mapping[str(true_preference_label)] == change['change'].split(" ")[-1]:
+            if self.label_mapping[str(true_preference_label)] == change['change'].split(" ")[-1]:
                 pass
                 print("Correct Action")
             else:
-                print("Incorrect Preferences: should be", label_mapping[str(true_preference_label)])
+                print("Incorrect Preferences: should be", self.label_mapping[str(true_preference_label)])
 
     def display_incorrect_feedback_changes(self) -> None:
         """

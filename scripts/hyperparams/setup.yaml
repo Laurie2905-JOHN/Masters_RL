@@ -8,7 +8,7 @@ num_envs: 8
 
 render_mode: null
 data_name: 'data'
-total_timesteps: 500000
+total_timesteps: 300000
 save_freq: 100000
 
 log_dir: saved_models/tensorboard
@@ -18,9 +18,9 @@ hyperparams_dir: saved_models/hyperparams
 reward_dir: saved_models/reward
 
 
-log_prefix: trial_3
+log_prefix: test_200
 save_prefix: null
-best_prefix: null
+best_prefix: test
 hyperparams_prefix: null
 reward_prefix: null
 

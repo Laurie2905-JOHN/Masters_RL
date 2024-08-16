@@ -101,19 +101,21 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
     def __init__(self, main_instance):
         """Initialize ScoreCalculator with a reference to the main instance."""
         super().__init__(main_instance)
+        # This is used to get the scores between 0 and 1. Hacky way to do it
+        self.rating_to_score = {1: 1, 0.5: -0.75, 0: 0.5, -0.5: 0.25, -1: 0}
 
     def _calculate_nutrient_score(self, group_target_met):
         """Calculate the nutrient score and check if the target is met."""
         
         if not group_target_met:
-            return 0, False  # No cost score if nutrient target is met
+            return 0, False  # No cost score if group target is met
         
         return self.calculate_score(self.main.nutrient_averages, self.main.nutrient_target_ranges)
 
     def _calculate_cost_score(self, group_target_met):
         """Calculate the cost score and check if the target is met."""
         if not group_target_met:
-            return 0, False  # No cost score if nutrient target is met
+            return 0, False  # No cost score if group target is met
 
         cost_target = {key: (0, self.main.target_cost_per_meal) for key in self.main.menu_cost.keys()}
         return self.calculate_score(self.main.menu_cost, cost_target, normalize=False)
@@ -121,11 +123,31 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
     def _calculate_co2_score(self, group_target_met):
         """Calculate the CO2 score and check if the target is met."""
         if not group_target_met:
-            return 0, False  # No CO2 score if nutrient target is not met
+            return 0, False  # No CO2 score if group target is not met
 
         co2_target = {key: (0, self.main.target_co2_g_per_meal) for key in self.main.co2_g.keys()}
         return self.calculate_score(self.main.co2_g, co2_target, normalize=False)
     
+    def _calculate_environment_score(self, group_target_met):
+        """Calculate the environment score and check if the target is met."""
+        if not group_target_met:
+            return 0, False  # No environment score if nutrient target is not met
+        
+        # Calculate the average of the environment counts
+        environment_average = sum(self.main.ingredient_environment_count.values()) / len(self.main.ingredient_environment_count)
+
+        # Round the average to the nearest value in rating_to_int
+        closest_rating = min(self.main.rating_to_int.values(), key=lambda x: abs(x - environment_average))
+
+        # Determine if the target is met
+        env_target_met = closest_rating >= 0.5 # Target is met if the average is greater than 0.5
+        
+        # This function will calculate the score inside instead of using calculate_score
+        score = self.rating_to_score[closest_rating]
+        
+        return score, env_target_met
+
+
     def _calculate_group_score(self):
         """Calculate the group score and check if the target is met."""
 
@@ -169,9 +191,11 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
         nutrient_score, nutrient_target_met = self._calculate_nutrient_score(group_target_met)
         cost_score, cost_target_met = self._calculate_cost_score(group_target_met)
         co2_score, co2_target_met = self._calculate_co2_score(group_target_met)
+        environment_score, environment_target_met = self._calculate_environment_score(group_target_met)
         preference_score, preference_target_met = self._calculate_preference_score()
+        
         # Collect all scores
-        scores = [nutrient_score, cost_score, co2_score, preference_score]
+        scores = [nutrient_score, cost_score, co2_score, environment_score, preference_score]
         
         # Collect unmet targets
         targets = []
@@ -181,9 +205,9 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
             targets.append('cost')
         if not co2_target_met:
             targets.append('co2')
+        if not environment_target_met:
+            targets.append('environment')
         if not preference_target_met:
             targets.append('preference score')
             
         return scores, targets
-
-

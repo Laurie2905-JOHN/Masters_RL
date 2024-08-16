@@ -50,17 +50,17 @@ class PreferenceModel:
     def get_model(name="MLP Classifier"):
         # Initialize the models with hyperparameters from tuning results
         models = {
-            "Logistic Regression": LogisticRegression(solver='liblinear', C=1.0, max_iter=10000, class_weight='balanced'),
-            "Support Vector Machine": SVC(C=0.0033922720321681796, kernel='rbf', gamma=0.0002471412567416406, probability=True, class_weight='balanced'),
-            "XGBoost": XGBClassifier(n_estimators=214, learning_rate=0.0015221379497286794, max_depth=6, subsample=0.6228265600766979, colsample_bytree=0.7421589270173782, scale_pos_weight=2.4741969781216535, eval_metric='logloss'),
-            "Random Forest": RandomForestClassifier(n_estimators=182, max_depth=18, min_samples_split=7, min_samples_leaf=4, max_features='log2', criterion='gini', class_weight='balanced'),
-            "Gradient Boosting": GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3),  # No class_weight parameter
-            "AdaBoost": AdaBoostClassifier(n_estimators=50, learning_rate=1.0, algorithm='SAMME.R'),  # No class_weight parameter
-            "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='auto'),  # No class_weight parameter
-            "Decision Tree": DecisionTreeClassifier(criterion='entropy', splitter='best', max_depth=15, min_samples_split=19, min_samples_leaf=3, max_features='log2', class_weight='balanced'),
-            "Gaussian Naive Bayes": GaussianNB(),  # No class_weight parameter
-            "Stochastic Gradient Descent": SGDClassifier(loss='hinge', alpha=0.0001, max_iter=1000, tol=1e-3, class_weight='balanced'),
-            "MLP Classifier": MLPClassifier(hidden_layer_sizes=(100,), activation='logistic', solver='lbfgs', alpha=0.0001448702585671116, learning_rate='adaptive', max_iter=2000)  # No class_weight parameter
+            "Logistic Regression": LogisticRegression(solver='liblinear', C=1.0, max_iter=10000),
+            "Support Vector Machine": SVC(C=1.0, kernel='rbf', probability=True),
+            "XGBoost": XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, eval_metric='logloss'),
+            "Random Forest": RandomForestClassifier(n_estimators=100, max_depth=None, criterion='gini'),
+            "Gradient Boosting": GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3),
+            "AdaBoost": AdaBoostClassifier(n_estimators=50, learning_rate=1.0, algorithm='SAMME.R'),
+            "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='auto'),
+            "Decision Tree": DecisionTreeClassifier(criterion='gini', splitter='best', max_depth=None),
+            "Gaussian Naive Bayes": GaussianNB(),
+            "Stochastic Gradient Descent": SGDClassifier(loss='hinge', alpha=0.0001, max_iter=1000, tol=1e-3),
+            "MLP Classifier": MLPClassifier(hidden_layer_sizes=(100,), activation='relu', solver='adam', max_iter=1000)  # No class_weight parameter
         }
         
         if name not in models.keys():
@@ -166,8 +166,6 @@ class PreferenceModel:
             # Save the plot
             plt.savefig(file_path)
             plt.close()
-        else:
-            plt.show()
         
     def get_complete_preference_df(self) -> pd.DataFrame:
         """

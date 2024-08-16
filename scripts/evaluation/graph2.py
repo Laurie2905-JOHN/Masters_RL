@@ -249,7 +249,7 @@ def main():
 
     num_episodes = 4
 
-    predictions = evaluate_model(model, env, args.algo, num_episodes, deterministic=False)
+    predictions = evaluate_model(model, env, args.algo, num_episodes, deterministic=True)
 
     plot_results(predictions, num_episodes)
 

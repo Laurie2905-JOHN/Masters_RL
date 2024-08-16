@@ -24,14 +24,14 @@ from models.preferences.utility_calculator import MenuUtilityCalculator
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Parameters
-iterations = 50
+iterations = 200
 seed = None
 model_name = 'perfect'
-initial_split = 0.35
+initial_split = 0.05
 
 # Set to zero for complete randomness
-probability_best = 0.8
-weight_type = "random"  # Can be "random" or "score"
+probability_best = 1
+weight_type = "score"  # Can be "random" or "score"
 menu_plan_length = 5
 
 # Directory paths
@@ -68,7 +68,7 @@ complex_weight_func_args = {
     'target_gini': 0.15,
 }
 
-menu_generator_type = "random"
+menu_generator_type = "RL"
 
 def main():
     # Load data
@@ -106,6 +106,8 @@ def main():
     
     updated_known_and_predicted_preferences, total_true_unknown_preferences, total_predicted_unknown_preferences, label_encoder = predictor.run_pipeline()
     
+    label_mapping = {label: index for index, label in enumerate(label_encoder.classes_)}
+    
     # Calculate unknown accuracy using sklearn's accuracy_score
     unknown_accuracy = accuracy_score(total_true_unknown_preferences, total_predicted_unknown_preferences)
     
@@ -138,10 +140,10 @@ def main():
 
     # Sentiment analysis initiation for simple and complex menu plans
     sentiment_analyzer_simple = SentimentAnalyzer(
-        true_child_preference_data, menu_plan_simple, model_name=model_name, seed=seed
+        true_child_preference_data, menu_plan_simple, child_data=child_feature_data, label_mapping = label_mapping, model_name=model_name, seed=seed
     )
     sentiment_analyzer_complex = SentimentAnalyzer(
-        true_child_preference_data, menu_plan_complex, model_name=model_name, seed=seed
+        true_child_preference_data, menu_plan_complex, child_data=child_feature_data, label_mapping = label_mapping,  model_name=model_name, seed=seed
     )
     
     # Get updated preferences from feedback and sentiment analysis for both menu plans
@@ -174,8 +176,10 @@ def main():
         )
         
         updated_known_and_predicted_preferences_simple, total_true_unknown_preferences_simple, total_predicted_unknown_preferences_simple, label_encoder_simple = predictor_simple.run_pipeline()
+        label_mapping_simple = {label: index for index, label in enumerate(label_encoder.classes_)}
         updated_known_and_predicted_preferences_complex, total_true_unknown_preferences_complex, total_predicted_unknown_preferences_complex, label_encoder_complex = predictor_complex.run_pipeline()
-
+        label_mapping_complex = {label: index for index, label in enumerate(label_encoder.classes_)}
+        
         # Calculate unknown accuracy using sklearn's accuracy_score for both simple and complex predictions
         unknown_accuracy_simple = accuracy_score(total_true_unknown_preferences_simple, total_predicted_unknown_preferences_simple)
         unknown_accuracy_complex = accuracy_score(total_true_unknown_preferences_complex, total_predicted_unknown_preferences_complex)
@@ -216,10 +220,10 @@ def main():
                         
         # Sentiment analysis initiation
         sentiment_analyzer_simple = SentimentAnalyzer(
-            updated_known_unknown_preferences_with_feedback_simple, menu_plan_simple, model_name=model_name, seed=seed
+            updated_known_unknown_preferences_with_feedback_simple, menu_plan_simple, child_data=child_feature_data, label_mapping = label_mapping_simple, model_name=model_name, seed=seed
         )
         sentiment_analyzer_complex = SentimentAnalyzer(
-            updated_known_unknown_preferences_with_feedback_complex, menu_plan_complex, model_name=model_name, seed=seed
+            updated_known_unknown_preferences_with_feedback_complex, menu_plan_complex, child_data=child_feature_data, label_mapping = label_mapping_complex, model_name=model_name, seed=seed
         )
         
         # Get updated preferences from feedback the sentiment accuracy and feedback given

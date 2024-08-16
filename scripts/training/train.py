@@ -9,7 +9,10 @@ from utils.train_utils import *
 from sb3_contrib.ppo_mask import MaskablePPO
 from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
 from models.callbacks.callback import *
-
+from sklearn.metrics import accuracy_score
+from models.preferences.prediction import PreferenceModel
+from models.preferences.voting import IngredientNegotiator
+from models.preferences.preference_utils import get_child_data, initialize_child_preference_data, save_negotiated_and_unavailable_ingredients
 # Main training function
 def main(args):
     device = select_device(args)  # Select the appropriate device (CPU or GPU)
@@ -33,6 +36,44 @@ def main(args):
     if args.plot_reward_history:
         reward_dir, reward_prefix = get_unique_directory(args.reward_dir, f"{args.reward_prefix}_seed_{args.seed}_env", '.json')
         reward_save_path = os.path.abspath(os.path.join(reward_dir, reward_prefix))
+        
+        
+    child_feature_data = get_child_data()
+    true_child_preference_data = initialize_child_preference_data(
+        child_feature_data, args.ingredient_df, split=0.5, seed=seed, plot_graphs=False
+    )
+    
+        # Initial prediction of preferences
+    predictor = PreferenceModel(
+        args.ingredient_df, child_feature_data, true_child_preference_data, visualize_data=True, file_path=None, seed=seed
+    )
+    
+    updated_known_and_predicted_preferences, total_true_unknown_preferences, total_predicted_unknown_preferences, _ = predictor.run_pipeline()
+    
+    # Calculate unknown accuracy using sklearn's accuracy_score
+    unknown_accuracy = accuracy_score(total_true_unknown_preferences, total_predicted_unknown_preferences)
+    
+    print("Unknown Acc:", unknown_accuracy)
+    
+    # Complex weight function arguments
+    complex_weight_func_args = {
+        'use_normalize_total_voting_weight': False,
+        'use_normalize_vote_categories': True,
+        'use_compensatory': True,
+        'use_feedback': True,
+        'use_fairness': True,
+        'target_gini': 0.15,
+    }
+        
+    # Initial negotiation of ingredients
+    negotiator = IngredientNegotiator(
+        seed, args.ingredient_df, updated_known_and_predicted_preferences, complex_weight_func_args, previous_feedback={}, previous_utility={}
+    )
+        
+    negotiated_ingredients_simple, negotiated_ingredients_complex, unavailable_ingredients = negotiator.negotiate_ingredients()
+    
+    args.negotiated_ingredients = negotiated_ingredients_simple
+    args.unavailable_ingredients = unavailable_ingredients
 
     env = setup_environment(args, reward_save_path=reward_save_path, eval=False)  # Set up the training environment
     tensorboard_log_dir = os.path.join(args.log_dir, f"{args.log_prefix}_seed_{args.seed}")
@@ -117,6 +158,8 @@ def main(args):
 
     info_logger_callback = InfoLoggerCallback()
     callback = CallbackList([checkpoint_callback, eval_callback, info_logger_callback])
+    
+    save_negotiated_and_unavailable_ingredients(args, os.path.join(best_model_path, f"negotiated_and_unavailable_ingredients.json"))
 
     if args.memory_monitor:
         import threading
