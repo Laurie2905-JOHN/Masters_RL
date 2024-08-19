@@ -33,7 +33,7 @@ def setup_environment(args, reward_save_path=None, eval=False):
     env_kwargs = {
                 "ingredient_df": args.ingredient_df,
                 "max_ingredients": args.max_ingredients,
-                "action_scaling_factor": args.action_scaling_factor,
+                "action_update_factor": args.action_update_factor,
                 "render_mode": args.render_mode,
                 "seed": args.seed,
                 "verbose": args.verbose,

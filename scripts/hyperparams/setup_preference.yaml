@@ -1,7 +1,7 @@
 env_name: SchoolMealSelection-v3
 max_episode_steps: 175
 max_ingredients: 6
-action_scaling_factor: 5
+action_update_factor: 5
 
 algo: MASKED_PPO
 num_envs: 8

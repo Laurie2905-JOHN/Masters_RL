@@ -119,20 +119,20 @@ class SentimentAnalyzer:
             correct_action = fb["correct_action"]
 
             for sentence in comments:
+                # If sentence is empty, skip
                 if sentence.strip():
                     
                     if not self.is_perfect_prediction:
                         pred_label = self.analyze_sentiment(sentence.strip())
                         
                     for ingredient in self.menu_plan:
-                        
-                        if ingredient.lower() in sentence:
+                        words = sentence.lower().split()
+                        if ingredient.lower() in words:
                             
                             try:
                                 correct_action[ingredient]
                             except KeyError:
-                                print(f"Ingredient {ingredient} not found in correct_action for child {child}. Assigning None Value")
-                                correct_action[ingredient] = None
+                                raise ValueError(f"Ingredient {ingredient} not found in correct_action for child {child}")
                     
                             
                             if self.is_perfect_prediction:
@@ -416,6 +416,8 @@ class SentimentAnalyzer:
                 # Ensure that all required ingredients are matched before adding the comment to valid comments
                 if len(matched_ingredients) == len(feedback_types):
                     valid_comments.append((comment_template, matched_ingredients, feedback_types))
+                    if len(valid_comments) == 0:
+                        raise ValueError("No valid comments found for the child.")
 
             # Filter out comments that do not match the number of ingredients
             valid_comments = [comment for comment in valid_comments if comment[0].count("{}") == len(comment[1])]

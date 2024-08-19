@@ -26,7 +26,7 @@ COMMON_ARGS="
 # Top 1 trial hyperparameters
 TRIAL_1_ARGS="
   --max_ingredients=5 \
-  --action_scaling_factor=20 \
+  --action_update_factor=20 \
   --a2c_n_steps=5 \
   --gamma=0.9547360275466239 \
   --a2c_learning_rate=2.8218185699201902e-05 \
@@ -48,7 +48,7 @@ TRIAL_1_ARGS="
 # Top 2 trial hyperparameters
 TRIAL_2_ARGS="
   --max_ingredients=5 \
-  --action_scaling_factor=20 \
+  --action_update_factor=20 \
   --a2c_n_steps=5 \
   --gamma=0.9788085126384909 \
   --a2c_learning_rate=2.6233912248483233e-05 \
@@ -70,7 +70,7 @@ TRIAL_2_ARGS="
 # Top 3 trial hyperparameters
 TRIAL_3_ARGS="
   --max_ingredients=5 \
-  --action_scaling_factor=20 \
+  --action_update_factor=20 \
   --a2c_n_steps=5 \
   --gamma=0.9754888085075119 \
   --a2c_learning_rate=4.467579173460465e-05 \

@@ -93,10 +93,10 @@ def plot_results(predictions, num_episodes):
         },
         'ingredient_environment': {
             'animal_welfare': (0.5, 'min'), 'rainforest': (0.5, 'min'), 'water': (0.5, 'min'),
-            'co2_rating': (0.5, 'min'), 'cost': (2, 'max'),
+            'co2_rating': (0.5, 'min'), 'cost': (1.5, 'max'),
         },
         'avg_co2g_grams_per_meal': { 
-            'co2_g': (600, 'max'), 'grams_per_meal': (800, 'max'),
+            'co2_g': (500, 'max'), 'grams_per_meal': (800, 'max'),
         },
         'group_portions': {
             'fruit': ((40, 130), 'range1'), 'veg': ((40, 80), 'range1'), 'protein': ((40, 90), 'range1'),
@@ -185,7 +185,7 @@ class Args:
     plot_reward_history = False
     max_episode_steps = 175
     verbose = 3
-    action_scaling_factor = 5
+    action_update_factor = 5
     memory_monitor = False
     gamma = 0.99
     max_ingredients = 6

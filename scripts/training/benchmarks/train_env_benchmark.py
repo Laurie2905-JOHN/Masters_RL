@@ -22,7 +22,7 @@ def setup_environment(args, reward_save_path=None, eval=False):
     env_kwargs = {
                 "ingredient_df": args.ingredient_df,
                 "max_ingredients": args.max_ingredients,
-                "action_scaling_factor": args.action_scaling_factor,
+                "action_update_factor": args.action_update_factor,
                 "render_mode": args.render_mode,
                 "reward_metrics": args.reward_metrics,
                 "seed": args.seed,
@@ -311,7 +311,7 @@ if __name__ == "__main__":
     parser.add_argument("--env_name", type=str, default='SchoolMealSelection-v1', help="Name of the environment")
     parser.add_argument("--max_episode_steps", type=int, default=1000, help="Max episode steps")
     parser.add_argument("--max_ingredients", type=int, default=6, help="Max number of ingredients in plan")
-    parser.add_argument("--action_scaling_factor", type=int, default=20, help="Max number of ingredients in plan")
+    parser.add_argument("--action_update_factor", type=int, default=20, help="Max number of ingredients in plan")
     parser.add_argument("--algo", type=str, choices=['A2C', 'PPO'], default='A2C', help="RL algorithm to use (A2C or PPO)")
     parser.add_argument("--num_envs", type=int, default=32, help="Number of parallel environments")
     parser.add_argument("--render_mode", type=str, default=None, help="Render mode for the environment")

@@ -27,12 +27,12 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     time.sleep(random.random() * 16)
 
     max_ingredients = trial.suggest_categorical("max_ingredients", [5, 6, 7, 8])
-    action_scaling_factor = trial.suggest_categorical("action_scaling_factor", [10, 15, 20])
+    action_update_factor = trial.suggest_categorical("action_update_factor", [10, 15, 20])
 
     env_kwargs = {
         "ingredient_df": ingredient_df, 
         "max_ingredients": max_ingredients, 
-        "action_scaling_factor": action_scaling_factor
+        "action_update_factor": action_update_factor
     }
     
     path = os.path.abspath(f"{study_path}/trials/trial_{str(trial.number)}")

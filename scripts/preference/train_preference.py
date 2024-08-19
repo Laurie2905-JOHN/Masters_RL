@@ -24,9 +24,9 @@ from models.preferences.utility_calculator import MenuUtilityCalculator
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Parameters
-iterations = 200
+iterations = 100
 seed = None
-model_name = 'perfect'
+sentiment_model_name = 'Vader'
 initial_split = 0.05
 
 # Set to zero for complete randomness
@@ -68,7 +68,7 @@ complex_weight_func_args = {
     'target_gini': 0.15,
 }
 
-menu_generator_type = "RL"
+menu_generator_type = "notRL"
 
 def main():
     # Load data
@@ -140,10 +140,10 @@ def main():
 
     # Sentiment analysis initiation for simple and complex menu plans
     sentiment_analyzer_simple = SentimentAnalyzer(
-        true_child_preference_data, menu_plan_simple, child_data=child_feature_data, label_mapping = label_mapping, model_name=model_name, seed=seed
+        true_child_preference_data, menu_plan_simple, child_data=child_feature_data, label_mapping = label_mapping, model_name=sentiment_model_name, seed=seed
     )
     sentiment_analyzer_complex = SentimentAnalyzer(
-        true_child_preference_data, menu_plan_complex, child_data=child_feature_data, label_mapping = label_mapping,  model_name=model_name, seed=seed
+        true_child_preference_data, menu_plan_complex, child_data=child_feature_data, label_mapping = label_mapping,  model_name=sentiment_model_name, seed=seed
     )
     
     # Get updated preferences from feedback and sentiment analysis for both menu plans
@@ -220,10 +220,10 @@ def main():
                         
         # Sentiment analysis initiation
         sentiment_analyzer_simple = SentimentAnalyzer(
-            updated_known_unknown_preferences_with_feedback_simple, menu_plan_simple, child_data=child_feature_data, label_mapping = label_mapping_simple, model_name=model_name, seed=seed
+            updated_known_unknown_preferences_with_feedback_simple, menu_plan_simple, child_data=child_feature_data, label_mapping = label_mapping_simple, model_name=sentiment_model_name, seed=seed
         )
         sentiment_analyzer_complex = SentimentAnalyzer(
-            updated_known_unknown_preferences_with_feedback_complex, menu_plan_complex, child_data=child_feature_data, label_mapping = label_mapping_complex, model_name=model_name, seed=seed
+            updated_known_unknown_preferences_with_feedback_complex, menu_plan_complex, child_data=child_feature_data, label_mapping = label_mapping_complex, model_name=sentiment_model_name, seed=seed
         )
         
         # Get updated preferences from feedback the sentiment accuracy and feedback given

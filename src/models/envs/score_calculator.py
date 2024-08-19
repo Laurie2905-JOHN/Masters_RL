@@ -102,7 +102,7 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
         """Initialize ScoreCalculator with a reference to the main instance."""
         super().__init__(main_instance)
         # This is used to get the scores between 0 and 1. Hacky way to do it
-        self.rating_to_score = {1: 1, 0.5: -0.75, 0: 0.5, -0.5: 0.25, -1: 0}
+        self.rating_to_score = {1: 1, 0.5: 0.75, 0: 0.5, -0.5: 0.25, -1: 0}
 
     def _calculate_nutrient_score(self, group_target_met):
         """Calculate the nutrient score and check if the target is met."""
@@ -162,7 +162,8 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
             )
             min_target, max_target = group_target[key]
 
-            if min_target <= portion <= max_target:
+            # Adding action update factor to target as this is when portion is prevented from increasing more 
+            if min_target <= portion <= max_target + self.main.action_update_factor:
                 scores += 1
             else:
                 target_met = False

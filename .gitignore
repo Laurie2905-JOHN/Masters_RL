@@ -177,7 +177,7 @@ scripts/preference/saved_data/*
 
 # Filetypes
 *.dat
-# *.txt
+*.txt
 # *.db
 # *.pkl
 # *.csv

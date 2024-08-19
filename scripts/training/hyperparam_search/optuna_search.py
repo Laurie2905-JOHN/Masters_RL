@@ -36,7 +36,7 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         return {
             "ingredient_df": ingredient_df, 
             "max_ingredients": 6, 
-            "action_scaling_factor": 5,
+            "action_update_factor": 5,
             "initialization_strategy": 'zero',
             "reward_type": 'shaped',
             "gamma": 0.99, 
