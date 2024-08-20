@@ -149,7 +149,7 @@ def run_menu_generation(seed):
 def main():
     all_results = []
     seed = random.randint(0, int(1e6))
-    for i in range(1):
+    for i in range(10):
         iteration_results = run_menu_generation(seed)
         all_results.append(iteration_results)
 
