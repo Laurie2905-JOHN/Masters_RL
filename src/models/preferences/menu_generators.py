@@ -471,6 +471,9 @@ class RandomMenuGenerator(BaseMenuGenerator):
         :param day: The current day number.
         :return: A dictionary with selected ingredients and their optimized quantities.
         """
+        
+        unavailable = unavailable.union(self.selected_ingredients)
+        
         # Initialize the ingredients in groups and normalize scores
         self.initialize_ingredient_in_groups(negotiated, unavailable)
 
@@ -589,7 +592,6 @@ class RandomMenuGenerator(BaseMenuGenerator):
         :return: A tuple containing the mutated individual and a boolean indicating whether any mutation occurred.
         """
         for i, (ingredient, quantity) in enumerate(individual):
-            # Determine the group for the current ingredient
             group = None
             for g, ingredients in self.ingredients_in_groups.items():
                 if ingredient in ingredients:
@@ -597,15 +599,14 @@ class RandomMenuGenerator(BaseMenuGenerator):
                     break
 
             if group is None:
-                raise ValueError(f"Group for ingredient {ingredient} not found.")
+                print(f"Warning: Group for ingredient {ingredient} not found. Skipping mutation for this ingredient.")
+                continue
 
             if self.random.random() < indpb:
-                # Mutate the ingredient selection
                 new_ingredient = self.random.choice(self.ingredients_in_groups[group])
                 individual[i] = (new_ingredient, quantity)
 
             if self.random.random() < indpb:
-                # Mutate the quantity
                 min_portion, max_portion = self.ingredient_group_portion_targets[group]
                 new_quantity = self.random.randint(min_portion, max_portion)
                 individual[i] = (ingredient, new_quantity)
