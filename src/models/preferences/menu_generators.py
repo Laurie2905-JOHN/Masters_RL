@@ -454,10 +454,9 @@ class RandomMenuGenerator(BaseMenuGenerator):
         
         return best_quantities, best_score
 
-    def genetic_algorithm_select_and_optimize(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, ngen: int = 100, population_size: int = 500, cxpb: float = 0.7, mutpb: float = 0.3, final_meal_plan_filename: str = 'NA', save_paths=None, week=0, day=0) -> Dict[str, float]:
+    def run_genetic_menu_optimization_and_finalize(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, ngen: int = 100, population_size: int = 500, cxpb: float = 0.7, mutpb: float = 0.3, final_meal_plan_filename: str = 'NA', save_paths=None, week=0, day=0) -> Dict[str, float]:
         """
-        Selects ingredients from each required group and optimizes their quantities using a Genetic Algorithm.
-        Includes functionality to reset, save results, and manage selected ingredients.
+        Runs the full optimization process and finalizes the selected menu in a single function.
 
         :param negotiated: A dictionary of ingredient groups with corresponding ingredients and their scores.
         :param unavailable: A set of ingredients that are unavailable and should not be selected.
@@ -472,13 +471,101 @@ class RandomMenuGenerator(BaseMenuGenerator):
         :return: A dictionary with selected ingredients and their optimized quantities.
         """
         
-        unavailable = unavailable.union(self.selected_ingredients)
-        
-        # Initialize the ingredients in groups and normalize scores
         self.initialize_ingredient_in_groups(negotiated, unavailable)
+        
+        # Step 1: Generate the optimized menu
+        best_individual = self.generate_optimized_genetic_menu(negotiated, unavailable, ngen, population_size, cxpb, mutpb)
+
+        # Step 2: Finalize the menu and return the results
+        return self.finalize_genetic_menu(best_individual, negotiated, save_paths, week, day, final_meal_plan_filename)
+
+    def finalize_genetic_menu(self, best_individual, negotiated: Dict[str, Dict[str, float]], save_paths=None, week=0, day=0, final_meal_plan_filename: str = 'NA'):
+        """
+        Finalizes the selected menu by adding ingredients to the unavailable list and saving the results.
+
+        :param best_individual: The best individual (optimized menu) from the genetic algorithm.
+        :param negotiated: A dictionary of ingredient groups with corresponding ingredients and their scores.
+        :param save_paths: Paths to save the generated data and graphs.
+        :param week: The current week number.
+        :param day: The current day number.
+        :param final_meal_plan_filename: The filename to save the final meal plan.
+        :return: A dictionary with selected ingredients and their optimized quantities.
+        """
 
         # Flatten the menu structure for easier processing with DEAP
-        ingredients_per_group = [(group, list(items.keys())) for group, items in negotiated.items()]
+        ingredients_per_group = [(group, items) for group, items in self.ingredients_in_groups.items()]
+        
+        # Create the final menu with selected ingredients and optimized quantities
+        final_menu = {group: ingredient for (group, _), (ingredient, _) in zip(ingredients_per_group, best_individual)}
+        final_quantities = {ingredient: quantity for (ingredient, quantity) in best_individual}
+
+        # Add the selected ingredients to the unavailable list
+        for group, ingredient in final_menu.items():
+            if group in self.groups_to_remove_from:
+                self.selected_ingredients.add(ingredient)
+
+        # Save data to JSON
+        data_to_save = {
+            'week': week,
+            'day': day,
+            'type': "complex" if "complex" in final_meal_plan_filename else "simple",
+            'meal_plan': list(final_menu.values()),
+            'quantities': final_quantities  # Save the generated ingredient quantities
+        }
+
+        if save_paths and 'data' in save_paths:
+            json_filename = os.path.join(save_paths['data'], 'Random_menu_results.json')
+
+            if os.path.exists(json_filename):
+                with open(json_filename, 'r') as json_file:
+                    existing_data = json.load(json_file)
+            else:
+                existing_data = []
+
+            # Append new data
+            existing_data.append(data_to_save)
+
+            # Save updated data
+            with open(json_filename, 'w') as json_file:
+                json.dump(existing_data, json_file, indent=4)
+        
+        # Optional: Handle plotting or other finalization tasks
+        if self.generated_count >= self.menu_plan_length:
+            print(f"\nGenerated {self.menu_plan_length} meal plans, resetting ingredients.")
+            self.reset_ingredients()
+
+        # Increment the count of generated menus
+        self.generated_count += 1
+
+        # Plotting the menu
+        _, info = self.evaluator.select_ingredients(final_quantities)
+        if self.plot_menu_flag:
+            self.evaluator.plot_menu(info)
+
+        return final_quantities, self.evaluator.objective_function(final_quantities)
+
+    def generate_optimized_genetic_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, ngen: int = 100, population_size: int = 500, cxpb: float = 0.7, mutpb: float = 0.3) -> Dict[str, float]:
+        """
+        Generates and optimizes a menu using a Genetic Algorithm.
+
+        :param negotiated: A dictionary of ingredient groups with corresponding ingredients and their scores.
+        :param unavailable: A set of ingredients that are unavailable and should not be selected.
+        :param ngen: Number of generations for the genetic algorithm.
+        :param population_size: Size of the population in each generation.
+        :param cxpb: Probability of crossover.
+        :param mutpb: Probability of mutation.
+        :return: The best individual (optimized menu) from the genetic algorithm.
+        """
+
+        # Ensure `unavailable` is initialized properly
+        if unavailable is None:
+            unavailable = set()
+
+        # Initialize the ingredients in groups and normalize scores
+        self.initialize_ingredient_in_groups(negotiated, unavailable)
+        
+        # Flatten the menu structure for easier processing with DEAP
+        ingredients_per_group = [(group, items) for group, items in self.ingredients_in_groups.items()]
 
         # Define the individual and fitness classes for DEAP
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
@@ -488,6 +575,8 @@ class RandomMenuGenerator(BaseMenuGenerator):
         def create_individual():
             individual = []
             for group, ingredients in ingredients_per_group:
+                if not ingredients:
+                    raise ValueError(f"No available ingredients in group {group} after filtering unavailable ingredients.")
                 selected_ingredient = self.random.choice(ingredients)
                 min_portion, max_portion = self.ingredient_group_portion_targets[group]
                 selected_quantity = self.random.randint(min_portion, max_portion)
@@ -523,66 +612,9 @@ class RandomMenuGenerator(BaseMenuGenerator):
         # Get the best individual (ingredient selection and quantity)
         best_individual = tools.selBest(population, k=1)[0]
 
-        # Create the final menu with selected ingredients and optimized quantities
-        final_menu = {group: ingredient for (group, _), (ingredient, _) in zip(ingredients_per_group, best_individual)}
-        final_quantities = {ingredient: quantity for (ingredient, quantity) in best_individual}
+        return best_individual
 
-        # Add selected ingredients to the set and manage resets if necessary
-        for ingredient in final_menu.values():
-            if ingredient in self.selected_ingredients:
-                print(f"Ingredient {ingredient} was already selected before and is now being reused.")
-            else:
-                self.selected_ingredients.add(ingredient)
-
-        if self.generated_count > self.menu_plan_length:
-            print(f"\nGenerated {self.menu_plan_length} meal plans, resetting ingredients.")
-            self.reset_ingredients()
-
-        # Convert the menu dictionary to a tuple to track frequency
-        menu_tuple = tuple(sorted(final_menu.items()))
-        self.menu_counter[menu_tuple] += 1
-
-        self.generated_count += 1
-
-        if "complex" in final_meal_plan_filename:
-            type = "complex"
-        else:
-            type = "simple"
-
-        # Save data to JSON
-        data_to_save = {
-            'week': week,
-            'day': day,
-            'type': type,
-            'meal_plan': list(final_menu.values()),
-            'quantities': final_quantities  # Save the generated ingredient quantities
-        }
-
-        if save_paths and 'data' in save_paths:
-            json_filename = os.path.join(save_paths['data'], 'Random_menu_results.json')
-
-            if os.path.exists(json_filename):
-                with open(json_filename, 'r') as json_file:
-                    existing_data = json.load(json_file)
-            else:
-                existing_data = []
-
-            # Append new data
-            existing_data.append(data_to_save)
-
-            # Save updated data
-            with open(json_filename, 'w') as json_file:
-                json.dump(existing_data, json_file, indent=4)
-
-        # Plotting the menu
-        _, info = self.evaluator.select_ingredients(final_quantities)
-
-        if self.plot_menu_flag:
-            self.evaluator.plot_menu(info)
-
-        return final_quantities, evaluate(best_individual)[0]
-
-
+    
     def mutate_individual(self, individual, indpb):
         """
         Mutates an individual by either changing the selected ingredient or adjusting the quantity.
@@ -599,8 +631,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
                     break
 
             if group is None:
-                print(f"Warning: Group for ingredient {ingredient} not found. Skipping mutation for this ingredient.")
-                continue
+                raise ValueError(f"Ingredient '{ingredient}' not found in any group.")
 
             if self.random.random() < indpb:
                 new_ingredient = self.random.choice(self.ingredients_in_groups[group])
@@ -612,7 +643,6 @@ class RandomMenuGenerator(BaseMenuGenerator):
                 individual[i] = (ingredient, new_quantity)
 
         return individual,
-
 
     def reset_ingredients(self) -> None:
         """
