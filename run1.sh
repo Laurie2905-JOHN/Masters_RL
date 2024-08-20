@@ -2,7 +2,7 @@
 
 # Set up environment variables for the training parameters
 export MAX_INGREDIENTS=7
-export ACTION_SCALING_FACTOR=20
+export action_update_factor=20
 export N_STEPS=16
 export BATCH_SIZE=16
 export GAMMA=0.995
@@ -25,7 +25,7 @@ export POLICY_KWARGS_ORTHO_INIT=True
 
 # Call the Python training script with the necessary environment variables
 python train.py --max_ingredients $MAX_INGREDIENTS \
-                --action_scaling_factor $ACTION_SCALING_FACTOR \
+                --action_update_factor $action_update_factor \
                 --n_steps $N_STEPS \
                 --batch_size $BATCH_SIZE \
                 --gamma $GAMMA \

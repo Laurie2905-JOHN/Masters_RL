@@ -64,7 +64,7 @@ class BaseRewardCalculator(ABC):
     def co2g_target(main_class: Any) -> bool:
         # Check if CO2 emissions target is met
         if main_class.total_average_portion < sum(main_class.current_selection):
-            co2g_target = main_class.co2_g['co2_g'] <= main_class.target_co2_g_per_meal
+            co2g_target = main_class.co2_g['co2e_g'] <= main_class.target_co2_g_per_meal
         else:
             co2g_target = False
         return co2g_target
@@ -244,20 +244,20 @@ class ShapedRewardCalculator(BaseRewardCalculator):
         co2_target_met = BaseRewardCalculator.co2g_target(main_class)
         if co2_target_met:
             # If CO2 target is met, assign high reward
-            main_class.reward_dict['co2g_reward']['co2_g'] = 2
+            main_class.reward_dict['co2g_reward']['co2e_g'] = 2
         else:
             # If CO2 target is not met, calculate distance reward
             target_min = main_class.target_co2_g_per_meal
             target_max = main_class.target_co2_g_per_meal
             distance_reward = BaseRewardCalculator.calculate_distance_reward(
-                main_class.co2_g['co2_g'], target_min, target_max
+                main_class.co2_g['co2e_g'], target_min, target_max
             )
-            main_class.reward_dict['co2g_reward']['co2_g'] = distance_reward
+            main_class.reward_dict['co2g_reward']['co2e_g'] = distance_reward
             # Check if CO2 value is far from the target range
-            far_flag = main_class.co2_g['co2_g'] > 1500
+            far_flag = main_class.co2_g['co2e_g'] > 1500
             if far_flag:
                 # Penalize and terminate if CO2 value is too high
-                main_class.reward_dict['co2g_reward']['co2_g'] -= 0.1
+                main_class.reward_dict['co2g_reward']['co2e_g'] -= 0.1
                 terminate = True
         return main_class.reward_dict['co2g_reward'], co2_target_met, terminate
 
@@ -270,54 +270,6 @@ class ShapedRewardCalculator(BaseRewardCalculator):
         terminate = False
         return main_class.reward_dict['consumption_reward'], consumption_targets_met, terminate
 
-
-class ShapedRewardCalculatorGroup(ShapedRewardCalculator):
-
-    @staticmethod
-    def calculate_cost_reward(main_class) -> Tuple[dict, bool, bool]:
-        # Call parent method to calculate cost reward
-        rewards, cost_target_met, terminate = super().calculate_cost_reward(main_class)
-        # Calculate group count reward and check if group target is met
-        _, group_target_met, _ = ShapedRewardCalculatorGroup.calculate_group_count_reward(main_class)
-        if not group_target_met:
-            # Zero out reward if group target is not met
-            rewards['cost'] = 0
-        return rewards, cost_target_met, terminate
-
-    @staticmethod
-    def calculate_nutrient_reward(main_class) -> Tuple[dict, bool, bool]:
-        # Call parent method to calculate nutrient reward
-        rewards, all_targets_met, terminate = super().calculate_nutrient_reward(main_class)
-        # Calculate group count reward and check if group target is met
-        _, group_target_met, _ = ShapedRewardCalculatorGroup.calculate_group_count_reward(main_class)
-        if not group_target_met:
-            # Zero out rewards if group target is not met
-            for nutrient in rewards:
-                rewards[nutrient] = 0
-        return rewards, all_targets_met, terminate
-
-    @staticmethod
-    def calculate_environment_count_reward(main_class) -> Tuple[Dict[str, float], bool, bool]:
-        # Call parent method to calculate environment count reward
-        rewards, environment_target_met, terminate = super().calculate_environment_count_reward(main_class)
-        # Calculate group count reward and check if group target is met
-        _, group_target_met, _ = ShapedRewardCalculatorGroup.calculate_group_count_reward(main_class)
-        if not group_target_met:
-            # Zero out rewards if group target is not met
-            for metric in rewards:
-                rewards[metric] = 0
-        return rewards, environment_target_met, terminate
-
-    @staticmethod
-    def calculate_co2g_reward(main_class) -> Tuple[Dict[str, float], bool, bool]:
-        # Call parent method to calculate CO2 reward
-        rewards, co2_target_met, terminate = super().calculate_co2g_reward(main_class)
-        # Calculate group count reward and check if group target is met
-        _, group_target_met, _ = ShapedRewardCalculatorGroup.calculate_group_count_reward(main_class)
-        if not group_target_met:
-            # Zero out reward if group target is not met
-            rewards['co2_g'] = 0
-        return rewards, co2_target_met, terminate
    
     
 class SemiSparseRewardCalculator(BaseRewardCalculator):
@@ -365,7 +317,7 @@ class SemiSparseRewardCalculator(BaseRewardCalculator):
         # Check if the CO2 target is met
         terminate = False
         co2_target_met = BaseRewardCalculator.co2g_target(main_class)
-        far_flag = main_class.co2_g['co2_g'] > 2000
+        far_flag = main_class.co2_g['co2e_g'] > 2000
         if far_flag:
             terminate = True
         return main_class.reward_dict['co2g_reward'], co2_target_met, terminate
@@ -439,7 +391,7 @@ class SparseRewardCalculator(BaseRewardCalculator):
     def calculate_co2g_reward(main_class) -> Tuple[Dict[str, float], bool, bool]:
         terminate = False
         co2_target_met = BaseRewardCalculator.co2g_target(main_class)
-        far_flag = main_class.co2_g['co2_g'] > 2000
+        far_flag = main_class.co2_g['co2e_g'] > 2000
         if far_flag:
             terminate = True
         return main_class.reward_dict['co2g_reward'], co2_target_met, terminate

@@ -33,7 +33,7 @@ def setup_environment(args, reward_save_path=None, eval=False):
     env_kwargs = {
                 "ingredient_df": args.ingredient_df,
                 "max_ingredients": args.max_ingredients,
-                "action_scaling_factor": args.action_scaling_factor,
+                "action_update_factor": args.action_update_factor,
                 "render_mode": args.render_mode,
                 "seed": args.seed,
                 "verbose": args.verbose,
@@ -41,7 +41,9 @@ def setup_environment(args, reward_save_path=None, eval=False):
                 "reward_type": args.reward_type,
                 "algo": args.algo,
                 "gamma": args.gamma,
-                "max_episode_steps": args.max_episode_steps
+                "max_episode_steps": args.max_episode_steps,
+                "negotiated_ingredients": args.negotiated_ingredients,
+                "unavailable_ingredients": args.unavailable_ingredients,
                 }
         
     def make_env():
@@ -323,7 +325,7 @@ def load_hyperparams(filepath):
     
 def set_default_prefixes(args):
     # Function to set the default prefixes if not provided
-    no_name = f"{args.env_name}_{args.algo}_reward_type_{args.reward_type}_{args.total_timesteps}_{args.num_envs}env_NewMASK".replace('-', '_')
+    no_name = f"{args.env_name}_{args.algo}_reward_type_{args.reward_type}_{args.total_timesteps}_{args.num_envs}env".replace('-', '_')
 
     if args.log_prefix is None:
         args.log_prefix = no_name

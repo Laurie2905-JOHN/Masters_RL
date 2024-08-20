@@ -1,0 +1,705 @@
+Iteration,Split,SMOTE,Model,Metric,Score,Rank
+0,0.8,True,MLP Classifier,accuracy,0.9607142857142857,1.0
+0,0.8,False,MLP Classifier,accuracy,0.9547619047619048,2.0
+0,0.8,False,Decision Tree,accuracy,0.9476190476190476,3.0
+0,0.7,False,MLP Classifier,accuracy,0.9470355731225296,4.0
+0,0.5,True,MLP Classifier,accuracy,0.9460116731517509,5.0
+0,0.8,True,Random Forest,accuracy,0.9452380952380952,6.0
+0,0.8,True,Decision Tree,accuracy,0.9452380952380952,6.0
+0,0.8,False,Random Forest,accuracy,0.9452380952380952,6.0
+0,0.5,False,MLP Classifier,accuracy,0.9440661478599222,9.0
+0,0.5,False,Decision Tree,accuracy,0.9430933852140078,10.0
+0,0.7,True,Support Vector Machine,accuracy,0.941501976284585,11.0
+0,0.4,True,MLP Classifier,accuracy,0.9403651115618661,12.0
+0,0.6,False,MLP Classifier,accuracy,0.94,13.0
+0,0.7,True,MLP Classifier,accuracy,0.9399209486166008,14.0
+0,0.7,True,Random Forest,accuracy,0.9391304347826087,15.0
+0,0.7,False,Random Forest,accuracy,0.9391304347826087,15.0
+0,0.8,True,Support Vector Machine,accuracy,0.9380952380952381,17.0
+0,0.7,True,Decision Tree,accuracy,0.9375494071146245,18.0
+0,0.7,False,Decision Tree,accuracy,0.9375494071146245,18.0
+0,0.5,True,Random Forest,accuracy,0.9343385214007782,20.0
+0,0.8,False,Support Vector Machine,accuracy,0.9333333333333333,21.0
+0,0.4,False,MLP Classifier,accuracy,0.932657200811359,22.0
+0,0.6,False,Decision Tree,accuracy,0.9321212121212121,23.0
+0,0.7,False,Support Vector Machine,accuracy,0.9320158102766798,24.0
+0,0.6,True,MLP Classifier,accuracy,0.9309090909090909,25.0
+0,0.5,False,Random Forest,accuracy,0.9304474708171206,26.0
+0,0.6,True,Random Forest,accuracy,0.9296969696969697,27.0
+0,0.6,False,Random Forest,accuracy,0.9296969696969697,27.0
+0,0.6,True,Decision Tree,accuracy,0.9278787878787879,29.0
+0,0.5,True,Decision Tree,accuracy,0.9265564202334631,30.0
+0,0.4,False,Decision Tree,accuracy,0.9212981744421906,31.0
+0,0.6,True,Support Vector Machine,accuracy,0.9193939393939394,32.0
+0,0.5,True,Support Vector Machine,accuracy,0.916828793774319,33.0
+0,0.4,False,Random Forest,accuracy,0.9135902636916836,34.0
+0,0.4,True,Random Forest,accuracy,0.913184584178499,35.0
+0,0.4,True,Decision Tree,accuracy,0.9123732251521298,36.0
+0,0.3,False,MLP Classifier,accuracy,0.9117236566643405,37.0
+0,0.6,False,Support Vector Machine,accuracy,0.9072727272727272,38.0
+0,0.3,True,MLP Classifier,accuracy,0.9071877180739707,39.0
+0,0.5,False,Support Vector Machine,accuracy,0.9041828793774319,40.0
+0,0.4,True,Support Vector Machine,accuracy,0.896551724137931,41.0
+0,0.2,False,Decision Tree,accuracy,0.8943511450381679,42.0
+0,0.2,True,MLP Classifier,accuracy,0.8937404580152671,43.0
+0,0.2,False,MLP Classifier,accuracy,0.8928244274809161,44.0
+0,0.4,False,Support Vector Machine,accuracy,0.8924949290060852,45.0
+0,0.3,False,Random Forest,accuracy,0.8918353105373342,46.0
+0,0.3,True,Random Forest,accuracy,0.8904396371249128,47.0
+0,0.3,False,Decision Tree,accuracy,0.8866015352407537,48.0
+0,0.2,True,Decision Tree,accuracy,0.8851908396946565,49.0
+0,0.8,False,Gradient Boosting,accuracy,0.8833333333333333,50.0
+0,0.5,True,Gradient Boosting,accuracy,0.8813229571984436,51.0
+0,0.8,True,Gradient Boosting,accuracy,0.8797619047619047,52.0
+0,0.2,False,Random Forest,accuracy,0.8781679389312977,53.0
+0,0.2,True,Random Forest,accuracy,0.877557251908397,54.0
+0,0.7,False,Gradient Boosting,accuracy,0.8758893280632412,55.0
+0,0.6,False,Gradient Boosting,accuracy,0.8751515151515151,56.0
+0,0.3,True,Decision Tree,accuracy,0.8740404745289603,57.0
+0,0.6,True,Gradient Boosting,accuracy,0.8733333333333333,58.0
+0,0.7,False,XGBoost,accuracy,0.8727272727272727,59.0
+0,0.5,False,Gradient Boosting,accuracy,0.8720817120622568,60.0
+0,0.5,False,XGBoost,accuracy,0.8715953307392996,61.0
+0,0.4,False,Gradient Boosting,accuracy,0.8709939148073023,62.0
+0,0.8,True,K-Nearest Neighbors,accuracy,0.8702380952380953,63.0
+0,0.7,True,K-Nearest Neighbors,accuracy,0.8687747035573122,64.0
+0,0.7,True,Gradient Boosting,accuracy,0.867193675889328,65.0
+0,0.3,True,Support Vector Machine,accuracy,0.866364270760642,66.0
+0,0.6,True,K-Nearest Neighbors,accuracy,0.8642424242424243,67.0
+0,0.8,False,XGBoost,accuracy,0.8630952380952381,68.0
+0,0.7,False,K-Nearest Neighbors,accuracy,0.8616600790513834,69.0
+0,0.4,True,Gradient Boosting,accuracy,0.8584178498985802,70.0
+0,0.3,False,Support Vector Machine,accuracy,0.8572923935799023,71.0
+0,0.2,True,Gradient Boosting,accuracy,0.8549618320610687,72.0
+0,0.6,False,K-Nearest Neighbors,accuracy,0.8545454545454545,73.0
+0,0.6,False,XGBoost,accuracy,0.8521212121212122,74.0
+0,0.8,False,K-Nearest Neighbors,accuracy,0.8476190476190476,75.0
+0,0.8,True,XGBoost,accuracy,0.8464285714285714,76.0
+0,0.5,True,XGBoost,accuracy,0.8458171206225681,77.0
+0,0.7,True,XGBoost,accuracy,0.8434782608695652,78.0
+0,0.3,False,Gradient Boosting,accuracy,0.8408932309839497,79.0
+0,0.6,True,XGBoost,accuracy,0.833939393939394,80.0
+0,0.3,True,Gradient Boosting,accuracy,0.8335659455687369,81.0
+0,0.2,False,Gradient Boosting,accuracy,0.8332824427480916,82.0
+0,0.5,False,K-Nearest Neighbors,accuracy,0.833171206225681,83.0
+0,0.5,True,K-Nearest Neighbors,accuracy,0.8302529182879378,84.0
+0,0.3,False,XGBoost,accuracy,0.8258897418004187,85.0
+0,0.2,True,Support Vector Machine,accuracy,0.8244274809160306,86.0
+0,0.4,False,XGBoost,accuracy,0.824340770791075,87.0
+0,0.4,True,XGBoost,accuracy,0.8231237322515212,88.0
+0,0.2,True,XGBoost,accuracy,0.8204580152671755,89.0
+0,0.4,True,K-Nearest Neighbors,accuracy,0.8113590263691683,90.0
+0,0.3,True,XGBoost,accuracy,0.8108862526168876,91.0
+0,0.4,False,K-Nearest Neighbors,accuracy,0.8056795131845842,92.0
+0,0.1,False,Random Forest,accuracy,0.8037940379403794,93.0
+0,0.1,False,Gradient Boosting,accuracy,0.8021680216802168,94.0
+0,0.2,False,Support Vector Machine,accuracy,0.8015267175572519,95.0
+0,0.1,True,Random Forest,accuracy,0.8008130081300813,96.0
+0,0.1,True,Decision Tree,accuracy,0.797289972899729,97.0
+0,0.2,False,XGBoost,accuracy,0.796030534351145,98.0
+0,0.1,False,Decision Tree,accuracy,0.7883468834688346,99.0
+0,0.1,False,MLP Classifier,accuracy,0.7723577235772358,100.0
+0,0.1,True,MLP Classifier,accuracy,0.7712737127371274,101.0
+0,0.1,True,Gradient Boosting,accuracy,0.7710027100271003,102.0
+0,0.3,True,K-Nearest Neighbors,accuracy,0.7697138869504536,103.0
+0,0.1,False,XGBoost,accuracy,0.765040650406504,104.0
+0,0.3,False,K-Nearest Neighbors,accuracy,0.7648290300069783,105.0
+0,0.1,True,XGBoost,accuracy,0.7601626016260162,106.0
+0,0.2,True,K-Nearest Neighbors,accuracy,0.7462595419847329,107.0
+0,0.2,False,K-Nearest Neighbors,accuracy,0.7429007633587786,108.0
+0,0.1,True,Support Vector Machine,accuracy,0.7200542005420054,109.0
+0,0.1,False,Support Vector Machine,accuracy,0.718970189701897,110.0
+0,0.1,False,K-Nearest Neighbors,accuracy,0.6861788617886179,111.0
+0,0.4,False,Stochastic Gradient Descent,accuracy,0.6677484787018255,112.0
+0,0.7,False,Stochastic Gradient Descent,accuracy,0.666403162055336,113.0
+0,0.3,False,AdaBoost,accuracy,0.6646894626657363,114.0
+0,0.8,False,Stochastic Gradient Descent,accuracy,0.6630952380952381,115.0
+0,0.1,True,Stochastic Gradient Descent,accuracy,0.6626016260162602,116.0
+0,0.1,True,K-Nearest Neighbors,accuracy,0.6601626016260163,117.0
+0,0.8,True,Stochastic Gradient Descent,accuracy,0.6583333333333333,118.0
+0,0.4,True,Stochastic Gradient Descent,accuracy,0.6576064908722109,119.0
+0,0.4,False,Logistic Regression,accuracy,0.6572008113590264,120.0
+0,0.2,False,Logistic Regression,accuracy,0.6570992366412214,121.0
+0,0.1,False,Logistic Regression,accuracy,0.656910569105691,122.0
+0,0.4,False,AdaBoost,accuracy,0.6567951318458418,123.0
+0,0.3,False,Logistic Regression,accuracy,0.6566643405443127,124.0
+0,0.2,False,Stochastic Gradient Descent,accuracy,0.6561832061068702,125.0
+0,0.7,False,AdaBoost,accuracy,0.6553359683794466,126.0
+0,0.8,False,Logistic Regression,accuracy,0.6511904761904762,127.0
+0,0.8,False,AdaBoost,accuracy,0.65,128.0
+0,0.4,True,Logistic Regression,accuracy,0.6490872210953347,129.0
+0,0.7,False,Logistic Regression,accuracy,0.6482213438735178,130.0
+0,0.3,True,Logistic Regression,accuracy,0.6475924633635729,131.0
+0,0.5,False,AdaBoost,accuracy,0.6473735408560312,132.0
+0,0.5,False,Stochastic Gradient Descent,accuracy,0.6473735408560312,132.0
+0,0.6,True,Stochastic Gradient Descent,accuracy,0.6448484848484849,134.0
+0,0.7,True,AdaBoost,accuracy,0.6442687747035574,135.0
+0,0.1,False,Stochastic Gradient Descent,accuracy,0.6411924119241192,136.0
+0,0.7,True,Stochastic Gradient Descent,accuracy,0.6395256916996047,137.0
+0,0.1,True,Logistic Regression,accuracy,0.6392953929539296,138.0
+0,0.6,False,Stochastic Gradient Descent,accuracy,0.6387878787878788,139.0
+0,0.5,False,Logistic Regression,accuracy,0.6361867704280155,140.0
+0,0.1,False,AdaBoost,accuracy,0.6357723577235772,141.0
+0,0.2,False,AdaBoost,accuracy,0.6354198473282443,142.0
+0,0.7,True,Logistic Regression,accuracy,0.6339920948616601,143.0
+0,0.8,True,Logistic Regression,accuracy,0.6333333333333333,144.0
+0,0.5,True,Logistic Regression,accuracy,0.6313229571984436,145.0
+0,0.5,True,Stochastic Gradient Descent,accuracy,0.6303501945525292,146.0
+0,0.2,True,Logistic Regression,accuracy,0.6280916030534351,147.0
+0,0.3,False,Stochastic Gradient Descent,accuracy,0.6270062805303559,148.0
+0,0.5,True,AdaBoost,accuracy,0.6259727626459144,149.0
+0,0.8,True,AdaBoost,accuracy,0.625,150.0
+0,0.4,True,AdaBoost,accuracy,0.6219066937119675,151.0
+0,0.3,True,Stochastic Gradient Descent,accuracy,0.6217725052337753,152.0
+0,0.3,True,AdaBoost,accuracy,0.6214235868806699,153.0
+0,0.6,False,Logistic Regression,accuracy,0.6181818181818182,154.0
+0,0.6,True,Logistic Regression,accuracy,0.6133333333333333,155.0
+0,0.6,False,AdaBoost,accuracy,0.6127272727272727,156.0
+0,0.1,True,AdaBoost,accuracy,0.6111111111111112,157.0
+0,0.2,True,AdaBoost,accuracy,0.6058015267175573,158.0
+0,0.6,True,Gaussian Naive Bayes,accuracy,0.6,159.0
+0,0.6,False,Gaussian Naive Bayes,accuracy,0.5987878787878788,160.0
+0,0.6,True,AdaBoost,accuracy,0.5957575757575757,161.0
+0,0.4,True,Gaussian Naive Bayes,accuracy,0.5793103448275863,162.0
+0,0.2,True,Stochastic Gradient Descent,accuracy,0.5774045801526717,163.0
+0,0.4,False,Gaussian Naive Bayes,accuracy,0.5748478701825558,164.0
+0,0.2,False,Gaussian Naive Bayes,accuracy,0.543206106870229,165.0
+0,0.8,True,Gaussian Naive Bayes,accuracy,0.5416666666666666,166.0
+0,0.8,False,Gaussian Naive Bayes,accuracy,0.530952380952381,167.0
+0,0.5,False,Gaussian Naive Bayes,accuracy,0.5209143968871596,168.0
+0,0.7,False,Gaussian Naive Bayes,accuracy,0.5185770750988142,169.0
+0,0.2,True,Gaussian Naive Bayes,accuracy,0.518473282442748,170.0
+0,0.7,True,Gaussian Naive Bayes,accuracy,0.5177865612648221,171.0
+0,0.5,True,Gaussian Naive Bayes,accuracy,0.517023346303502,172.0
+0,0.3,True,Gaussian Naive Bayes,accuracy,0.4672016748080949,173.0
+0,0.3,False,Gaussian Naive Bayes,accuracy,0.4640614096301465,174.0
+0,0.1,False,Gaussian Naive Bayes,accuracy,0.44742547425474255,175.0
+0,0.1,True,Gaussian Naive Bayes,accuracy,0.43468834688346886,176.0
+0,0.8,True,MLP Classifier,f1_macro,0.9575295496620547,1.0
+0,0.8,False,MLP Classifier,f1_macro,0.950424213948565,2.0
+0,0.8,False,Decision Tree,f1_macro,0.9430237018168858,3.0
+0,0.8,True,Random Forest,f1_macro,0.94127210052859,4.0
+0,0.7,False,MLP Classifier,f1_macro,0.9410566226582877,5.0
+0,0.8,False,Random Forest,f1_macro,0.9407822856531091,6.0
+0,0.8,True,Decision Tree,f1_macro,0.9404176393283148,7.0
+0,0.5,True,MLP Classifier,f1_macro,0.9397889830044502,8.0
+0,0.5,False,MLP Classifier,f1_macro,0.9373609269684238,9.0
+0,0.5,False,Decision Tree,f1_macro,0.9359925652766304,10.0
+0,0.7,True,Support Vector Machine,f1_macro,0.9358385632762921,11.0
+0,0.6,False,MLP Classifier,f1_macro,0.9343589519214873,12.0
+0,0.4,True,MLP Classifier,f1_macro,0.9339587902971113,13.0
+0,0.7,True,MLP Classifier,f1_macro,0.9334738490504323,14.0
+0,0.8,True,Support Vector Machine,f1_macro,0.9326029639820218,15.0
+0,0.7,False,Random Forest,f1_macro,0.9321142430012737,16.0
+0,0.7,True,Random Forest,f1_macro,0.9316876954356653,17.0
+0,0.7,False,Decision Tree,f1_macro,0.9308936404835014,18.0
+0,0.7,True,Decision Tree,f1_macro,0.9306806911979019,19.0
+0,0.8,False,Support Vector Machine,f1_macro,0.9261454757433452,20.0
+0,0.5,True,Random Forest,f1_macro,0.9259061375553866,21.0
+0,0.6,False,Decision Tree,f1_macro,0.9252845206767208,22.0
+0,0.4,False,MLP Classifier,f1_macro,0.9250139066569787,23.0
+0,0.6,True,MLP Classifier,f1_macro,0.9246787622390161,24.0
+0,0.7,False,Support Vector Machine,f1_macro,0.9238761398849049,25.0
+0,0.6,False,Random Forest,f1_macro,0.9219758021352176,26.0
+0,0.5,False,Random Forest,f1_macro,0.9217651739484068,27.0
+0,0.6,True,Random Forest,f1_macro,0.9216517783371184,28.0
+0,0.6,True,Decision Tree,f1_macro,0.9212355191876817,29.0
+0,0.5,True,Decision Tree,f1_macro,0.9180012526579783,30.0
+0,0.6,True,Support Vector Machine,f1_macro,0.912526439206586,31.0
+0,0.4,False,Decision Tree,f1_macro,0.9106217717915902,32.0
+0,0.5,True,Support Vector Machine,f1_macro,0.9093478651794275,33.0
+0,0.4,True,Decision Tree,f1_macro,0.9034374294051992,34.0
+0,0.4,True,Random Forest,f1_macro,0.9026785570802275,35.0
+0,0.4,False,Random Forest,f1_macro,0.9018363075524775,36.0
+0,0.3,False,MLP Classifier,f1_macro,0.9006329056678969,37.0
+0,0.6,False,Support Vector Machine,f1_macro,0.8970114781808713,38.0
+0,0.3,True,MLP Classifier,f1_macro,0.8961595168626836,39.0
+0,0.5,False,Support Vector Machine,f1_macro,0.8924845665486826,40.0
+0,0.4,True,Support Vector Machine,f1_macro,0.8874070844983114,41.0
+0,0.2,False,Decision Tree,f1_macro,0.883755978076465,42.0
+0,0.2,True,MLP Classifier,f1_macro,0.8814610238075583,43.0
+0,0.4,False,Support Vector Machine,f1_macro,0.880508406610725,44.0
+0,0.2,False,MLP Classifier,f1_macro,0.8788622786752227,45.0
+0,0.3,False,Random Forest,f1_macro,0.8761743047566837,46.0
+0,0.3,True,Random Forest,f1_macro,0.874700294346959,47.0
+0,0.2,True,Decision Tree,f1_macro,0.8725150897338515,48.0
+0,0.3,False,Decision Tree,f1_macro,0.8714360910691265,49.0
+0,0.8,True,Gradient Boosting,f1_macro,0.8698626620459504,50.0
+0,0.5,True,Gradient Boosting,f1_macro,0.8689846588055654,51.0
+0,0.8,False,Gradient Boosting,f1_macro,0.8680713677257058,52.0
+0,0.2,False,Random Forest,f1_macro,0.8619865382444667,53.0
+0,0.2,True,Random Forest,f1_macro,0.8613557001021954,54.0
+0,0.6,True,Gradient Boosting,f1_macro,0.8605776969466503,55.0
+0,0.8,True,K-Nearest Neighbors,f1_macro,0.8600449928296782,56.0
+0,0.3,True,Decision Tree,f1_macro,0.858717283362619,57.0
+0,0.7,False,Gradient Boosting,f1_macro,0.8578562042576,58.0
+0,0.7,True,K-Nearest Neighbors,f1_macro,0.8552878544945212,59.0
+0,0.6,False,Gradient Boosting,f1_macro,0.8547597138955955,60.0
+0,0.7,False,XGBoost,f1_macro,0.8535458443044258,61.0
+0,0.7,True,Gradient Boosting,f1_macro,0.8531980584313845,62.0
+0,0.5,False,Gradient Boosting,f1_macro,0.8528962995417576,63.0
+0,0.3,True,Support Vector Machine,f1_macro,0.8519643322575159,64.0
+0,0.6,True,K-Nearest Neighbors,f1_macro,0.8517142842117073,65.0
+0,0.5,False,XGBoost,f1_macro,0.8512250494426045,66.0
+0,0.4,False,Gradient Boosting,f1_macro,0.8498667419627717,67.0
+0,0.4,True,Gradient Boosting,f1_macro,0.8442147384393389,68.0
+0,0.8,False,XGBoost,f1_macro,0.8418796489855263,69.0
+0,0.7,False,K-Nearest Neighbors,f1_macro,0.8385292617750003,70.0
+0,0.3,False,Support Vector Machine,f1_macro,0.8371789385752151,71.0
+0,0.6,False,K-Nearest Neighbors,f1_macro,0.8363546878094602,72.0
+0,0.2,True,Gradient Boosting,f1_macro,0.8361974108679116,73.0
+0,0.8,True,XGBoost,f1_macro,0.8333826964243496,74.0
+0,0.5,True,XGBoost,f1_macro,0.8319108919378966,75.0
+0,0.8,False,K-Nearest Neighbors,f1_macro,0.8263329108477645,76.0
+0,0.7,True,XGBoost,f1_macro,0.8256744423650805,77.0
+0,0.6,False,XGBoost,f1_macro,0.825385408925199,78.0
+0,0.6,True,XGBoost,f1_macro,0.8191786968605865,79.0
+0,0.5,True,K-Nearest Neighbors,f1_macro,0.8170124892182584,80.0
+0,0.3,False,Gradient Boosting,f1_macro,0.8150780992846088,81.0
+0,0.3,True,Gradient Boosting,f1_macro,0.8125304784816444,82.0
+0,0.2,True,Support Vector Machine,f1_macro,0.8104902006061273,83.0
+0,0.4,True,XGBoost,f1_macro,0.8102231407040549,84.0
+0,0.5,False,K-Nearest Neighbors,f1_macro,0.8079281362384116,85.0
+0,0.2,False,Gradient Boosting,f1_macro,0.8077269601686088,86.0
+0,0.3,False,XGBoost,f1_macro,0.8022663201821864,87.0
+0,0.4,True,K-Nearest Neighbors,f1_macro,0.796377936990075,88.0
+0,0.2,True,XGBoost,f1_macro,0.7962720582876911,89.0
+0,0.3,True,XGBoost,f1_macro,0.7910820471688126,90.0
+0,0.4,False,XGBoost,f1_macro,0.7869718913730561,91.0
+0,0.1,True,Random Forest,f1_macro,0.7824259673541322,92.0
+0,0.1,False,Random Forest,f1_macro,0.7822533206763452,93.0
+0,0.1,True,Decision Tree,f1_macro,0.7813514673692964,94.0
+0,0.1,False,Gradient Boosting,f1_macro,0.7808046395123354,95.0
+0,0.4,False,K-Nearest Neighbors,f1_macro,0.7770397183718926,96.0
+0,0.2,False,Support Vector Machine,f1_macro,0.771104946880782,97.0
+0,0.1,False,Decision Tree,f1_macro,0.7672378982099515,98.0
+0,0.2,False,XGBoost,f1_macro,0.757256394870187,99.0
+0,0.1,False,MLP Classifier,f1_macro,0.7559416633885413,100.0
+0,0.1,True,MLP Classifier,f1_macro,0.7533446094255275,101.0
+0,0.1,True,Gradient Boosting,f1_macro,0.750605698889751,102.0
+0,0.3,True,K-Nearest Neighbors,f1_macro,0.7486976017289567,103.0
+0,0.1,False,XGBoost,f1_macro,0.7435858570542963,104.0
+0,0.1,True,XGBoost,f1_macro,0.7429368530912935,105.0
+0,0.2,True,K-Nearest Neighbors,f1_macro,0.7303902853668353,106.0
+0,0.3,False,K-Nearest Neighbors,f1_macro,0.7217745336185096,107.0
+0,0.1,True,Support Vector Machine,f1_macro,0.7105545178829251,108.0
+0,0.2,False,K-Nearest Neighbors,f1_macro,0.7000002727702895,109.0
+0,0.1,False,Support Vector Machine,f1_macro,0.6963568807147626,110.0
+0,0.1,True,K-Nearest Neighbors,f1_macro,0.6491602505253292,111.0
+0,0.1,False,K-Nearest Neighbors,f1_macro,0.6468294156963843,112.0
+0,0.3,True,Logistic Regression,f1_macro,0.6344364924340502,113.0
+0,0.6,True,Stochastic Gradient Descent,f1_macro,0.6321148029925734,114.0
+0,0.3,False,AdaBoost,f1_macro,0.6315233871912987,115.0
+0,0.4,True,Logistic Regression,f1_macro,0.6296202161314232,116.0
+0,0.8,True,Stochastic Gradient Descent,f1_macro,0.6271998008375437,117.0
+0,0.5,False,Stochastic Gradient Descent,f1_macro,0.6242781680369928,118.0
+0,0.4,False,AdaBoost,f1_macro,0.6212145287261196,119.0
+0,0.7,True,AdaBoost,f1_macro,0.6208986866441208,120.0
+0,0.4,True,Stochastic Gradient Descent,f1_macro,0.6200734099506761,121.0
+0,0.1,True,Stochastic Gradient Descent,f1_macro,0.6189995627225247,122.0
+0,0.7,False,AdaBoost,f1_macro,0.618186225494652,123.0
+0,0.1,True,Logistic Regression,f1_macro,0.6161224626988954,124.0
+0,0.7,True,Logistic Regression,f1_macro,0.6148753282490249,125.0
+0,0.1,False,AdaBoost,f1_macro,0.6130538636878533,126.0
+0,0.8,True,Logistic Regression,f1_macro,0.6123370366405971,127.0
+0,0.8,False,AdaBoost,f1_macro,0.6114054704304844,128.0
+0,0.4,True,AdaBoost,f1_macro,0.6109265095129844,129.0
+0,0.1,False,Logistic Regression,f1_macro,0.610738988625943,130.0
+0,0.8,True,AdaBoost,f1_macro,0.6106991708304769,131.0
+0,0.5,True,AdaBoost,f1_macro,0.6085043883497853,132.0
+0,0.3,True,AdaBoost,f1_macro,0.6079976850738081,133.0
+0,0.5,True,Logistic Regression,f1_macro,0.6056936043346374,134.0
+0,0.8,False,Stochastic Gradient Descent,f1_macro,0.6051173512670941,135.0
+0,0.5,False,AdaBoost,f1_macro,0.6046124425992,136.0
+0,0.4,False,Stochastic Gradient Descent,f1_macro,0.6045147347161262,137.0
+0,0.3,False,Stochastic Gradient Descent,f1_macro,0.6025040828111975,138.0
+0,0.2,False,AdaBoost,f1_macro,0.601354474540624,139.0
+0,0.6,True,Logistic Regression,f1_macro,0.5962768623211238,140.0
+0,0.2,True,Logistic Regression,f1_macro,0.5959895052759984,141.0
+0,0.1,False,Stochastic Gradient Descent,f1_macro,0.595701924391569,142.0
+0,0.2,False,Stochastic Gradient Descent,f1_macro,0.5932173633929895,143.0
+0,0.1,True,AdaBoost,f1_macro,0.592531268723954,144.0
+0,0.8,False,Logistic Regression,f1_macro,0.5922091436078502,145.0
+0,0.6,False,Stochastic Gradient Descent,f1_macro,0.5890109714953854,146.0
+0,0.3,False,Logistic Regression,f1_macro,0.5883185132291245,147.0
+0,0.2,True,AdaBoost,f1_macro,0.5877101371208083,148.0
+0,0.3,True,Stochastic Gradient Descent,f1_macro,0.5870069768039402,149.0
+0,0.2,False,Logistic Regression,f1_macro,0.5868398677168779,150.0
+0,0.6,True,AdaBoost,f1_macro,0.5853335423225376,151.0
+0,0.6,True,Gaussian Naive Bayes,f1_macro,0.5850237445342781,152.0
+0,0.6,False,Gaussian Naive Bayes,f1_macro,0.583184429511831,153.0
+0,0.4,False,Logistic Regression,f1_macro,0.5829277269562709,154.0
+0,0.6,False,AdaBoost,f1_macro,0.5816009067032103,155.0
+0,0.5,True,Stochastic Gradient Descent,f1_macro,0.5780469320769965,156.0
+0,0.7,True,Stochastic Gradient Descent,f1_macro,0.5780447255359458,157.0
+0,0.7,False,Logistic Regression,f1_macro,0.5774952088552051,158.0
+0,0.2,True,Stochastic Gradient Descent,f1_macro,0.569524058026733,159.0
+0,0.5,False,Logistic Regression,f1_macro,0.5678015484209396,160.0
+0,0.6,False,Logistic Regression,f1_macro,0.5660522618994056,161.0
+0,0.4,True,Gaussian Naive Bayes,f1_macro,0.5627035698050412,162.0
+0,0.7,False,Stochastic Gradient Descent,f1_macro,0.554998206371406,163.0
+0,0.4,False,Gaussian Naive Bayes,f1_macro,0.5512368521201602,164.0
+0,0.8,True,Gaussian Naive Bayes,f1_macro,0.5432422743696884,165.0
+0,0.8,False,Gaussian Naive Bayes,f1_macro,0.5316618436124676,166.0
+0,0.5,False,Gaussian Naive Bayes,f1_macro,0.5230461180684243,167.0
+0,0.7,False,Gaussian Naive Bayes,f1_macro,0.520342935013118,168.0
+0,0.7,True,Gaussian Naive Bayes,f1_macro,0.5194412866241856,169.0
+0,0.5,True,Gaussian Naive Bayes,f1_macro,0.5193491669450131,170.0
+0,0.2,False,Gaussian Naive Bayes,f1_macro,0.511305022660696,171.0
+0,0.2,True,Gaussian Naive Bayes,f1_macro,0.4987684515444148,172.0
+0,0.3,True,Gaussian Naive Bayes,f1_macro,0.4661300402197898,173.0
+0,0.3,False,Gaussian Naive Bayes,f1_macro,0.46123113516918,174.0
+0,0.1,False,Gaussian Naive Bayes,f1_macro,0.44562150360182134,175.0
+0,0.1,True,Gaussian Naive Bayes,f1_macro,0.42402220477241537,176.0
+0,0.8,True,MLP Classifier,precision_macro,0.9559379722520432,1.0
+0,0.8,False,MLP Classifier,precision_macro,0.9502592082914147,2.0
+0,0.8,False,Decision Tree,precision_macro,0.9435500082155773,3.0
+0,0.8,True,Random Forest,precision_macro,0.9427885716154777,4.0
+0,0.8,False,Random Forest,precision_macro,0.9426151704303859,5.0
+0,0.8,True,Decision Tree,precision_macro,0.9411048387961444,6.0
+0,0.7,False,MLP Classifier,precision_macro,0.9408438267506067,7.0
+0,0.5,True,MLP Classifier,precision_macro,0.940364409567669,8.0
+0,0.5,False,MLP Classifier,precision_macro,0.9399229963947175,9.0
+0,0.5,False,Decision Tree,precision_macro,0.9393867078927175,10.0
+0,0.6,False,MLP Classifier,precision_macro,0.9347026374870179,11.0
+0,0.7,False,Random Forest,precision_macro,0.9346074511150076,12.0
+0,0.7,True,Random Forest,precision_macro,0.933519037934215,13.0
+0,0.7,True,Support Vector Machine,precision_macro,0.9322533379634619,14.0
+0,0.7,True,MLP Classifier,precision_macro,0.9321387565325564,15.0
+0,0.4,True,MLP Classifier,precision_macro,0.9318450938398204,16.0
+0,0.7,False,Decision Tree,precision_macro,0.9317299751415345,17.0
+0,0.8,True,Support Vector Machine,precision_macro,0.9301424176483147,18.0
+0,0.7,True,Decision Tree,precision_macro,0.9297494620492639,19.0
+0,0.5,True,Random Forest,precision_macro,0.928894779533751,20.0
+0,0.8,False,Support Vector Machine,precision_macro,0.9276331493598139,21.0
+0,0.6,False,Decision Tree,precision_macro,0.9270993448187873,22.0
+0,0.7,False,Support Vector Machine,precision_macro,0.9244929464998669,23.0
+0,0.5,False,Random Forest,precision_macro,0.9239944739481905,24.0
+0,0.4,False,MLP Classifier,precision_macro,0.9239304192952741,25.0
+0,0.6,True,MLP Classifier,precision_macro,0.9234464647539117,26.0
+0,0.6,False,Random Forest,precision_macro,0.9224171288971075,27.0
+0,0.6,True,Random Forest,precision_macro,0.9217949519835386,28.0
+0,0.6,True,Decision Tree,precision_macro,0.9204081323223567,29.0
+0,0.5,True,Decision Tree,precision_macro,0.9178259306161375,30.0
+0,0.4,False,Decision Tree,precision_macro,0.9139590900893938,31.0
+0,0.6,True,Support Vector Machine,precision_macro,0.9096803720886116,32.0
+0,0.5,True,Support Vector Machine,precision_macro,0.9082063474443266,33.0
+0,0.4,False,Random Forest,precision_macro,0.9056295353200424,34.0
+0,0.4,True,Random Forest,precision_macro,0.9036033131174043,35.0
+0,0.3,False,MLP Classifier,precision_macro,0.9034433138591588,36.0
+0,0.4,True,Decision Tree,precision_macro,0.9034300429149091,37.0
+0,0.3,True,MLP Classifier,precision_macro,0.8997111193043286,38.0
+0,0.6,False,Support Vector Machine,precision_macro,0.8980281545595771,39.0
+0,0.5,False,Support Vector Machine,precision_macro,0.8948175660033618,40.0
+0,0.4,True,Support Vector Machine,precision_macro,0.8882242688340535,41.0
+0,0.2,False,Decision Tree,precision_macro,0.8836778780047322,42.0
+0,0.4,False,Support Vector Machine,precision_macro,0.8827209366131549,43.0
+0,0.3,False,Random Forest,precision_macro,0.8805383034058171,44.0
+0,0.2,True,MLP Classifier,precision_macro,0.8803610257137949,45.0
+0,0.2,False,MLP Classifier,precision_macro,0.8791992488850681,46.0
+0,0.3,True,Random Forest,precision_macro,0.8788165284740502,47.0
+0,0.8,False,Gradient Boosting,precision_macro,0.8756161059172948,48.0
+0,0.3,False,Decision Tree,precision_macro,0.8737006645856203,49.0
+0,0.2,True,Decision Tree,precision_macro,0.8725448011026135,50.0
+0,0.5,True,Gradient Boosting,precision_macro,0.8677782091097308,51.0
+0,0.8,True,Gradient Boosting,precision_macro,0.8671819965053048,52.0
+0,0.6,False,Gradient Boosting,precision_macro,0.8644053072201318,53.0
+0,0.2,False,Random Forest,precision_macro,0.8643752777600943,54.0
+0,0.5,False,Gradient Boosting,precision_macro,0.8637061371575521,55.0
+0,0.7,False,Gradient Boosting,precision_macro,0.8627697301208483,56.0
+0,0.2,True,Random Forest,precision_macro,0.8626419947772185,57.0
+0,0.5,False,XGBoost,precision_macro,0.8616788130948513,58.0
+0,0.3,True,Decision Tree,precision_macro,0.8594627489381844,59.0
+0,0.7,False,XGBoost,precision_macro,0.8594080861355122,60.0
+0,0.8,True,K-Nearest Neighbors,precision_macro,0.8591303176132657,61.0
+0,0.4,False,Gradient Boosting,precision_macro,0.8589998397201138,62.0
+0,0.6,True,Gradient Boosting,precision_macro,0.8587063505743872,63.0
+0,0.7,True,K-Nearest Neighbors,precision_macro,0.8541416520975562,64.0
+0,0.3,True,Support Vector Machine,precision_macro,0.8524901821489039,65.0
+0,0.7,True,Gradient Boosting,precision_macro,0.8511919045833659,66.0
+0,0.7,False,K-Nearest Neighbors,precision_macro,0.8507428671587358,67.0
+0,0.8,False,XGBoost,precision_macro,0.8506830049423523,68.0
+0,0.6,True,K-Nearest Neighbors,precision_macro,0.8505145286889082,69.0
+0,0.6,False,K-Nearest Neighbors,precision_macro,0.8424829726186874,70.0
+0,0.4,True,Gradient Boosting,precision_macro,0.841697068935377,71.0
+0,0.3,False,Support Vector Machine,precision_macro,0.8415838011594919,72.0
+0,0.6,False,XGBoost,precision_macro,0.8396970955998734,73.0
+0,0.2,True,Gradient Boosting,precision_macro,0.8361727306230144,74.0
+0,0.8,False,K-Nearest Neighbors,precision_macro,0.8352414617446353,75.0
+0,0.8,True,XGBoost,precision_macro,0.831441089603079,76.0
+0,0.5,True,XGBoost,precision_macro,0.8295103842016185,77.0
+0,0.7,True,XGBoost,precision_macro,0.8236199451229599,78.0
+0,0.3,False,Gradient Boosting,precision_macro,0.8232893175810121,79.0
+0,0.5,False,K-Nearest Neighbors,precision_macro,0.8183905327054251,80.0
+0,0.6,True,XGBoost,precision_macro,0.8167283944314437,81.0
+0,0.5,True,K-Nearest Neighbors,precision_macro,0.8141699115927022,82.0
+0,0.4,False,XGBoost,precision_macro,0.8133273612072801,83.0
+0,0.2,False,Gradient Boosting,precision_macro,0.813165353206523,84.0
+0,0.3,True,Gradient Boosting,precision_macro,0.8124633180287436,85.0
+0,0.2,True,Support Vector Machine,precision_macro,0.8091858807751215,86.0
+0,0.4,True,XGBoost,precision_macro,0.8075062831309564,87.0
+0,0.3,False,XGBoost,precision_macro,0.8048219665485444,88.0
+0,0.2,True,XGBoost,precision_macro,0.7966787426529214,89.0
+0,0.4,True,K-Nearest Neighbors,precision_macro,0.7934471424132455,90.0
+0,0.4,False,K-Nearest Neighbors,precision_macro,0.7910891335332989,91.0
+0,0.3,True,XGBoost,precision_macro,0.7907606350466088,92.0
+0,0.1,False,Random Forest,precision_macro,0.7832212300376321,93.0
+0,0.1,True,Random Forest,precision_macro,0.7820966333649175,94.0
+0,0.1,False,Gradient Boosting,precision_macro,0.7816740475813614,95.0
+0,0.1,True,Decision Tree,precision_macro,0.7806573707240895,96.0
+0,0.2,False,Support Vector Machine,precision_macro,0.7758845206946803,97.0
+0,0.2,False,XGBoost,precision_macro,0.771422203809057,98.0
+0,0.1,False,Decision Tree,precision_macro,0.7673620241816878,99.0
+0,0.1,False,MLP Classifier,precision_macro,0.7579316073401485,100.0
+0,0.1,True,MLP Classifier,precision_macro,0.7524467651114367,101.0
+0,0.1,True,Gradient Boosting,precision_macro,0.7495597746526714,102.0
+0,0.3,True,K-Nearest Neighbors,precision_macro,0.7473358064561544,103.0
+0,0.1,False,XGBoost,precision_macro,0.7421867215214073,104.0
+0,0.1,True,XGBoost,precision_macro,0.7408664040035687,105.0
+0,0.3,False,K-Nearest Neighbors,precision_macro,0.7394110223464216,106.0
+0,0.2,True,K-Nearest Neighbors,precision_macro,0.7289537974775581,107.0
+0,0.1,True,Support Vector Machine,precision_macro,0.7147283356899562,108.0
+0,0.2,False,K-Nearest Neighbors,precision_macro,0.7124017214840374,109.0
+0,0.1,False,Support Vector Machine,precision_macro,0.696773335915548,110.0
+0,0.1,True,K-Nearest Neighbors,precision_macro,0.6536264875396275,111.0
+0,0.1,False,K-Nearest Neighbors,precision_macro,0.6532778262990351,112.0
+0,0.3,True,Logistic Regression,precision_macro,0.6410019110564943,113.0
+0,0.5,False,Stochastic Gradient Descent,precision_macro,0.6369712207262583,114.0
+0,0.6,True,Stochastic Gradient Descent,precision_macro,0.6357680072243419,115.0
+0,0.4,False,Stochastic Gradient Descent,precision_macro,0.634570574375748,116.0
+0,0.3,False,AdaBoost,precision_macro,0.6328690984913544,117.0
+0,0.8,True,Gaussian Naive Bayes,precision_macro,0.6313759019959453,118.0
+0,0.4,True,Logistic Regression,precision_macro,0.6299709180106648,119.0
+0,0.4,True,Stochastic Gradient Descent,precision_macro,0.6294492025507096,120.0
+0,0.8,True,Stochastic Gradient Descent,precision_macro,0.6282014284085373,121.0
+0,0.8,False,Stochastic Gradient Descent,precision_macro,0.6237968219391163,122.0
+0,0.1,False,Gaussian Naive Bayes,precision_macro,0.6233691915184024,123.0
+0,0.1,True,Stochastic Gradient Descent,precision_macro,0.6231803371862453,124.0
+0,0.7,True,AdaBoost,precision_macro,0.6215077146629897,125.0
+0,0.4,False,AdaBoost,precision_macro,0.6211059998965167,126.0
+0,0.7,True,Logistic Regression,precision_macro,0.6192716110699925,127.0
+0,0.8,False,Gaussian Naive Bayes,precision_macro,0.6187334956279056,128.0
+0,0.7,False,AdaBoost,precision_macro,0.6179979264553416,129.0
+0,0.4,True,AdaBoost,precision_macro,0.616834933814445,130.0
+0,0.1,True,Logistic Regression,precision_macro,0.6163355975396599,131.0
+0,0.5,False,Gaussian Naive Bayes,precision_macro,0.6160150765054967,132.0
+0,0.5,True,Gaussian Naive Bayes,precision_macro,0.615669287873836,133.0
+0,0.1,False,AdaBoost,precision_macro,0.6150982431874407,134.0
+0,0.1,False,Logistic Regression,precision_macro,0.614989873719508,135.0
+0,0.8,False,AdaBoost,precision_macro,0.6134579568818043,136.0
+0,0.8,True,Logistic Regression,precision_macro,0.612895262552402,137.0
+0,0.3,True,AdaBoost,precision_macro,0.6113074265306769,138.0
+0,0.3,False,Gaussian Naive Bayes,precision_macro,0.6108776700852501,139.0
+0,0.8,True,AdaBoost,precision_macro,0.6106243099468033,140.0
+0,0.2,False,Stochastic Gradient Descent,precision_macro,0.6105465582725217,141.0
+0,0.5,True,AdaBoost,precision_macro,0.6088751121123844,142.0
+0,0.3,False,Logistic Regression,precision_macro,0.608404338460952,143.0
+0,0.8,False,Logistic Regression,precision_macro,0.6076366585430938,144.0
+0,0.3,True,Gaussian Naive Bayes,precision_macro,0.6072313441977782,145.0
+0,0.6,False,Stochastic Gradient Descent,precision_macro,0.6063672750422316,146.0
+0,0.5,True,Logistic Regression,precision_macro,0.6061867335513332,147.0
+0,0.5,False,AdaBoost,precision_macro,0.605711111931551,148.0
+0,0.1,False,Stochastic Gradient Descent,precision_macro,0.6057059854051584,149.0
+0,0.3,False,Stochastic Gradient Descent,precision_macro,0.6026095998914136,150.0
+0,0.2,False,AdaBoost,precision_macro,0.600555631086174,151.0
+0,0.2,True,Stochastic Gradient Descent,precision_macro,0.6003738949661707,152.0
+0,0.2,False,Logistic Regression,precision_macro,0.600035336316159,153.0
+0,0.6,True,Logistic Regression,precision_macro,0.599999847945747,154.0
+0,0.1,True,AdaBoost,precision_macro,0.5999473552677695,155.0
+0,0.4,False,Logistic Regression,precision_macro,0.5972769119758162,156.0
+0,0.2,True,Logistic Regression,precision_macro,0.5970659414024809,157.0
+0,0.7,False,Gaussian Naive Bayes,precision_macro,0.5964171848209431,158.0
+0,0.3,True,Stochastic Gradient Descent,precision_macro,0.5950313663700734,159.0
+0,0.7,True,Gaussian Naive Bayes,precision_macro,0.5941370083460299,160.0
+0,0.6,True,AdaBoost,precision_macro,0.5926886787021236,161.0
+0,0.7,False,Stochastic Gradient Descent,precision_macro,0.5892157538014421,162.0
+0,0.2,True,AdaBoost,precision_macro,0.5886252098474077,163.0
+0,0.6,True,Gaussian Naive Bayes,precision_macro,0.586451944461262,164.0
+0,0.6,False,Gaussian Naive Bayes,precision_macro,0.5841273819013758,165.0
+0,0.7,False,Logistic Regression,precision_macro,0.5829082567966416,166.0
+0,0.7,True,Stochastic Gradient Descent,precision_macro,0.5822011312845334,167.0
+0,0.5,True,Stochastic Gradient Descent,precision_macro,0.5807209110727839,168.0
+0,0.6,False,AdaBoost,precision_macro,0.5801612590513281,169.0
+0,0.5,False,Logistic Regression,precision_macro,0.5737320691105552,170.0
+0,0.6,False,Logistic Regression,precision_macro,0.5697626831895487,171.0
+0,0.4,True,Gaussian Naive Bayes,precision_macro,0.5660048354699745,172.0
+0,0.2,False,Gaussian Naive Bayes,precision_macro,0.5626071988488569,173.0
+0,0.2,True,Gaussian Naive Bayes,precision_macro,0.5558840874424787,174.0
+0,0.4,False,Gaussian Naive Bayes,precision_macro,0.5543087482318733,175.0
+0,0.1,True,Gaussian Naive Bayes,precision_macro,0.5426503451816412,176.0
+0,0.8,True,MLP Classifier,recall_macro,0.9598388318950118,1.0
+0,0.8,False,MLP Classifier,recall_macro,0.9506851863810749,2.0
+0,0.8,False,Decision Tree,recall_macro,0.9425077873276523,3.0
+0,0.7,False,MLP Classifier,recall_macro,0.9414578348836381,4.0
+0,0.7,True,Support Vector Machine,recall_macro,0.9410184638891878,5.0
+0,0.8,True,Random Forest,recall_macro,0.9399837870733448,6.0
+0,0.8,True,Decision Tree,recall_macro,0.9397866988922781,7.0
+0,0.5,True,MLP Classifier,recall_macro,0.939275926172478,8.0
+0,0.8,False,Random Forest,recall_macro,0.9391039571321942,9.0
+0,0.8,True,Support Vector Machine,recall_macro,0.9368882794857586,10.0
+0,0.4,True,MLP Classifier,recall_macro,0.9366026535190368,11.0
+0,0.7,True,MLP Classifier,recall_macro,0.9358773972140554,12.0
+0,0.5,False,MLP Classifier,recall_macro,0.9352393773083428,13.0
+0,0.6,False,MLP Classifier,recall_macro,0.9342707529297377,14.0
+0,0.5,False,Decision Tree,recall_macro,0.9337888627543801,15.0
+0,0.7,True,Decision Tree,recall_macro,0.9317668664794564,16.0
+0,0.7,False,Decision Tree,recall_macro,0.9301310100681514,17.0
+0,0.7,True,Random Forest,recall_macro,0.9300879937649724,18.0
+0,0.7,False,Random Forest,recall_macro,0.9299048652538353,19.0
+0,0.6,True,MLP Classifier,recall_macro,0.9275567778811439,20.0
+0,0.4,False,MLP Classifier,recall_macro,0.9261654319257654,21.0
+0,0.8,False,Support Vector Machine,recall_macro,0.9251043385931897,22.0
+0,0.6,False,Decision Tree,recall_macro,0.923823454341079,23.0
+0,0.5,True,Random Forest,recall_macro,0.9232799301764819,24.0
+0,0.7,False,Support Vector Machine,recall_macro,0.9232784992285238,25.0
+0,0.6,True,Decision Tree,recall_macro,0.922108168177215,26.0
+0,0.6,False,Random Forest,recall_macro,0.9215458538917233,27.0
+0,0.6,True,Random Forest,recall_macro,0.921533365728802,28.0
+0,0.5,False,Random Forest,recall_macro,0.9197403314644693,29.0
+0,0.5,True,Decision Tree,recall_macro,0.9182666410252618,30.0
+0,0.6,True,Support Vector Machine,recall_macro,0.9176454054329116,31.0
+0,0.5,True,Support Vector Machine,recall_macro,0.9136137122344019,32.0
+0,0.4,False,Decision Tree,recall_macro,0.9086835493061556,33.0
+0,0.4,True,Decision Tree,recall_macro,0.9040274329976202,34.0
+0,0.4,True,Random Forest,recall_macro,0.901892706470333,35.0
+0,0.4,False,Random Forest,recall_macro,0.8995889556296457,36.0
+0,0.3,False,MLP Classifier,recall_macro,0.8981768333206964,37.0
+0,0.6,False,Support Vector Machine,recall_macro,0.8970972145766866,38.0
+0,0.3,True,MLP Classifier,recall_macro,0.8931658570150643,39.0
+0,0.4,True,Support Vector Machine,recall_macro,0.8910920060229127,40.0
+0,0.5,False,Support Vector Machine,recall_macro,0.8906030168099134,41.0
+0,0.2,False,Decision Tree,recall_macro,0.8840770844684558,42.0
+0,0.2,True,MLP Classifier,recall_macro,0.8828042623649663,43.0
+0,0.2,False,MLP Classifier,recall_macro,0.8791429413686337,44.0
+0,0.4,False,Support Vector Machine,recall_macro,0.8786777657844239,45.0
+0,0.8,True,Gradient Boosting,recall_macro,0.8740361727147258,46.0
+0,0.3,False,Random Forest,recall_macro,0.8732308783215917,47.0
+0,0.2,True,Decision Tree,recall_macro,0.8726698753674728,48.0
+0,0.3,True,Random Forest,recall_macro,0.8717352743613649,49.0
+0,0.5,True,Gradient Boosting,recall_macro,0.8708199825441204,50.0
+0,0.3,False,Decision Tree,recall_macro,0.8701727482198879,51.0
+0,0.6,True,Gradient Boosting,recall_macro,0.8628870607684744,52.0
+0,0.8,False,Gradient Boosting,recall_macro,0.8627174440311115,53.0
+0,0.8,True,K-Nearest Neighbors,recall_macro,0.8620749008510118,54.0
+0,0.2,True,Random Forest,recall_macro,0.8613436573942014,55.0
+0,0.2,False,Random Forest,recall_macro,0.8606244745424271,56.0
+0,0.3,True,Decision Tree,recall_macro,0.858071580392228,57.0
+0,0.7,True,K-Nearest Neighbors,recall_macro,0.8569510016820336,58.0
+0,0.7,True,Gradient Boosting,recall_macro,0.8558301040183687,59.0
+0,0.7,False,Gradient Boosting,recall_macro,0.8545229856172997,60.0
+0,0.6,True,K-Nearest Neighbors,recall_macro,0.8531139789589184,61.0
+0,0.3,True,Support Vector Machine,recall_macro,0.852887247159634,62.0
+0,0.6,False,Gradient Boosting,recall_macro,0.8506941535431306,63.0
+0,0.7,False,XGBoost,recall_macro,0.8494249352453461,64.0
+0,0.5,False,Gradient Boosting,recall_macro,0.8490546704339809,65.0
+0,0.5,False,XGBoost,recall_macro,0.8479509065715963,66.0
+0,0.4,True,Gradient Boosting,recall_macro,0.8473856944610997,67.0
+0,0.4,False,Gradient Boosting,recall_macro,0.8464512040361537,68.0
+0,0.8,False,XGBoost,recall_macro,0.8383773957494299,69.0
+0,0.8,True,XGBoost,recall_macro,0.8369754514998041,70.0
+0,0.2,True,Gradient Boosting,recall_macro,0.8368227276955879,71.0
+0,0.5,True,XGBoost,recall_macro,0.8350273426135496,72.0
+0,0.3,False,Support Vector Machine,recall_macro,0.8339781712659647,73.0
+0,0.6,False,K-Nearest Neighbors,recall_macro,0.8327836512294162,74.0
+0,0.7,False,K-Nearest Neighbors,recall_macro,0.8321065440990633,75.0
+0,0.7,True,XGBoost,recall_macro,0.8282394059297356,76.0
+0,0.6,True,XGBoost,recall_macro,0.8224920171660633,77.0
+0,0.5,True,K-Nearest Neighbors,recall_macro,0.8222736036529139,78.0
+0,0.6,False,XGBoost,recall_macro,0.8218517909712393,79.0
+0,0.8,False,K-Nearest Neighbors,recall_macro,0.8216616280775316,80.0
+0,0.4,True,XGBoost,recall_macro,0.8152024184594581,81.0
+0,0.2,True,Support Vector Machine,recall_macro,0.8147865906877977,82.0
+0,0.3,True,Gradient Boosting,recall_macro,0.8130842119539391,83.0
+0,0.3,False,Gradient Boosting,recall_macro,0.8124706992976375,84.0
+0,0.2,False,Gradient Boosting,recall_macro,0.8064957096656268,85.0
+0,0.5,False,K-Nearest Neighbors,recall_macro,0.8040261936813661,86.0
+0,0.3,False,XGBoost,recall_macro,0.8019977339010328,87.0
+0,0.4,True,K-Nearest Neighbors,recall_macro,0.8007172514480171,88.0
+0,0.2,True,XGBoost,recall_macro,0.796818190544767,89.0
+0,0.3,True,XGBoost,recall_macro,0.7918743301107455,90.0
+0,0.4,False,XGBoost,recall_macro,0.7865483929766799,91.0
+0,0.1,True,Random Forest,recall_macro,0.7827656510151132,92.0
+0,0.1,True,Decision Tree,recall_macro,0.782090360663847,93.0
+0,0.1,False,Random Forest,recall_macro,0.7819875906630012,94.0
+0,0.1,False,Gradient Boosting,recall_macro,0.7804984466579676,95.0
+0,0.4,False,K-Nearest Neighbors,recall_macro,0.7727304351381319,96.0
+0,0.2,False,Support Vector Machine,recall_macro,0.770219709541872,97.0
+0,0.1,False,Decision Tree,recall_macro,0.7672842801574488,98.0
+0,0.2,False,XGBoost,recall_macro,0.756558462230467,99.0
+0,0.1,False,MLP Classifier,recall_macro,0.7545039883956562,100.0
+0,0.1,True,MLP Classifier,recall_macro,0.754379648475259,101.0
+0,0.3,True,K-Nearest Neighbors,recall_macro,0.7521656267030895,102.0
+0,0.1,True,Gradient Boosting,recall_macro,0.7520026071167679,103.0
+0,0.1,True,XGBoost,recall_macro,0.7465404948304438,104.0
+0,0.1,False,XGBoost,recall_macro,0.7457338798674732,105.0
+0,0.2,True,K-Nearest Neighbors,recall_macro,0.7374151286986389,106.0
+0,0.3,False,K-Nearest Neighbors,recall_macro,0.7246940712998886,107.0
+0,0.1,True,Support Vector Machine,recall_macro,0.7175386480349236,108.0
+0,0.2,False,K-Nearest Neighbors,recall_macro,0.7039875128908638,109.0
+0,0.1,False,Support Vector Machine,recall_macro,0.6965184544912648,110.0
+0,0.1,True,K-Nearest Neighbors,recall_macro,0.6583545386663783,111.0
+0,0.1,False,K-Nearest Neighbors,recall_macro,0.6495408714847747,112.0
+0,0.3,True,Logistic Regression,recall_macro,0.6418684388229812,113.0
+0,0.6,True,Stochastic Gradient Descent,recall_macro,0.6381255474754545,114.0
+0,0.3,False,AdaBoost,recall_macro,0.6356898840359628,115.0
+0,0.4,True,Logistic Regression,recall_macro,0.6352547848089718,116.0
+0,0.8,True,Stochastic Gradient Descent,recall_macro,0.6267596056500948,117.0
+0,0.1,True,Stochastic Gradient Descent,recall_macro,0.6238572243243853,118.0
+0,0.4,False,AdaBoost,recall_macro,0.6231647214427495,119.0
+0,0.7,True,AdaBoost,recall_macro,0.6227073719086499,120.0
+0,0.7,False,AdaBoost,recall_macro,0.6200538294748534,121.0
+0,0.1,True,Logistic Regression,recall_macro,0.6196182419648825,122.0
+0,0.8,False,Stochastic Gradient Descent,recall_macro,0.6189901996562845,123.0
+0,0.5,False,Stochastic Gradient Descent,recall_macro,0.618294254845979,124.0
+0,0.7,True,Logistic Regression,recall_macro,0.6181937523011317,125.0
+0,0.4,True,Stochastic Gradient Descent,recall_macro,0.6179451365283396,126.0
+0,0.8,True,Logistic Regression,recall_macro,0.6170513231907427,127.0
+0,0.8,True,AdaBoost,recall_macro,0.6163890228007213,128.0
+0,0.8,False,AdaBoost,recall_macro,0.6161306105094674,129.0
+0,0.1,False,Logistic Regression,recall_macro,0.6154755018389813,130.0
+0,0.4,True,AdaBoost,recall_macro,0.6151756462906386,131.0
+0,0.5,False,AdaBoost,recall_macro,0.6142617494341632,132.0
+0,0.5,True,Logistic Regression,recall_macro,0.6134846176225487,133.0
+0,0.1,False,AdaBoost,recall_macro,0.6131195611001338,134.0
+0,0.5,True,AdaBoost,recall_macro,0.6130053205915275,135.0
+0,0.3,True,AdaBoost,recall_macro,0.612052827230778,136.0
+0,0.4,False,Stochastic Gradient Descent,recall_macro,0.611044311629537,137.0
+0,0.1,False,Stochastic Gradient Descent,recall_macro,0.6108579498392559,138.0
+0,0.8,False,Logistic Regression,recall_macro,0.6083901561703986,139.0
+0,0.2,False,Logistic Regression,recall_macro,0.6072133576485738,140.0
+0,0.2,False,Stochastic Gradient Descent,recall_macro,0.6071140188055272,141.0
+0,0.2,False,AdaBoost,recall_macro,0.6069408912137559,142.0
+0,0.2,True,Logistic Regression,recall_macro,0.6059665907150716,143.0
+0,0.3,False,Logistic Regression,recall_macro,0.6054266413643866,144.0
+0,0.4,False,Logistic Regression,recall_macro,0.6041774042815805,145.0
+0,0.3,False,Stochastic Gradient Descent,recall_macro,0.6041533400753871,146.0
+0,0.3,True,Stochastic Gradient Descent,recall_macro,0.6028049293170058,147.0
+0,0.6,True,Logistic Regression,recall_macro,0.6011273038265735,148.0
+0,0.7,True,Stochastic Gradient Descent,recall_macro,0.5962718608371742,149.0
+0,0.5,True,Stochastic Gradient Descent,recall_macro,0.5944293061534441,150.0
+0,0.7,False,Logistic Regression,recall_macro,0.5943342718583634,151.0
+0,0.2,True,AdaBoost,recall_macro,0.5937757797283763,152.0
+0,0.1,True,AdaBoost,recall_macro,0.5923599973562523,153.0
+0,0.7,False,Stochastic Gradient Descent,recall_macro,0.5907423418267855,154.0
+0,0.6,False,Stochastic Gradient Descent,recall_macro,0.5903456550237841,155.0
+0,0.6,True,Gaussian Naive Bayes,recall_macro,0.588694162577028,156.0
+0,0.5,False,Logistic Regression,recall_macro,0.5884417422348457,157.0
+0,0.6,True,AdaBoost,recall_macro,0.5878861852005254,158.0
+0,0.6,False,Gaussian Naive Bayes,recall_macro,0.5859781780754424,159.0
+0,0.6,False,AdaBoost,recall_macro,0.5844018917330173,160.0
+0,0.6,False,Logistic Regression,recall_macro,0.5801211052855565,161.0
+0,0.8,True,Gaussian Naive Bayes,recall_macro,0.5794509498061742,162.0
+0,0.2,True,Stochastic Gradient Descent,recall_macro,0.5718304401729372,163.0
+0,0.8,False,Gaussian Naive Bayes,recall_macro,0.5641582519141047,164.0
+0,0.4,True,Gaussian Naive Bayes,recall_macro,0.5631565985305607,165.0
+0,0.5,False,Gaussian Naive Bayes,recall_macro,0.5579398117329152,166.0
+0,0.5,True,Gaussian Naive Bayes,recall_macro,0.5556954984541191,167.0
+0,0.4,False,Gaussian Naive Bayes,recall_macro,0.5493434458106456,168.0
+0,0.7,False,Gaussian Naive Bayes,recall_macro,0.5450427421257832,169.0
+0,0.7,True,Gaussian Naive Bayes,recall_macro,0.5444091793217745,170.0
+0,0.2,False,Gaussian Naive Bayes,recall_macro,0.5361475425462131,171.0
+0,0.2,True,Gaussian Naive Bayes,recall_macro,0.5269531658992912,172.0
+0,0.3,True,Gaussian Naive Bayes,recall_macro,0.5061641380405256,173.0
+0,0.3,False,Gaussian Naive Bayes,recall_macro,0.5026574869368258,174.0
+0,0.1,False,Gaussian Naive Bayes,recall_macro,0.49026778992556563,175.0
+0,0.1,True,Gaussian Naive Bayes,recall_macro,0.4613862889919533,176.0

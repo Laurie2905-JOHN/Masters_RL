@@ -173,11 +173,12 @@ saved_models/hpc_output/*
 saved_models/optuna/*
 saved_models/hyperparams/*
 # saved_models/evaluation/*
-
+scripts/preference/saved_data/*
 
 # Filetypes
 *.dat
-# *.txt
+*.txt
+*.json
 # *.db
 # *.pkl
 # *.csv

@@ -8,6 +8,14 @@ import os
 from utils.process_data import get_data
 from sb3_contrib.common.maskable.utils import get_action_masks
 from sb3_contrib.common.maskable.evaluation import evaluate_policy
+import json
+
+# Configure Matplotlib to use LaTeX for rendering
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "serif",  # Use serif font in conjunction with LaTeX
+    "text.latex.preamble": r"\usepackage{times}",
+})
 
 def evaluate_model(model, env, algo, num_episodes=10, deterministic=False):
     """Evaluate the trained model and collect predictions."""
@@ -37,7 +45,6 @@ def evaluate_model(model, env, algo, num_episodes=10, deterministic=False):
                     info['nutrient_averages'],
                     info['ingredient_group_count'],
                     info['ingredient_environment_count'],
-                    info['consumption_average'],
                     info['cost'],
                     info['co2_g'],
                     info['reward'],
@@ -58,17 +65,20 @@ def plot_results(predictions, num_episodes):
     """Plot the results from the predictions."""
     flattened_predictions = [pred for episode in predictions for pred in episode]
 
-    nutrient_averages, ingredient_group_counts, ingredient_environment_counts, consumption_averages, costs, co2_g, _, group_portions, _, current_meal_plan = zip(*flattened_predictions)
+    nutrient_averages, ingredient_group_counts, ingredient_environment_counts, costs, co2_g, reward_dicts, group_portions, _, current_meal_plan = zip(*flattened_predictions)
     avg_nutrient_averages = average_dicts(nutrient_averages)
     avg_ingredient_group_counts = average_dicts(ingredient_group_counts)
-    avg_ingredient_environment_counts = average_dicts(ingredient_environment_counts)
-    avg_consumption_averages = average_dicts(consumption_averages)
-    avg_cost = average_dicts(costs)
-    avg_co2_g = average_dicts(co2_g)
-    avg_group_portions = average_dicts(group_portions)
+    avg_ingredient_environment_counts = average_dicts(ingredient_environment_counts) | average_dicts(costs)
     
-    avg_consumption_averages['cost'] = avg_cost['cost']
-    avg_consumption_averages['co2_g'] = avg_co2_g['co2_g']
+    avg_group_portions = average_dicts(group_portions)
+    avg_grams_per_meal = {'grams_per_meal': sum(list(avg_group_portions.values()))}
+    for reward_dict in reward_dicts:
+        reward_dict['targets_not_met'] = len(reward_dict['targets_not_met'])
+        
+    avg_co2g_grams_per_meal = average_dicts(co2_g) | avg_grams_per_meal
+    
+    reward_dict_scores = average_dicts(reward_dicts)
+    del reward_dict_scores['bonus_score']
 
     targets = {
         'nutrients': {
@@ -83,16 +93,19 @@ def plot_results(predictions, num_episodes):
         },
         'ingredient_environment': {
             'animal_welfare': (0.5, 'min'), 'rainforest': (0.5, 'min'), 'water': (0.5, 'min'),
-            'co2_rating': (0.5, 'min')
+            'co2_rating': (0.5, 'min'), 'cost': (1.5, 'max'),
         },
-        'consumption_cost_co2_g': {
-            'average_mean_consumption': (5.8, 'min'), 'average_cv_ingredients': (8.5, 'min'),
-            'cost': (2, 'max'), 'co2_g': (800, 'max'),
+        'avg_co2g_grams_per_meal': { 
+            'co2_g': (500, 'max'), 'grams_per_meal': (800, 'max'),
         },
         'group_portions': {
             'fruit': ((40, 130), 'range1'), 'veg': ((40, 80), 'range1'), 'protein': ((40, 90), 'range1'),
             'carbs': ((40, 150), 'range1'), 'dairy': ((50, 150), 'range1'),
             'bread': ((50, 70), 'range1'), 'confectionary': ((0, 0), 'range1')
+        },
+        'scores': {
+            'nutrient_score': ((0, 1), 'range1'), 'cost_score': ((0, 1), 'range1'), 'co2_score': ((0, 1), 'range1'),
+            'environment_score': ((0, 1), 'range1'), 'preference_score': ((0, 1), 'range1'), 'targets_not_met': (0, 'max')
         },
     }
 
@@ -135,29 +148,30 @@ def plot_results(predictions, num_episodes):
 
     plot_bars(axs[0], avg_nutrient_averages, 'Nutrient Average Over ', targets['nutrients'])
     plot_bars(axs[1], avg_ingredient_group_counts, 'Ingredient Group Count Average Over ', targets['ingredient_groups'], rotation=25)
-    plot_bars(axs[2], avg_ingredient_environment_counts, 'Ingredient Environment Count Average Over ', targets['ingredient_environment'])
-    plot_bars(axs[3], avg_consumption_averages, 'Consumption and Cost Averages Over ', targets['consumption_cost_co2_g'])
-    plot_bars(axs[4], avg_group_portions, 'Group Portions Averages Over ', targets['group_portions'], rotation=25)
-    
-    num_plots = min(len(current_meal_plan), 3)
+    plot_bars(axs[2], avg_group_portions, 'Group Portions Averages Over ', targets['group_portions'], rotation=25)
+    plot_bars(axs[3], avg_ingredient_environment_counts, 'Ingredient Environment Count Average Over ', targets['ingredient_environment'])
+    plot_bars(axs[4], avg_co2g_grams_per_meal, 'CO2e_kg and Total Grams per Meal Over ', targets['avg_co2g_grams_per_meal'])
+    plot_bars(axs[5], reward_dict_scores, 'Reward Scores Over ', targets['scores'], rotation=25)
+
+    num_plots = min(len(current_meal_plan), 2)
     
     for i in range(num_plots):
         selected_ingredient = np.array(list(current_meal_plan[i].keys()))
         current_selection = np.array(list(current_meal_plan[i].values()))
         
-        bars = axs[5 + i].bar(selected_ingredient, current_selection, color='blue', width=0.5)
-        axs[5 + i].set_ylabel('Grams of Ingredient')
-        axs[5 + i].set_title(f'Selected Ingredients: Episode {i+1}')
-        axs[5 + i].set_xticks(np.arange(len(selected_ingredient)))
-        axs[5 + i].set_xticklabels(selected_ingredient, rotation=15, ha='center', fontsize=font_size)
+        bars = axs[6 + i].bar(selected_ingredient, current_selection, color='blue', width=0.5)
+        axs[6 + i].set_ylabel('Grams of Ingredient')
+        axs[6 + i].set_title(f'Selected Ingredients: Episode {i+1}')
+        axs[6 + i].set_xticks(np.arange(len(selected_ingredient)))
+        axs[6 + i].set_xticklabels(selected_ingredient, rotation=15, ha='center', fontsize=font_size)
         
-        axs[5 + i].set_ylim(0, max(current_selection) * 1.3)
+        axs[6 + i].set_ylim(0, max(current_selection) * 1.3)
         
         for bar, actual in zip(bars, current_selection):
             height = bar.get_height()
-            axs[5 + i].annotate(f'{actual:.2f} g', xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', clip_on=True)
+            axs[6 + i].annotate(f'{actual:.2f} g', xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', clip_on=True)
     
-    for j in range(num_plots + 5, len(axs)):
+    for j in range(num_plots + 6, len(axs)):
         fig.delaxes(axs[j])
         
     plt.tight_layout(pad=2.0)
@@ -171,8 +185,8 @@ class Args:
     plot_reward_history = False
     max_episode_steps = 175
     verbose = 3
-    action_scaling_factor = 2.5
-    memory_monitor = True
+    action_update_factor = 5
+    memory_monitor = False
     gamma = 0.99
     max_ingredients = 6
     reward_save_interval = 1000
@@ -181,10 +195,9 @@ class Args:
     vecnorm_clip_obs = 10
     vecnorm_clip_reward = 250
     vecnorm_epsilon = 1e-8 
-    vecnorm_norm_obs_keys = None
     ingredient_df = get_data("data.csv")
-    seed = 4079985948
-    env_name = 'SchoolMealSelection-v3'
+    seed = 22
+    env_name = 'SchoolMealSelection-v2'
     initialization_strategy = 'zero'
     # vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
     vecnorm_norm_obs_keys = ['current_selection_value']
@@ -196,18 +209,23 @@ def main():
     from utils.train_utils import setup_environment, get_unique_directory
     from utils.process_data import get_data  # Ensure this import is correct
     
-    basepath = os.path.abspath(f"saved_models/evaluation/new_models")
+    basepath = os.path.abspath(f"saved_models/evaluation/report_models")
 
-    filename = "SchoolMealSelection_v3_MASKED_PPO_reward_type_shaped_with_group_200000_8env_NewMASK_env_best_seed_4212743807"    
+    filename = "test_seed_3327838783"
+        
+    negotiated_file_path = os.path.join(basepath, filename, "negotiated_and_unavailable_ingredients.json")
+    # Load data from JSON
+    with open(negotiated_file_path, 'r') as json_file:
+        loaded_data = json.load(json_file)
 
-    # if len(filename.split("_")) < 2:
-    #     seed = random.randint(0, 1000)
-    # else: 
-    #     seed = int(filename.split("_")[-1])
+    # Restore the data to args
+    args.negotiated_ingredients = loaded_data['negotiated_ingredients']
+    args.unavailable_ingredients = loaded_data['unavailable_ingredients']
 
     env = setup_environment(args, eval=True)
 
     norm_path = os.path.join(basepath, filename, "vecnormalize_best.pkl")
+    
     env = VecNormalize.load(norm_path, env)
     
     env.training = False
@@ -231,7 +249,7 @@ def main():
 
     num_episodes = 4
 
-    predictions = evaluate_model(model, env, args.algo, num_episodes, deterministic=True)
+    predictions = evaluate_model(model, env, args.algo, num_episodes, deterministic=False)
 
     plot_results(predictions, num_episodes)
 

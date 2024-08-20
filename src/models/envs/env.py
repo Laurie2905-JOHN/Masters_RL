@@ -8,6 +8,9 @@ from gymnasium.envs.registration import register
 import os
 from collections import deque
 from models.envs.score_calculator import ScoreCalculatorSparse, ScoreCalculatorShaped
+from models.preferences.voting import IngredientNegotiator
+from typing import Dict
+from models.preferences.preference_utils import create_preference_score_function
 
 class BaseEnvironment(gym.Env):
     """
@@ -16,12 +19,12 @@ class BaseEnvironment(gym.Env):
     """
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
+    def __init__(self, ingredient_df, max_ingredients: int = 6, action_update_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO', gamma: float = 0.99):
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {}, max_episode_steps: int = 100, algo: str = 'PPO', gamma: float = 0.99):
         super().__init__()
 
-        self._initialize_parameters(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, initialization_strategy, max_episode_steps, algo, gamma)
+        self._initialize_parameters(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, initialization_strategy, max_episode_steps, algo, gamma)
         self._initialize_nutrient_values(ingredient_df)
         self._initialize_nutrient_targets()
         self._create_index_value_mapping()
@@ -71,11 +74,11 @@ class BaseEnvironment(gym.Env):
                 'co2g_reward': 'CO2G'
             }
     
-    def _initialize_parameters(self, ingredient_df, max_ingredients: int, action_scaling_factor: int, render_mode: str, 
+    def _initialize_parameters(self, ingredient_df, max_ingredients: int, action_update_factor: int, render_mode: str, 
                                verbose: int, seed: int, initialization_strategy: str, max_episode_steps: int, algo: str, gamma: float) -> None:
         self.ingredient_df = ingredient_df
         self.max_ingredients = max_ingredients
-        self.action_scaling_factor = action_scaling_factor
+        self.action_update_factor = action_update_factor
         self.max_episode_steps = max_episode_steps
         self.verbose = verbose
         self.seed = seed
@@ -109,13 +112,13 @@ class BaseEnvironment(gym.Env):
         self.target_salt_g = 1.5  # Temporary target
 
         self.nutrient_target_ranges = {
-            'calories': (self.target_calories * 0.95, self.target_calories * 1.05),
-            'fat': (self.target_fat_g * 0.1, self.target_fat_g),
+            'calories': (self.target_calories * 0.9, self.target_calories * 1.1),
+            'fat': (0, self.target_fat_g),
             'saturates': (0, self.target_saturates_g),
-            'carbs': (self.target_carbs_g, self.target_carbs_g * 3),
+            'carbs': (self.target_carbs_g, self.target_carbs_g * 5),
             'sugar': (0, self.target_sugars_g),
-            'fibre': (self.target_fibre_g, self.target_fibre_g * 3),
-            'protein': (self.target_protein_g, self.target_protein_g * 3),
+            'fibre': (self.target_fibre_g, self.target_fibre_g * 5),
+            'protein': (self.target_protein_g, self.target_protein_g * 5),
             'salt': (0, self.target_salt_g)
         }
 
@@ -169,9 +172,9 @@ class BaseEnvironment(gym.Env):
         self.rainforest_rating = np.array([self.rating_to_int[val] for val in ingredient_df['Rainforest Rating'].values], dtype=np.float32)
         self.water_scarcity_rating = np.array([self.rating_to_int[val] for val in ingredient_df['Water Scarcity Rating'].values], dtype=np.float32)
         self.co2_fu_rating = np.array([self.rating_to_int[val] for val in ingredient_df['CO2 FU Rating'].values], dtype=np.float32)
-        self.co2_g = {'co2_g': 0.0}
+        self.co2_g = {'co2e_g': 0.0}
         self.co2_g_per_1g = ingredient_df['CO2_g_per_100g'].values.astype(np.float32) / 100
-        self.target_co2_g_per_meal = 1000  # Temporary CO2 target
+        self.target_co2_g_per_meal = 500  # Temporary CO2 target
 
     def _initialize_consumption_data(self, ingredient_df) -> None:
         self.mean_g_per_day = ingredient_df['Mean_g_per_day'].values.astype(np.float32)
@@ -181,7 +184,7 @@ class BaseEnvironment(gym.Env):
     def _initialize_cost_data(self, ingredient_df) -> None:
         self.cost_per_1g = ingredient_df['Cost_100g'].values.astype(np.float32) / 100
         self.menu_cost = {'cost': 0.0}
-        self.target_cost_per_meal = 2
+        self.target_cost_per_meal = 1.5
 
     def _initialize_selection_variables(self) -> None:
         self.all_indices = list(self.ingredient_df.index)
@@ -197,16 +200,9 @@ class BaseEnvironment(gym.Env):
             'animal_welfare': 0,
             'rainforest': 0,
             'water': 0,
-            'co2_rating': 0,
+            'CO2_rating': 0,
         }
-        self.consumption_average = {
-            'average_mean_consumption': 0.0,
-            'average_cv_ingredients': 0.0
-        }
-        self.consumption_target = {
-            'average_mean_consumption': 5.8,
-            'average_cv_ingredients': 8.5
-        }
+
         self.target_not_met_counters = Counter()
         
         self.targets_not_met_history = deque(maxlen=10)
@@ -228,7 +224,6 @@ class BaseEnvironment(gym.Env):
             'shaped': reward.ShapedRewardCalculator,
             'semi_sparse': reward.SemiSparseRewardCalculator,
             'sparse': reward.SparseRewardCalculator,
-            'shaped_with_group': reward.ShapedRewardCalculatorGroup,
             # Add other mappings as needed
         }
         return reward_calculator_mapping[reward_type]
@@ -247,8 +242,7 @@ class BaseEnvironment(gym.Env):
             'groups': spaces.Box(low=0, high=self.max_ingredients, shape=(len(self.ingredient_group_count),), dtype=np.float64),
             'environment_counts': spaces.Box(low=-1, high=1, shape=(len(self.ingredient_environment_count),), dtype=np.float64),
             'cost': spaces.Box(low=0, high=10, shape=(1,), dtype=np.float64),
-            'co2_g': spaces.Box(low=0, high=5000, shape=(1,), dtype=np.float64),
-            'consumption': spaces.Box(low=0, high=100, shape=(len(self.consumption_average),), dtype=np.float64)
+            'co2e_g': spaces.Box(low=0, high=5000, shape=(1,), dtype=np.float64),
         })
         
     def _initialize_target_flags(self) -> dict:
@@ -278,7 +272,7 @@ class BaseEnvironment(gym.Env):
     def get_metrics(self) -> None:
         """
         Calculate various metrics based on the current selection of ingredients.
-        Metrics include nutrient averages, ingredient group counts and portions, environmental impact, cost, and consumption averages.
+        Metrics include nutrient averages, ingredient group counts and portions, environmental impact, cost averages.
         """
         self.total_quantity_ratio = self.current_selection / (sum(self.current_selection) + 1e-9)
         self.nutrient_averages = self._calculate_nutrient_averages()
@@ -289,7 +283,6 @@ class BaseEnvironment(gym.Env):
         self.ingredient_environment_count = self._calculate_ingredient_environment_count()
         self.menu_cost = self._calculate_cost()
         self.co2_g = self._calculate_co2g()
-        self.consumption_average = self._calculate_consumption_average()
 
     def _calculate_nutrient_averages(self) -> dict:
         """
@@ -348,17 +341,7 @@ class BaseEnvironment(gym.Env):
             'animal_welfare': _round_to_nearest_rating(sum(self.animal_welfare_rating * self.total_quantity_ratio)),
             'rainforest': _round_to_nearest_rating(sum(self.rainforest_rating * self.total_quantity_ratio)),
             'water': _round_to_nearest_rating(sum(self.water_scarcity_rating * self.total_quantity_ratio)),
-            'co2_rating': _round_to_nearest_rating(sum(self.co2_fu_rating * self.total_quantity_ratio)),
-        }
-
-    def _calculate_consumption_average(self) -> dict:
-        """
-        Calculate the average consumption values based on the current selection of ingredients.
-        Returns a dictionary of average mean consumption and coefficient of variation.
-        """
-        return {
-            'average_mean_consumption': sum(self.mean_g_per_day * self.total_quantity_ratio),
-            'average_cv_ingredients': sum(self.coefficient_of_variation * self.total_quantity_ratio)
+            'CO2_rating': _round_to_nearest_rating(sum(self.co2_fu_rating * self.total_quantity_ratio)),
         }
 
     def _calculate_cost(self) -> dict:
@@ -376,7 +359,7 @@ class BaseEnvironment(gym.Env):
         Returns a dictionary with the total CO2 emissions.
         """
         return {
-            'co2_g': sum(self.co2_g_per_1g * self.current_selection),
+            'co2e_g': sum(self.co2_g_per_1g * self.current_selection),
         }
 
     def initialize_rewards(self) -> None:
@@ -389,7 +372,7 @@ class BaseEnvironment(gym.Env):
         self.reward_dict['ingredient_group_count_reward'] = {k: 0 for k in self.ingredient_group_count.keys()}
         self.reward_dict['ingredient_environment_count_reward'] = {k: 0 for k in self.ingredient_environment_count.keys()}
         self.reward_dict['cost_reward'] = {'cost': 0}
-        self.reward_dict['co2g_reward'] = {'co2_g': 0}
+        self.reward_dict['co2g_reward'] = {'co2e_g': 0}
         self.reward_dict['consumption_reward'] = {'average_mean_consumption': 0, 'cv_reward': 0}
         self.reward_dict['targets_not_met'] = []
         self.reward_dict['termination_reward'] = 0
@@ -534,8 +517,7 @@ class BaseEnvironment(gym.Env):
         obs['groups'] = np.array(list(self.ingredient_group_count.values()), dtype=np.float64)
         obs['environment_counts'] = np.array(list(self.ingredient_environment_count.values()), dtype=np.float64)
         obs['cost'] = np.array(list(self.menu_cost.values()), dtype=np.float64)
-        obs['co2_g'] = np.array(list(self.co2_g.values()), dtype=np.float64)
-        obs['consumption'] = np.array(list(self.consumption_average.values()), dtype=np.float64)
+        obs['co2e_g'] = np.array(list(self.co2_g.values()), dtype=np.float64)
 
         return obs
 
@@ -559,15 +541,17 @@ class BaseEnvironment(gym.Env):
             'nutrient_averages': self.nutrient_averages,
             'ingredient_group_count': self.ingredient_group_count,
             'ingredient_environment_count': self.ingredient_environment_count,
-            'consumption_average': self.consumption_average,
             'cost': self.menu_cost,
-            'co2_g': self.co2_g,
+            'co2e_g': self.co2_g,
             'reward': self.reward_dict,
             'group_portions': self.ingredient_group_portion,
             'targets_not_met_count': dict(self.target_not_met_counters),
             'Running_average_count_targets_not_met': running_average_targets_not_met,
             'current_meal_plan': current_meal_plan
         }
+        
+        if 'preference_score' in self.reward_dict.keys():
+            info['preference_score'] = self.reward_dict['preference_score']
 
         return info
 
@@ -708,9 +692,9 @@ class BaseEnvironment(gym.Env):
         
         # Check if the main_class is an instance of 'SchoolMealSelectionContinuous' by comparing class names
         if self.get_class_name() == "SchoolMealSelectionContinuous":
-            calculate_step = self.total_average_portion / (self.action_scaling_factor * self.max_ingredients)
+            calculate_step = self.total_average_portion / (self.action_update_factor * self.max_ingredients)
         else:
-            calculate_step = self.total_average_portion / self.action_scaling_factor
+            calculate_step = self.total_average_portion / self.action_update_factor
         
         return calculate_step
     
@@ -739,7 +723,7 @@ register(
 )
 
 register(
-    id='SchoolMealSelection-v3',
+    id='SchoolMealSelection-v2',
     entry_point='models.envs.env:SchoolMealSelectionDiscretePotentialReward',
     max_episode_steps=200
 )
@@ -752,11 +736,11 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
     """
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
+    def __init__(self, ingredient_df, max_ingredients: int = 6, action_update_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO'):
-        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo)
-
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
+        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma)
+        
         self.step_to_reward = self.calculate_step_to_reward()
         
     def initialize_action_space(self) -> None:
@@ -806,7 +790,7 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
         self.action_reward(action)
         
         # Apply the action scaling factor to the action and update the current selection
-        change = action * self.action_scaling_factor
+        change = action * self.action_update_factor
         
         self.current_selection = np.maximum(0, self.current_selection + change)
         
@@ -845,8 +829,10 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
             if value > 0.01 or value < -0.01:
                 if self.current_selection[idx] > 0:
                     count += 1
-                    
-        distance = count / number_of_selected_ingredients
+        if number_of_selected_ingredients == 0:
+            distance = 0
+        else:        
+            distance = count / number_of_selected_ingredients
         return distance
             
 
@@ -858,11 +844,11 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
     """
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
+    def __init__(self, ingredient_df, max_ingredients: int = 6, action_update_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO'):
-        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo)
-
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
+        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma)
+        
         self.step_to_reward = self.calculate_step_to_reward()
         
     def initialize_action_space(self) -> None:
@@ -916,7 +902,7 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
         if action[0] == 0: # Do nothing
             pass
         elif action[0] == 1: # Increase
-            self.current_selection[action[1]] += self.action_scaling_factor
+            self.current_selection[action[1]] += self.action_update_factor
         
         # Ensure current selection isnt greater than max_ingredients
         self.cut_current_selection()
@@ -958,7 +944,7 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
                     if action[1] == idx:
                         reward += 1
         return reward
-
+        
 class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
     """
     A custom Gym environment for selecting school meals that meet certain nutritional and environmental criteria.
@@ -967,22 +953,29 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
     """
     metadata = {"render_modes": ["human"], 'render_fps': 1}
 
-    def __init__(self, ingredient_df, max_ingredients: int = 6, action_scaling_factor: int = 10, render_mode: str = None, 
+    def __init__(self, ingredient_df, max_ingredients: int = 6, action_update_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
-        super().__init__(ingredient_df, max_ingredients, action_scaling_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo, gamma)
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
+        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma)
         
         self.step_to_reward = self.calculate_step_to_reward()
-                                    # Nutrient, group, cost, co2
-        self.score_weights = np.array([2, 1, 1])
+                                    # Nutrient, cost, co2, env, preference
+        self.score_weights = np.array([2, 1, 1, 1, 1])
+        
         self.max_score = np.sum(self.score_weights)
 
-        self.scores = [0, 0, 0]
+        self.scores = [0, 0, 0, 0, 0]
         
         current_reward = np.dot(self.scores, self.score_weights)
         self.current_potential  = self.calculate_potential(current_reward)
         self.gamma = gamma
         
+        self.preference_target = 0.7
+        
+        self.preference_score_function = create_preference_score_function(negotiated_ingredients, unavailable_ingredients)
+        
+        # Set as an attribute for the mask function
+        self.unavailable_ingredients = unavailable_ingredients
 
     def _initialize_observation_space(self) -> None:
         """
@@ -999,6 +992,8 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
             'nutrient_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
             'cost_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
             'co2_g_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+            'env_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+            'preference_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
         })
     
     def initialize_rewards(self) -> None:
@@ -1009,11 +1004,12 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         self.reward_dict = {}
         self.reward_dict['nutrient_score'] = 0
         self.reward_dict['cost_score'] = 0
-        self.reward_dict['co2g_score'] = 0
-        
+        self.reward_dict['co2_score'] = 0
+        self.reward_dict['environment_score'] = 0
+        self.reward_dict['preference_score'] = 0
+        self.reward_dict['bonus_score'] = 0
         # Initialize additional rewards
         self.reward_dict['targets_not_met'] = []
-        self.reward_dict['bonus_score'] = 0
     
     
     def _get_obs(self) -> dict:
@@ -1041,7 +1037,8 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         obs['nutrient_score'] = np.array([self.scores[0]], dtype=np.float64)
         obs['cost_score'] = np.array([self.scores[1]], dtype=np.float64)
         obs['co2_g_score'] = np.array([self.scores[2]], dtype=np.float64)
-
+        obs['env_score'] = np.array([self.scores[3]], dtype=np.float64)
+        obs['preference_score'] = np.array([self.scores[4]], dtype=np.float64)
 
         return obs
     
@@ -1095,7 +1092,9 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         
         self.reward_dict['nutrient_score'] = self.scores[0]
         self.reward_dict['cost_score'] = self.scores[1]
-        self.reward_dict['co2g_score'] = self.scores[2]
+        self.reward_dict['co2_score'] = self.scores[2]
+        self.reward_dict['environment_score'] = self.scores[3]
+        self.reward_dict['preference_score'] = self.scores[4]
         self.reward_dict['targets_not_met'] = targets_not_met
         
         # Calculate the immediate reward based on the current scores
@@ -1123,9 +1122,6 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
             print("All targets met!")
             self.reward_dict['bonus_score'] = self.bonus_score
             shaped_reward += self.bonus_score  # Additional reward for meeting all target
-        else: # If some targets are met, give bonus score based on number of targets met
-            self.reward_dict['bonus_score'] = 3 - len(targets_not_met)
-            shaped_reward += self.reward_dict['bonus_score']
     
         return shaped_reward, terminated
 
@@ -1151,7 +1147,7 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         if action[0] == 0: # Do Nothing
             pass
         elif action[0] == 1: # Increase
-            self.current_selection[action[1]] += self.action_scaling_factor
+            self.current_selection[action[1]] += self.action_update_factor
         else:
             raise ValueError(f"Invalid action received: {action}")
             
@@ -1174,6 +1170,13 @@ if __name__ == '__main__':
     from gymnasium.wrappers import TimeLimit
     from stable_baselines3.common.monitor import Monitor
     from utils.train_utils import setup_environment, get_unique_directory, monitor_memory_usage, plot_reward_distribution, set_seed
+    
+    from models.preferences.preference_utils import (
+        get_child_data,
+        initialize_child_preference_data,
+    )
+    from models.preferences.prediction import PreferenceModel
+    
     reward_dir, reward_prefix = get_unique_directory("saved_models/reward", 'reward_test34', '')
     from models.envs.env import * 
     class Args:
@@ -1182,11 +1185,11 @@ if __name__ == '__main__':
         plot_reward_history = False
         max_episode_steps = 200
         verbose = 3
-        action_scaling_factor = 10
+        action_update_factor = 10
         memory_monitor = True
         gamma = 0.99
         max_ingredients = 6
-        action_scaling_factor = 10
+        action_update_factor = 10
         reward_save_interval = 1000
         vecnorm_norm_obs = True
         vecnorm_norm_reward = True
@@ -1194,15 +1197,51 @@ if __name__ == '__main__':
         vecnorm_clip_reward = 10
         vecnorm_epsilon = 1e-8 
         vecnorm_norm_obs_keys = None
-        ingredient_df = get_data("small_data.csv")
+        ingredient_df = get_data("data.csv")
         seed = 10
-        env_name = 'SchoolMealSelection-v3'
+        env_name = 'SchoolMealSelection-v2'
         initialization_strategy = 'zero'
         # vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
         vecnorm_norm_obs_keys = ['current_selection_value']
         reward_type = 'shaped'
         algo = 'MASKED_PPO'
+    
     args = Args()
+    
+    child_feature_data = get_child_data()
+    true_child_preference_data = initialize_child_preference_data(
+        child_feature_data, args.ingredient_df, split=0.5, seed=args.seed, plot_graphs=False
+    )
+    
+    predictor = PreferenceModel(
+        args.ingredient_df, child_feature_data, true_child_preference_data, visualize_data=False, apply_SMOTE=True, seed=args.seed
+    )
+    
+    updated_known_and_predicted_preferences = predictor.run_pipeline()
+    
+    # Initial negotiation of ingredients
+    negotiator = IngredientNegotiator(
+        args.seed, args.ingredient_df, updated_known_and_predicted_preferences
+    )
+    
+    negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function='simple')
+    
+    args.negotiated_ingredients = negotiated_ingredients
+    args.unavailable_ingredients = unavailable_ingredients
+    
+
+    env_kwargs = {
+        "ingredient_df": args.ingredient_df,
+        "max_ingredients": args.max_ingredients,
+        "action_update_factor": args.action_update_factor,
+        "render_mode": args.render_mode,
+        "seed": args.seed,
+        'initialization_strategy': args.initialization_strategy,
+        "verbose": args.verbose,
+        "reward_type":  args.reward_type,
+        "negotiated_ingredients": args.negotiated_ingredients,
+        "unavailable_ingredients": args.unavailable_ingredients,
+        }
 
     num_episodes = 500
     
@@ -1214,19 +1253,9 @@ if __name__ == '__main__':
 
     print("Environment is valid!")
     
+    
     del env
-
-    env_kwargs = {
-        "ingredient_df": args.ingredient_df,
-        "max_ingredients": args.max_ingredients,
-        "action_scaling_factor": args.action_scaling_factor,
-        "render_mode": args.render_mode,
-        "seed": args.seed,
-        'initialization_strategy': args.initialization_strategy,
-        "verbose": args.verbose,
-        "reward_type":  args.reward_type
-        }
-
+    
     # from models.wrappers.common import RewardTrackingWrapper
     
     # def make_env():

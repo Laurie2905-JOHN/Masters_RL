@@ -15,16 +15,15 @@ def run_experiment(hyperparams_file):
     # Assuming train.py can be run with a --hyperparams_file argument
     subprocess.run(['python', 'scripts/training/train.py', '--hyperparams_file', hyperparams_file])
 
-
 def main():
     hyperparams_dir = "scripts/hyperparams"
     setup_file = os.path.join(hyperparams_dir, "setup.yaml")
     base_setup = load_yaml(setup_file)
 
     # Example variations
-    env_names = ["SchoolMealSelection-v0", "SchoolMealSelection-v1", "SchoolMealSelection-v2"]
-    algos = ['PPO']
-    reward_type = ['shaped_with_group']
+    env_names = ["SchoolMealSelection-v2"]
+    algos = ['PPO', 'A2C', 'MASKED_PPO']
+    reward_type = ['shaped']
 
     for env in env_names:
         for reward in reward_type:
@@ -36,9 +35,8 @@ def main():
                 modified_setup['algo'] = algo
                 modified_setup['reward_type'] = reward
                 modified_setup['log_prefix'] = f"{env}_{reward}_{algo}"
-                if env == "SchoolMealSelection-v2":
-                    modified_setup['max_episode_steps'] = 1000
-
+                modified_setup['best_prefix'] = f"{env}_{reward}_{algo}"
+                
                 # Create a unique setup file for this run
                 temp_setup_path = f'temp_setup_{env}_{reward}_{algo}.yaml'
                 save_yaml(modified_setup, temp_setup_path)

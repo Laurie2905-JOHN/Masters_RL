@@ -16,7 +16,7 @@ def get_data(filename='small_data.csv'):
         # Process the data and report the number of rows and ingredients per row
         num_rows = len(data) - 1
         
-        keys = data[0].replace('\n','').replace('\ufeff','').split(',')
+        keys = [key.strip() for key in data[0].replace('\n','').replace('\ufeff','').split(',')]
         
         ingredients_df = pd.DataFrame(columns=keys)
         
@@ -25,26 +25,22 @@ def get_data(filename='small_data.csv'):
                 continue
             
             # Step 1: Split the string into a list
-        
             ingredients = row.split(',')
-            
             
             if len(ingredients) != 35:
                 ingredients = custom_split(row)
-                            
 
-            cleaned_ingredients =[
-                                   convert_to_correct_type(ingredient.replace('"', '').replace('\n', '').strip())
-                                   for ingredient in ingredients
-                                 ]
+            cleaned_ingredients = [
+                convert_to_correct_type(ingredient.replace('"', '').replace('\n', '').strip())
+                for ingredient in ingredients
+            ]
             
             ingredients_df.loc[len(ingredients_df.index)] = cleaned_ingredients
             
-            # Construct the full path to the processed data file
-            processed_file_path = os.path.join(base_dir, '..', '..', 'data', 'processed_data.csv')
-            
-            ingredients_df.to_csv(processed_file_path, index=False)
-            
+        # Construct the full path to the processed data file
+        processed_file_path = os.path.join(base_dir, '..', '..', 'data', 'processed_data.csv')
+        ingredients_df.to_csv(processed_file_path, index=False)
+        
         print(f"Successfully read {num_rows+1} lines from the file. Loaded {num_rows} ingredients.")
         
         return ingredients_df
@@ -55,8 +51,6 @@ def get_data(filename='small_data.csv'):
         print(f"Error: An IOError occurred. {e}")
     except Exception as e:  
         print(f"An unexpected error occurred: {e}")
-
-
 
 def custom_split(row):
     parts = []
@@ -85,6 +79,7 @@ def custom_split(row):
     return parts
 
 def convert_to_correct_type(value):
+    value = value.strip()  # Ensure any leading/trailing spaces are removed
     try:
         # Try to convert to integer
         return int(value)
@@ -94,7 +89,7 @@ def convert_to_correct_type(value):
             return float(value)
         except ValueError:
             # If both conversions fail, return as string
-            return value
+            return value.strip()  # Ensure any leading/trailing spaces are removed
 
 # Example usage
 if __name__ == "__main__":
