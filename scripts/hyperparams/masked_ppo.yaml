@@ -20,7 +20,7 @@
 # lr_schedule: linear
 # learning_rate: 3.0e-05
 
-# V3 TRIAL 1
+# v2 TRIAL 1
 gamma: 0.99
 gae_lambda: 0.99
 n_steps: 448

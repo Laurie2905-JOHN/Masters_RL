@@ -1,4 +1,4 @@
-env_name: SchoolMealSelection-v3
+env_name: SchoolMealSelection-v2
 max_episode_steps: 175
 max_ingredients: 6
 action_update_factor: 5

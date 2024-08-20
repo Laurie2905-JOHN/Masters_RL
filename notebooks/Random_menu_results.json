@@ -21875,5 +21875,20 @@
             "Honey",
             "Palm oil/fat"
         ]
+    },
+    {
+        "week": 1,
+        "day": 1,
+        "type": "simple",
+        "meal_plan": [
+            "Common mushrooms",
+            "Strawberries",
+            "Eggs",
+            "Rice grain long-grain",
+            "Butter",
+            "Wheat bread and rolls brown or wholemeal",
+            "Bitter chocolate",
+            "Basil"
+        ]
     }
 ]

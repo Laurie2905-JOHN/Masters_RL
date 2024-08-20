@@ -14,6 +14,8 @@ from models.callbacks.callback import *
 import argparse
 import os
 import json
+from scipy.optimize import dual_annealing
+from deap import base, creator, tools, algorithms
 
 from utils.train_utils import (
     setup_environment, 
@@ -88,14 +90,26 @@ class BaseMenuGenerator(ABC):
     def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, final_meal_plan_filename: str = 'NA') -> Dict[str, str]:
         pass
 
+from models.preferences.random_menu_eval import MenuEvaluator
 
 
 class RandomMenuGenerator(BaseMenuGenerator):
-    """
-    Inherits from BaseMenuGenerator and uses random selection logic.
-    """
-    def __init__(self, menu_plan_length: int = 10, weight_type: str = None, probability_best: float = 0.5, seed: Optional[int] = None):
+    def __init__(self, evaluator: MenuEvaluator, menu_plan_length: int = 10, weight_type: str = None, probability_best: float = 0.5, plot_menu_flag: bool = False, seed: Optional[int] = None):
         super().__init__(menu_plan_length, weight_type, probability_best, seed)
+        self.evaluator = evaluator
+        
+        self.ingredient_group_portion_targets = {
+            'Group A fruit': (40, 130),
+            'Group A veg': (40, 80),
+            'Group BC': (40, 90),
+            'Group D': (40, 150),
+            'Group E': (50, 150),
+            'Bread': (50, 70),
+        }
+        
+        self.ingredient_groups_to_remove = ['Misc', 'Confectionary']
+        
+        self.plot_menu_flag = plot_menu_flag
 
     def normalize_scores(self) -> None:
         """
@@ -112,20 +126,24 @@ class RandomMenuGenerator(BaseMenuGenerator):
                     self.normalized_scores[group] = [0]
                 else:
                     self.normalized_scores[group] = [1 / len(self.ingredients_scores[group])] * len(self.ingredients_scores[group])
-                    
+
     def initialize_ingredient_in_groups(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]]) -> None:
         """
         Initializes the ingredients and their scores for each group, excluding unavailable ingredients,
         and normalizes the scores. Also makes a copy of the original ingredients and scores to reset after 10 generations.
-        
-        :param negotiated: A dictionary where keys are ingredient groups and values are dictionaries of ingredients with their scores.
-        :param unavailable: A set of unavailable ingredients.
         """
         self.negotiated = negotiated
         self.unavailable = unavailable or set()
         
         self.ingredient_groups = list(negotiated.keys())
-
+        
+        # Remove specific values from the list
+        for group in self.ingredient_groups_to_remove:
+            if group in self.ingredient_groups:
+                self.ingredient_groups.remove(group)
+            if group in self.negotiated:
+                del self.negotiated[group]
+                
         # Initialize dictionaries
         self.ingredients_in_groups = {group: [] for group in self.ingredient_groups}
         self.ingredients_scores = {group: [] for group in self.ingredient_groups}
@@ -150,9 +168,6 @@ class RandomMenuGenerator(BaseMenuGenerator):
     def generate_best_item(self, group: str) -> str:
         """
         Generates the best item from a specified group based on the highest score.
-        
-        :param group: The ingredient group to sample from.
-        :return: The best ingredient.
         """
         if len(self.ingredients_in_groups[group]) == 0:
             raise ValueError(f"No ingredients available in group {group}")
@@ -162,13 +177,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
     def generate_random_item(self, group: str, num_items: int = 1) -> List[str]:
         """
         Generates a list of random items from a specified group based on the normalized scores.
-        
-        :param group: The ingredient group to sample from.
-        :param num_items: The number of items to sample.
-        :return: A list of randomly selected ingredients.
-        :raises ValueError: If there are not enough ingredients in the group to sample the requested number of items.
         """
-        
         if len(self.ingredients_in_groups[group]) < num_items:
             raise ValueError(f"Not enough ingredients in group {group} to sample {num_items} items")
         items = self.ingredients_in_groups[group]
@@ -178,23 +187,19 @@ class RandomMenuGenerator(BaseMenuGenerator):
             weights = None
             
         return self.random.choices(items, weights=weights, k=num_items)
-    
-    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, final_meal_plan_filename: str = 'NA', save_paths = None, week=0, day=0) -> Dict[str, str]:
+
+    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, quantity_type: str = 'random', final_meal_plan_filename: str = 'NA', save_paths=None, week=0, day=0) -> Dict[str, float]:
         """
         Generates a menu by selecting an item from each ingredient group with a certain probability of choosing
         the best item and a complementary probability of choosing a random item. If no ingredients are available,
         it resets the ingredients.
-        
-        :param negotiated: A dictionary where keys are ingredient groups and values are dictionaries of ingredients with their scores.
-        :param unavailable: A set of unavailable ingredients.
-        :return: A dictionary representing the generated menu.
         """
         self.initialize_ingredient_in_groups(negotiated, unavailable)
-        
+
         if self.generated_count > self.menu_plan_length:
             print(f"\nGenerated {self.menu_plan_length} meal plans, resetting ingredients.")
             self.reset_ingredients()
-        
+
         menu = {}
         for group in self.ingredient_groups:
             try:
@@ -205,33 +210,354 @@ class RandomMenuGenerator(BaseMenuGenerator):
                 menu[group] = item
                 if group in self.groups_to_remove_from:
                     self.selected_ingredients.add(item)
-            except Exception as e:  # or use a specific exception instead of `Exception`
+            except Exception as e:
                 raise ValueError(f"Error generating item for group {group}: {e}")
-        
+
+        # Generate quantities using the specified method and map them to ingredients
+        quantities, score = self.generate_quantities(menu, method=quantity_type)
+
+        ingredient_quantities = {ingredient: quantities[ingredient] for group, ingredient in menu.items()}
+        print(f"Generated ingredient quantities ({quantity_type}): {ingredient_quantities} with score {score}")
+
         # Convert the menu dictionary to a tuple to track frequency
         menu_tuple = tuple(sorted(menu.items()))
         self.menu_counter[menu_tuple] += 1
-        
-        print("\nGenerated meal plan number", self.generated_count)
-        print(list(menu.values()))
+
         self.generated_count += 1
-        
+
         if "complex" in final_meal_plan_filename:
             type = "complex"
         else:
             type = "simple"
+
         # Save data to JSON
         data_to_save = {
             'week': week,
             'day': day,
             'type': type,
             'meal_plan': list(menu.values()),
+            'quantities': ingredient_quantities  # Save the generated ingredient quantities
         }
-    
+
         if save_paths and 'data' in save_paths:
             json_filename = os.path.join(save_paths['data'], 'Random_menu_results.json')
 
-            # Load existing data if the file exists
+            if os.path.exists(json_filename):
+                with open(json_filename, 'r') as json_file:
+                    existing_data = json.load(json_file)
+            else:
+                existing_data = []
+
+                # Append new data
+                existing_data.append(data_to_save)
+
+                # Save updated data
+                with open(json_filename, 'w') as json_file:
+                    json.dump(existing_data, json_file, indent=4)
+        
+        _, info = self.evaluator.select_ingredients(ingredient_quantities)
+        
+        if self.plot_menu_flag:
+            self.evaluator.plot_menu(info)
+
+        return ingredient_quantities, score
+
+    def generate_quantities(self, menu: Dict[str, str], method: str = "random") -> Dict[str, float]:
+        """
+        Generates quantities for the selected menu items using a specified method.
+        """
+        if method == "random":
+            return self.random_quantity_within_bounds(menu=menu)
+        elif method == "simulated_annealing":
+            return self.simulated_annealing_quantities(menu=menu)
+        elif method == "genetic_algorithm":
+            return self.genetic_algorithm_quantities(menu=menu)
+        elif method == "particle_swarm":
+            return self.particle_swarm_quantities(menu=menu)
+        elif method == "bayesian":
+            return self.bayesian_quantities(menu=menu)
+        elif method == "hill_climbing":
+            return self.hill_climbing_quantities(menu=menu)
+        else:
+            raise ValueError(f"Unknown method: {method}")
+
+
+    def get_group_from_ingredient(self, ingredient: str, menu: Dict[str, str]) -> str:
+        """
+        Get the group name for a given ingredient.
+        
+        :param ingredient: The ingredient name.
+        :param menu: The menu dictionary with groups and ingredients.
+        :return: The group name corresponding to the ingredient.
+        """
+        for group, ing in menu.items():
+            if ing == ingredient:
+                return group
+        raise ValueError(f"Ingredient '{ingredient}' not found in the menu.")
+
+    def random_quantity_within_bounds(self, menu: Dict[str, str]) -> Dict[str, float]:
+        """
+        Generate random quantities within the defined bounds for each ingredient in the menu.
+        
+        :param menu: The menu dictionary with groups and ingredients.
+        :return: A dictionary with ingredients as keys and random quantities as values.
+        """
+        quantities = {}
+        for group, ingredient in menu.items():
+            min_portion, max_portion = self.ingredient_group_portion_targets[group]
+            quantities[ingredient] = random.randint(min_portion, max_portion)
+        best_quantities = quantities.copy()
+        score = self.evaluator.objective_function(best_quantities)
+        return quantities, score
+
+    def simulated_annealing_quantities(self, menu) -> Dict[str, float]:
+        """
+        Optimizes the quantities using scipy's dual_annealing.
+        """
+        bounds = [(self.ingredient_group_portion_targets[self.get_group_from_ingredient(ingredient, menu)][0], 
+                self.ingredient_group_portion_targets[self.get_group_from_ingredient(ingredient, menu)][1]) 
+                for ingredient in menu.values()]
+
+        def objective_function_wrapper(quantities):
+            quantities_dict = dict(zip(menu.values(), quantities))
+            return -self.evaluator.objective_function(quantities_dict)  # Minimization in dual_annealing
+
+        result = dual_annealing(objective_function_wrapper, bounds)
+        
+        best_quantities = dict(zip(menu.values(), result.x))
+        best_score = -result.fun  # Converting back to maximization
+        
+        return best_quantities, best_score
+
+    def genetic_algorithm_quantities(self, menu) -> Dict[str, float]:
+        """
+        Optimizes the quantities using a Genetic Algorithm.
+        """
+        
+        # Define the individual and fitness classes
+        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        creator.create("Individual", list, fitness=creator.FitnessMax)
+
+        # Flatten the menu structure for easier processing with DEAP
+        ingredients = [(group, ingredient) for group, ingredient in menu.items()]
+        
+        # Define individual creation function
+        def create_individual():
+            quantities, _ = self.random_quantity_within_bounds(menu=menu)
+            return creator.Individual([quantities[ingredient] for group, ingredient in menu.items()])
+
+        toolbox = base.Toolbox()
+        toolbox.register("individual", create_individual)
+        toolbox.register("population", tools.initRepeat, list, toolbox.individual, n=300)
+        toolbox.register("evaluate", lambda ind: (
+            self.evaluator.objective_function({ingredient: qty for (group, ingredient), qty in zip(menu.items(), ind)}),
+        ))
+        toolbox.register("mate", tools.cxTwoPoint)
+        toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
+        toolbox.register("select", tools.selTournament, tournsize=3)
+
+        # Initialize population
+        population = toolbox.population()
+
+        # Evolve the population
+        algorithms.eaSimple(population, toolbox, cxpb=0.5, mutpb=0.2, ngen=40, verbose=False)
+
+        # Get the best individual
+        best_individual = tools.selBest(population, k=1)[0]
+        best_quantities = {ingredient: qty for (group, ingredient), qty in zip(menu.items(), best_individual)}
+        best_score = self.evaluator.objective_function(best_quantities)
+
+        return best_quantities, best_score
+
+    def particle_swarm_quantities(self, menu) -> Dict[str, float]:
+        """
+        Optimizes the quantities using Particle Swarm Optimization.
+        """
+        from pyswarm import pso
+        
+        # Flatten the menu structure for easier processing
+        ingredients = [ingredient for group, ingredient in menu.items()]
+        
+        # Objective function for PSO
+        def objective_function(quantities):
+            quantities_dict = dict(zip(ingredients, quantities))
+            return -self.evaluator.objective_function(quantities_dict)
+        
+        # Define bounds for each ingredient quantity
+        lower_bounds = [self.ingredient_group_portion_targets[group][0] for group in menu.keys()]
+        upper_bounds = [self.ingredient_group_portion_targets[group][1] for group in menu.keys()]
+        
+        # Perform PSO
+        best_quantities_list, best_score = pso(objective_function, lower_bounds, upper_bounds)
+        
+        # Reconstruct the best quantities dictionary
+        best_quantities = dict(zip(ingredients, best_quantities_list))
+        
+        return best_quantities, -best_score
+
+    
+    def bayesian_quantities(self, menu) -> Dict[str, float]:
+        """
+        Optimizes the quantities using Bayesian Optimization.
+        """
+        from skopt import gp_minimize
+        
+        # Flatten the menu structure for easier processing
+        ingredients = [ingredient for group, ingredient in menu.items()]
+        
+        # Objective function for Bayesian Optimization
+        def objective_function(quantities):
+            quantities_dict = dict(zip(ingredients, quantities))
+            return -self.evaluator.objective_function(quantities_dict)
+        
+        # Define bounds for each ingredient quantity
+        bounds = [(self.ingredient_group_portion_targets[group][0], 
+                self.ingredient_group_portion_targets[group][1]) for group in menu.keys()]
+        
+        # Perform Bayesian Optimization
+        result = gp_minimize(objective_function, bounds, n_calls=50)
+        
+        # Reconstruct the best quantities dictionary
+        best_quantities = dict(zip(ingredients, result.x))
+        
+        return best_quantities, -result.fun
+
+    
+    def hill_climbing_quantities(self, menu) -> Dict[str, float]:
+        """
+        Optimizes the quantities using Hill Climbing.
+        """
+        # Flatten the menu structure for easier processing
+        ingredients = [ingredient for group, ingredient in menu.items()]
+        
+        # Initial random quantities within bounds
+        quantities, _ = self.random_quantity_within_bounds(menu=menu)
+        best_quantities = {ingredient: quantities[ingredient] for ingredient in ingredients}
+        best_score = self.evaluator.objective_function(best_quantities)
+        
+        improved = True
+        while improved:
+            improved = False
+            for ingredient in best_quantities:
+                group = self.get_group_from_ingredient(ingredient, menu)
+                for delta in [-1, 1]:
+                    new_quantities = best_quantities.copy()
+                    new_quantities[ingredient] = max(
+                        min(best_quantities[ingredient] + delta, self.ingredient_group_portion_targets[group][1]), 
+                        self.ingredient_group_portion_targets[group][0]
+                    )
+                    new_score = self.evaluator.objective_function(new_quantities)
+                    
+                    if new_score > best_score:
+                        best_quantities, best_score = new_quantities, new_score
+                        improved = True
+        
+        return best_quantities, best_score
+
+    def genetic_algorithm_select_and_optimize(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, ngen: int = 100, population_size: int = 500, cxpb: float = 0.7, mutpb: float = 0.3, final_meal_plan_filename: str = 'NA', save_paths=None, week=0, day=0) -> Dict[str, float]:
+        """
+        Selects ingredients from each required group and optimizes their quantities using a Genetic Algorithm.
+        Includes functionality to reset, save results, and manage selected ingredients.
+
+        :param negotiated: A dictionary of ingredient groups with corresponding ingredients and their scores.
+        :param unavailable: A set of ingredients that are unavailable and should not be selected.
+        :param ngen: Number of generations for the genetic algorithm.
+        :param population_size: Size of the population in each generation.
+        :param cxpb: Probability of crossover.
+        :param mutpb: Probability of mutation.
+        :param final_meal_plan_filename: The filename to save the final meal plan.
+        :param save_paths: Paths to save the generated data and graphs.
+        :param week: The current week number.
+        :param day: The current day number.
+        :return: A dictionary with selected ingredients and their optimized quantities.
+        """
+        # Initialize the ingredients in groups and normalize scores
+        self.initialize_ingredient_in_groups(negotiated, unavailable)
+
+        # Flatten the menu structure for easier processing with DEAP
+        ingredients_per_group = [(group, list(items.keys())) for group, items in negotiated.items()]
+
+        # Define the individual and fitness classes for DEAP
+        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        creator.create("Individual", list, fitness=creator.FitnessMax)
+
+        # Define a function to create an individual by selecting an ingredient and generating a quantity for each group
+        def create_individual():
+            individual = []
+            for group, ingredients in ingredients_per_group:
+                selected_ingredient = self.random.choice(ingredients)
+                min_portion, max_portion = self.ingredient_group_portion_targets[group]
+                selected_quantity = self.random.randint(min_portion, max_portion)
+                individual.append((selected_ingredient, selected_quantity))
+            return creator.Individual(individual)
+
+        # Create a toolbox for the Genetic Algorithm
+        toolbox = base.Toolbox()
+        toolbox.register("individual", create_individual)
+        toolbox.register("population", tools.initRepeat, list, toolbox.individual, n=population_size)
+
+        # Evaluation function: calculate the score based on the selected ingredients and generated quantities
+        def evaluate(individual):
+            # Convert the individual into a menu dictionary with quantities
+            menu = {group: ingredient for (group, _), (ingredient, _) in zip(ingredients_per_group, individual)}
+            quantities = {ingredient: quantity for (ingredient, quantity) in individual}
+
+            # Evaluate the menu and quantities using the provided evaluator
+            score = self.evaluator.objective_function(quantities)
+            return score,
+
+        toolbox.register("evaluate", evaluate)
+        toolbox.register("mate", tools.cxTwoPoint)
+        toolbox.register("mutate", self.mutate_individual, indpb=mutpb)
+        toolbox.register("select", tools.selTournament, tournsize=3)
+
+        # Initialize population
+        population = toolbox.population()
+
+        # Evolve the population for a longer period
+        algorithms.eaSimple(population, toolbox, cxpb=cxpb, mutpb=mutpb, ngen=ngen, verbose=False)
+
+        # Get the best individual (ingredient selection and quantity)
+        best_individual = tools.selBest(population, k=1)[0]
+
+        # Create the final menu with selected ingredients and optimized quantities
+        final_menu = {group: ingredient for (group, _), (ingredient, _) in zip(ingredients_per_group, best_individual)}
+        final_quantities = {ingredient: quantity for (ingredient, quantity) in best_individual}
+
+        # Add selected ingredients to the set and manage resets if necessary
+        for ingredient in final_menu.values():
+            if ingredient in self.selected_ingredients:
+                print(f"Ingredient {ingredient} was already selected before and is now being reused.")
+            else:
+                self.selected_ingredients.add(ingredient)
+
+        if self.generated_count > self.menu_plan_length:
+            print(f"\nGenerated {self.menu_plan_length} meal plans, resetting ingredients.")
+            self.reset_ingredients()
+
+        # Convert the menu dictionary to a tuple to track frequency
+        menu_tuple = tuple(sorted(final_menu.items()))
+        self.menu_counter[menu_tuple] += 1
+
+        self.generated_count += 1
+
+        if "complex" in final_meal_plan_filename:
+            type = "complex"
+        else:
+            type = "simple"
+
+        # Save data to JSON
+        data_to_save = {
+            'week': week,
+            'day': day,
+            'type': type,
+            'meal_plan': list(final_menu.values()),
+            'quantities': final_quantities  # Save the generated ingredient quantities
+        }
+
+        if save_paths and 'data' in save_paths:
+            json_filename = os.path.join(save_paths['data'], 'Random_menu_results.json')
+
             if os.path.exists(json_filename):
                 with open(json_filename, 'r') as json_file:
                     existing_data = json.load(json_file)
@@ -244,8 +570,48 @@ class RandomMenuGenerator(BaseMenuGenerator):
             # Save updated data
             with open(json_filename, 'w') as json_file:
                 json.dump(existing_data, json_file, indent=4)
-        
-        return list(menu.values())
+
+        # Plotting the menu
+        _, info = self.evaluator.select_ingredients(final_quantities)
+
+        if self.plot_menu_flag:
+            self.evaluator.plot_menu(info)
+
+        return final_quantities, evaluate(best_individual)[0]
+
+
+    def mutate_individual(self, individual, indpb):
+        """
+        Mutates an individual by either changing the selected ingredient or adjusting the quantity.
+
+        :param individual: The individual to mutate.
+        :param indpb: Independent probability for each attribute to be mutated.
+        :return: A tuple containing the mutated individual and a boolean indicating whether any mutation occurred.
+        """
+        for i, (ingredient, quantity) in enumerate(individual):
+            # Determine the group for the current ingredient
+            group = None
+            for g, ingredients in self.ingredients_in_groups.items():
+                if ingredient in ingredients:
+                    group = g
+                    break
+
+            if group is None:
+                raise ValueError(f"Group for ingredient {ingredient} not found.")
+
+            if self.random.random() < indpb:
+                # Mutate the ingredient selection
+                new_ingredient = self.random.choice(self.ingredients_in_groups[group])
+                individual[i] = (new_ingredient, quantity)
+
+            if self.random.random() < indpb:
+                # Mutate the quantity
+                min_portion, max_portion = self.ingredient_group_portion_targets[group]
+                new_quantity = self.random.randint(min_portion, max_portion)
+                individual[i] = (ingredient, new_quantity)
+
+        return individual,
+
 
     def reset_ingredients(self) -> None:
         """

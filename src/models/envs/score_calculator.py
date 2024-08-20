@@ -28,6 +28,9 @@ class BaseScoreCalculator(ABC):
 
         if normalize:
             score = score / norm_factor
+        
+        if score < 0:
+            score = 0
 
         return score, target_met
 

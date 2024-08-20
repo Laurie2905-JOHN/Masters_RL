@@ -51,7 +51,7 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
     def make_env(arg_seed):
         def _init():
             env_kwargs = get_env_kwargs(arg_seed)
-            env = gym.make("SchoolMealSelection-v3", **env_kwargs)
+            env = gym.make("SchoolMealSelection-v2", **env_kwargs)
             env = TimeLimit(env, max_episode_steps=175)
             env = Monitor(env)  # Monitoring is added to track statistics and/or save logs
             
@@ -230,6 +230,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     if args.study_name is None:
-        args.study_name = f"{args.algo}_V3"
+        args.study_name = f"{args.algo}_v2"
         
     main(args.algo, args.study_name, args.storage, args.n_trials, args.timeout, args.n_jobs, args.num_timesteps)

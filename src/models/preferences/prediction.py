@@ -39,8 +39,8 @@ class PreferenceModel:
         self.ml_child_preferences = self.prepare_ml_preferences()
         self.X, self.y, self.preprocessor = self.prepare_ml_data()
         
-        if visualize_data:
-            self.visualize_complete_data(file_path)
+        # if visualize_data:
+        #     self.visualize_complete_data(file_path)
 
         self.model = self.get_model(model_name)
         

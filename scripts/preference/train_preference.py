@@ -19,7 +19,7 @@ from models.preferences.voting import IngredientNegotiator
 from models.preferences.sentiment_analysis import SentimentAnalyzer
 from models.preferences.menu_generators import RandomMenuGenerator, RLMenuGenerator
 from models.preferences.utility_calculator import MenuUtilityCalculator
-
+from models.preferences.random_menu_eval import  MenuEvaluator
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -85,8 +85,8 @@ def main():
     seed_generator = random.randint(0, int(1e36))
     
     if menu_generator_type != "RL":
-        menu_generator_simple = RandomMenuGenerator(menu_plan_length=menu_plan_length, weight_type=weight_type, probability_best=probability_best, seed=seed_generator)
-        menu_generator_complex = RandomMenuGenerator(menu_plan_length=menu_plan_length, weight_type=weight_type, probability_best=probability_best, seed=seed_generator)
+        menu_generator_simple = RandomMenuGenerator(evaluator=MenuEvaluator, menu_plan_length=menu_plan_length, weight_type=weight_type, probability_best=probability_best, seed=seed_generator)
+        menu_generator_complex = RandomMenuGenerator(evaluator=MenuEvaluator, menu_plan_length=menu_plan_length, weight_type=weight_type, probability_best=probability_best, seed=seed_generator)
     else:
         menu_generator_simple = RLMenuGenerator(ingredient_df, menu_plan_length=menu_plan_length, weight_type=weight_type, seed=seed_generator, model_save_path='rl_model')
         menu_generator_complex = RLMenuGenerator(ingredient_df, menu_plan_length=menu_plan_length, weight_type=weight_type, seed=seed_generator, model_save_path='rl_model')
@@ -131,8 +131,8 @@ def main():
     negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
 
     # Generate menus based on negotiated lists
-    menu_plan_simple = menu_generator_simple.generate_menu(negotiated_ingredients_simple, unavailable_ingredients, final_meal_plan_filename='final_meal_plan_simple', save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, week=week, day=day)
-    menu_plan_complex = menu_generator_complex.generate_menu(negotiated_ingredients_complex, unavailable_ingredients, final_meal_plan_filename='final_meal_plan_complex', save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, week=week, day=day)
+    menu_plan_simple = menu_generator_simple.genetic_algorithm_select_and_optimize(negotiated_ingredients_simple, unavailable_ingredients, final_meal_plan_filename='final_meal_plan_simple', save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, week=week, day=day)
+    menu_plan_complex = menu_generator_complex.genetic_algorithm_select_and_optimize(negotiated_ingredients_complex, unavailable_ingredients, final_meal_plan_filename='final_meal_plan_complex', save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, week=week, day=day)
     
     # Calculate the predicted utility for all children for both menus
     previous_utility_simple = utility_calculator_simple.calculate_day_menu_utility(updated_known_and_predicted_preferences, menu_plan_simple)
@@ -211,8 +211,8 @@ def main():
         negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
         
         # Generate menus based on negotiated lists
-        menu_plan_simple = menu_generator_simple.generate_menu(negotiated_ingredients_simple, unavailable_ingredients, final_meal_plan_filename='final_meal_plan_simple', save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, week=week, day=day)
-        menu_plan_complex = menu_generator_complex.generate_menu(negotiated_ingredients_complex, unavailable_ingredients, final_meal_plan_filename='final_meal_plan_complex', save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, week=week, day=day)
+        menu_plan_simple = menu_generator_simple.genetic_algorithm_select_and_optimize(negotiated_ingredients_simple, unavailable_ingredients,evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients_simple, unavailable_ingredients), final_meal_plan_filename='final_meal_plan_simple', save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, week=week, day=day)
+        menu_plan_complex = menu_generator_complex.genetic_algorithm_select_and_optimize(negotiated_ingredients_complex, unavailable_ingredients, MenuEvaluator(ingredient_df, negotiated_ingredients_complex, unavailable_ingredients), final_meal_plan_filename='final_meal_plan_complex', save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, week=week, day=day)
         
         # Calculate the predicted utility for all children for both menus
         previous_utility_simple = utility_calculator_simple.calculate_day_menu_utility(updated_known_and_predicted_preferences_simple, menu_plan_simple)

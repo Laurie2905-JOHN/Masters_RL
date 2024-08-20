@@ -224,7 +224,6 @@ class BaseEnvironment(gym.Env):
             'shaped': reward.ShapedRewardCalculator,
             'semi_sparse': reward.SemiSparseRewardCalculator,
             'sparse': reward.SparseRewardCalculator,
-            'shaped_with_group': reward.ShapedRewardCalculatorGroup,
             # Add other mappings as needed
         }
         return reward_calculator_mapping[reward_type]
@@ -551,7 +550,7 @@ class BaseEnvironment(gym.Env):
             'current_meal_plan': current_meal_plan
         }
         
-        if self.reward_dict['preference_score']:
+        if 'preference_score' in self.reward_dict.keys():
             info['preference_score'] = self.reward_dict['preference_score']
 
         return info
@@ -724,7 +723,7 @@ register(
 )
 
 register(
-    id='SchoolMealSelection-v3',
+    id='SchoolMealSelection-v2',
     entry_point='models.envs.env:SchoolMealSelectionDiscretePotentialReward',
     max_episode_steps=200
 )
@@ -739,9 +738,9 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_update_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO'):
-        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo)
-
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
+        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma)
+        
         self.step_to_reward = self.calculate_step_to_reward()
         
     def initialize_action_space(self) -> None:
@@ -830,8 +829,10 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
             if value > 0.01 or value < -0.01:
                 if self.current_selection[idx] > 0:
                     count += 1
-                    
-        distance = count / number_of_selected_ingredients
+        if number_of_selected_ingredients == 0:
+            distance = 0
+        else:        
+            distance = count / number_of_selected_ingredients
         return distance
             
 
@@ -845,9 +846,9 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_update_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', max_episode_steps: int = 100, algo: str = 'PPO'):
-        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, max_episode_steps, algo)
-
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
+        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma)
+        
         self.step_to_reward = self.calculate_step_to_reward()
         
     def initialize_action_space(self) -> None:
@@ -1198,7 +1199,7 @@ if __name__ == '__main__':
         vecnorm_norm_obs_keys = None
         ingredient_df = get_data("data.csv")
         seed = 10
-        env_name = 'SchoolMealSelection-v3'
+        env_name = 'SchoolMealSelection-v2'
         initialization_strategy = 'zero'
         # vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
         vecnorm_norm_obs_keys = ['current_selection_value']

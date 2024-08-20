@@ -197,7 +197,7 @@ class Args:
     vecnorm_epsilon = 1e-8 
     ingredient_df = get_data("data.csv")
     seed = 22
-    env_name = 'SchoolMealSelection-v3'
+    env_name = 'SchoolMealSelection-v2'
     initialization_strategy = 'zero'
     # vecnorm_norm_obs_keys = ['current_selection_value', 'cost', 'consumption', 'co2_g', 'nutrients']
     vecnorm_norm_obs_keys = ['current_selection_value']
