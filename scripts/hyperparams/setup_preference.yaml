@@ -8,7 +8,7 @@ num_envs: 8
 
 render_mode: null
 data_name: 'data'
-total_timesteps: 200000
+total_timesteps: 250000
 save_freq: 100000
 
 log_dir: saved_models/tensorboard
@@ -18,18 +18,18 @@ hyperparams_dir: saved_models/hyperparams
 reward_dir: saved_models/reward
 
 
-log_prefix: report1
+log_prefix: test1
 save_prefix: null
 best_prefix: null
 hyperparams_prefix: null
 reward_prefix: null
 
 
-reward_type: 'shaped_with_group'
+reward_type: 'shaped'
 reward_save_interval: 10000
 initialization_strategy: 'zero'
 plot_reward_history: false
-eval_freq: 5000
+eval_freq: 10000
 seed: null
 device: auto
 memory_monitor: false

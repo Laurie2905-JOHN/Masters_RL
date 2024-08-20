@@ -797,7 +797,7 @@ class RLMenuGenerator(BaseMenuGenerator):
                         info['ingredient_group_count'],
                         info['ingredient_environment_count'],
                         info['cost'],
-                        info['co2'],
+                        info['co2e_g'],
                         info['group_portions'],
                         info['preference_score'],
                         info['current_meal_plan'],
@@ -944,7 +944,7 @@ class RLMenuGenerator(BaseMenuGenerator):
             with open(json_filename, 'w') as json_file:
                 json.dump(existing_data, json_file, indent=4)
 
-    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, final_meal_plan_filename: str = 'NA', save_paths: Dict = None, week=0, day=0) -> Dict[str, str]:
+    def generate_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, plot_flag: bool = False, final_meal_plan_filename: str = 'NA', save_paths: Dict = None, week=0, day=0) -> Dict[str, str]:
         if self.generated_count > self.menu_plan_length:
             print(f"\nGenerated {self.menu_plan_length} meal plans, resetting ingredients.")
             self.reset_ingredients()
@@ -961,7 +961,8 @@ class RLMenuGenerator(BaseMenuGenerator):
         predictions = self.evaluate_model(model, eval_env, num_episodes, deterministic=True)
 
         # Plot and save the results
-        self.plot_results(predictions, num_episodes, save_paths, week, day)
+        if plot_flag:
+            self.plot_results(predictions, num_episodes, save_paths, week, day)
 
         # Generate the final meal plan
         final_meal_plan = self.get_final_meal_plan(predictions)
@@ -974,7 +975,10 @@ class RLMenuGenerator(BaseMenuGenerator):
         
         self.generated_count += 1
         
-        return list(final_meal_plan.keys())
+        # Empyty score for now
+        score = {}
+        
+        return final_meal_plan, score
     
         
         
