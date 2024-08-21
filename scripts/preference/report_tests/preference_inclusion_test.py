@@ -16,6 +16,7 @@ from models.preferences.random_menu_eval import MenuEvaluator
 import numpy as np
 import json
 import time
+from models.preferences.utility_calculator import MenuUtilityCalculator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -38,7 +39,7 @@ run_data_dir = os.path.join(data_dir, f'run_{run_number}')
 run_graphs_dir = os.path.join(graphs_dir, f'run_{run_number}')
 os.makedirs(run_data_dir, exist_ok=True)
 os.makedirs(run_graphs_dir, exist_ok=True)
-
+json_path = os.path.join(run_data_dir, "menu_utilities_simple")
 # Complex weight function arguments
 complex_weight_func_args = {
     'use_normalize_total_voting_weight': False,
@@ -49,7 +50,7 @@ complex_weight_func_args = {
     'target_gini': 0.15,
 }
 
-initial_split = 0.95
+initial_split = 1
 menu_plan_length = 10
 
 def run_menu_generation(seed):
@@ -95,9 +96,13 @@ def run_menu_generation(seed):
 
     # Generate and evaluate menus, store results
     results = {}
-    for menu_plan_num in range(menu_plan_length):
-        results[menu_plan_num] = {}
-        for name, generator in menu_generators.items():
+    
+    for name, generator in menu_generators.items():
+        
+        utility_calculator = MenuUtilityCalculator(true_child_preference_data, child_feature_data, menu_plan_length=menu_plan_length, save_to_json=f"{json_path}_generator_{name}_split_1_seed_{str(seed)}.json")
+        results[name] = {}
+        
+        for menu_plan_num in range(menu_plan_length):
             
             print(f"Running {name} menu generator for menu plan {menu_plan_num}")
             
@@ -135,21 +140,25 @@ def run_menu_generation(seed):
             # Evaluate the menu plan and calculate the reward
             reward, info = evaluator.select_ingredients(menu_plan)
             
-            print(info)
-            
             if 'without_preference' in name:
                 # If without preference the reward does not include the preference score and for comparison it should. Not included in objective function though
                 reward = np.dot([info['reward']['nutrient_score'], info['reward']['cost_score'], info['reward']['co2_score'], info['reward']['environment_score'], info['reward']['preference_score']],[2, 1, 1, 1, 1]) / 6
 
             # Store the results including time taken and reward
-            results[menu_plan_num][name] = {
+            results[name][menu_plan_num] = {
                 'info': info,
                 'reward': reward,
                 'time_taken': time_taken
             }
+            
+            _ = utility_calculator.calculate_day_menu_utility(updated_known_and_predicted_preferences, list(menu_plan.keys()))
 
             print(f"{name} menu plan generated in {time_taken:.2f} seconds with a reward of {reward}")
 
+        utility_results = utility_calculator.close()
+        
+        results[name]["utility_results"] = utility_results
+        
     return results
 
 def main():

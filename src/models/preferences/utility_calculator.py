@@ -193,7 +193,9 @@ class MenuUtilityCalculator:
         # Restore previous day utilities
         self.previous_day_predicted_utilities = {child: self.previous_day_predicted_utilities[child] for child in self.child_feature_data.keys()}
         self.previous_day_true_utilities = {child: self.previous_day_true_utilities[child] for child in self.child_feature_data.keys()}
-
+        
+        return data_to_save
+    
     def sum_and_sort_utilities_across_days(self, utilities: Dict[int, Dict[str, float]]) -> List[Tuple[str, float]]:
         """
         Sum utilities across days and sort them.
@@ -239,11 +241,6 @@ class MenuUtilityCalculator:
         Close the calculator, saving the data to a JSON file if specified.
         Returns utilities.
         """
-        self.reset_utilities_and_save()
+        data_to_save = self.reset_utilities_and_save()
 
-        return {
-            "true_raw_utility": self.true_raw_utility,
-            "predicted_raw_utility": self.predicted_raw_utility,
-            "true_utility": self.true_utility,
-            "predicted_utility": self.predicted_utility,
-        }
+        return data_to_save

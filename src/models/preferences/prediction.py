@@ -377,9 +377,9 @@ class PreferenceModel:
                 total_true_preferences.append(batch_labels[i])
 
 
-        # Optionally, you can log the classification report as well
-        total_class_report = classification_report(total_true_preferences, total_predicted_preferences)
-        logging.info(f"Total Classification Report:\n{total_class_report}")
+        # # Optionally, you can log the classification report as well
+        # total_class_report = classification_report(total_true_preferences, total_predicted_preferences)
+        # logging.info(f"Total Classification Report:\n{total_class_report}")
 
         # Update preferences with the predictions
         updated_preferences = self.update_preferences_with_predictions(child_predictions)
@@ -391,24 +391,34 @@ class PreferenceModel:
         """
         Update preferences with the model predictions.
         """
+        
         child_predictions_update = {}
         for child, values in child_predictions.items():
-            child_predictions_update[child] = self.label_encoder.inverse_transform(values)
+            if not values:  # Check if the list is empty
+                child_predictions_update[child] = []  # Assign an empty list if no predictions
+            else:
+                child_predictions_update[child] = self.label_encoder.inverse_transform(values)
         
         updated_preferences = {}
+        
         for child, preferences in self.ml_child_preferences.items():
-
-            if child not in updated_preferences:
+            
+            # Access preferences directly to raise an error if the keys are not found
+            try:
                 updated_preferences[child] = {
-                    'likes': preferences.get('likes', []),
-                    'neutral': preferences.get('neutral', []),
-                    'dislikes': preferences.get('dislikes', [])
+                    'likes': preferences['likes'],
+                    'neutral': preferences['neutral'],
+                    'dislikes': preferences['dislikes'],
                 }
+            except KeyError as e:
+                raise KeyError(f"Key '{e.args[0]}' is missing in the preferences for child '{child}'.")
+            
+            if len(child_predictions_update[child]) > 0:  # Check if there are any predictions
+                if isinstance(child_predictions_update[child][0], int):
+                    child_predictions_update[child] = self.label_encoder.inverse_transform(child_predictions_update[child])
                 
-            if isinstance(child_predictions_update['child1'][0], int):
-                child_predictions_update[child] = self.label_encoder.inverse_transform(child_predictions_update[child])
-                
-            for ingredient, pred in zip(preferences['unknown'], child_predictions_update[child]):
-                updated_preferences[child][pred].append(ingredient)
+                for ingredient, pred in zip(preferences.get('unknown', []), child_predictions_update[child]):
+                    updated_preferences[child][pred].append(ingredient)
 
         return updated_preferences
+
