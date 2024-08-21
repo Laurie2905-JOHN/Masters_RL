@@ -14,8 +14,7 @@ from models.preferences.voting import IngredientNegotiator
 from models.preferences.menu_generators import RandomMenuGenerator, RLMenuGenerator
 from models.preferences.random_menu_eval import MenuEvaluator
 import numpy as np
-import json
-import time
+import sys
 from models.preferences.utility_calculator import MenuUtilityCalculator
 
 # Configure logging
@@ -40,6 +39,7 @@ run_graphs_dir = os.path.join(graphs_dir, f'run_{run_number}')
 os.makedirs(run_data_dir, exist_ok=True)
 os.makedirs(run_graphs_dir, exist_ok=True)
 json_path = os.path.join(run_data_dir, "menu_utilities_simple")
+
 # Complex weight function arguments
 complex_weight_func_args = {
     'use_normalize_total_voting_weight': False,
@@ -51,7 +51,27 @@ complex_weight_func_args = {
 }
 
 initial_split = 1
-menu_plan_length = 10
+menu_plan_length = 5
+
+# Global start time to monitor execution duration
+global_start_time = time.time()
+
+def save_intermediate_results(results, seed):
+    class NumpyEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, np.float32):
+                return float(obj)
+            if isinstance(obj, np.int32):
+                return int(obj)
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+            return super(NumpyEncoder, self).default(obj)
+    
+    # Save results to a file
+    with open(os.path.join(run_data_dir, f'intermediate_results_seed_{seed}.json'), 'w') as f:
+        json.dump(results, f, cls=NumpyEncoder)
+    
+    logging.info(f"Intermediate results saved for seed {seed}.")
 
 def run_menu_generation(seed):
     # Load data
@@ -85,13 +105,12 @@ def run_menu_generation(seed):
     negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
 
     menu_generators = {
-        # Doesnt matter if include preference is included in the random menu generator as it wont change anything
-        "random_random": RandomMenuGenerator(evaluator=evaluator, include_preference = True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
-        "random_refined": RandomMenuGenerator(evaluator=evaluator, include_preference = True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
-        "genetic_with_preference": RandomMenuGenerator(evaluator=evaluator, include_preference = True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
-        "genetic_without_preference": RandomMenuGenerator(evaluator=evaluator, include_preference = False, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
-        "RL_with_preference": RLMenuGenerator(ingredient_df, include_preference = True, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
-        "RL_without_preference": RLMenuGenerator(ingredient_df, include_preference = False, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
+        "random_random": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+        "random_refined": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+        "genetic_with_preference": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+        "genetic_without_preference": RandomMenuGenerator(evaluator=evaluator, include_preference=False, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+        "RL_with_preference": RLMenuGenerator(ingredient_df, include_preference=True, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
+        "RL_without_preference": RLMenuGenerator(ingredient_df, include_preference=False, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
     }
 
     # Generate and evaluate menus, store results
@@ -104,7 +123,7 @@ def run_menu_generation(seed):
         
         for menu_plan_num in range(menu_plan_length):
             
-            print(f"Running {name} menu generator for menu plan {menu_plan_num}")
+            logging.info(f"Running {name} menu generator for menu plan {menu_plan_num}")
             
             # Start timing
             start_time = time.time()
@@ -153,7 +172,7 @@ def run_menu_generation(seed):
             
             _ = utility_calculator.calculate_day_menu_utility(updated_known_and_predicted_preferences, list(menu_plan.keys()))
 
-            print(f"{name} menu plan generated in {time_taken:.2f} seconds with a reward of {reward}")
+            logging.info(f"{name} menu plan generated in {time_taken:.2f} seconds with a reward of {reward}")
 
         utility_results = utility_calculator.close()
         
@@ -164,10 +183,24 @@ def run_menu_generation(seed):
 def main():
     all_results = []
     seed = random.randint(0, int(1e6))
-    for i in range(10):
-        iteration_results = run_menu_generation(seed)
-        all_results.append(iteration_results)
+    try:
+        for i in range(10):
+            iteration_results = run_menu_generation(seed)
+            all_results.append(iteration_results)
 
+            # Check elapsed time
+            elapsed_time = time.time() - global_start_time
+            if elapsed_time > 47.5 * 3600:
+                logging.warning("Approaching time limit, saving intermediate results.")
+                save_intermediate_results(all_results, seed)
+                break
+
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        save_intermediate_results(all_results, seed)
+        sys.exit(1)
+
+    # Final save of all results
     class NumpyEncoder(json.JSONEncoder):
         def default(self, obj):
             if isinstance(obj, np.float32):
@@ -178,9 +211,10 @@ def main():
                 return obj.tolist()
             return super(NumpyEncoder, self).default(obj)
 
-    # Save all results using the custom encoder
     with open(os.path.join(run_data_dir, 'all_results.json'), 'w') as f:
         json.dump(all_results, f, cls=NumpyEncoder)
     
+    logging.info("Final results saved.")
+
 if __name__ == "__main__":
     main()

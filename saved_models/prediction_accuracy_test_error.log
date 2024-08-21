@@ -1,0 +1,296 @@
+2024-08-21 13:13:25.750196: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-08-21 13:13:41.985959: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/numpy/lib/function_base.py:520: RuntimeWarning: Mean of empty slice.
+  avg = a.mean(axis, **keepdims_kw)
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/numpy/core/_methods.py:129: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+2024-08-21 13:14:08,468 - INFO - Calculating utilities for meal plan #1: ['Courgettes', 'Mango', 'Sunflower seeds', 'Pasta wholemeal', 'Mozzarella', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 13:14:08,469 - INFO - Daily Gini coefficients for day 1: {'true_gini': 1.0041666666666667, 'predicted_gini': 1.0041666666666667}
+2024-08-21 13:14:08,493 - INFO - Calculating utilities for meal plan #2: ['Lettuces (generic)', 'Nectarines', 'Tuna', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 13:14:08,494 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.6017064846416382, 'predicted_gini': 0.6017064846416382}
+2024-08-21 13:14:08,517 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Limes', 'Sea bass', 'Buckwheat', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 13:14:08,518 - INFO - Daily Gini coefficients for day 3: {'true_gini': 1.1596273291925463, 'predicted_gini': 1.1596273291925463}
+2024-08-21 13:14:08,539 - INFO - Calculating utilities for meal plan #4: ['Brussels sprouts', 'Coconuts', 'Peanuts', 'Rice grain brown', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 13:14:08,540 - INFO - Daily Gini coefficients for day 4: {'true_gini': -26.45757575757576, 'predicted_gini': -26.45757575757576}
+2024-08-21 13:14:08,565 - INFO - Calculating utilities for meal plan #5: ['Curly kales', 'Rhubarbs', 'Lamb fresh meat', 'Couscous', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 13:14:08,566 - INFO - Daily Gini coefficients for day 5: {'true_gini': 1.8474926253687316, 'predicted_gini': 1.8474926253687316}
+2024-08-21 13:14:08,570 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-21 13:15:03,175 - INFO - Calculating utilities for meal plan #1: ['Courgettes', 'Mango', 'Sunflower seeds', 'Pasta wholemeal', 'Mozzarella', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 13:15:03,176 - INFO - Daily Gini coefficients for day 1: {'true_gini': 1.0041666666666667, 'predicted_gini': 1.0041666666666667}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-21 13:15:58,131 - INFO - Calculating utilities for meal plan #2: ['Lettuces (generic)', 'Nectarines', 'Tuna', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 13:15:58,132 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.6017064846416382, 'predicted_gini': 0.6017064846416382}
+2024-08-21 13:16:55,913 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Limes', 'Sea bass', 'Buckwheat', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 13:16:55,914 - INFO - Daily Gini coefficients for day 3: {'true_gini': 1.1596273291925463, 'predicted_gini': 1.1596273291925463}
+2024-08-21 13:17:53,608 - INFO - Calculating utilities for meal plan #4: ['Brussels sprouts', 'Coconuts', 'Peanuts', 'Rice grain brown', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 13:17:53,609 - INFO - Daily Gini coefficients for day 4: {'true_gini': -26.45757575757576, 'predicted_gini': -26.45757575757576}
+2024-08-21 13:18:52,682 - INFO - Calculating utilities for meal plan #5: ['Curly kales', 'Rhubarbs', 'Lamb fresh meat', 'Couscous', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 13:18:52,683 - INFO - Daily Gini coefficients for day 5: {'true_gini': 1.8474926253687316, 'predicted_gini': 1.8474926253687316}
+2024-08-21 13:18:52,690 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-21 13:23:07,437 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 13:23:07,437 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.24429824561403501, 'predicted_gini': 0.24429824561403501}
+2024-08-21 13:27:12,611 - INFO - Calculating utilities for meal plan #2: ['Peas', 'Common banana', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 13:27:12,612 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.06646706586826334, 'predicted_gini': 0.06646706586826334}
+2024-08-21 13:31:19,343 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Oranges sweet', 'Anchovies', 'Couscous', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 13:31:19,344 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.2680059523809524, 'predicted_gini': 0.2680059523809524}
+2024-08-21 13:35:26,883 - INFO - Calculating utilities for meal plan #4: ['Swedes', 'Nectarines', 'Chickpeas (dry)', 'Noodles', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 13:35:26,884 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.11465594280607672, 'predicted_gini': 0.11465594280607672}
+2024-08-21 13:39:28,105 - INFO - Calculating utilities for meal plan #5: ['Leeks', 'Plums', 'Mackerel', 'Pasta wholemeal', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 13:39:28,107 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.2027426160337551, 'predicted_gini': 0.2027426160337551}
+2024-08-21 13:39:28,114 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 13:59:12,018 - INFO - Calculating utilities for meal plan #1: ['Common banana', 'Kidney bean', 'Sweet potatoes', 'Tomatoes', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-21 13:59:12,018 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.24429824561403501, 'predicted_gini': 0.24429824561403501}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 14:19:26,812 - INFO - Calculating utilities for meal plan #2: ['Chickpeas (dry)', 'Couscous', 'Cow milk skimmed (low fat)', 'Peas', 'Strawberries', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 14:19:26,813 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.29271402550091064, 'predicted_gini': 0.29271402550091064}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 14:38:17,308 - INFO - Calculating utilities for meal plan #3: ['Nectarines', 'Pasta plain (not stuffed) uncooked', 'Radishes', 'Shrimps and prawns', 'Sour cream', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 14:38:17,310 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.13995859213250506, 'predicted_gini': 0.13995859213250506}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 14:58:44,344 - INFO - Calculating utilities for meal plan #4: ['Apples', 'Celeries', 'Cow milk semi skimmed (half fat)', 'Mackerel', 'Rice grain long-grain', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 14:58:44,345 - INFO - Daily Gini coefficients for day 4: {'true_gini': 1.0999999999999999, 'predicted_gini': 1.0999999999999999}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 15:18:22,816 - INFO - Calculating utilities for meal plan #5: ['Carrots', 'Noodles', 'Plums', 'Tuna', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk plain']
+2024-08-21 15:18:22,817 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.059829059829059617, 'predicted_gini': 0.059829059829059617}
+2024-08-21 15:18:22,829 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-21 15:18:29,774 - INFO - Calculating utilities for meal plan #1: ['Common mushrooms', 'Mango', 'Sunflower seeds', 'Potatoes', 'Mozzarella', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:18:29,775 - INFO - Daily Gini coefficients for day 1: {'true_gini': -2.805128205128205, 'predicted_gini': -1.7666666666666666}
+2024-08-21 15:18:29,790 - INFO - Calculating utilities for meal plan #2: ['Leeks', 'Nectarines', 'Trouts', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:18:29,790 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.2558518518518518, 'predicted_gini': 0.21119177253478516}
+2024-08-21 15:18:29,805 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Oranges sweet', 'Sea bass', 'Couscous', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:18:29,806 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.3058737151248163, 'predicted_gini': 0.17305936073059347}
+2024-08-21 15:18:29,821 - INFO - Calculating utilities for meal plan #4: ['Broccoli', 'Coconuts', 'Peanuts', 'Pasta wholemeal', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:18:29,822 - INFO - Daily Gini coefficients for day 4: {'true_gini': 2.96036036036036, 'predicted_gini': -4.233333333333333}
+2024-08-21 15:18:29,837 - INFO - Calculating utilities for meal plan #5: ['Cucumber', 'Strawberries', 'Lamb fresh meat', 'Buckwheat', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:18:29,838 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.5872881355932202, 'predicted_gini': 0.6068432671081676}
+2024-08-21 15:18:29,841 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-21 15:19:06,082 - INFO - Calculating utilities for meal plan #1: ['Common mushrooms', 'Mango', 'Sunflower seeds', 'Potatoes', 'Mozzarella', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:19:06,083 - INFO - Daily Gini coefficients for day 1: {'true_gini': -2.805128205128205, 'predicted_gini': -1.7666666666666666}
+2024-08-21 15:19:44,148 - INFO - Calculating utilities for meal plan #2: ['Leeks', 'Nectarines', 'Trouts', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:19:44,149 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.2558518518518518, 'predicted_gini': 0.21119177253478516}
+2024-08-21 15:20:22,593 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Oranges sweet', 'Sea bass', 'Couscous', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:20:22,594 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.3058737151248163, 'predicted_gini': 0.17305936073059347}
+2024-08-21 15:21:11,299 - INFO - Calculating utilities for meal plan #4: ['Broccoli', 'Coconuts', 'Peanuts', 'Pasta wholemeal', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:21:11,300 - INFO - Daily Gini coefficients for day 4: {'true_gini': 2.96036036036036, 'predicted_gini': -4.233333333333333}
+2024-08-21 15:21:49,737 - INFO - Calculating utilities for meal plan #5: ['Cucumber', 'Strawberries', 'Lamb fresh meat', 'Buckwheat', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:21:49,738 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.5872881355932202, 'predicted_gini': 0.6068432671081676}
+2024-08-21 15:21:49,741 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-21 15:25:47,493 - INFO - Calculating utilities for meal plan #1: ['Swedes', 'Table grapes', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:25:47,494 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.04014336917562722, 'predicted_gini': 0.1098966829798802}
+2024-08-21 15:29:44,751 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Apples', 'Shrimps and prawns', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:29:44,752 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.4006864988558352, 'predicted_gini': 0.25041113219481326}
+2024-08-21 15:33:39,574 - INFO - Calculating utilities for meal plan #3: ['Peas', 'Raspberries', 'Chickpeas (dry)', 'Pasta plain (not stuffed) uncooked', 'Sour cream', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:33:39,575 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.4551351351351349, 'predicted_gini': 0.27359882005899694}
+2024-08-21 15:37:50,416 - INFO - Calculating utilities for meal plan #4: ['Sweet corn', 'Common banana', 'Trouts', 'Potatoes', 'Cow milk whole', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:37:50,417 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.319047619047619, 'predicted_gini': 0.39586056644880174}
+2024-08-21 15:42:23,984 - INFO - Calculating utilities for meal plan #5: ['Chili peppers', 'Nectarines', 'Pumpkin seeds', 'Pasta wholemeal', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 15:42:23,985 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.873015873015873, 'predicted_gini': 1.1081031307550642}
+2024-08-21 15:42:23,991 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 16:00:49,337 - INFO - Calculating utilities for meal plan #1: ['Kidney bean', 'Oranges sweet', 'Sweet potatoes', 'Tomatoes', 'Wheat bread and rolls brown or wholemeal', 'Yoghurt cow milk flavoured']
+2024-08-21 16:00:49,338 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.02780656303972351, 'predicted_gini': 0.1098966829798802}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 16:20:58,101 - INFO - Calculating utilities for meal plan #2: ['Anchovies', 'Couscous', 'Leeks', 'Sour cream', 'Table grapes', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 16:20:58,102 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.41377551020408143, 'predicted_gini': 0.26071684587813615}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 16:42:20,606 - INFO - Calculating utilities for meal plan #3: ['Carrots', 'Creme fraiche cheese', 'Duck fresh meat', 'Pasta plain (not stuffed) uncooked', 'Watermelons', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 16:42:20,607 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.18042328042328037, 'predicted_gini': 0.2769017980636237}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 17:03:29,680 - INFO - Calculating utilities for meal plan #4: ['Chickpeas (dry)', 'Common banana', 'Cow milk semi skimmed (half fat)', 'Noodles', 'Sweet corn', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:03:29,681 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.4551351351351349, 'predicted_gini': 0.34801223241590207}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 17:23:20,706 - INFO - Calculating utilities for meal plan #5: ['Cow milk skimmed (low fat)', 'Peas', 'Potatoes', 'Shrimps and prawns', 'Strawberries', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:23:20,707 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.669855072463768, 'predicted_gini': 0.6445614035087719}
+2024-08-21 17:23:20,719 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-21 17:23:30,741 - INFO - Calculating utilities for meal plan #1: ['Common mushrooms', 'Nectarines', 'Sunflower seeds', 'Potatoes', 'Mozzarella', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:23:30,742 - INFO - Daily Gini coefficients for day 1: {'true_gini': -2.805128205128205, 'predicted_gini': -2.7199376947040497}
+2024-08-21 17:23:30,763 - INFO - Calculating utilities for meal plan #2: ['Leeks', 'Oranges sweet', 'Trouts', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:23:30,764 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.2558518518518518, 'predicted_gini': 0.27165242165242165}
+2024-08-21 17:23:30,785 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Papayas', 'Sea bass', 'Couscous', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:23:30,786 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.3058737151248163, 'predicted_gini': 0.29986052998605284}
+2024-08-21 17:23:30,809 - INFO - Calculating utilities for meal plan #4: ['Broccoli', 'Coconuts', 'Peanuts', 'Pasta wholemeal', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:23:30,810 - INFO - Daily Gini coefficients for day 4: {'true_gini': 2.96036036036036, 'predicted_gini': 2.9570175438596493}
+2024-08-21 17:23:30,830 - INFO - Calculating utilities for meal plan #5: ['Cucumber', 'Strawberries', 'Lamb fresh meat', 'Buckwheat', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:23:30,832 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.5872881355932202, 'predicted_gini': 0.6190672153635115}
+2024-08-21 17:23:30,836 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-21 17:24:14,438 - INFO - Calculating utilities for meal plan #1: ['Common mushrooms', 'Nectarines', 'Sunflower seeds', 'Potatoes', 'Mozzarella', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:24:14,439 - INFO - Daily Gini coefficients for day 1: {'true_gini': -2.805128205128205, 'predicted_gini': -2.7199376947040497}
+2024-08-21 17:24:56,999 - INFO - Calculating utilities for meal plan #2: ['Leeks', 'Oranges sweet', 'Trouts', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:24:57,000 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.2558518518518518, 'predicted_gini': 0.27165242165242165}
+2024-08-21 17:25:39,901 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Papayas', 'Sea bass', 'Couscous', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:25:39,902 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.3058737151248163, 'predicted_gini': 0.29986052998605284}
+2024-08-21 17:26:23,515 - INFO - Calculating utilities for meal plan #4: ['Broccoli', 'Coconuts', 'Peanuts', 'Pasta wholemeal', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:26:23,517 - INFO - Daily Gini coefficients for day 4: {'true_gini': 2.96036036036036, 'predicted_gini': 2.9570175438596493}
+2024-08-21 17:27:03,807 - INFO - Calculating utilities for meal plan #5: ['Cucumber', 'Strawberries', 'Lamb fresh meat', 'Buckwheat', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 17:27:03,808 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.5872881355932202, 'predicted_gini': 0.6190672153635115}
+2024-08-21 17:27:03,812 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-21 17:31:16,521 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 17:31:16,522 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.24429824561403501, 'predicted_gini': 0.22579710144927523}
+2024-08-21 17:35:45,207 - INFO - Calculating utilities for meal plan #2: ['Peas', 'Common banana', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 17:35:45,208 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.15773333333333328, 'predicted_gini': 0.11132561132561114}
+2024-08-21 17:40:11,045 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Pears', 'Chickpeas (dry)', 'Noodles', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 17:40:11,046 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.12266666666666648, 'predicted_gini': 0.10648567119155339}
+2024-08-21 17:44:38,723 - INFO - Calculating utilities for meal plan #4: ['Swedes', 'Oranges sweet', 'Anchovies', 'Couscous', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 17:44:38,724 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.07996794871794854, 'predicted_gini': 0.0669172932330826}
+2024-08-21 17:48:38,184 - INFO - Calculating utilities for meal plan #5: ['Tomatoes', 'Nectarines', 'Mackerel', 'New potatoes', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 17:48:38,185 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.25855855855855836, 'predicted_gini': 0.25390476190476186}
+2024-08-21 17:48:38,190 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 18:07:49,236 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Chicken fresh meat', 'Common banana', 'Creme fraiche cheese', 'Noodles', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 18:07:49,237 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.29459029435163075, 'predicted_gini': 0.29984089101034206}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 18:27:21,183 - INFO - Calculating utilities for meal plan #2: ['Chickpeas (dry)', 'Couscous', 'Pepper', 'Watermelons', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-21 18:27:21,184 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.1974231088944305, 'predicted_gini': 0.23637747336377468}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 18:46:01,546 - INFO - Calculating utilities for meal plan #3: ['Courgettes', 'Cow milk whole', 'Kidney bean', 'Limes', 'Sweet potatoes', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 18:46:01,547 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.18828420256991674, 'predicted_gini': 0.16490299823633148}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 19:06:32,540 - INFO - Calculating utilities for meal plan #4: ['Chili peppers', 'Cow milk skimmed (low fat)', 'Lentils (dry)', 'Nectarines', 'Pasta plain (not stuffed) uncooked', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 19:06:32,542 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.1423245614035087, 'predicted_gini': 0.12529474812433006}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 19:28:45,122 - INFO - Calculating utilities for meal plan #5: ['Apples', 'Onions', 'Rice grain', 'Shrimps and prawns', 'Traditional margarine', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 19:28:45,122 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.19941812136325843, 'predicted_gini': 0.24808743169398895}
+2024-08-21 19:28:45,129 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/numpy/lib/function_base.py:520: RuntimeWarning: Mean of empty slice.
+  avg = a.mean(axis, **keepdims_kw)
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/numpy/core/_methods.py:129: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+2024-08-21 19:28:51,058 - INFO - Calculating utilities for meal plan #1: ['Courgettes', 'Mango', 'Sunflower seeds', 'Rice grain brown', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 19:28:51,059 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.7810720268006699, 'predicted_gini': 0.7810720268006699}
+2024-08-21 19:28:51,074 - INFO - Calculating utilities for meal plan #2: ['Lettuces (generic)', 'Nectarines', 'Tuna', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 19:28:51,074 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.9319176319176319, 'predicted_gini': 0.9319176319176319}
+2024-08-21 19:28:51,090 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Limes', 'Sea bass', 'Buckwheat', 'Mozzarella', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 19:28:51,090 - INFO - Daily Gini coefficients for day 3: {'true_gini': 4.2903381642512075, 'predicted_gini': 4.2903381642512075}
+2024-08-21 19:28:51,106 - INFO - Calculating utilities for meal plan #4: ['Brussels sprouts', 'Coconuts', 'Peanuts', 'Pasta wholemeal', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 19:28:51,106 - INFO - Daily Gini coefficients for day 4: {'true_gini': 2.96036036036036, 'predicted_gini': 2.96036036036036}
+2024-08-21 19:28:51,122 - INFO - Calculating utilities for meal plan #5: ['Curly kales', 'Rhubarbs', 'Lamb fresh meat', 'Pasta plain (not stuffed) uncooked', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 19:28:51,123 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.9503401360544217, 'predicted_gini': 0.9503401360544217}
+2024-08-21 19:28:51,214 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-21 19:29:30,279 - INFO - Calculating utilities for meal plan #1: ['Courgettes', 'Mango', 'Sunflower seeds', 'Rice grain brown', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 19:29:30,280 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.7810720268006699, 'predicted_gini': 0.7810720268006699}
+2024-08-21 19:30:09,182 - INFO - Calculating utilities for meal plan #2: ['Lettuces (generic)', 'Nectarines', 'Tuna', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 19:30:09,215 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.9319176319176319, 'predicted_gini': 0.9319176319176319}
+2024-08-21 19:31:00,557 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Limes', 'Sea bass', 'Buckwheat', 'Mozzarella', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 19:31:00,558 - INFO - Daily Gini coefficients for day 3: {'true_gini': 4.2903381642512075, 'predicted_gini': 4.2903381642512075}
+2024-08-21 19:31:40,161 - INFO - Calculating utilities for meal plan #4: ['Brussels sprouts', 'Coconuts', 'Peanuts', 'Pasta wholemeal', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 19:31:40,162 - INFO - Daily Gini coefficients for day 4: {'true_gini': 2.96036036036036, 'predicted_gini': 2.96036036036036}
+2024-08-21 19:32:19,578 - INFO - Calculating utilities for meal plan #5: ['Curly kales', 'Rhubarbs', 'Lamb fresh meat', 'Pasta plain (not stuffed) uncooked', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 19:32:19,579 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.9503401360544217, 'predicted_gini': 0.9503401360544217}
+2024-08-21 19:32:19,609 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-21 19:36:11,997 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 19:36:11,998 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.24429824561403501, 'predicted_gini': 0.24429824561403501}
+2024-08-21 19:40:01,774 - INFO - Calculating utilities for meal plan #2: ['Sweet corn', 'Common banana', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 19:40:01,775 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.06646706586826334, 'predicted_gini': 0.06646706586826334}
+2024-08-21 19:43:56,026 - INFO - Calculating utilities for meal plan #3: ['Peas', 'Oranges sweet', 'Salmons', 'Couscous', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 19:43:56,027 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.19378531073446315, 'predicted_gini': 0.19378531073446315}
+2024-08-21 19:47:49,996 - INFO - Calculating utilities for meal plan #4: ['Swedes', 'Nectarines', 'Fish fingers breaded', 'Pasta wholemeal', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 19:47:49,997 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.3529577464788731, 'predicted_gini': 0.3529577464788731}
+2024-08-21 19:51:51,750 - INFO - Calculating utilities for meal plan #5: ['Leeks', 'Raspberries', 'Chickpeas (dry)', 'Rice grain long-grain', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 19:51:51,751 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.5542005420054199, 'predicted_gini': 0.5542005420054199}
+2024-08-21 19:51:51,783 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 20:11:54,082 - INFO - Calculating utilities for meal plan #1: ['Mackerel', 'Strawberries', 'Sweet potatoes', 'Turnips', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-21 20:11:54,083 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.3424242424242423, 'predicted_gini': 0.3424242424242423}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 20:31:11,687 - INFO - Calculating utilities for meal plan #2: ['Kidney bean', 'Nectarines', 'Pasta plain (not stuffed) uncooked', 'Peas', 'Sour cream', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 20:31:11,688 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.17773487773487773, 'predicted_gini': 0.17773487773487773}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 20:50:13,933 - INFO - Calculating utilities for meal plan #3: ['Coalfish', 'Common bean sprouts', 'Couscous', 'Cow milk skimmed (low fat)', 'Plums', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 20:50:13,934 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.6467236467236466, 'predicted_gini': 0.6467236467236466}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 21:09:31,930 - INFO - Calculating utilities for meal plan #4: ['Carrots', 'Cherries and similar-', 'Chicken fresh meat', 'Cow milk semi skimmed (half fat)', 'Pasta wholemeal', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 21:09:31,934 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.25243147656940756, 'predicted_gini': 0.25243147656940756}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 21:27:06,461 - INFO - Calculating utilities for meal plan #5: ['Apples', 'Buckwheat', 'Chickpeas (dry)', 'Mozzarella', 'Spinaches', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 21:27:06,465 - INFO - Daily Gini coefficients for day 5: {'true_gini': 6.758333333333334, 'predicted_gini': 6.758333333333334}
+2024-08-21 21:27:06,501 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-21 21:27:13,055 - INFO - Calculating utilities for meal plan #1: ['Courgettes', 'Mango', 'Sunflower seeds', 'Pasta wholemeal', 'Mozzarella', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 21:27:13,056 - INFO - Daily Gini coefficients for day 1: {'true_gini': 1.0041666666666667, 'predicted_gini': 1.5138461538461538}
+2024-08-21 21:27:13,070 - INFO - Calculating utilities for meal plan #2: ['Lettuces (generic)', 'Nectarines', 'Tuna', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 21:27:13,071 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.6017064846416382, 'predicted_gini': 0.4196891191709844}
+2024-08-21 21:27:13,085 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Limes', 'Sea bass', 'Buckwheat', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 21:27:13,086 - INFO - Daily Gini coefficients for day 3: {'true_gini': 1.1596273291925463, 'predicted_gini': 0.6097643097643097}
+2024-08-21 21:27:13,100 - INFO - Calculating utilities for meal plan #4: ['Brussels sprouts', 'Coconuts', 'Peanuts', 'Rice grain brown', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 21:27:13,101 - INFO - Daily Gini coefficients for day 4: {'true_gini': -26.45757575757576, 'predicted_gini': -3.034259259259259}
+2024-08-21 21:27:13,115 - INFO - Calculating utilities for meal plan #5: ['Curly kales', 'Rhubarbs', 'Lamb fresh meat', 'Couscous', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 21:27:13,116 - INFO - Daily Gini coefficients for day 5: {'true_gini': 1.8474926253687316, 'predicted_gini': 1.1368715083798884}
+2024-08-21 21:27:13,161 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-21 21:27:47,975 - INFO - Calculating utilities for meal plan #1: ['Courgettes', 'Mango', 'Sunflower seeds', 'Pasta wholemeal', 'Mozzarella', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 21:27:47,977 - INFO - Daily Gini coefficients for day 1: {'true_gini': 1.0041666666666667, 'predicted_gini': 1.5138461538461538}
+2024-08-21 21:28:19,278 - INFO - Calculating utilities for meal plan #2: ['Lettuces (generic)', 'Nectarines', 'Tuna', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 21:28:19,279 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.6017064846416382, 'predicted_gini': 0.4196891191709844}
+2024-08-21 21:28:50,660 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Limes', 'Sea bass', 'Buckwheat', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 21:28:50,660 - INFO - Daily Gini coefficients for day 3: {'true_gini': 1.1596273291925463, 'predicted_gini': 0.6097643097643097}
+2024-08-21 21:29:23,219 - INFO - Calculating utilities for meal plan #4: ['Brussels sprouts', 'Coconuts', 'Peanuts', 'Rice grain brown', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 21:29:23,220 - INFO - Daily Gini coefficients for day 4: {'true_gini': -26.45757575757576, 'predicted_gini': -3.034259259259259}
+2024-08-21 21:29:59,752 - INFO - Calculating utilities for meal plan #5: ['Curly kales', 'Rhubarbs', 'Lamb fresh meat', 'Couscous', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+2024-08-21 21:29:59,753 - INFO - Daily Gini coefficients for day 5: {'true_gini': 1.8474926253687316, 'predicted_gini': 1.1368715083798884}
+2024-08-21 21:29:59,797 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-21 21:33:52,382 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Sour cream', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 21:33:52,383 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.1244047619047619, 'predicted_gini': 0.11116427432216902}
+2024-08-21 21:37:40,729 - INFO - Calculating utilities for meal plan #2: ['Swedes', 'Common banana', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 21:37:40,730 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.3002530044275773, 'predicted_gini': 0.24282366725248972}
+2024-08-21 21:41:47,929 - INFO - Calculating utilities for meal plan #3: ['Peas', 'Nectarines', 'Fish fingers breaded', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 21:41:47,929 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.2987847222222222, 'predicted_gini': 0.19139551699204627}
+2024-08-21 21:46:01,756 - INFO - Calculating utilities for meal plan #4: ['Sweet corn', 'Raspberries', 'Chickpeas (dry)', 'Noodles', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 21:46:01,757 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.11844331641285955, 'predicted_gini': 0.2570075757575756}
+2024-08-21 21:50:07,086 - INFO - Calculating utilities for meal plan #5: ['Chili peppers', 'Oranges sweet', 'Mackerel', 'Pasta wholemeal', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 21:50:07,087 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.24976122254059208, 'predicted_gini': 0.21771561771561765}
+2024-08-21 21:50:07,128 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 22:07:34,370 - INFO - Calculating utilities for meal plan #1: ['Cherries and similar-', 'Kidney bean', 'Noodles', 'Sour cream', 'Sweet corn', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 22:07:34,371 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.17773487773487773, 'predicted_gini': 0.13481116584564856}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 22:25:49,843 - INFO - Calculating utilities for meal plan #2: ['Courgettes', 'Cow milk skimmed (low fat)', 'Lentils (dry)', 'Pasta wholemeal', 'Watermelons', 'Wheat bread and rolls white (refined flour)']
+2024-08-21 22:25:49,844 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.2970666666666666, 'predicted_gini': 0.6472972972972972}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-21 22:44:05,007 - INFO - Calculating utilities for meal plan #3: ['Common banana', 'Peas', 'Sea bass', 'Sweet potatoes', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-21 22:44:05,010 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.2295698924731182, 'predicted_gini': 0.21879502292075959}
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(

@@ -18,6 +18,8 @@ from models.preferences.utility_calculator import MenuUtilityCalculator
 import numpy as np
 import json
 import time
+import signal
+import sys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -56,6 +58,27 @@ menu_plan_length = 5
 
 prediction_accuracies_unknown = {}
 prediction_accuracies_std_total = {}
+
+# Global start time to monitor execution duration
+global_start_time = time.time()
+
+def save_intermediate_results(results, seed):
+    class NumpyEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, np.float32):
+                return float(obj)
+            if isinstance(obj, np.int32):
+                return int(obj)
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+            return super(NumpyEncoder, self).default(obj)
+    
+    # Save results to a file
+    with open(os.path.join(run_data_dir, f'intermediate_results_seed_{seed}.json'), 'w') as f:
+        json.dump(results, f, cls=NumpyEncoder)
+    
+    logging.info(f"Intermediate results saved for seed {seed}.")
+
 def run_menu_generation(seed):
     # Load data
     ingredient_df = get_data("data.csv")
@@ -63,7 +86,7 @@ def run_menu_generation(seed):
     
     results = {}
     
-    for split in [1, 0.1, 0.3]:
+    for split in [1, 0.3, 0.15, 0.05]:
         
         results[split] = {}
                 
@@ -109,8 +132,6 @@ def run_menu_generation(seed):
             "RL": RLMenuGenerator(ingredient_df, include_preference=True, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
         }
 
-
-
         for name, generator in menu_generators.items():
             
             utility_calculator = MenuUtilityCalculator(true_child_preference_data, child_feature_data, menu_plan_length=menu_plan_length, save_to_json=f"{json_path}_generator_{name}_split_{str(split)}_seed_{str(seed)}.json")
@@ -118,7 +139,7 @@ def run_menu_generation(seed):
             
             for menu_plan_num in range(menu_plan_length):
 
-                print(f"Running {name} menu generator for menu plan {menu_plan_num + 1}")
+                logging.info(f"Running {name} menu generator for menu plan {menu_plan_num + 1}")
                 
                 # Start timing
                 start_time = time.time()
@@ -163,7 +184,7 @@ def run_menu_generation(seed):
                     'time_taken': time_taken
                 }
 
-                print(f"{name} menu plan generated in {time_taken:.2f} seconds with a reward of {reward}")
+                logging.info(f"{name} menu plan generated in {time_taken:.2f} seconds with a reward of {reward}")
                 
             utility_results = utility_calculator.close()
             
@@ -174,10 +195,24 @@ def run_menu_generation(seed):
 def main():
     all_results = []
     seed = random.randint(0, int(1e6))
-    for i in range(10):
-        iteration_results = run_menu_generation(seed)
-        all_results.append(iteration_results)
+    try:
+        for i in range(10):
+            iteration_results = run_menu_generation(seed)
+            all_results.append(iteration_results)
 
+            # Check elapsed time
+            elapsed_time = time.time() - global_start_time
+            if elapsed_time > 47.5 * 3600:
+                logging.warning("Approaching time limit, saving intermediate results.")
+                save_intermediate_results(all_results, seed)
+                break
+
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        save_intermediate_results(all_results, seed)
+        sys.exit(1)
+
+    # Final save of all results
     class NumpyEncoder(json.JSONEncoder):
         def default(self, obj):
             if isinstance(obj, np.float32):
@@ -188,9 +223,10 @@ def main():
                 return obj.tolist()
             return super(NumpyEncoder, self).default(obj)
 
-    # Save all results using the custom encoder
     with open(os.path.join(run_data_dir, 'all_results.json'), 'w') as f:
         json.dump(all_results, f, cls=NumpyEncoder)
     
+    logging.info("Final results saved.")
+
 if __name__ == "__main__":
     main()
