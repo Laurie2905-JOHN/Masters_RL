@@ -368,7 +368,7 @@ def create_preference_score_function(negotiated_ingredients: set[str, Dict[str, 
                     ingredient_scores[ingredient] = norm_score
 
     def score_function(ingredient: str) -> float:
-        if ingredient not in ingredient_scores.keys():
+        if ingredient not in ingredient_scores.keys() and ingredient not in unavailable_ingredients:
             raise ValueError(f"Ingredient '{ingredient}' not found in ingredient_scores ingredients.")
         else:
             return ingredient_scores[ingredient]
