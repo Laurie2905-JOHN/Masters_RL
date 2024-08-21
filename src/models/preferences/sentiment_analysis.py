@@ -380,7 +380,15 @@ class SentimentAnalyzer:
 
         # Generate feedback for each child based on their feedback chance
         for child, prefs in self.current_known_and_unknown_preferences.items():
-            feedback_chance = child_data[child]["feedback_chance"]
+            
+            if feedback_type == 'all_the_time':
+                feedback_chance = 1
+            elif feedback_type == 'proportion':
+                feedback_chance = 0.8
+            elif feedback_type == 'none':
+                feedback_chance = 0
+            else:
+                feedback_chance = child_data[child]["feedback_chance"]
 
             # Determine if the child should provide feedback
             if feedback_chance == 0:

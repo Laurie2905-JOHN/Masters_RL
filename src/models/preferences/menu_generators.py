@@ -94,7 +94,7 @@ from models.preferences.random_menu_eval import MenuEvaluator
 
 
 class RandomMenuGenerator(BaseMenuGenerator):
-    def __init__(self, evaluator: MenuEvaluator, menu_plan_length: int = 10, weight_type: str = None, probability_best: float = 0.5, plot_menu_flag: bool = False, seed: Optional[int] = None):
+    def __init__(self, evaluator: MenuEvaluator, include_preference: bool = True, menu_plan_length: int = 10, weight_type: str = None, probability_best: float = 0.5, plot_menu_flag: bool = False, seed: Optional[int] = None):
         super().__init__(menu_plan_length, weight_type, probability_best, seed)
         self.evaluator = evaluator
         
@@ -111,6 +111,8 @@ class RandomMenuGenerator(BaseMenuGenerator):
         
         self.plot_menu_flag = plot_menu_flag
 
+        self.include_preference = include_preference
+        
     def normalize_scores(self) -> None:
         """
         Normalizes the scores of the ingredients within each group to ensure they sum up to 1.
@@ -255,7 +257,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
                 with open(json_filename, 'w') as json_file:
                     json.dump(existing_data, json_file, indent=4)
         
-        _, info = self.evaluator.select_ingredients(ingredient_quantities)
+        _, info = self.evaluator.select_ingredients(ingredient_quantities, self.include_preference)
         
         if self.plot_menu_flag:
             self.evaluator.plot_menu(info)
@@ -307,7 +309,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
             min_portion, max_portion = self.ingredient_group_portion_targets[group]
             quantities[ingredient] = random.randint(min_portion, max_portion)
         best_quantities = quantities.copy()
-        score = self.evaluator.objective_function(best_quantities)
+        score = self.evaluator.objective_function(best_quantities, self.include_preference)
         return quantities, score
 
     def simulated_annealing_quantities(self, menu) -> Dict[str, float]:
@@ -320,7 +322,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
 
         def objective_function_wrapper(quantities):
             quantities_dict = dict(zip(menu.values(), quantities))
-            return -self.evaluator.objective_function(quantities_dict)  # Minimization in dual_annealing
+            return -self.evaluator.objective_function(quantities_dict, self.include_preference)  # Minimization in dual_annealing
 
         result = dual_annealing(objective_function_wrapper, bounds)
         
@@ -350,7 +352,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
         toolbox.register("individual", create_individual)
         toolbox.register("population", tools.initRepeat, list, toolbox.individual, n=300)
         toolbox.register("evaluate", lambda ind: (
-            self.evaluator.objective_function({ingredient: qty for (group, ingredient), qty in zip(menu.items(), ind)}),
+            self.evaluator.objective_function({ingredient: qty for (group, ingredient), qty in zip(menu.items(), ind)}, self.include_preference),
         ))
         toolbox.register("mate", tools.cxTwoPoint)
         toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
@@ -365,7 +367,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
         # Get the best individual
         best_individual = tools.selBest(population, k=1)[0]
         best_quantities = {ingredient: qty for (group, ingredient), qty in zip(menu.items(), best_individual)}
-        best_score = self.evaluator.objective_function(best_quantities)
+        best_score = self.evaluator.objective_function(best_quantities, self.include_preference)
 
         return best_quantities, best_score
 
@@ -381,7 +383,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
         # Objective function for PSO
         def objective_function(quantities):
             quantities_dict = dict(zip(ingredients, quantities))
-            return -self.evaluator.objective_function(quantities_dict)
+            return -self.evaluator.objective_function(quantities_dict, self.include_preference)
         
         # Define bounds for each ingredient quantity
         lower_bounds = [self.ingredient_group_portion_targets[group][0] for group in menu.keys()]
@@ -408,7 +410,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
         # Objective function for Bayesian Optimization
         def objective_function(quantities):
             quantities_dict = dict(zip(ingredients, quantities))
-            return -self.evaluator.objective_function(quantities_dict)
+            return -self.evaluator.objective_function(quantities_dict, self.include_preference)
         
         # Define bounds for each ingredient quantity
         bounds = [(self.ingredient_group_portion_targets[group][0], 
@@ -433,7 +435,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
         # Initial random quantities within bounds
         quantities, _ = self.random_quantity_within_bounds(menu=menu)
         best_quantities = {ingredient: quantities[ingredient] for ingredient in ingredients}
-        best_score = self.evaluator.objective_function(best_quantities)
+        best_score = self.evaluator.objective_function(best_quantities, self.include_preference)
         
         improved = True
         while improved:
@@ -446,7 +448,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
                         min(best_quantities[ingredient] + delta, self.ingredient_group_portion_targets[group][1]), 
                         self.ingredient_group_portion_targets[group][0]
                     )
-                    new_score = self.evaluator.objective_function(new_quantities)
+                    new_score = self.evaluator.objective_function(new_quantities, self.include_preference)
                     
                     if new_score > best_score:
                         best_quantities, best_score = new_quantities, new_score
@@ -538,11 +540,11 @@ class RandomMenuGenerator(BaseMenuGenerator):
         self.generated_count += 1
 
         # Plotting the menu
-        _, info = self.evaluator.select_ingredients(final_quantities)
+        _, info = self.evaluator.select_ingredients(final_quantities, self.include_preference)
         if self.plot_menu_flag:
             self.evaluator.plot_menu(info)
 
-        return final_quantities, self.evaluator.objective_function(final_quantities)
+        return final_quantities, self.evaluator.objective_function(final_quantities, self.include_preference)
 
     def generate_optimized_genetic_menu(self, negotiated: Dict[str, Dict[str, float]], unavailable: Optional[Set[str]] = None, ngen: int = 100, population_size: int = 500, cxpb: float = 0.7, mutpb: float = 0.3) -> Dict[str, float]:
         """
@@ -595,7 +597,7 @@ class RandomMenuGenerator(BaseMenuGenerator):
             quantities = {ingredient: quantity for (ingredient, quantity) in individual}
 
             # Evaluate the menu and quantities using the provided evaluator
-            score = self.evaluator.objective_function(quantities)
+            score = self.evaluator.objective_function(quantities, self.include_preference)
             return score,
 
         toolbox.register("evaluate", evaluate)
@@ -658,11 +660,12 @@ class RandomMenuGenerator(BaseMenuGenerator):
 
 
 class RLMenuGenerator(BaseMenuGenerator):
-    def __init__(self, ingredient_df: Dict[str, Dict[str, float]], menu_plan_length: int = 10, weight_type: str = None, seed: Optional[int] = None, model_save_path: str = 'rl_model', load_model_from_file = False):
+    def __init__(self, ingredient_df: Dict[str, Dict[str, float]], include_preference: bool = True, menu_plan_length: int = 10, weight_type: str = None, seed: Optional[int] = None, model_save_path: str = 'rl_model', load_model_from_file = False):
         super().__init__(menu_plan_length, weight_type, seed)
         self.model_save_path = model_save_path
         self.ingredient_df = ingredient_df
         self.load_model_from_file = load_model_from_file
+        self.include_preference = include_preference
         
     def train_rl_model(self, negotiated_ingredients, unavailable_ingredients: Optional[Set[str]] = None) -> MaskablePPO:
         setup_params = load_yaml("scripts/hyperparams/setup_preference.yaml")
@@ -674,6 +677,8 @@ class RLMenuGenerator(BaseMenuGenerator):
         args = argparse.Namespace(**hyperparams)
         args.negotiated_ingredients = negotiated_ingredients
         args.unavailable_ingredients = unavailable_ingredients
+        args.include_preference = self.include_preference
+        
         args = set_default_prefixes(args)
         args.policy_kwargs = dict(
             net_arch=dict(

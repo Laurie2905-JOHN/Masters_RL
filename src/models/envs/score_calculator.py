@@ -55,6 +55,8 @@ class BaseScoreCalculator(ABC):
         
         norm_factor = len(current_meal_plan.keys())
         
+        if norm_factor == 0:
+            norm_factor = 1
         preference_score = preference_score / norm_factor
         
         # Check if the preference target is met
@@ -212,6 +214,6 @@ class ScoreCalculatorShaped(BaseScoreCalculator):
         if not environment_target_met:
             targets.append('environment')
         if not preference_target_met:
-            targets.append('preference score')
+            targets.append('preference')
             
         return scores, targets

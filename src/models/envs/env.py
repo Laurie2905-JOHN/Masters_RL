@@ -21,9 +21,9 @@ class BaseEnvironment(gym.Env):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_update_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {}, max_episode_steps: int = 100, algo: str = 'PPO', gamma: float = 0.99):
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {}, max_episode_steps: int = 100, algo: str = 'PPO', gamma: float = 0.99, include_preference: bool = True):
         super().__init__()
-
+        self.include_preference = include_preference
         self._initialize_parameters(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, initialization_strategy, max_episode_steps, algo, gamma)
         self._initialize_nutrient_values(ingredient_df)
         self._initialize_nutrient_targets()
@@ -738,8 +738,8 @@ class SchoolMealSelectionContinuous(BaseEnvironment):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_update_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
-        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma)
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99, include_preference: bool = True):
+        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma, include_preference)
         
         self.step_to_reward = self.calculate_step_to_reward()
         
@@ -846,10 +846,13 @@ class SchoolMealSelectionDiscrete(BaseEnvironment):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_update_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
-        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma)
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99, include_preference: bool = True):
+        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma, include_preference)
         
         self.step_to_reward = self.calculate_step_to_reward()
+        
+        # Set as an attribute for the mask function¬¬
+        self.unavailable_ingredients = unavailable_ingredients
         
     def initialize_action_space(self) -> None:
         self.action_space = gym.spaces.MultiDiscrete([2, self.n_ingredients])
@@ -955,27 +958,37 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
 
     def __init__(self, ingredient_df, max_ingredients: int = 6, action_update_factor: int = 10, render_mode: str = None, 
                  verbose: int = 0, seed: int = None, reward_type: str = 'sparse', 
-                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99):
-        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma)
+                 initialization_strategy: str = 'zero', negotiated_ingredients: Dict = {}, unavailable_ingredients: set = {},  max_episode_steps: int = 175, algo: str = 'PPO', gamma: float = 0.99, include_preference: bool = True):
+        super().__init__(ingredient_df, max_ingredients, action_update_factor, render_mode, verbose, seed, reward_type, initialization_strategy, negotiated_ingredients, unavailable_ingredients, max_episode_steps, algo, gamma, include_preference)
         
+        self.include_preference = include_preference
         self.step_to_reward = self.calculate_step_to_reward()
-                                    # Nutrient, cost, co2, env, preference
-        self.score_weights = np.array([2, 1, 1, 1, 1])
         
-        self.max_score = np.sum(self.score_weights)
-
+                                # Nutrient, cost, co2, env, preference
+        
+        self.score_weights = np.array([2, 1, 1, 1, 1])
         self.scores = [0, 0, 0, 0, 0]
         
+        if include_preference:
+            self.max_score = np.sum(self.score_weights)
+        else:
+            self.max_score = np.sum(self.score_weights[0:3])
+            
         current_reward = np.dot(self.scores, self.score_weights)
         self.current_potential  = self.calculate_potential(current_reward)
         self.gamma = gamma
         
         self.preference_target = 0.7
         
+        if not negotiated_ingredients:
+            raise ValueError("Negotiated ingredients must be provided for this environment.")
+        
         self.preference_score_function = create_preference_score_function(negotiated_ingredients, unavailable_ingredients)
         
         # Set as an attribute for the mask function
         self.unavailable_ingredients = unavailable_ingredients
+        
+        
 
     def _initialize_observation_space(self) -> None:
         """
@@ -983,18 +996,32 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         The observation space is a dictionary containing various components such as:
         current selection values, indices, time feature, nutrient values, group counts, environment counts, cost, and CO2 emissions.
         """
-        self.observation_space = spaces.Dict({
-            'current_selection_value': spaces.Box(low=0, high=1000, shape=(self.max_ingredients,), dtype=np.float64),
-            'current_selection_index': spaces.Box(low=-1, high=1, shape=(self.max_ingredients,), dtype=np.float64),
-            'time_feature': spaces.Box(low=0, high=self.max_episode_steps, shape=(1,), dtype=np.float64),
-            'groups_selected': spaces.Box(low=0, high=1, shape=(len(self.ingredient_group_count.keys()),), dtype=np.float64),
-            'groups_portion': spaces.Box(low=-1, high=1, shape=(len(self.ingredient_group_portion.keys()),), dtype=np.float64),  
-            'nutrient_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
-            'cost_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
-            'co2_g_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
-            'env_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
-            'preference_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
-        })
+        
+        if self.include_preference:
+            self.observation_space = spaces.Dict({
+                'current_selection_value': spaces.Box(low=0, high=1000, shape=(self.max_ingredients,), dtype=np.float64),
+                'current_selection_index': spaces.Box(low=-1, high=1, shape=(self.max_ingredients,), dtype=np.float64),
+                'time_feature': spaces.Box(low=0, high=self.max_episode_steps, shape=(1,), dtype=np.float64),
+                'groups_selected': spaces.Box(low=0, high=1, shape=(len(self.ingredient_group_count.keys()),), dtype=np.float64),
+                'groups_portion': spaces.Box(low=-1, high=1, shape=(len(self.ingredient_group_portion.keys()),), dtype=np.float64),  
+                'nutrient_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+                'cost_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+                'co2_g_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+                'env_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+                'preference_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+            })
+        else:
+            self.observation_space = spaces.Dict({
+                'current_selection_value': spaces.Box(low=0, high=1000, shape=(self.max_ingredients,), dtype=np.float64),
+                'current_selection_index': spaces.Box(low=-1, high=1, shape=(self.max_ingredients,), dtype=np.float64),
+                'time_feature': spaces.Box(low=0, high=self.max_episode_steps, shape=(1,), dtype=np.float64),
+                'groups_selected': spaces.Box(low=0, high=1, shape=(len(self.ingredient_group_count.keys()),), dtype=np.float64),
+                'groups_portion': spaces.Box(low=-1, high=1, shape=(len(self.ingredient_group_portion.keys()),), dtype=np.float64),  
+                'nutrient_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+                'cost_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+                'co2_g_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+                'env_score': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float64),
+            })
     
     def initialize_rewards(self) -> None:
         """
@@ -1038,7 +1065,8 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         obs['cost_score'] = np.array([self.scores[1]], dtype=np.float64)
         obs['co2_g_score'] = np.array([self.scores[2]], dtype=np.float64)
         obs['env_score'] = np.array([self.scores[3]], dtype=np.float64)
-        obs['preference_score'] = np.array([self.scores[4]], dtype=np.float64)
+        if self.include_preference:
+            obs['preference_score'] = np.array([self.scores[4]], dtype=np.float64)
 
         return obs
     
@@ -1098,8 +1126,11 @@ class SchoolMealSelectionDiscretePotentialReward(BaseEnvironment):
         self.reward_dict['targets_not_met'] = targets_not_met
         
         # Calculate the immediate reward based on the current scores
-        current_reward = np.dot(self.scores, self.score_weights)
-        
+        if self.include_preference:
+            current_reward = np.dot(self.scores, self.score_weights)
+        else:
+            current_reward = np.dot(self.scores[0:3], self.score_weights[0:3])
+            
         # Calculate the potential of the next state based on current reward
         next_potential = self.calculate_potential(current_reward)
         
@@ -1205,8 +1236,19 @@ if __name__ == '__main__':
         vecnorm_norm_obs_keys = ['current_selection_value']
         reward_type = 'shaped'
         algo = 'MASKED_PPO'
+        include_preference = True
     
     args = Args()
+    
+    # Complex weight function arguments
+    complex_weight_func_args = {
+        'use_normalize_total_voting_weight': False,
+        'use_normalize_vote_categories': True,
+        'use_compensatory': True,
+        'use_feedback': True,
+        'use_fairness': True,
+        'target_gini': 0.15,
+    }
     
     child_feature_data = get_child_data()
     true_child_preference_data = initialize_child_preference_data(
@@ -1214,19 +1256,19 @@ if __name__ == '__main__':
     )
     
     predictor = PreferenceModel(
-        args.ingredient_df, child_feature_data, true_child_preference_data, visualize_data=False, apply_SMOTE=True, seed=args.seed
+        args.ingredient_df, child_feature_data, true_child_preference_data, visualize_data=False, seed=args.seed
     )
     
-    updated_known_and_predicted_preferences = predictor.run_pipeline()
+    updated_known_and_predicted_preferences, _, _, _ = predictor.run_pipeline()
     
     # Initial negotiation of ingredients
     negotiator = IngredientNegotiator(
-        args.seed, args.ingredient_df, updated_known_and_predicted_preferences
+        args.seed, args.ingredient_df, updated_known_and_predicted_preferences, complex_weight_func_args=complex_weight_func_args
     )
     
-    negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(weight_function='simple')
+    negotiated_ingredients_simple, negotiated_ingredients_complex, unavailable_ingredients = negotiator.negotiate_ingredients()
     
-    args.negotiated_ingredients = negotiated_ingredients
+    args.negotiated_ingredients = negotiated_ingredients_simple
     args.unavailable_ingredients = unavailable_ingredients
     
 
@@ -1241,6 +1283,7 @@ if __name__ == '__main__':
         "reward_type":  args.reward_type,
         "negotiated_ingredients": args.negotiated_ingredients,
         "unavailable_ingredients": args.unavailable_ingredients,
+        "include_preference": args.include_preference
         }
 
     num_episodes = 500

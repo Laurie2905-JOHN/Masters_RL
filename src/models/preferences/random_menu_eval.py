@@ -18,7 +18,7 @@ class MenuEvaluator(BaseEnvironment):
         self.preference_target = 0.7
         self.score_weights = [2, 1, 1, 1, 1]
         
-    def select_ingredients(self, selected_ingredients: Dict[str, float]) -> None:
+    def select_ingredients(self, selected_ingredients: Dict[str, float], include_preference: bool = True) -> None:
         """
         Update current selection based on the provided ingredients and their quantities.
         
@@ -39,7 +39,7 @@ class MenuEvaluator(BaseEnvironment):
         
         self.initialize_rewards()  # Reset reward dictionary
         
-        reward = self.calculate_reward()
+        reward = self.calculate_reward(include_preference)
         
         info = self._get_info()
         
@@ -60,7 +60,7 @@ class MenuEvaluator(BaseEnvironment):
     
         return reward, info
 
-    def calculate_reward(self) -> float:
+    def calculate_reward(self, include_preference) -> float:
         """
         Calculate the reward based on the current ingredient selection.
         
@@ -80,19 +80,23 @@ class MenuEvaluator(BaseEnvironment):
         self.reward_dict['preference_score'] = self.scores[4]
         self.reward_dict['targets_not_met'] = targets_not_met
         
-        # Calculate the immediate reward based on the current scores
-        current_reward = np.dot(self.scores, self.score_weights)
-        
-        return current_reward / sum(self.score_weights)  # Normalize by the sum of weights
+        if not include_preference:
+            # Calculate the immediate reward based on the current scores
+            current_reward = np.dot(self.scores[0:3], self.score_weights[0:3])
+            return current_reward / sum(self.score_weights[0:3])  # Normalize by the sum of weights
+        else:
+            current_reward = np.dot(self.scores, self.score_weights)
+            return current_reward / sum(self.score_weights)  # Normalize by the sum of weights
 
-    def objective_function(self, menu: Dict[str, float]) -> float:
+    def objective_function(self, menu: Dict[str, float], include_preference: bool) -> float:
         """
         Objective function that returns the calculated reward, used for optimization.
         
         :param menu: A dictionary of ingredients and their respective quantities.
         :return: The reward value calculated from the current selection of ingredients.
         """
-        reward, _ = self.select_ingredients(menu)
+        reward, _ = self.select_ingredients(menu, include_preference)
+        
         return reward
     
     def plot_menu(self, info: dict):
