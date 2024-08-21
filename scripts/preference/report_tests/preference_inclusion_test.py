@@ -139,7 +139,7 @@ def run_menu_generation(seed):
             
             if 'without_preference' in name:
                 # If without preference the reward does not include the preference score and for comparison it should. Not included in objective function though
-                reward = np.dot([info['reward']['nutrient_score'], info['reward']['cost_score'], info['reward']['co2_score'], info['reward']['environment_score'], info['reward']['preference_score']],[2, 1, 1, 1, 1])
+                reward = np.dot([info['reward']['nutrient_score'], info['reward']['cost_score'], info['reward']['co2_score'], info['reward']['environment_score'], info['reward']['preference_score']],[2, 1, 1, 1, 1]) / 6
 
             # Store the results including time taken and reward
             results[menu_plan_num][name] = {
