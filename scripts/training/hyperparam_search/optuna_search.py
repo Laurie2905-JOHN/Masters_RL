@@ -27,8 +27,12 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from sb3_contrib.common.wrappers import ActionMasker
 from models.action_masks.masks import mask_fn
 import numpy as np
+import warnings
 
-def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> tuple:
+# Suppress the specific warning
+warnings.filterwarnings("ignore", message=".*env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0.*")
+
+def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, algo) -> float:
     # Prevent Resource Contention: When multiple trials start simultaneously, they might contend for limited computational resources
     time.sleep(random.random() * 16)
     
@@ -60,13 +64,38 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
             
             return env
         return _init
+    
+    def make_eval_env(arg_seed):
+        def _init():
+            env_kwargs = get_env_kwargs(arg_seed)
+            env = gym.make("SchoolMealSelection-v3", **env_kwargs)
+            env = TimeLimit(env, max_episode_steps=175)
+            env = Monitor(env)  # Monitoring is added to track statistics and/or save logs
+            
+            if algo == "MASKED_PPO":
+                env = ActionMasker(env, mask_fn)  # Wrap to enable masking
+            
+            return env
+        return _init
 
     # Wrap the environment with DummyVecEnv for parallel environments
-    def make_envs(arg_seed):
-        env = make_vec_env(make_env(arg_seed),
-                        n_envs=8,
+    def make_envs(make_env_func, arg_seed, n_envs=8, norm_reward=True, clip_obs=10):
+        env = make_vec_env(make_env_func(arg_seed),
+                        n_envs=n_envs,
                         seed=arg_seed,
                         )
+        
+        # Normalize observations and rewards
+        env = VecNormalize(
+            env,
+            norm_obs=True,
+            norm_reward=norm_reward,
+            clip_obs=clip_obs,
+            clip_reward=10,
+            gamma=0.99,
+            norm_obs_keys=['current_selection_value']
+        )
+
         return env
     
     clip_obs = trial.suggest_categorical("clip_obs", [5, 10, 15])
@@ -82,42 +111,68 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         raise ValueError("Invalid algorithm")
     
     rewards = []
-    seeds = [random.randint(0, 10000) for _ in range(5)]  # Use 5 different seeds for each trial
-    
+    seeds = [random.randint(0, 10000) for _ in range(4)]  # Use 4 different seeds for each trial
+
     for arg_seed in seeds:
-        env = make_envs(arg_seed)
-        # Normalize observations and rewards
-        env = VecNormalize(
-            env,
-            norm_obs=True,
-            norm_reward=norm_reward,
-            clip_obs=clip_obs,
-            clip_reward=10,
-            gamma=0.99,
-            norm_obs_keys=['current_selection_value']
-        )
+        env = make_envs(make_env, arg_seed, n_envs=8, norm_reward=norm_reward, clip_obs=clip_obs)
+        eval_env = make_envs(make_eval_env, arg_seed, n_envs=1, norm_reward=norm_reward, clip_obs=clip_obs)
 
         if algo == "PPO":
-            model = PPO("MultiInputPolicy", env=env, seed=arg_seed, verbose=0, device='cuda', tensorboard_log=path, **sampled_hyperparams)
+            model = PPO("MultiInputPolicy",
+                         env=env,
+                         seed=arg_seed,
+                         verbose=0,
+                         device='cuda',
+                         tensorboard_log=path,
+                         **sampled_hyperparams)
+        
         elif algo == "A2C":
-            model = A2C("MultiInputPolicy", env=env, seed=arg_seed, verbose=0, device='cpu', tensorboard_log=path, **sampled_hyperparams)
+            model = A2C("MultiInputPolicy",
+                         env=env,
+                         seed=arg_seed, 
+                         verbose=0,
+                         device='cpu',
+                         tensorboard_log=path,
+                         **sampled_hyperparams)
+        
         elif algo == "MASKED_PPO":
-            model = MaskablePPO("MultiInputPolicy", env=env, seed=arg_seed, verbose=0, device='cuda', tensorboard_log=path, **sampled_hyperparams)
+            model = MaskablePPO("MultiInputPolicy",
+                                 env=env,
+                                 seed=arg_seed,
+                                 verbose=0,
+                                 device='cuda',
+                                 tensorboard_log=path,
+                                 **sampled_hyperparams)
         else:
             raise ValueError("Invalid algorithm")
         
         stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=20, min_evals=50, verbose=1)
         
+        eval_freq = 16000
+
         if algo != "MASKED_PPO":
             eval_callback = TrialEvalCallback(
-                env, trial, best_model_save_path=path, log_path=path,
-                n_eval_episodes=5, eval_freq=10000, deterministic=False, callback_after_eval=stop_callback
-            )
+                                eval_env,
+                                trial,
+                                best_model_save_path=path,
+                                log_path=path,
+                                n_eval_episodes=5,
+                                eval_freq=max(eval_freq // 8, 1),  # Replacing args.num_envs with 8
+                                deterministic=False,
+                                callback_after_eval=stop_callback
+                            )
         else:
             eval_callback = MaskableTrialEvalCallback(
-                env, trial, best_model_save_path=path, log_path=path,
-                n_eval_episodes=5, eval_freq=10000, deterministic=False, callback_after_eval=stop_callback
-            )
+                                eval_env,
+                                trial,
+                                best_model_save_path=path,
+                                log_path=path,
+                                n_eval_episodes=5,
+                                eval_freq=max(eval_freq // 8, 1),  # Replacing args.num_envs with 8
+                                deterministic=False,
+                                callback_after_eval=stop_callback
+                            )
+
         env_kwargs = get_env_kwargs(arg_seed)
         if 'ingredient_df' in env_kwargs:
             del env_kwargs['ingredient_df']
@@ -125,11 +180,14 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         params = env_kwargs | sampled_hyperparams | {'clip_obs': clip_obs, 'norm_reward': norm_reward}
         
         try:
-            model.learn(num_timesteps, eval_callback)
-            rewards.append(eval_callback.best_mean_reward)
+            model.learn(num_timesteps, callback=eval_callback)
+            reward = eval_callback.best_mean_reward
+            rewards.append(reward)
             env.close()
+            eval_env.close()
         except (AssertionError, ValueError) as e:
             env.close()
+            eval_env.close()
             print(e)
             print("============")
             print("Sampled params:")
@@ -140,18 +198,19 @@ def objective(trial: optuna.Trial, ingredient_df, study_path, num_timesteps, alg
         del model
 
     mean_reward = np.mean(rewards)
-    std_reward = np.std(rewards)
+    median_reward = np.median(rewards)
+    sd_reward = np.std(rewards)
 
-    if np.isnan(mean_reward) or np.isnan(std_reward):
+    if np.isnan(median_reward):
         raise optuna.exceptions.TrialPruned()
 
     with open(f"{path}/params.txt", "w") as f:
         f.write(str(params))
         f.write(f"\nMean Reward: {mean_reward}")
-        f.write(f"\nStd Reward: {std_reward}")
-
-    # Returning a tuple (mean_reward, std_reward) to optimize for both mean and standard deviation
-    return mean_reward, std_reward
+        f.write(f"\nSD Reward: {sd_reward}")
+        f.write(f"\nMedian Reward: {median_reward}")
+    # Returning median_reward
+    return median_reward
 
 def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
     INGREDIENT_DF = get_data()
@@ -179,7 +238,7 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
         sampler=sampler,
         pruner=pruner,
         load_if_exists=True,
-        directions=["maximize", "minimize"],  # Optimize for mean reward and minimize std deviation
+        direction="maximize",  # Optimize for mean reward and minimize std deviation
     )
 
     try:
@@ -190,9 +249,9 @@ def main(algo, study_name, storage, n_trials, timeout, n_jobs, num_timesteps):
 
     print("Number of finished trials: ", len(study.trials))
 
-    trial = study.best_trials[0]  # Optuna will now return multiple trials, so we take the first best trial
+    trial = study.best_trial
     print(f"Best trial: {trial.number}")
-    print("Values: ", trial.values)
+    print("Value: ", trial.value)
 
     print("Params: ")
     for key, value in trial.params.items():
@@ -225,8 +284,8 @@ if __name__ == "__main__":
     parser.add_argument('--storage', type=str, default=None, help="Database URL for Optuna storage")
     parser.add_argument('--n_trials', type=int, default=500, help="Number of trials for optimization")
     parser.add_argument('--timeout', type=int, default=3600*100, help="Timeout for optimization in seconds")
-    parser.add_argument('--n_jobs', type=int, default=2, help="Number of jobs to assign")
-    parser.add_argument('--num_timesteps', type=int, default=400000, help="Number of timesteps for model training")
+    parser.add_argument('--n_jobs', type=int, default=5, help="Number of jobs to assign")
+    parser.add_argument('--num_timesteps', type=int, default=350000, help="Number of timesteps for model training")
     args = parser.parse_args()
     
     if args.study_name is None:
