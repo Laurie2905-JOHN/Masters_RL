@@ -63,7 +63,7 @@ def run_menu_generation(seed):
     
     results = {}
     
-    for split in [1, 0.1, 0.3]:
+    for split in [1, 0.3, 0.15, 0.05]:
         
         results[split] = {}
                 
