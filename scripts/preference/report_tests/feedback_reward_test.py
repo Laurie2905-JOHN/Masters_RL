@@ -322,9 +322,9 @@ def main():
     
     menu_generators = [
         "random",
-        # "prob",
+        "prob",
         "best",
-        # "prob_best"
+        "prob_best"
         # "RL",
         # "genetic",
     ]
@@ -337,7 +337,7 @@ def main():
 
                 # Check elapsed time
                 elapsed_time = time.time() - global_start_time
-                if elapsed_time > 35 * 3600:
+                if elapsed_time > 24 * 3600:
                     logging.warning("Approaching time limit, saving intermediate results.")
                     save_intermediate_results(results, seed)
                     break
