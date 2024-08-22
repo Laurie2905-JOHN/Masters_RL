@@ -73,6 +73,41 @@ def save_intermediate_results(results, seed):
         json.dump(results, f, cls=NumpyEncoder)
     
     logging.info(f"Intermediate results saved for seed {seed}.")
+    
+def run_mod(model_name, negotiated_ingredients, unavailable_ingredients, evaluator, ingredient_df, week, day):
+    
+    menu_generators = {
+            "genetic": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+            "RL": RLMenuGenerator(ingredient_df, include_preference=True, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
+            "random": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+            "prob": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0, seed=seed),
+            "best": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=1, seed=seed),
+            "prob_best": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0.5, seed=seed),
+        }
+
+    if "genetic" in model_name:
+        # Run initial genetic optimization
+        menu_plan, _ = menu_generators[model_name].run_genetic_menu_optimization_and_finalize(
+            negotiated_ingredients, unavailable_ingredients, 
+            final_meal_plan_filename=f'final_meal_plan_{model_name}',
+            ngen=180, population_size=333, cxpb=0.742143, mutpb=0.3062819
+        )
+    elif 'RL' in model_name:
+        menu_plan, _ = menu_generators[model_name].generate_menu(
+            negotiated_ingredients, unavailable_ingredients, 
+            final_meal_plan_filename=f'final_meal_plan_{model_name}', 
+            save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, 
+            week=week, day=day
+        )
+    else:
+        menu_plan, _ = menu_generators[model_name].generate_menu(
+            negotiated_ingredients, unavailable_ingredients, 
+            quantity_type='random', 
+            final_meal_plan_filename=f'final_meal_plan_{model_name}', 
+            save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, 
+            week=week, day=day
+        )
+    return menu_plan
 
 def run_menu_generation(seed, model_name="random"):
     # Load data
@@ -100,62 +135,37 @@ def run_menu_generation(seed, model_name="random"):
         seed, ingredient_df, updated_known_and_predicted_preferences_start, complex_weight_func_args, previous_feedback={}, previous_utility={}
     )
     
-    negotiated_ingredients_start, _, unavailable_ingredients_start = negotiator.negotiate_ingredients(simple_only=False)
-    evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients_start, unavailable_ingredients_start)
+    # Negotiation will be the same at the start as feedback has not been provided
+    negotiated_ingredients_simple_start, _, unavailable_ingredients_start = negotiator.negotiate_ingredients(simple_only=True)
     
+    evaluator_start = MenuEvaluator(ingredient_df, negotiated_ingredients_simple_start, unavailable_ingredients_start)
+        
     # Save negotiation results
     week, day = 1, 1
     negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
-
-    menu_generators = {
-        "genetic": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
-        "RL": RLMenuGenerator(ingredient_df, include_preference=True, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
-        "random": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
-        "prob": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0, seed=seed),
-        "best": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=1, seed=seed),
-        "prob_best": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0.5, seed=seed),
-    }
     
+    menu_plan_start = run_mod(model_name, negotiated_ingredients_simple_start, unavailable_ingredients_start, evaluator_start, ingredient_df, 1, 1)
     
-    def run_mod(model_name):
-    
-        if "genetic" in model_name:
-            # Run initial genetic optimization
-            menu_plan, _ = menu_generators[model_name].run_genetic_menu_optimization_and_finalize(
-                negotiated_ingredients_start, unavailable_ingredients_start, 
-                final_meal_plan_filename=f'final_meal_plan_{model_name}',
-                ngen=180, population_size=333, cxpb=0.742143, mutpb=0.3062819
-            )
-        elif 'RL' in model_name:
-            menu_plan, _ = menu_generators[model_name].generate_menu(
-                negotiated_ingredients_start, unavailable_ingredients_start, 
-                final_meal_plan_filename=f'final_meal_plan_{model_name}', 
-                save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, 
-                week=week, day=day
-            )
-        else:
-            menu_plan, _ = menu_generators[model_name].generate_menu(
-                negotiated_ingredients_start, unavailable_ingredients_start, 
-                quantity_type='random', 
-                final_meal_plan_filename=f'final_meal_plan_{model_name}', 
-                save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, 
-                week=week, day=day
-            )
-        return menu_plan
-        
-    results = {}
-
-    menu_plan = run_mod(model_name)
-        
-    # Feedback methods
-    sentiment_analyzer = SentimentAnalyzer(
-        true_child_preference_data, menu_plan, child_data=child_feature_data, label_mapping = label_mapping_start, model_name='perfect', seed=seed
+    # Sentiment analysis initiation for simple and complex menu plans
+    sentiment_analyzer_start = SentimentAnalyzer(
+        true_child_preference_data, menu_plan_start, child_data=child_feature_data, label_mapping = label_mapping_start, model_name='perfect', seed=seed
     )
+
+    # Preferences the same in the first step for simple and complex
+    updated_known_unknown_preferences_with_feedback_simple, _, feedback_given_simple, _, _ = sentiment_analyzer_start.get_sentiment_and_update_data(plot_confusion_matrix=False)
+    updated_known_unknown_preferences_with_feedback_complex = updated_known_unknown_preferences_with_feedback_simple
+
+    # Assign the feedback given to the previous feedback for complex weight calculation
+    previous_feedback_simple = feedback_given_simple
+    previous_feedback_complex = feedback_given_simple
+       
+    results = {}
     
-    # Get updated preferences from feedback and sentiment analysis for both menu plans
-    updated_known_unknown_preferences_with_feedback, _, _, _, _ = sentiment_analyzer_perfect.get_sentiment_and_update_data(plot_confusion_matrix=False)
+    results['0'] = {}
     
-    percent_of_known_preferences_perfect = calculate_percent_of_known_ingredients_to_unknown(updated_known_unknown_preferences_with_feedback_perfect)
+    results['0']['feedback']['complex'] = feedback_given_simple
+    
+    results['0']['feedback']['simple'] = feedback_given_simple
     
     # Initialize utility calculator
     json_path_simple = os.path.join(run_data_dir, "menu_utilities_simple.json")
@@ -168,7 +178,7 @@ def run_menu_generation(seed, model_name="random"):
     reward = {}
     
     # Evaluate the menu plan and calculate the reward
-    reward1, info1 = evaluator.select_ingredients(menu_plan)
+    reward1, info1 = evaluator_start.select_ingredients(menu_plan_start)
     
     info['simple'] = info1
     reward['simple'] = reward1
@@ -177,15 +187,15 @@ def run_menu_generation(seed, model_name="random"):
     # Generate and evaluate menus, store results
     
     # Store the results including time taken and reward
-    results['0'] = {
+    results['0'].update({
         'info': info,
         'reward': reward,
         'percent_of_known_preferences_perfect': percent_of_known_preferences_perfect,
-    }
+    })
     
     # Using start prediction preference before feedback
-    _ = utility_calculator_simple.calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plan.keys()))
-    _ = utility_calculator_complex.calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plan.keys())) 
+    _ = utility_calculator_simple.calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plan_start.keys()))
+    _ = utility_calculator_complex.calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plan_start.keys())) 
     
     with logging_redirect_tqdm():
         
@@ -193,76 +203,84 @@ def run_menu_generation(seed, model_name="random"):
             results[str(menu)] = {}
             # Prediction of preferences based on expected preferences from sentiment analysis
             predictor_simple = PreferenceModel(
-                ingredient_df, child_feature_data, updated_known_unknown_preferences_with_feedback_sentiment, visualize_data=False, seed=seed
+                ingredient_df, child_feature_data, updated_known_unknown_preferences_with_feedback_simple, visualize_data=False, seed=seed
             )
             predictor_complex = PreferenceModel(
-                ingredient_df, child_feature_data, updated_known_unknown_preferences_with_feedback_perfect, visualize_data=False, seed=seed
+                ingredient_df, child_feature_data, updated_known_unknown_preferences_with_feedback_complex, visualize_data=False, seed=seed
             )
             
-            # Prediction with no feedback can use starting preference prediction as same each time
-            # predictor_no_feedback = PreferenceModel(
-            #     ingredient_df, child_feature_data, true_child_preference_data, visualize_data=False, seed=seed
-            # )
+            updated_known_and_predicted_preferences_simple, _, _, label_encoder = predictor_simple.run_pipeline()
             
-            updated_known_and_predicted_preferences_perfect, _, _, label_encoder = predictor_perfect.run_pipeline()
+            label_mapping_simple = {label: index for index, label in enumerate(label_encoder.classes_)}
             
-            label_mapping_perfect = {label: index for index, label in enumerate(label_encoder.classes_)}
+            updated_known_and_predicted_preferences_complex, _, _, label_encoder = predictor_complex.run_pipeline()
             
-
+            label_mapping_complex = {label: index for index, label in enumerate(label_encoder.classes_)}
             
-            negotiator_perfect = IngredientNegotiator(
-                seed, ingredient_df, updated_known_and_predicted_preferences_perfect, complex_weight_func_args, previous_feedback={}, previous_utility={}
+            negotiator_simple = IngredientNegotiator(
+                seed, ingredient_df, updated_known_and_predicted_preferences_simple, complex_weight_func_args, previous_feedback=previous_feedback_simple, previous_utility={}
             )
                     
-
-            negotiated_ingredients_perfect, _, unavailable_ingredients_perfect = negotiator_perfect.negotiate_ingredients(simple_only=False)
+            negotiated_ingredients_simple, _, unavailable_ingredients_simple = negotiator_simple.negotiate_ingredients(simple_only=False)
             
+            negotiator_complex = IngredientNegotiator(
+                seed, ingredient_df, updated_known_and_predicted_preferences_simple, complex_weight_func_args, previous_feedback=previous_feedback_complex, previous_utility={}
+            )
+            
+            _, negotiated_ingredients_complex, unavailable_ingredients_complex = negotiator_complex.negotiate_ingredients(simple_only=False)
+
             negotiated_ingredients_dict = {
-                'sentiment': negotiated_ingredients_sentiment,
-                'perfect': negotiated_ingredients_perfect,  
+                'simple': negotiated_ingredients_simple,
+                'complex': negotiated_ingredients_complex,  
             }
             
             unavailable_ingredients_dict = {
-                'sentiment': unavailable_ingredients_sentiment,
-                'perfect': unavailable_ingredients_perfect,   
+                'simple': unavailable_ingredients_simple,
+                'complex': unavailable_ingredients_complex,   
             }
             
             evaluator_dict = {
-                'sentiment': MenuEvaluator(ingredient_df, negotiated_ingredients_sentiment, unavailable_ingredients_sentiment),
-                'perfect': MenuEvaluator(ingredient_df, negotiated_ingredients_perfect, unavailable_ingredients_perfect),
+                'simple': MenuEvaluator(ingredient_df, negotiated_ingredients_simple, unavailable_ingredients_simple),
+                'complex': MenuEvaluator(ingredient_df, negotiated_ingredients_complex, unavailable_ingredients_complex),
             }
-        
             
+            utility_dict = {
+                'simple': utility_calculator_simple,
+                'complex': utility_calculator_complex,
+            }
+       
             menu_plans = {}
             reward = {}
             info = {}
+            
+            for method in ['simple', 'complex']:
+                
+                menu_plans[method] = run_mod(model_name, negotiated_ingredients_dict[method], unavailable_ingredients_dict[method], evaluator_dict[method], ingredient_df, week, day)
+                
+                reward1, info1 = evaluator_dict[method].select_ingredients(menu_plans[method])
+                
+                info[method] = info1
+                reward[method] = reward1
+                
+                # Store the results including time taken and reward
+                results[str(menu)].update({
+                    'info': info,
+                    'reward': reward,
+                })
+                
+                utility_results = {}
+                
+                _ = utility_dict[method].calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plans['no_feedback'].keys()))
 
-            sentiment_name = 'perfect'
-            
-            eval = evaluator_dict[sentiment_name]
-            unavailable = unavailable_ingredients_dict[sentiment_name]
-            negotiated = negotiated_ingredients_dict[sentiment_name]
-            
-            if "genetic" in model_name:
-                # Run initial genetic optimization
-                menu_plans[sentiment_name], _ = menu_generators[model_name].run_genetic_menu_optimization_and_finalize(
-                    negotiated, unavailable, 
-                    final_meal_plan_filename=f'final_meal_plan_{model_name}',
-                    ngen=180, population_size=333, cxpb=0.742143, mutpb=0.3062819
-                )
-            else:
-                menu_plans[sentiment_name], _ = menu_generators[model_name].generate_menu(
-                    negotiated, unavailable, 
-                    final_meal_plan_filename=f'final_meal_plan_{model_name}', 
-                    save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, 
-                    week=week, day=day
+                utility_results[method] = utility_dict[method].close()
+                
+                results["utility_results"] = utility_results
+
+                
+                sentiment_analyzer_perfect = SentimentAnalyzer(
+                    true_child_preference_data, menu_plans['perfect'], child_data=child_feature_data, label_mapping = label_mapping_perfect, model_name='perfect', seed=seed
                 )
                 
-            reward[sentiment_name], info[sentiment_name] = evaluator_dict[sentiment_name].select_ingredients(menu_plans[sentiment_name])
-                
-            sentiment_analyzer_perfect = SentimentAnalyzer(
-                true_child_preference_data, menu_plans['perfect'], child_data=child_feature_data, label_mapping = label_mapping_perfect, model_name='perfect', seed=seed
-            )
             updated_known_unknown_preferences_with_feedback_perfect, _, _, _, _ = sentiment_analyzer_perfect.get_sentiment_and_update_data(plot_confusion_matrix=False)
             percent_of_known_preferences_perfect = calculate_percent_of_known_ingredients_to_unknown(updated_known_unknown_preferences_with_feedback_perfect)
 

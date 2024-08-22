@@ -171,22 +171,28 @@ class MenuUtilityCalculator:
         """
         
         if isinstance(utilities, list):
-            values = []
-            for util in utilities:
-                values.append(util[1])
+            values = [util[1] for util in utilities]
         else:
             values = list(utilities.values())
         
         n = len(values)
         if n == 0:
-            return 0
+            return 0  # No values to calculate Gini coefficient
         
         sorted_values = sorted(values)
         gini_numerator = sum((i + 1) * sorted_values[i] for i in range(n))
         gini_denominator = n * sum(sorted_values)
         
+        if gini_denominator == 0:
+            # Handle the special case where the sum of utilities is zero
+            # One option is to return 0, indicating no inequality
+            # Another option is to return a special value, or raise an exception, depending on the context
+            return 0
+        
         gini_coefficient = (2 * gini_numerator) / gini_denominator - (n + 1) / n
         return gini_coefficient
+
+
 
     def close(self) -> Dict[str, Any]:
         """
