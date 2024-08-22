@@ -35,7 +35,7 @@ class IngredientNegotiator:
         }
         
         
-        self.supplier_availability = self.get_supplier_availability()
+        self.supplier_availability = self.get_supplier_availability(mean_unavailable=0, std_dev_unavailable=0)
         self.vote_gini_dict = {}
         
         if complex_weight_func_args == {}:
