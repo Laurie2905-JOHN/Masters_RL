@@ -37,7 +37,7 @@ class SentimentAnalyzer:
         
         self.menu_plan = menu_plan
         self.label_mapping = label_mapping
-        self.feedback = self.get_feedback(child_data)
+        self.feedback = self.get_feedback(child_data, feedback_method='standard')
         self.changes = []
         self.incorrect_comments = []
         self.is_star_model = "5_star" in model_name
@@ -292,7 +292,7 @@ class SentimentAnalyzer:
             raise ValueError("Population must contain at least one element to sample from.")
         return [random.choice(population) for _ in range(k)]
 
-    def get_feedback(self, child_data: Dict[str, Dict[str, Union[str, float]]], seed: Optional[int] = None) -> Dict[str, Dict[str, Union[str, Dict[str, str]]]]:
+    def get_feedback(self, child_data: Dict[str, Dict[str, Union[str, float]]], feedback_method: str = 'standard', seed: Optional[int] = None) -> Dict[str, Dict[str, Union[str, Dict[str, str]]]]:
         """
         Generate feedback based on current_known_and_unknown_preferences (preferences are the true initialized ones, no error) and menu plan,
         providing randomized comments on the ingredients. The feedback participation is determined by each child's feedback chance.
@@ -381,20 +381,22 @@ class SentimentAnalyzer:
         # Generate feedback for each child based on their feedback chance
         for child, prefs in self.current_known_and_unknown_preferences.items():
             
-            if feedback_type == 'all_the_time':
+            if feedback_method == 'all_the_time':
                 feedback_chance = 1
-            elif feedback_type == 'proportion':
+            elif feedback_method == 'proportion':
                 feedback_chance = 0.8
-            elif feedback_type == 'none':
+            elif feedback_method == 'none':
                 feedback_chance = 0
-            else:
+            elif feedback_method == 'standard':
                 feedback_chance = child_data[child]["feedback_chance"]
+            else:
+                raise ValueError(f"Unknown feedback type: {feedback_method}")
 
             # Determine if the child should provide feedback
             if feedback_chance == 0:
                 continue  # Child does not provide feedback
-            elif feedback_chance == 0.5 and random.random() > 0.5:
-                continue  # Child has a 50% chance to not provide feedback
+            if feedback_chance < 1 and random.random() > feedback_chance:
+                continue  # Skip feedback based on the probability
 
             # Aggregate known and unknown preferences for each feedback type (likes, neutral, dislikes)
             available_ingredients = {
@@ -436,7 +438,12 @@ class SentimentAnalyzer:
                 comment = comment_template.format(*matched_ingredients)
                 correct_action = {ingredient: feedback_types[idx] for idx, ingredient in enumerate(matched_ingredients)}
                 feedback[child] = {"comment": comment, "correct_action": correct_action}
-
+                
+        if feedback_method == 'standard':
+            for child, info in child_data.items():
+                if info['feedback_chance'] == 0 and child in feedback.keys():
+                    raise ValueError(f"Child {child} should not have feedback but has feedback")
+            
         return feedback
 
     def display_feedback_changes(self, original_preferences) -> None:

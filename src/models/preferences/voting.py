@@ -43,6 +43,8 @@ class IngredientNegotiator:
         
         self.complex_weight_func_args = complex_weight_func_args
         self.children_dislikes_in_top_n = {}
+        self.children_dislikes_in_top_n_complex = {}
+        self.vote_gini_dict_complex = {}
         
     @staticmethod
     def _calculate_average_utility(previous_utility: Dict[str, Union[int, float]]) -> float:
@@ -193,7 +195,7 @@ class IngredientNegotiator:
         """
         return {child: {'likes': 1, 'neutral': 1, 'dislikes': 1} for child in self.preferences.keys()}
 
-    def negotiate_ingredients(self) -> Tuple[Dict[str, Dict[str, int]], Dict[str, Dict[str, int]], Set[str]]:
+    def negotiate_ingredients(self, simple_only = True) -> Tuple[Dict[str, Dict[str, int]], Dict[str, Dict[str, int]], Set[str]]:
         """
         Negotiate ingredients using both simple and complex child weight calculations.
 
@@ -203,7 +205,8 @@ class IngredientNegotiator:
         
         # Collect votes using both simple and complex strategies
         votes_simple, unavailable_ingredients = self.collect_weighted_votes(self.calculate_child_weight_simple)
-        votes_complex, _ = self.collect_weighted_votes(self.calculate_child_weight_complex)
+        if simple_only == False:
+            votes_complex, _ = self.collect_weighted_votes(self.calculate_child_weight_complex)
         
         # Initialize negotiated ingredients for both voting strategies
         negotiated_ingredients_simple = {group: {} for group in self.ingredient_groups}
@@ -211,16 +214,20 @@ class IngredientNegotiator:
     
         # Populate negotiated ingredients for both simple and complex votes
         self.populate_negotiated_ingredients(votes_simple, negotiated_ingredients_simple, unavailable_ingredients)
-        self.populate_negotiated_ingredients(votes_complex, negotiated_ingredients_complex, unavailable_ingredients)
+        if simple_only == False:
+            self.populate_negotiated_ingredients(votes_complex, negotiated_ingredients_complex, unavailable_ingredients)
         
         # Identify dislikes in top N ingredients for both sets
         self.children_dislikes_in_top_n_simple = self.identify_dislikes_in_top_n(negotiated_ingredients_simple, n=10)
-        self.children_dislikes_in_top_n_complex = self.identify_dislikes_in_top_n(negotiated_ingredients_complex, n=10)
+        if simple_only == False:
+            self.children_dislikes_in_top_n_complex = self.identify_dislikes_in_top_n(negotiated_ingredients_complex, n=10)
         
         # Calculate and store Gini coefficients for the simple method
         ginis_simple, _ = self._calculate_all_gini(self.calculate_child_weight_simple())
         self.vote_gini_dict_simple = ginis_simple
-        
+        if simple_only == True:
+            self.vote_gini_dict_simple = None
+            
         # Return both sets of negotiated ingredients and the set of unavailable ingredients
         return negotiated_ingredients_simple, negotiated_ingredients_complex, unavailable_ingredients
 
@@ -324,8 +331,6 @@ class IngredientNegotiator:
         :return: Dictionary of weights for each child.
         """
         
-        use_normalize_total_voting_weight = self.complex_weight_func_args['use_normalize_total_voting_weight']
-        use_normalize_vote_categories = self.complex_weight_func_args['use_normalize_vote_categories']
         use_compensatory = self.complex_weight_func_args['use_compensatory']
         use_feedback = self.complex_weight_func_args['use_feedback']
         use_fairness = self.complex_weight_func_args['use_fairness']
@@ -335,10 +340,6 @@ class IngredientNegotiator:
         weights = copy.deepcopy(raw_weights)
 
         for child in self.preferences.keys():
-            if use_normalize_total_voting_weight:
-                weights[child] = self._normalize_for_total_preference_count(child, weights[child])
-            if use_normalize_vote_categories:
-                weights[child] = self._normalize_for_vote_categories(child, weights[child])
             if use_compensatory:
                 weights[child] = self._use_compensatory_weight_update(child, weights[child])
             if use_feedback:

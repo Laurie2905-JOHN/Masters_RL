@@ -202,7 +202,7 @@ def main():
 
             # Check elapsed time
             elapsed_time = time.time() - global_start_time
-            if elapsed_time > 47.5 * 3600:
+            if elapsed_time > 24 * 3600:
                 logging.warning("Approaching time limit, saving intermediate results.")
                 save_intermediate_results(all_results, seed)
                 break
