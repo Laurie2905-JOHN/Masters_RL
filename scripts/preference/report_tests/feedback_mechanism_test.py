@@ -360,10 +360,10 @@ def main():
     seed = 222
     
     menu_generators = [
-        "random",
-        "prob",
-        "best",
-        "prob_best"
+        # "random",
+        # "prob",
+        # "best",
+        "prob_best",
         # "RL",
         "genetic",
     ]
