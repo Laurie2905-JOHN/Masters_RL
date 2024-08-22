@@ -321,7 +321,7 @@ class IngredientNegotiator:
         :return: Updated weights.
         """
         if child in self.feedback.keys():
-            weights = self._multiply_weights_by_factor(weights, factor=4)
+            weights = self._multiply_weights_by_factor(weights, factor=2)
         return weights
 
     def calculate_child_weight_complex(self) -> Dict[str, Dict[str, float]]:

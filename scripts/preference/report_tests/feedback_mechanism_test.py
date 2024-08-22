@@ -212,7 +212,7 @@ def run_menu_generation(seed, model_name="random"):
     
     with logging_redirect_tqdm():
         
-        for menu in tqdm(range(1, 10), desc=f"Processing Menus for {model_name}"):
+        for menu in tqdm(range(1, 100), desc=f"Processing Menus for {model_name}"):
             results[str(menu)] = {}
             # Prediction of preferences based on expected preferences from sentiment analysis
             predictor_sentiment = PreferenceModel(
