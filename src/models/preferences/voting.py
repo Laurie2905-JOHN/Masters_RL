@@ -27,6 +27,14 @@ class IngredientNegotiator:
         self.previous_utility = previous_utility
         self.average_utility = self._calculate_average_utility(previous_utility)
         
+        if self.previous_utility:
+            # Calculate all compensatory factors for normalization
+            all_factors = [self.previous_utility[c] - self.average_utility for c in self.previous_utility.keys()]
+            
+            # Determine the minimum and maximum compensatory factors
+            self.min_factor = min(all_factors)
+            self.max_factor = max(all_factors)
+        
         # Map ingredients to their respective groups
         self.ingredient_groups = ['Group A veg', 'Group A fruit', 'Group BC', 'Group D', 'Group E', 'Bread', 'Confectionary']
         self.ingredient_to_groups = {
@@ -299,7 +307,8 @@ class IngredientNegotiator:
 
     def _use_compensatory_weight_update(self, child: str, weights: Dict[str, float]) -> Dict[str, float]:
         """
-        Update weights using a compensatory factor based on previous utility.
+        Update weights using a compensatory factor based on previous utility, normalized between 0 and 2,
+        where the most negative factor gets 2 and the most positive gets 0.
 
         :param child: Child identifier.
         :param weights: Dictionary of weights for the child.
@@ -308,9 +317,19 @@ class IngredientNegotiator:
         if child in self.previous_utility.keys():
             previous_utility = self.previous_utility[child]
             distance_from_avg = previous_utility - self.average_utility
-            compensatory_factor = 1 + (5 * (1 - distance_from_avg / self.average_utility))
-            weights = self._multiply_weights_by_factor(weights, factor=compensatory_factor)
+            compensatory_factor = distance_from_avg 
+
+            # Normalize factors between 0 and 2, where the highest factor becomes 0 and the lowest becomes 2
+            if self.max_factor != self.min_factor:  # Avoid division by zero
+                normalized_factor = 2 * (self.max_factor - compensatory_factor) / (self.max_factor - self.min_factor)
+            else:
+                normalized_factor = 1  # If all factors are the same, apply no change
+
+            # Apply the normalized compensatory factor to the weights
+            weights = self._multiply_weights_by_factor(weights, factor=normalized_factor)
+
         return weights
+
 
     def _use_feedback_weight_update(self, child: str, weights: Dict[str, float]) -> Dict[str, float]:
         """

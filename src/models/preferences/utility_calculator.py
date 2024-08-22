@@ -138,9 +138,6 @@ class MenuUtilityCalculator:
 
         logging.info("Utilities and Gini coefficients have been saved and reset.")
 
-        # Increment the week number
-        self.week += 1
-
         # Reset utilities and Gini coefficients
         self.true_utility = {}
         self.predicted_utility = {}
