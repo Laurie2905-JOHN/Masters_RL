@@ -74,17 +74,7 @@ def save_intermediate_results(results, seed):
     
     logging.info(f"Intermediate results saved for seed {seed}.")
     
-def run_mod(model_name, negotiated_ingredients, unavailable_ingredients, evaluator, ingredient_df, week, day, seed):
-    
-    menu_generators = {
-            "genetic": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
-            "RL": RLMenuGenerator(ingredient_df, include_preference=True, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
-            "random": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
-            "prob": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0, seed=seed),
-            "best": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=1, seed=seed),
-            "prob_best": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0.5, seed=seed),
-        }
-
+def run_mod(menu_generators, model_name, negotiated_ingredients, unavailable_ingredients, week, day):
     if "genetic" in model_name:
         # Run initial genetic optimization
         menu_plan, _ = menu_generators[model_name].run_genetic_menu_optimization_and_finalize(
@@ -127,7 +117,7 @@ def run_menu_generation(seed, model_name="random"):
     )
     
     updated_known_and_predicted_preferences_start, total_true_unknown_preferences, total_predicted_unknown_preferences, label_encoder = predictor.run_pipeline()
-    
+
     label_mapping_start = {label: index for index, label in enumerate(label_encoder.classes_)}
     
     # Initial negotiation of ingredients
@@ -144,7 +134,17 @@ def run_menu_generation(seed, model_name="random"):
     week, day = 1, 1
     negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
     
-    menu_plan_start = run_mod(model_name, negotiated_ingredients_simple_start, unavailable_ingredients_start, evaluator_start, ingredient_df, 1, 1, seed)
+    # Initialize menu generators once
+    menu_generators = {
+        "genetic": RandomMenuGenerator(evaluator=evaluator_start, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+        "RL": RLMenuGenerator(ingredient_df, include_preference=True, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
+        "random": RandomMenuGenerator(evaluator=evaluator_start, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+        "prob": RandomMenuGenerator(evaluator=evaluator_start, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0, seed=seed),
+        "best": RandomMenuGenerator(evaluator=evaluator_start, menu_plan_length=menu_plan_length, weight_type='score', probability_best=1, seed=seed),
+        "prob_best": RandomMenuGenerator(evaluator=evaluator_start, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0.5, seed=seed),
+    }
+
+    menu_plan_start = run_mod(menu_generators, model_name, negotiated_ingredients_simple_start, unavailable_ingredients_start, evaluator_start, ingredient_df, week, day, seed)
     
     # Sentiment analysis initiation for simple and complex menu plans
     sentiment_analyzer_start = SentimentAnalyzer(
@@ -208,7 +208,7 @@ def run_menu_generation(seed, model_name="random"):
     
     with logging_redirect_tqdm():
         
-        for menu in tqdm(range(1, 100), desc=f"Processing Menus for {model_name}"):
+        for menu in tqdm(range(1, 2), desc=f"Processing Menus for {model_name}"):
             results[str(menu)] = {}
             # Prediction of preferences based on expected preferences from sentiment analysis
             predictor_simple = PreferenceModel(
@@ -321,11 +321,11 @@ def main():
     seed = 300
     
     menu_generators = [
-        # "random",
+        "random",
         # "prob",
-        # "best",
+        "best",
         # "prob_best"
-        "RL",
+        # "RL",
         # "genetic",
     ]
     
