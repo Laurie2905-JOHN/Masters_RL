@@ -74,7 +74,7 @@ def save_intermediate_results(results, seed):
     
     logging.info(f"Intermediate results saved for seed {seed}.")
     
-def run_mod(model_name, negotiated_ingredients, unavailable_ingredients, evaluator, ingredient_df, week, day):
+def run_mod(model_name, negotiated_ingredients, unavailable_ingredients, evaluator, ingredient_df, week, day, seed):
     
     menu_generators = {
             "genetic": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
@@ -144,7 +144,7 @@ def run_menu_generation(seed, model_name="random"):
     week, day = 1, 1
     negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
     
-    menu_plan_start = run_mod(model_name, negotiated_ingredients_simple_start, unavailable_ingredients_start, evaluator_start, ingredient_df, 1, 1)
+    menu_plan_start = run_mod(model_name, negotiated_ingredients_simple_start, unavailable_ingredients_start, evaluator_start, ingredient_df, 1, 1, seed)
     
     # Sentiment analysis initiation for simple and complex menu plans
     sentiment_analyzer_start = SentimentAnalyzer(
@@ -155,17 +155,18 @@ def run_menu_generation(seed, model_name="random"):
     updated_known_unknown_preferences_with_feedback_simple, _, feedback_given_simple, _, _ = sentiment_analyzer_start.get_sentiment_and_update_data(plot_confusion_matrix=False)
     updated_known_unknown_preferences_with_feedback_complex = updated_known_unknown_preferences_with_feedback_simple
 
+    percent_of_known_preferences_simple = calculate_percent_of_known_ingredients_to_unknown(updated_known_unknown_preferences_with_feedback_complex)
+    percent_of_known_preferences_complex = percent_of_known_preferences_simple
     # Assign the feedback given to the previous feedback for complex weight calculation
     previous_feedback_simple = feedback_given_simple
     previous_feedback_complex = feedback_given_simple
        
     results = {}
     
-    results['0'] = {}
+    results['0'] = {"feedback": {}}
     
-    results['0']['feedback']['complex'] = feedback_given_simple
+    results['0']['feedback'] = previous_feedback_complex
     
-    results['0']['feedback']['simple'] = feedback_given_simple
     
     # Initialize utility calculator
     json_path_simple = os.path.join(run_data_dir, "menu_utilities_simple.json")
@@ -190,12 +191,20 @@ def run_menu_generation(seed, model_name="random"):
     results['0'].update({
         'info': info,
         'reward': reward,
-        'percent_of_known_preferences_perfect': percent_of_known_preferences_perfect,
+        'percent_of_known_preferences_simple': percent_of_known_preferences_simple,
+        'percent_of_known_preferences_complex': percent_of_known_preferences_complex,
     })
     
     # Using start prediction preference before feedback
     _ = utility_calculator_simple.calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plan_start.keys()))
     _ = utility_calculator_complex.calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plan_start.keys())) 
+    
+    utility_results = {}
+    
+    utility_results['simple'] = utility_calculator_simple.close()
+    utility_results['complex'] = utility_calculator_complex.close()
+    
+    results['0']["utility_results"] = utility_results
     
     with logging_redirect_tqdm():
         
@@ -221,10 +230,10 @@ def run_menu_generation(seed, model_name="random"):
                 seed, ingredient_df, updated_known_and_predicted_preferences_simple, complex_weight_func_args, previous_feedback=previous_feedback_simple, previous_utility={}
             )
                     
-            negotiated_ingredients_simple, _, unavailable_ingredients_simple = negotiator_simple.negotiate_ingredients(simple_only=False)
+            negotiated_ingredients_simple, _, unavailable_ingredients_simple = negotiator_simple.negotiate_ingredients(simple_only=True)
             
             negotiator_complex = IngredientNegotiator(
-                seed, ingredient_df, updated_known_and_predicted_preferences_simple, complex_weight_func_args, previous_feedback=previous_feedback_complex, previous_utility={}
+                seed, ingredient_df, updated_known_and_predicted_preferences_complex, complex_weight_func_args, previous_feedback=previous_feedback_complex, previous_utility={}
             )
             
             _, negotiated_ingredients_complex, unavailable_ingredients_complex = negotiator_complex.negotiate_ingredients(simple_only=False)
@@ -255,7 +264,7 @@ def run_menu_generation(seed, model_name="random"):
             
             for method in ['simple', 'complex']:
                 
-                menu_plans[method] = run_mod(model_name, negotiated_ingredients_dict[method], unavailable_ingredients_dict[method], evaluator_dict[method], ingredient_df, week, day)
+                menu_plans[method] = run_mod(model_name, negotiated_ingredients_dict[method], unavailable_ingredients_dict[method], evaluator_dict[method], ingredient_df, week, day, seed)
                 
                 reward1, info1 = evaluator_dict[method].select_ingredients(menu_plans[method])
                 
@@ -270,32 +279,35 @@ def run_menu_generation(seed, model_name="random"):
                 
                 utility_results = {}
                 
-                _ = utility_dict[method].calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plans['no_feedback'].keys()))
+                _ = utility_dict[method].calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plans[method].keys()))
 
                 utility_results[method] = utility_dict[method].close()
                 
-                results["utility_results"] = utility_results
+                results[str(menu)]["utility_results"] = utility_results
 
                 
-                sentiment_analyzer_perfect = SentimentAnalyzer(
-                    true_child_preference_data, menu_plans['perfect'], child_data=child_feature_data, label_mapping = label_mapping_perfect, model_name='perfect', seed=seed
-                )
-                
-            updated_known_unknown_preferences_with_feedback_perfect, _, _, _, _ = sentiment_analyzer_perfect.get_sentiment_and_update_data(plot_confusion_matrix=False)
-            percent_of_known_preferences_perfect = calculate_percent_of_known_ingredients_to_unknown(updated_known_unknown_preferences_with_feedback_perfect)
+            sentiment_analyzer_simple = SentimentAnalyzer(
+                true_child_preference_data, menu_plans['simple'], child_data=child_feature_data, label_mapping = label_mapping_simple, model_name='perfect', seed=seed
+            )
+            
+            updated_known_unknown_preferences_with_feedback_simple, _, previous_feedback_simple, _, _ = sentiment_analyzer_simple.get_sentiment_and_update_data(plot_confusion_matrix=False)
+            percent_of_known_preferences_simple = calculate_percent_of_known_ingredients_to_unknown(updated_known_unknown_preferences_with_feedback_simple)
+            
+            sentiment_analyzer_complex = SentimentAnalyzer(
+                true_child_preference_data, menu_plans['complex'], child_data=child_feature_data, label_mapping = label_mapping_complex, model_name='perfect', seed=seed
+            )
+            
+            updated_known_unknown_preferences_with_feedback_complex, _, previous_feedback_complex, _, _ = sentiment_analyzer_complex.get_sentiment_and_update_data(plot_confusion_matrix=False)
+            percent_of_known_preferences_complex = calculate_percent_of_known_ingredients_to_unknown(updated_known_unknown_preferences_with_feedback_complex)
+
 
             # Store the results including time taken and reward
-            results[str(menu)] = {
-                'info': info,
-                'reward': reward,
-                'percent_of_known_preferences_perfect': percent_of_known_preferences_perfect,
-            }
-                
-            utility_results = {}
-            utility_results['perfect'] = utility_calculator_perfect.close()
-                
-            results["utility_results"] = utility_results
-    
+            results[str(menu)].update({
+                'feedback': previous_feedback_complex,
+                'percent_of_known_preferences_simple': percent_of_known_preferences_simple,
+                'percent_of_known_preferences_complex': percent_of_known_preferences_complex,
+            })
+
     return results
 
 import logging
@@ -306,15 +318,15 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
-    seed = random.randint(0, int(1e6))
+    seed = 300
     
     menu_generators = [
         "random",
-        # "prob",
-        # "best",
-        # "prob_best"
+        "prob",
+        "best",
+        "prob_best"
         # "RL",
-        # "genetic",
+        "genetic",
     ]
     
     try:
