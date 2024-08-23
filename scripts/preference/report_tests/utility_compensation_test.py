@@ -164,7 +164,7 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
     with logging_redirect_tqdm():
         for method in tqdm(menu_generators.keys(), desc="Testing Method Types"):
             with logging_redirect_tqdm():
-                for menu in tqdm(range(1, 3), desc=f"Processing Menus for method {method} and {model_name}"):
+                for menu in tqdm(range(1, 180), desc=f"Processing Menus for method {method} and {model_name}"):
                     
                     week = (menu - 1) // 5 + 1  # Week number (1-based index)
                     day = (menu - 1) % 5 + 1    # Day number within the week (1-based index)
@@ -252,7 +252,7 @@ logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %
 
 def main():
     seed = random.randint(0, int(1e6))
-    seed = 300 
+    seed = 350 
     
     # Load data
     ingredient_df = get_data("data.csv")
@@ -292,14 +292,14 @@ def main():
     
     # Initialize menu generators once
     menu_generators = {
-        # "simple": {
-        # "genetic": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
-        # "RL": RLMenuGenerator(ingredient_df, include_preference=True, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
-        # "random": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
-        # "prob": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0, seed=seed),
-        # "best": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=1, seed=seed),
-        # "prob_best": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0.5, seed=seed),
-        # },
+        "simple": {
+        "genetic": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+        "RL": RLMenuGenerator(ingredient_df, include_preference=True, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
+        "random": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+        "prob": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0, seed=seed),
+        "best": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=1, seed=seed),
+        "prob_best": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0.5, seed=seed),
+        },
         "complex": {
             "genetic": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
             "RL": RLMenuGenerator(ingredient_df, include_preference=True, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
@@ -312,9 +312,9 @@ def main():
     
     menu_gen_names = [
         "random",
-        # "prob",
-        # "best",
-        # "prob_best",
+        "prob",
+        "best",
+        "prob_best",
         # "RL",
         # "genetic",
     ]

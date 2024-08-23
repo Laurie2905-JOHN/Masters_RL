@@ -116,12 +116,13 @@ def run_menu_generation(seed):
     # Generate and evaluate menus, store results
     results = {}
     
-    for name, generator in menu_generators.items():
-        
+    # Use logging_redirect_tqdm to ensure that logging works nicely with tqdm
+    for name, generator in tqdm(menu_generators.items(), desc="Processing Generators"):
+    
         utility_calculator = MenuUtilityCalculator(true_child_preference_data, child_feature_data, menu_plan_length=menu_plan_length, save_to_json=f"{json_path}_generator_{name}_split_1_seed_{str(seed)}.json")
         results[name] = {}
         
-        for menu_plan_num in range(menu_plan_length):
+        for menu_plan_num in tqdm(range(menu_plan_length), desc="Processing Menu Plans"):
             
             logging.info(f"Running {name} menu generator for menu plan {menu_plan_num}")
             
@@ -180,20 +181,24 @@ def run_menu_generation(seed):
         
     return results
 
+from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
+
 def main():
     all_results = []
     seed = random.randint(0, int(1e6))
     try:
-        for i in range(10):
-            iteration_results = run_menu_generation(seed)
-            all_results.append(iteration_results)
+        with logging_redirect_tqdm():
+            for i in tqdm(range(10), desc="Iteration Number"):
+                iteration_results = run_menu_generation(seed)
+                all_results.append(iteration_results)
 
-            # Check elapsed time
-            elapsed_time = time.time() - global_start_time
-            if elapsed_time > 24 * 3600:
-                logging.warning("Approaching time limit, saving intermediate results.")
-                save_intermediate_results(all_results, seed)
-                break
+                # Check elapsed time
+                elapsed_time = time.time() - global_start_time
+                if elapsed_time > 24 * 3600:
+                    logging.warning("Approaching time limit, saving intermediate results.")
+                    save_intermediate_results(all_results, seed)
+                    break
 
     except Exception as e:
         logging.error(f"An error occurred: {e}")
