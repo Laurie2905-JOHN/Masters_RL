@@ -78,7 +78,8 @@ def save_intermediate_results(results, seed):
 def run_mod(model_name, negotiated, unavailable, menu_generators, ingredient_df, method, week=1, day=1):
     
     menu_generator = menu_generators[method][model_name]
-    menu_generator.update_evaluator(ingredient_df, negotiated, unavailable)
+    if model_name != 'RL':
+        menu_generator.update_evaluator(ingredient_df, negotiated, unavailable)
 
     if "genetic" in model_name:
         # Run initial genetic optimization
@@ -134,8 +135,12 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
         updated_preferences_with_feedback, _, previous_feedback, _, _ = sentiment_analyzer.get_sentiment_and_update_data(plot_confusion_matrix=False)
 
         # Evaluate the menu plan and calculate the reward
-        reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method])
-
+        if model_name != 'RL':
+            reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method])
+        else:
+            evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients = negotiated_ingredients_start, unavailable_ingredients = unavailable_ingredients_start)
+            reward, info = evaluator.select_ingredients(menu_plan_dict[method])
+            
         # Calculate utilities using the utility calculator
         true_utility, predicted_utility = utility_calculator_dict[method].calculate_day_menu_utility(
             updated_known_and_predicted_preferences_start, list(menu_plan_dict[method].keys())
@@ -213,7 +218,11 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
 
                                 
                     # Evaluate the menu plan and calculate the reward
-                    reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method])
+                    if model_name != 'RL':
+                        reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method])
+                    else:
+                        evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients = negotiated_ingredients_dict[method], unavailable_ingredients = unavailable_ingredients_dict[method])
+                        reward, info = evaluator.select_ingredients(menu_plan_dict[method])
                     
                     # Store the results including time taken and reward
                     results[method][str(menu)].update({
@@ -281,7 +290,7 @@ def main():
     
     negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
     
-        # Initialize menu generators once
+    # Initialize menu generators once
     menu_generators = {
         "simple": {
         "genetic": RandomMenuGenerator(evaluator=evaluator, include_preference=True, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
@@ -302,11 +311,11 @@ def main():
     }
     
     menu_gen_names = [
-        "random",
-        "prob",
-        "best",
-        "prob_best",
-        # "RL",
+        # "random",
+        # "prob",
+        # "best",
+        # "prob_best",
+        "RL",
         # "genetic",
     ]
     

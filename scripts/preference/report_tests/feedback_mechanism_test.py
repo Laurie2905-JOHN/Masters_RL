@@ -156,6 +156,8 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
             no_feedback_feedback = {} 
             
         # Evaluate the menu plan and calculate the reward
+        if model_name == 'RL':
+            reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method], week=1, day=1)
         reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method])
         
         # Store the results including time taken and reward for the current method
