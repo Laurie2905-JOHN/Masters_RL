@@ -12,7 +12,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
 
 class SentimentAnalyzer:
-    def __init__(self, current_known_and_unknown_preferences, menu_plan, child_data, label_mapping, model_name: str = "Vader", seed: int = 42):
+    def __init__(self, current_known_and_unknown_preferences, true_child_preferences, menu_plan, child_data, label_mapping, model_name: str = "Vader", seed: int = 42):
         """
         Initialize the sentiment analyzer with the specified model.
         """
@@ -37,7 +37,7 @@ class SentimentAnalyzer:
         
         self.menu_plan = menu_plan
         self.label_mapping = label_mapping
-        self.feedback = self.get_feedback(child_data, feedback_method='standard')
+        self.feedback = self.get_feedback(child_data, true_child_preferences, feedback_method='standard')
         self.changes = []
         self.incorrect_comments = []
         self.is_star_model = "5_star" in model_name
@@ -292,9 +292,9 @@ class SentimentAnalyzer:
             raise ValueError("Population must contain at least one element to sample from.")
         return [random.choice(population) for _ in range(k)]
 
-    def get_feedback(self, child_data: Dict[str, Dict[str, Union[str, float]]], feedback_method: str = 'standard', seed: Optional[int] = None) -> Dict[str, Dict[str, Union[str, Dict[str, str]]]]:
+    def get_feedback(self, child_data: Dict[str, Dict[str, Union[str, float]]], true_child_preferences, feedback_method: str = 'standard', seed: Optional[int] = None) -> Dict[str, Dict[str, Union[str, Dict[str, str]]]]:
         """
-        Generate feedback based on current_known_and_unknown_preferences (preferences are the true initialized ones, no error) and menu plan,
+        Generate feedback based on true_child_preferences (preferences are the true initialized ones, no error) and menu plan,
         providing randomized comments on the ingredients. The feedback participation is determined by each child's feedback chance.
 
         Parameters:
@@ -379,7 +379,7 @@ class SentimentAnalyzer:
         feedback = {}
 
         # Generate feedback for each child based on their feedback chance
-        for child, prefs in self.current_known_and_unknown_preferences.items():
+        for child, prefs in true_child_preferences.items():
             
             if feedback_method == 'all_the_time':
                 feedback_chance = 1
@@ -455,11 +455,11 @@ class SentimentAnalyzer:
             print(f"\nChild {change['child']} had Action:")
             print(f"{change['ingredient']} {change['change']}.")
             true_preference_label = PreferenceModel.get_true_preference_label(original_preferences, change['ingredient'], change['child'])
-            if self.label_mapping[str(true_preference_label)] == change['change'].split(" ")[-1]:
+            if str(true_preference_label) == change['change'].split(" ")[-1]:
                 pass
                 print("Correct Action")
             else:
-                print("Incorrect Preferences: should be", self.label_mapping[str(true_preference_label)])
+                print("Incorrect Preferences: should be", str(true_preference_label))
 
     def display_incorrect_feedback_changes(self) -> None:
         """

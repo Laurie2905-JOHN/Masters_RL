@@ -92,7 +92,7 @@ class MenuUtilityCalculator:
         self.day += 1  # Move to the next day after calculation
         self.generated_count += 1
         
-        return self.predicted_utility[self.day - 1]  # Return the predicted utility for the current day (before increment)
+        return self.true_utility[self.day - 1], self.predicted_utility[self.day - 1]  # Return the predicted and true utility for the current day (before increment)
 
     def reset_utilities_and_save(self) -> None:
         """

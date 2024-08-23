@@ -113,6 +113,23 @@ class RandomMenuGenerator(BaseMenuGenerator):
 
         self.include_preference = include_preference
         
+    def update_evaluator(self, ingredient_df, negotiated: Dict = {}, unavailable: set = {}) -> None:
+        """
+        Updates the evaluator used for selecting ingredients and generating menus.
+        
+        :param evaluator: The new MenuEvaluator instance to use.
+        """
+        
+        self.evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients = negotiated, unavailable_ingredients = unavailable)  
+        
+    def get_evaluator(self) -> MenuEvaluator:
+        """
+        Returns the evaluator used for selecting ingredients and generating menus.
+        
+        :return: The MenuEvaluator instance.
+        """
+        return self.evaluator
+                
     def normalize_scores(self) -> None:
         """
         Normalizes the scores of the ingredients within each group to ensure they sum up to 1.

@@ -669,7 +669,7 @@ def plot_mape(days_labels: List[str], true_utility: List[Dict[str, float]], pred
 def print_preference_difference_and_accuracy(
     child_preference_data: Dict[str, Dict[str, Dict[str, List[str]]]], 
     updated_preferences: Dict[str, Dict[str, List[str]]], 
-    summary_only: bool = False
+    summary_only: bool = True
 ) -> Tuple[float, float, List[str], List[str]]:
     """
     Print the differences between actual and predicted preferences, calculate accuracy, and return lists of true and predicted labels.
