@@ -1,0 +1,6 @@
+Successfully read 136 lines from the file. Loaded 135 ingredients.
+
+Overall Accuracy of Preferences: 0.701975
+Standard Deviation of Accuracies: 0.051522
+Data successfully logged to /rds/general/user/lej23/home/fyp/Masters_RL/scripts/preference/report_tests/saved_data/data/run_13/log_file.json
+Negotiator closed and data saved.

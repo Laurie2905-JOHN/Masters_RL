@@ -164,7 +164,7 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
     with logging_redirect_tqdm():
         for method in tqdm(menu_generators.keys(), desc="Testing Method Types"):
             with logging_redirect_tqdm():
-                for menu in tqdm(range(1, 3), desc=f"Processing Menus for method {method} and {model_name}"):
+                for menu in tqdm(range(1, 50), desc=f"Processing Menus for method {method} and {model_name}"):
                     
                     week = (menu - 1) // 5 + 1  # Week number (1-based index)
                     day = (menu - 1) % 5 + 1    # Day number within the week (1-based index)
@@ -314,9 +314,9 @@ def main():
         # "random",
         # "prob",
         # "best",
-        # "prob_best",
-        "RL",
-        # "genetic",
+        # "prob_best"
+        "RL"
+        # "genetic"
     ]
     
     try:

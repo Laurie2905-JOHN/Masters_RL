@@ -1,4 +1,0 @@
-Successfully read 136 lines from the file. Loaded 135 ingredients.
-Data successfully logged to /rds/general/user/lej23/home/fyp/Masters_RL/scripts/preference/report_tests/saved_data/data/run_8/log_file.json
-Negotiator closed and data saved.
-Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Pasta wholemeal': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.41805555555555557

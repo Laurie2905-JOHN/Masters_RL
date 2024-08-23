@@ -1,0 +1,852 @@
+2024-08-23 03:13:05.790682: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-08-23 03:13:19.605135: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/numpy/lib/function_base.py:520: RuntimeWarning: Mean of empty slice.
+  avg = a.mean(axis, **keepdims_kw)
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/numpy/core/_methods.py:129: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+2024-08-23 03:13:39,716 - INFO - Running random_random menu generator for menu plan 1
+2024-08-23 03:13:39,728 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 03:13:39,728 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.38835725677830935}
+2024-08-23 03:13:39,728 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.30543055978884687
+2024-08-23 03:13:39,728 - INFO - Running random_random menu generator for menu plan 2
+2024-08-23 03:13:39,740 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 03:13:39,740 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 3.039130434782609}
+2024-08-23 03:13:39,740 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.7913377956055704
+2024-08-23 03:13:39,740 - INFO - Running random_random menu generator for menu plan 3
+2024-08-23 03:13:39,750 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 03:13:39,750 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -3.0142857142857142}
+2024-08-23 03:13:39,750 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3197574803604509
+2024-08-23 03:13:39,750 - INFO - Running random_random menu generator for menu plan 4
+2024-08-23 03:13:39,761 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 03:13:39,761 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.21811594202898532}
+2024-08-23 03:13:39,761 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3754698527918742
+2024-08-23 03:13:39,761 - INFO - Running random_random menu generator for menu plan 5
+2024-08-23 03:13:39,771 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 03:13:39,771 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.3933333333333333}
+2024-08-23 03:13:39,772 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.26872531163927416
+2024-08-23 03:13:39,773 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 03:13:39,773 - INFO - Running random_refined menu generator for menu plan 1
+2024-08-23 03:14:06,306 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 03:14:06,307 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.38835725677830935}
+2024-08-23 03:14:06,308 - INFO - random_refined menu plan generated in 26.53 seconds with a reward of 0.5446103538724313
+2024-08-23 03:14:06,308 - INFO - Running random_refined menu generator for menu plan 2
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-23 03:14:33,507 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 03:14:33,508 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 3.039130434782609}
+2024-08-23 03:14:33,508 - INFO - random_refined menu plan generated in 27.20 seconds with a reward of 0.8654755359915867
+2024-08-23 03:14:33,508 - INFO - Running random_refined menu generator for menu plan 3
+2024-08-23 03:15:00,673 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 03:15:00,674 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -3.0142857142857142}
+2024-08-23 03:15:00,674 - INFO - random_refined menu plan generated in 27.16 seconds with a reward of 0.593086963408943
+2024-08-23 03:15:00,674 - INFO - Running random_refined menu generator for menu plan 4
+2024-08-23 03:15:27,480 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 03:15:27,480 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.21811594202898532}
+2024-08-23 03:15:27,480 - INFO - random_refined menu plan generated in 26.80 seconds with a reward of 0.8162682608194269
+2024-08-23 03:15:27,480 - INFO - Running random_refined menu generator for menu plan 5
+2024-08-23 03:15:54,749 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 03:15:54,750 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.3933333333333333}
+2024-08-23 03:15:54,750 - INFO - random_refined menu plan generated in 27.27 seconds with a reward of 0.7546159938645346
+2024-08-23 03:15:54,751 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 03:15:54,751 - INFO - Running genetic menu generator for menu plan 1
+2024-08-23 03:18:49,910 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Pears', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 03:18:49,911 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.245474613686534, 'predicted_gini': 0.245474613686534}
+2024-08-23 03:18:49,911 - INFO - genetic menu plan generated in 175.16 seconds with a reward of 0.9842342342342342
+2024-08-23 03:18:49,911 - INFO - Running genetic menu generator for menu plan 2
+2024-08-23 03:21:44,100 - INFO - Calculating utilities for meal plan #2: ['Sweet corn', 'Apples', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 03:21:44,100 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.09487179487179476, 'predicted_gini': 0.09487179487179476}
+2024-08-23 03:21:44,100 - INFO - genetic menu plan generated in 174.19 seconds with a reward of 0.9653377349352853
+2024-08-23 03:21:44,100 - INFO - Running genetic menu generator for menu plan 3
+2024-08-23 03:24:37,781 - INFO - Calculating utilities for meal plan #3: ['Peas', 'Strawberries', 'Chickpeas (dry)', 'Noodles', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 03:24:37,782 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.3097297297297297, 'predicted_gini': 0.3097297297297297}
+2024-08-23 03:24:37,782 - INFO - genetic menu plan generated in 173.68 seconds with a reward of 0.9546203246115756
+2024-08-23 03:24:37,782 - INFO - Running genetic menu generator for menu plan 4
+2024-08-23 03:27:32,831 - INFO - Calculating utilities for meal plan #4: ['Swedes', 'Nectarines', 'Salmons', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 03:27:32,832 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.09899999999999998, 'predicted_gini': 0.09899999999999998}
+2024-08-23 03:27:32,832 - INFO - genetic menu plan generated in 175.05 seconds with a reward of 0.957597924417697
+2024-08-23 03:27:32,832 - INFO - Running genetic menu generator for menu plan 5
+2024-08-23 03:30:30,681 - INFO - Calculating utilities for meal plan #5: ['Tomatoes', 'Common banana', 'Mackerel', 'New potatoes', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 03:30:30,682 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.17820512820512802, 'predicted_gini': 0.17820512820512802}
+2024-08-23 03:30:30,682 - INFO - genetic menu plan generated in 177.85 seconds with a reward of 0.9480136742166488
+2024-08-23 03:30:30,691 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 03:30:30,691 - INFO - Running RL menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 03:41:47,075 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Couscous', 'Sea bass', 'Table grapes', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk plain']
+2024-08-23 03:41:47,075 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.2511904761904762, 'predicted_gini': 0.2511904761904762}
+2024-08-23 03:41:47,075 - INFO - RL menu plan generated in 676.38 seconds with a reward of 0.9504828100191179
+2024-08-23 03:41:47,075 - INFO - Running RL menu generator for menu plan 2
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 03:53:11,393 - INFO - Calculating utilities for meal plan #2: ['Courgettes', 'Cow milk whole', 'Pasta wholemeal', 'Pears', 'Trouts', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 03:53:11,394 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.26840277777777777, 'predicted_gini': 0.26840277777777777}
+2024-08-23 03:53:11,394 - INFO - RL menu plan generated in 684.31 seconds with a reward of 0.8231361656620549
+2024-08-23 03:53:11,394 - INFO - Running RL menu generator for menu plan 3
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 04:03:56,694 - INFO - Calculating utilities for meal plan #3: ['Oranges sweet', 'Shrimps and prawns', 'Swedes', 'Sweet potatoes', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-23 04:03:56,695 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.2379227053140096, 'predicted_gini': 0.2379227053140096}
+2024-08-23 04:03:56,695 - INFO - RL menu plan generated in 645.30 seconds with a reward of 0.9170217495066569
+2024-08-23 04:03:56,695 - INFO - Running RL menu generator for menu plan 4
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 04:15:10,845 - INFO - Calculating utilities for meal plan #4: ['Cheese cheddar', 'Eggs', 'Leeks', 'New potatoes', 'Papayas', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:15:10,846 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.0892255892255891, 'predicted_gini': 0.0892255892255891}
+2024-08-23 04:15:10,846 - INFO - RL menu plan generated in 674.15 seconds with a reward of 0.8067716352532085
+2024-08-23 04:15:10,846 - INFO - Running RL menu generator for menu plan 5
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 04:26:25,316 - INFO - Calculating utilities for meal plan #5: ['Apples', 'Cod', 'Pasta plain (not stuffed) uncooked', 'Sour cream', 'Tomatoes', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:26:25,317 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.1971807628524045, 'predicted_gini': 0.1971807628524045}
+2024-08-23 04:26:25,317 - INFO - RL menu plan generated in 674.46 seconds with a reward of 0.899008977027565
+2024-08-23 04:26:25,324 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 04:26:29,835 - INFO - Running random_random menu generator for menu plan 1
+2024-08-23 04:26:29,848 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 04:26:29,848 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.3790909090909089}
+2024-08-23 04:26:29,848 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.30887281114134885
+2024-08-23 04:26:29,848 - INFO - Running random_random menu generator for menu plan 2
+2024-08-23 04:26:29,859 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:26:29,859 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 2.1929292929292927}
+2024-08-23 04:26:29,859 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.7928022175826981
+2024-08-23 04:26:29,859 - INFO - Running random_random menu generator for menu plan 3
+2024-08-23 04:26:29,870 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 04:26:29,870 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -3.03015873015873}
+2024-08-23 04:26:29,870 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3206551565890457
+2024-08-23 04:26:29,870 - INFO - Running random_random menu generator for menu plan 4
+2024-08-23 04:26:29,881 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:26:29,881 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.36506024096385525}
+2024-08-23 04:26:29,881 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.37724315413899007
+2024-08-23 04:26:29,881 - INFO - Running random_random menu generator for menu plan 5
+2024-08-23 04:26:29,892 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 04:26:29,892 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.6086021505376342}
+2024-08-23 04:26:29,892 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.26605190418230273
+2024-08-23 04:26:29,893 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 04:26:29,893 - INFO - Running random_refined menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-23 04:26:56,784 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 04:26:56,784 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.3790909090909089}
+2024-08-23 04:26:56,784 - INFO - random_refined menu plan generated in 26.89 seconds with a reward of 0.5480526052249334
+2024-08-23 04:26:56,784 - INFO - Running random_refined menu generator for menu plan 2
+2024-08-23 04:27:23,903 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:27:23,904 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 2.1929292929292927}
+2024-08-23 04:27:23,904 - INFO - random_refined menu plan generated in 27.12 seconds with a reward of 0.8669399579687144
+2024-08-23 04:27:23,904 - INFO - Running random_refined menu generator for menu plan 3
+2024-08-23 04:27:51,332 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 04:27:51,332 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -3.03015873015873}
+2024-08-23 04:27:51,332 - INFO - random_refined menu plan generated in 27.42 seconds with a reward of 0.5939846396375378
+2024-08-23 04:27:51,332 - INFO - Running random_refined menu generator for menu plan 4
+2024-08-23 04:28:18,966 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:28:18,967 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.36506024096385525}
+2024-08-23 04:28:18,967 - INFO - random_refined menu plan generated in 27.63 seconds with a reward of 0.8180415621665427
+2024-08-23 04:28:18,967 - INFO - Running random_refined menu generator for menu plan 5
+2024-08-23 04:28:47,224 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 04:28:47,224 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.6086021505376342}
+2024-08-23 04:28:47,224 - INFO - random_refined menu plan generated in 28.25 seconds with a reward of 0.7519425864075632
+2024-08-23 04:28:47,227 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 04:28:47,227 - INFO - Running genetic menu generator for menu plan 1
+2024-08-23 04:31:39,749 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:31:39,750 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.245474613686534, 'predicted_gini': 0.24436936936936937}
+2024-08-23 04:31:39,750 - INFO - genetic menu plan generated in 172.52 seconds with a reward of 0.9854166666666666
+2024-08-23 04:31:39,750 - INFO - Running genetic menu generator for menu plan 2
+2024-08-23 04:34:34,514 - INFO - Calculating utilities for meal plan #2: ['Peas', 'Nectarines', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Sour cream', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:34:34,514 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.1788405797101449, 'predicted_gini': 0.12975679542203133}
+2024-08-23 04:34:34,514 - INFO - genetic menu plan generated in 174.76 seconds with a reward of 0.9679550585488242
+2024-08-23 04:34:34,514 - INFO - Running genetic menu generator for menu plan 3
+2024-08-23 04:37:26,703 - INFO - Calculating utilities for meal plan #3: ['Swedes', 'Pears', 'Salmons', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:37:26,704 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.09899999999999998, 'predicted_gini': 0.08690476190476182}
+2024-08-23 04:37:26,704 - INFO - genetic menu plan generated in 172.18 seconds with a reward of 0.9659131197259575
+2024-08-23 04:37:26,704 - INFO - Running genetic menu generator for menu plan 4
+2024-08-23 04:40:19,906 - INFO - Calculating utilities for meal plan #4: ['Sweet corn', 'Raspberries', 'Chickpeas (dry)', 'Noodles', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:40:19,906 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.3097297297297297, 'predicted_gini': 0.27696969696969687}
+2024-08-23 04:40:19,906 - INFO - genetic menu plan generated in 173.20 seconds with a reward of 0.9522733550760917
+2024-08-23 04:40:19,906 - INFO - Running genetic menu generator for menu plan 5
+2024-08-23 04:43:11,906 - INFO - Calculating utilities for meal plan #5: ['Leeks', 'Common banana', 'Anchovies', 'New potatoes', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:43:11,906 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.14806201550387588, 'predicted_gini': 0.1434108527131781}
+2024-08-23 04:43:11,906 - INFO - genetic menu plan generated in 172.00 seconds with a reward of 0.9548130025887249
+2024-08-23 04:43:11,924 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 04:43:11,925 - INFO - Running RL menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 04:53:57,804 - INFO - Calculating utilities for meal plan #1: ['Couscous', 'Cow milk semi skimmed (half fat)', 'Mackerel', 'Peas', 'Table grapes', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 04:53:57,804 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.20873015873015865, 'predicted_gini': 0.1615384615384614}
+2024-08-23 04:53:57,804 - INFO - RL menu plan generated in 645.87 seconds with a reward of 0.9557782223557952
+2024-08-23 04:53:57,804 - INFO - Running RL menu generator for menu plan 2
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 05:05:18,987 - INFO - Calculating utilities for meal plan #2: ['Courgettes', 'Fish fingers breaded', 'Papayas', 'Sweet potatoes', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-23 05:05:18,987 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.45070028011204477, 'predicted_gini': 0.4775836972343521}
+2024-08-23 05:05:18,987 - INFO - RL menu plan generated in 681.18 seconds with a reward of 0.9285682316469842
+2024-08-23 05:05:18,987 - INFO - Running RL menu generator for menu plan 3
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 05:16:17,550 - INFO - Calculating utilities for meal plan #3: ['Carrots', 'Chickpeas (dry)', 'Noodles', 'Sour cream', 'Strawberries', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:16:17,550 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.20681399631675856, 'predicted_gini': 0.10862745098039195}
+2024-08-23 05:16:17,550 - INFO - RL menu plan generated in 658.56 seconds with a reward of 0.9513647324649037
+2024-08-23 05:16:17,550 - INFO - Running RL menu generator for menu plan 4
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 05:27:05,613 - INFO - Calculating utilities for meal plan #4: ['Pears', 'Potatoes', 'Salmons', 'Sweet corn', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk plain']
+2024-08-23 05:27:05,614 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.23333333333333317, 'predicted_gini': 0.23168724279835384}
+2024-08-23 05:27:05,614 - INFO - RL menu plan generated in 648.06 seconds with a reward of 0.952887976307098
+2024-08-23 05:27:05,614 - INFO - Running RL menu generator for menu plan 5
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 05:38:03,362 - INFO - Calculating utilities for meal plan #5: ['Common banana', 'Cow milk whole', 'Cucumber', 'Kidney bean', 'Pasta plain (not stuffed) uncooked', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:38:03,363 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3117994100294985, 'predicted_gini': 0.3141975308641973}
+2024-08-23 05:38:03,363 - INFO - RL menu plan generated in 657.74 seconds with a reward of 0.9225709398028519
+2024-08-23 05:38:03,371 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 05:38:07,963 - INFO - Running random_random menu generator for menu plan 1
+2024-08-23 05:38:07,975 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 05:38:07,976 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.3763385146804834}
+2024-08-23 05:38:07,976 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3015868850752265
+2024-08-23 05:38:07,976 - INFO - Running random_random menu generator for menu plan 2
+2024-08-23 05:38:07,986 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:38:07,987 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 26.166666666666664}
+2024-08-23 05:38:07,987 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.7928664948895094
+2024-08-23 05:38:07,987 - INFO - Running random_random menu generator for menu plan 3
+2024-08-23 05:38:07,997 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 05:38:07,998 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -2.691194968553459}
+2024-08-23 05:38:07,998 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.32104644773808655
+2024-08-23 05:38:07,998 - INFO - Running random_random menu generator for menu plan 4
+2024-08-23 05:38:08,008 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:38:08,009 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.4541666666666666}
+2024-08-23 05:38:08,009 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3794478691633822
+2024-08-23 05:38:08,009 - INFO - Running random_random menu generator for menu plan 5
+2024-08-23 05:38:08,019 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 05:38:08,020 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.8124183006535948}
+2024-08-23 05:38:08,020 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.2611844531384134
+2024-08-23 05:38:08,021 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 05:38:08,021 - INFO - Running random_refined menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-23 05:38:35,243 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 05:38:35,244 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.3763385146804834}
+2024-08-23 05:38:35,244 - INFO - random_refined menu plan generated in 27.22 seconds with a reward of 0.5407666791588109
+2024-08-23 05:38:35,244 - INFO - Running random_refined menu generator for menu plan 2
+2024-08-23 05:39:02,269 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:39:02,270 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 26.166666666666664}
+2024-08-23 05:39:02,270 - INFO - random_refined menu plan generated in 27.02 seconds with a reward of 0.8670042352755257
+2024-08-23 05:39:02,270 - INFO - Running random_refined menu generator for menu plan 3
+2024-08-23 05:39:29,148 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 05:39:29,148 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -2.691194968553459}
+2024-08-23 05:39:29,149 - INFO - random_refined menu plan generated in 26.87 seconds with a reward of 0.5943759307865786
+2024-08-23 05:39:29,149 - INFO - Running random_refined menu generator for menu plan 4
+2024-08-23 05:39:56,337 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:39:56,337 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.4541666666666666}
+2024-08-23 05:39:56,337 - INFO - random_refined menu plan generated in 27.18 seconds with a reward of 0.8202462771909348
+2024-08-23 05:39:56,337 - INFO - Running random_refined menu generator for menu plan 5
+2024-08-23 05:40:23,865 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 05:40:23,865 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.8124183006535948}
+2024-08-23 05:40:23,865 - INFO - random_refined menu plan generated in 27.52 seconds with a reward of 0.7470751353636739
+2024-08-23 05:40:23,867 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 05:40:23,867 - INFO - Running genetic menu generator for menu plan 1
+2024-08-23 05:43:17,059 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:43:17,060 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.245474613686534, 'predicted_gini': 0.2498881431767337}
+2024-08-23 05:43:17,060 - INFO - genetic menu plan generated in 173.19 seconds with a reward of 0.9876207729468599
+2024-08-23 05:43:17,060 - INFO - Running genetic menu generator for menu plan 2
+2024-08-23 05:46:10,516 - INFO - Calculating utilities for meal plan #2: ['Peas', 'Pears', 'Chickpeas (dry)', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:46:10,516 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.20681399631675856, 'predicted_gini': 0.14632768361581916}
+2024-08-23 05:46:10,516 - INFO - genetic menu plan generated in 173.45 seconds with a reward of 0.9596752549651101
+2024-08-23 05:46:10,516 - INFO - Running genetic menu generator for menu plan 3
+2024-08-23 05:49:02,523 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Nectarines', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:49:02,525 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.3054131054131053, 'predicted_gini': 0.2999999999999998}
+2024-08-23 05:49:02,525 - INFO - genetic menu plan generated in 172.00 seconds with a reward of 0.9633248767615803
+2024-08-23 05:49:02,525 - INFO - Running genetic menu generator for menu plan 4
+2024-08-23 05:51:57,330 - INFO - Calculating utilities for meal plan #4: ['Swedes', 'Common banana', 'Anchovies', 'Couscous', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:51:57,331 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.10283687943262398, 'predicted_gini': 0.2590413943355119}
+2024-08-23 05:51:57,331 - INFO - genetic menu plan generated in 174.80 seconds with a reward of 0.9532805933477317
+2024-08-23 05:51:57,331 - INFO - Running genetic menu generator for menu plan 5
+2024-08-23 05:54:50,778 - INFO - Calculating utilities for meal plan #5: ['Leeks', 'Oranges sweet', 'Salmons', 'New potatoes', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 05:54:50,778 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.10425531914893615, 'predicted_gini': 0.2685534591194967}
+2024-08-23 05:54:50,779 - INFO - genetic menu plan generated in 173.44 seconds with a reward of 0.9520228136559606
+2024-08-23 05:54:50,789 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 05:54:50,789 - INFO - Running RL menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 06:05:32,106 - INFO - Calculating utilities for meal plan #1: ['Chickpeas (dry)', 'Plums', 'Sweet corn', 'Sweet potatoes', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-23 06:05:32,106 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.22137518684603874, 'predicted_gini': 0.2056603773584904}
+2024-08-23 06:05:32,106 - INFO - RL menu plan generated in 641.31 seconds with a reward of 0.9703261292217701
+2024-08-23 06:05:32,106 - INFO - Running RL menu generator for menu plan 2
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 06:16:15,972 - INFO - Calculating utilities for meal plan #2: ['Nectarines', 'New potatoes', 'Shrimps and prawns', 'Swedes', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk plain']
+2024-08-23 06:16:15,973 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.10425531914893615, 'predicted_gini': 0.21992110453648905}
+2024-08-23 06:16:15,973 - INFO - RL menu plan generated in 643.86 seconds with a reward of 0.9332802055969616
+2024-08-23 06:16:15,973 - INFO - Running RL menu generator for menu plan 3
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 06:27:16,114 - INFO - Calculating utilities for meal plan #3: ['Chili peppers', 'Common banana', 'Couscous', 'Cow milk whole', 'Kidney bean', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 06:27:16,115 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.18425925925925912, 'predicted_gini': 0.3032967032967031}
+2024-08-23 06:27:16,115 - INFO - RL menu plan generated in 660.14 seconds with a reward of 0.9592660745305387
+2024-08-23 06:27:16,115 - INFO - Running RL menu generator for menu plan 4
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 06:38:28,654 - INFO - Calculating utilities for meal plan #4: ['Fish fingers breaded', 'Noodles', 'Pears', 'Sour cream', 'Wheat bread and rolls white (refined flour)', 'White cabbage']
+2024-08-23 06:38:28,655 - INFO - Daily Gini coefficients for day 4: {'true_gini': 1.2833333333333334, 'predicted_gini': 1.4746031746031745}
+2024-08-23 06:38:28,655 - INFO - RL menu plan generated in 672.54 seconds with a reward of 0.8572309176226084
+2024-08-23 06:38:28,655 - INFO - Running RL menu generator for menu plan 5
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 06:49:33,792 - INFO - Calculating utilities for meal plan #5: ['Carrots', 'Cow milk semi skimmed (half fat)', 'Oranges sweet', 'Pasta wholemeal', 'Salmons', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 06:49:33,793 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.1415841584158415, 'predicted_gini': 0.225626204238921}
+2024-08-23 06:49:33,793 - INFO - RL menu plan generated in 665.13 seconds with a reward of 0.9053537293399788
+2024-08-23 06:49:33,799 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 06:49:38,205 - INFO - Running random_random menu generator for menu plan 1
+2024-08-23 06:49:38,218 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 06:49:38,218 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.6815837937384899}
+2024-08-23 06:49:38,218 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.292818791059506
+2024-08-23 06:49:38,218 - INFO - Running random_random menu generator for menu plan 2
+2024-08-23 06:49:38,229 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 06:49:38,229 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 0.41428571428571415}
+2024-08-23 06:49:38,229 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.8096217859431696
+2024-08-23 06:49:38,229 - INFO - Running random_random menu generator for menu plan 3
+2024-08-23 06:49:38,244 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 06:49:38,244 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': 5.545238095238095}
+2024-08-23 06:49:38,244 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.33063783027701094
+2024-08-23 06:49:38,244 - INFO - Running random_random menu generator for menu plan 4
+2024-08-23 06:49:38,255 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 06:49:38,255 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 1.5925925925925923}
+2024-08-23 06:49:38,255 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3685143762703369
+2024-08-23 06:49:38,255 - INFO - Running random_random menu generator for menu plan 5
+2024-08-23 06:49:38,265 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 06:49:38,266 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.992549019607843}
+2024-08-23 06:49:38,266 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.2621723079764265
+2024-08-23 06:49:38,267 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 06:49:38,268 - INFO - Running random_refined menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-23 06:50:05,700 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 06:50:05,701 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.6815837937384899}
+2024-08-23 06:50:05,701 - INFO - random_refined menu plan generated in 27.43 seconds with a reward of 0.5319985851430905
+2024-08-23 06:50:05,701 - INFO - Running random_refined menu generator for menu plan 2
+2024-08-23 06:50:33,306 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 06:50:33,306 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 0.41428571428571415}
+2024-08-23 06:50:33,306 - INFO - random_refined menu plan generated in 27.60 seconds with a reward of 0.8837595263291859
+2024-08-23 06:50:33,306 - INFO - Running random_refined menu generator for menu plan 3
+2024-08-23 06:51:00,593 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 06:51:00,594 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': 5.545238095238095}
+2024-08-23 06:51:00,594 - INFO - random_refined menu plan generated in 27.28 seconds with a reward of 0.6039673133255029
+2024-08-23 06:51:00,594 - INFO - Running random_refined menu generator for menu plan 4
+2024-08-23 06:51:28,636 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 06:51:28,637 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 1.5925925925925923}
+2024-08-23 06:51:28,637 - INFO - random_refined menu plan generated in 28.04 seconds with a reward of 0.8093127842978896
+2024-08-23 06:51:28,637 - INFO - Running random_refined menu generator for menu plan 5
+2024-08-23 06:51:56,284 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 06:51:56,285 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.992549019607843}
+2024-08-23 06:51:56,285 - INFO - random_refined menu plan generated in 27.64 seconds with a reward of 0.748062990201687
+2024-08-23 06:51:56,288 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 06:51:56,288 - INFO - Running genetic menu generator for menu plan 1
+2024-08-23 06:54:49,758 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Pears', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 06:54:49,758 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.245474613686534, 'predicted_gini': 0.08572628043660768}
+2024-08-23 06:54:49,758 - INFO - genetic menu plan generated in 173.47 seconds with a reward of 1.0
+2024-08-23 06:54:49,758 - INFO - Running genetic menu generator for menu plan 2
+2024-08-23 06:57:44,053 - INFO - Calculating utilities for meal plan #2: ['Peas', 'Table grapes', 'Chickpeas (dry)', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 06:57:44,053 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.20681399631675856, 'predicted_gini': 0.12181818181818183}
+2024-08-23 06:57:44,053 - INFO - genetic menu plan generated in 174.29 seconds with a reward of 0.984424393850714
+2024-08-23 06:57:44,054 - INFO - Running genetic menu generator for menu plan 3
+2024-08-23 07:00:35,316 - INFO - Calculating utilities for meal plan #3: ['Swedes', 'Apples', 'Fish fingers breaded', 'Pasta plain (not stuffed) uncooked', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 07:00:35,317 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.32600732600732596, 'predicted_gini': 0.15935214211076265}
+2024-08-23 07:00:35,317 - INFO - genetic menu plan generated in 171.26 seconds with a reward of 0.9820360287692411
+2024-08-23 07:00:35,317 - INFO - Running genetic menu generator for menu plan 4
+2024-08-23 07:03:33,694 - INFO - Calculating utilities for meal plan #4: ['Sweet corn', 'Common banana', 'Anchovies', 'Potatoes', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 07:03:33,694 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.2620833333333332, 'predicted_gini': 0.2183206106870228}
+2024-08-23 07:03:33,694 - INFO - genetic menu plan generated in 178.37 seconds with a reward of 0.97017351223119
+2024-08-23 07:03:33,694 - INFO - Running genetic menu generator for menu plan 5
+2024-08-23 07:06:18,085 - INFO - Calculating utilities for meal plan #5: ['Chili peppers', 'Oranges sweet', 'Mackerel', 'Pasta wholemeal', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 07:06:18,086 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.2525821596244131, 'predicted_gini': 0.45085714285714285}
+2024-08-23 07:06:18,086 - INFO - genetic menu plan generated in 164.39 seconds with a reward of 0.9494081550010902
+2024-08-23 07:06:18,097 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 07:06:18,097 - INFO - Running RL menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 07:16:50,369 - INFO - Calculating utilities for meal plan #1: ['Blueberries', 'Pasta plain (not stuffed) uncooked', 'Shrimps and prawns', 'Sweet corn', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-23 07:16:50,370 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.29426847662141764, 'predicted_gini': 0.1617647058823528}
+2024-08-23 07:16:50,370 - INFO - RL menu plan generated in 632.27 seconds with a reward of 0.9455390656636452
+2024-08-23 07:16:50,370 - INFO - Running RL menu generator for menu plan 2
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 07:28:06,185 - INFO - Calculating utilities for meal plan #2: ['Anchovies', 'Common banana', 'Cow milk skimmed (low fat)', 'Leeks', 'Sweet potatoes', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 07:28:06,185 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.0902298850574712, 'predicted_gini': 0.21705685618729076}
+2024-08-23 07:28:06,185 - INFO - RL menu plan generated in 675.81 seconds with a reward of 0.9768595202929958
+2024-08-23 07:28:06,186 - INFO - Running RL menu generator for menu plan 3
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 07:39:26,629 - INFO - Calculating utilities for meal plan #3: ['Couscous', 'Cow milk semi skimmed (half fat)', 'Herrings', 'Peas', 'Plums', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 07:39:26,630 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.3177777777777777, 'predicted_gini': 0.47021996615905226}
+2024-08-23 07:39:26,630 - INFO - RL menu plan generated in 680.44 seconds with a reward of 0.9152831246539086
+2024-08-23 07:39:26,630 - INFO - Running RL menu generator for menu plan 4
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 07:50:55,163 - INFO - Calculating utilities for meal plan #4: ['Carrots', 'Cow milk whole', 'Kidney bean', 'Noodles', 'Pears', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 07:50:55,164 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.31653116531165293, 'predicted_gini': 0.14846625766871147}
+2024-08-23 07:50:55,164 - INFO - RL menu plan generated in 688.53 seconds with a reward of 0.9833249311017006
+2024-08-23 07:50:55,164 - INFO - Running RL menu generator for menu plan 5
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 08:01:46,912 - INFO - Calculating utilities for meal plan #5: ['Pasta wholemeal', 'Swedes', 'Trouts', 'Watermelons', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk plain']
+2024-08-23 08:01:46,912 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.14444444444444438, 'predicted_gini': 0.3078817733990147}
+2024-08-23 08:01:46,912 - INFO - RL menu plan generated in 651.74 seconds with a reward of 0.86377970227989
+2024-08-23 08:01:46,918 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/numpy/lib/function_base.py:520: RuntimeWarning: Mean of empty slice.
+  avg = a.mean(axis, **keepdims_kw)
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/numpy/core/_methods.py:129: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+2024-08-23 08:01:50,613 - INFO - Running random_random menu generator for menu plan 1
+2024-08-23 08:01:50,626 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 08:01:50,626 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.38835725677830935}
+2024-08-23 08:01:50,626 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.30543055978884687
+2024-08-23 08:01:50,626 - INFO - Running random_random menu generator for menu plan 2
+2024-08-23 08:01:50,637 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:01:50,637 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 3.039130434782609}
+2024-08-23 08:01:50,637 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.7913377956055704
+2024-08-23 08:01:50,637 - INFO - Running random_random menu generator for menu plan 3
+2024-08-23 08:01:50,647 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 08:01:50,647 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -3.0142857142857142}
+2024-08-23 08:01:50,647 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3197574803604509
+2024-08-23 08:01:50,647 - INFO - Running random_random menu generator for menu plan 4
+2024-08-23 08:01:50,658 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:01:50,658 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.21811594202898532}
+2024-08-23 08:01:50,658 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3754698527918742
+2024-08-23 08:01:50,658 - INFO - Running random_random menu generator for menu plan 5
+2024-08-23 08:01:50,669 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 08:01:50,669 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.3933333333333333}
+2024-08-23 08:01:50,669 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.26872531163927416
+2024-08-23 08:01:50,690 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 08:01:50,690 - INFO - Running random_refined menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-23 08:02:16,266 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 08:02:16,267 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.38835725677830935}
+2024-08-23 08:02:16,267 - INFO - random_refined menu plan generated in 25.57 seconds with a reward of 0.5446103538724313
+2024-08-23 08:02:16,267 - INFO - Running random_refined menu generator for menu plan 2
+2024-08-23 08:02:41,923 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:02:41,923 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 3.039130434782609}
+2024-08-23 08:02:41,923 - INFO - random_refined menu plan generated in 25.65 seconds with a reward of 0.8654755359915867
+2024-08-23 08:02:41,923 - INFO - Running random_refined menu generator for menu plan 3
+2024-08-23 08:03:07,863 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 08:03:07,864 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -3.0142857142857142}
+2024-08-23 08:03:07,864 - INFO - random_refined menu plan generated in 25.94 seconds with a reward of 0.593086963408943
+2024-08-23 08:03:07,864 - INFO - Running random_refined menu generator for menu plan 4
+2024-08-23 08:03:33,760 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:03:33,761 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.21811594202898532}
+2024-08-23 08:03:33,761 - INFO - random_refined menu plan generated in 25.89 seconds with a reward of 0.8162682608194269
+2024-08-23 08:03:33,761 - INFO - Running random_refined menu generator for menu plan 5
+2024-08-23 08:03:59,780 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 08:03:59,781 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.3933333333333333}
+2024-08-23 08:03:59,781 - INFO - random_refined menu plan generated in 26.02 seconds with a reward of 0.7546159938645346
+2024-08-23 08:03:59,805 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 08:03:59,805 - INFO - Running genetic menu generator for menu plan 1
+2024-08-23 08:06:56,876 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Pears', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:06:56,876 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.245474613686534, 'predicted_gini': 0.245474613686534}
+2024-08-23 08:06:56,876 - INFO - genetic menu plan generated in 177.07 seconds with a reward of 0.9842342342342342
+2024-08-23 08:06:56,876 - INFO - Running genetic menu generator for menu plan 2
+2024-08-23 08:09:55,779 - INFO - Calculating utilities for meal plan #2: ['Sweet corn', 'Apples', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:09:55,779 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.09487179487179476, 'predicted_gini': 0.09487179487179476}
+2024-08-23 08:09:55,779 - INFO - genetic menu plan generated in 178.90 seconds with a reward of 0.9653377349352853
+2024-08-23 08:09:55,779 - INFO - Running genetic menu generator for menu plan 3
+2024-08-23 08:12:54,475 - INFO - Calculating utilities for meal plan #3: ['Peas', 'Strawberries', 'Chickpeas (dry)', 'Noodles', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:12:54,476 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.3097297297297297, 'predicted_gini': 0.3097297297297297}
+2024-08-23 08:12:54,476 - INFO - genetic menu plan generated in 178.69 seconds with a reward of 0.9546203246115756
+2024-08-23 08:12:54,476 - INFO - Running genetic menu generator for menu plan 4
+2024-08-23 08:15:55,236 - INFO - Calculating utilities for meal plan #4: ['Swedes', 'Nectarines', 'Salmons', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:15:55,236 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.09899999999999998, 'predicted_gini': 0.09899999999999998}
+2024-08-23 08:15:55,236 - INFO - genetic menu plan generated in 180.76 seconds with a reward of 0.957597924417697
+2024-08-23 08:15:55,236 - INFO - Running genetic menu generator for menu plan 5
+2024-08-23 08:18:48,380 - INFO - Calculating utilities for meal plan #5: ['Tomatoes', 'Common banana', 'Mackerel', 'New potatoes', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:18:48,381 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.17820512820512802, 'predicted_gini': 0.17820512820512802}
+2024-08-23 08:18:48,381 - INFO - genetic menu plan generated in 173.14 seconds with a reward of 0.9480136742166488
+2024-08-23 08:18:48,428 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 08:18:48,428 - INFO - Running RL menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 08:29:36,194 - INFO - Calculating utilities for meal plan #1: ['Chicken fresh meat', 'Sweet potatoes', 'Tomatoes', 'Watermelons', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk plain']
+2024-08-23 08:29:36,195 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.12527646129541847, 'predicted_gini': 0.12527646129541847}
+2024-08-23 08:29:36,195 - INFO - RL menu plan generated in 647.76 seconds with a reward of 0.9011778514639631
+2024-08-23 08:29:36,195 - INFO - Running RL menu generator for menu plan 2
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 08:41:02,823 - INFO - Calculating utilities for meal plan #2: ['Common banana', 'Cow milk whole', 'Onions', 'Pasta plain (not stuffed) uncooked', 'Shrimps and prawns', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:41:02,824 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.342051282051282, 'predicted_gini': 0.342051282051282}
+2024-08-23 08:41:02,824 - INFO - RL menu plan generated in 686.62 seconds with a reward of 0.9571306642282146
+2024-08-23 08:41:02,824 - INFO - Running RL menu generator for menu plan 3
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 08:52:25,190 - INFO - Calculating utilities for meal plan #3: ['Couscous', 'Kidney bean', 'Papayas', 'Sour cream', 'Sweet corn', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 08:52:25,191 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.1572271386430677, 'predicted_gini': 0.1572271386430677}
+2024-08-23 08:52:25,191 - INFO - RL menu plan generated in 682.36 seconds with a reward of 0.9212777894553422
+2024-08-23 08:52:25,191 - INFO - Running RL menu generator for menu plan 4
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 09:03:32,669 - INFO - Calculating utilities for meal plan #4: ['Leeks', 'Potatoes', 'Sea bass', 'Strawberries', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-23 09:03:32,670 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.18888888888888888, 'predicted_gini': 0.18888888888888888}
+2024-08-23 09:03:32,670 - INFO - RL menu plan generated in 667.47 seconds with a reward of 0.9251327466160736
+2024-08-23 09:03:32,670 - INFO - Running RL menu generator for menu plan 5
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 09:14:38,146 - INFO - Calculating utilities for meal plan #5: ['Cow milk skimmed (low fat)', 'Pumpkin seeds', 'Rice grain brown', 'Swedes', 'Table grapes', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 09:14:38,147 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.8476190476190475, 'predicted_gini': 0.8476190476190475}
+2024-08-23 09:14:38,147 - INFO - RL menu plan generated in 665.47 seconds with a reward of 0.869778464719159
+2024-08-23 09:14:38,172 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 09:14:44,027 - INFO - Running random_random menu generator for menu plan 1
+2024-08-23 09:14:44,042 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 09:14:44,042 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.3884735202492211}
+2024-08-23 09:14:44,042 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.30705821665797356
+2024-08-23 09:14:44,042 - INFO - Running random_random menu generator for menu plan 2
+2024-08-23 09:14:44,055 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 09:14:44,055 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 5.0200000000000005}
+2024-08-23 09:14:44,055 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.7900658950269976
+2024-08-23 09:14:44,055 - INFO - Running random_random menu generator for menu plan 3
+2024-08-23 09:14:44,067 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 09:14:44,068 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -2.694326241134752}
+2024-08-23 09:14:44,068 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.31877702354362164
+2024-08-23 09:14:44,068 - INFO - Running random_random menu generator for menu plan 4
+2024-08-23 09:14:44,080 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 09:14:44,081 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.37435897435897436}
+2024-08-23 09:14:44,081 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3731503249829833
+2024-08-23 09:14:44,081 - INFO - Running random_random menu generator for menu plan 5
+2024-08-23 09:14:44,093 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 09:14:44,093 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.42429378531073425}
+2024-08-23 09:14:44,093 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.26303043349456406
+2024-08-23 09:14:44,112 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 09:14:44,112 - INFO - Running random_refined menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-23 09:15:13,113 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 09:15:13,114 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.3884735202492211}
+2024-08-23 09:15:13,114 - INFO - random_refined menu plan generated in 29.00 seconds with a reward of 0.546238010741558
+2024-08-23 09:15:13,114 - INFO - Running random_refined menu generator for menu plan 2
+2024-08-23 09:15:41,002 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 09:15:41,003 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 5.0200000000000005}
+2024-08-23 09:15:41,003 - INFO - random_refined menu plan generated in 27.88 seconds with a reward of 0.8642036354130139
+2024-08-23 09:15:41,003 - INFO - Running random_refined menu generator for menu plan 3
+2024-08-23 09:16:11,095 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 09:16:11,095 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -2.694326241134752}
+2024-08-23 09:16:11,095 - INFO - random_refined menu plan generated in 30.09 seconds with a reward of 0.5921065065921137
+2024-08-23 09:16:11,095 - INFO - Running random_refined menu generator for menu plan 4
+2024-08-23 09:16:40,201 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 09:16:40,201 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.37435897435897436}
+2024-08-23 09:16:40,201 - INFO - random_refined menu plan generated in 29.10 seconds with a reward of 0.8139487330105358
+2024-08-23 09:16:40,201 - INFO - Running random_refined menu generator for menu plan 5
+2024-08-23 09:17:09,869 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 09:17:09,870 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.42429378531073425}
+2024-08-23 09:17:09,870 - INFO - random_refined menu plan generated in 29.66 seconds with a reward of 0.7489211157198246
+2024-08-23 09:17:09,896 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 09:17:09,896 - INFO - Running genetic menu generator for menu plan 1
+2024-08-23 09:20:15,699 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 09:20:15,699 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.245474613686534, 'predicted_gini': 0.24555555555555553}
+2024-08-23 09:20:15,699 - INFO - genetic menu plan generated in 185.80 seconds with a reward of 0.9846491228070176
+2024-08-23 09:20:15,699 - INFO - Running genetic menu generator for menu plan 2
+2024-08-23 09:23:19,458 - INFO - Calculating utilities for meal plan #2: ['Peas', 'Common banana', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 09:23:19,459 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.09487179487179476, 'predicted_gini': 0.10231884057970997}
+2024-08-23 09:23:19,459 - INFO - genetic menu plan generated in 183.75 seconds with a reward of 0.9649696772796187
+2024-08-23 09:23:19,459 - INFO - Running genetic menu generator for menu plan 3
+2024-08-23 09:26:23,128 - INFO - Calculating utilities for meal plan #3: ['Swedes', 'Pears', 'Chickpeas (dry)', 'Noodles', 'Sour cream', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 09:26:23,129 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.1918163672654689, 'predicted_gini': 0.16060606060606042}
+2024-08-23 09:26:23,129 - INFO - genetic menu plan generated in 183.67 seconds with a reward of 0.9509585847334385
+2024-08-23 09:26:23,129 - INFO - Running genetic menu generator for menu plan 4
+2024-08-23 09:29:25,808 - INFO - Calculating utilities for meal plan #4: ['Sweet corn', 'Nectarines', 'Anchovies', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 09:29:25,809 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.15791245791245778, 'predicted_gini': 0.16239737274220012}
+2024-08-23 09:29:25,809 - INFO - genetic menu plan generated in 182.68 seconds with a reward of 0.9591871963860269
+2024-08-23 09:29:25,809 - INFO - Running genetic menu generator for menu plan 5
+2024-08-23 09:32:29,642 - INFO - Calculating utilities for meal plan #5: ['Leeks', 'Oranges sweet', 'Mackerel', 'Pasta wholemeal', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 09:32:29,643 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.258904109589041, 'predicted_gini': 0.2577011494252872}
+2024-08-23 09:32:29,643 - INFO - genetic menu plan generated in 183.83 seconds with a reward of 0.946549924193199
+2024-08-23 09:32:29,669 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 09:32:29,671 - INFO - Running RL menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 09:43:33,875 - INFO - Calculating utilities for meal plan #1: ['Kidney bean', 'Noodles', 'Papayas', 'Swedes', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-23 09:43:33,877 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.3192307692307692, 'predicted_gini': 0.32592592592592573}
+2024-08-23 09:43:33,877 - INFO - RL menu plan generated in 664.19 seconds with a reward of 0.9314349840771867
+2024-08-23 09:43:33,877 - INFO - Running RL menu generator for menu plan 2
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 09:54:44,312 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Pasta wholemeal', 'Sea bass', 'Strawberries', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk plain']
+2024-08-23 09:54:44,312 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.17820512820512802, 'predicted_gini': 0.19723991507430982}
+2024-08-23 09:54:44,313 - INFO - RL menu plan generated in 670.43 seconds with a reward of 0.890116465777036
+2024-08-23 09:54:44,313 - INFO - Running RL menu generator for menu plan 3
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 10:05:52,052 - INFO - Calculating utilities for meal plan #3: ['Apples', 'Cow milk skimmed (low fat)', 'Peas', 'Sweet potatoes', 'Tuna', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:05:52,053 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.053180661577608035, 'predicted_gini': 0.04883720930232549}
+2024-08-23 10:05:52,053 - INFO - RL menu plan generated in 667.73 seconds with a reward of 0.9621491008669313
+2024-08-23 10:05:52,053 - INFO - Running RL menu generator for menu plan 4
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 10:17:18,715 - INFO - Calculating utilities for meal plan #4: ['Chickpeas (dry)', 'Grapefruits', 'Potatoes', 'Savoy cabbages', 'Sour cream', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:17:18,716 - INFO - Daily Gini coefficients for day 4: {'true_gini': -1.163003663003663, 'predicted_gini': -0.9949685534591196}
+2024-08-23 10:17:18,716 - INFO - RL menu plan generated in 686.66 seconds with a reward of 0.8958057334694761
+2024-08-23 10:17:18,716 - INFO - Running RL menu generator for menu plan 5
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 10:28:53,073 - INFO - Calculating utilities for meal plan #5: ['Courgettes', 'Cow milk whole', 'Mackerel', 'Oranges sweet', 'Pasta plain (not stuffed) uncooked', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:28:53,073 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3022988505747126, 'predicted_gini': 0.2906976744186045}
+2024-08-23 10:28:53,073 - INFO - RL menu plan generated in 694.35 seconds with a reward of 0.909803892319443
+2024-08-23 10:28:53,107 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 10:28:58,497 - INFO - Running random_random menu generator for menu plan 1
+2024-08-23 10:28:58,529 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 10:28:58,530 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.4479052823315117}
+2024-08-23 10:28:58,530 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.2978873209799094
+2024-08-23 10:28:58,530 - INFO - Running random_random menu generator for menu plan 2
+2024-08-23 10:28:58,558 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:28:58,559 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 5.633333333333334}
+2024-08-23 10:28:58,559 - INFO - random_random menu plan generated in 0.02 seconds with a reward of 0.7903257899333456
+2024-08-23 10:28:58,559 - INFO - Running random_random menu generator for menu plan 3
+2024-08-23 10:28:58,570 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 10:28:58,570 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -2.941666666666667}
+2024-08-23 10:28:58,570 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3194131150043336
+2024-08-23 10:28:58,570 - INFO - Running random_random menu generator for menu plan 4
+2024-08-23 10:28:58,581 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:28:58,581 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.5555555555555554}
+2024-08-23 10:28:58,581 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3782379122480309
+2024-08-23 10:28:58,581 - INFO - Running random_random menu generator for menu plan 5
+2024-08-23 10:28:58,592 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 10:28:58,592 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.9231292517006802}
+2024-08-23 10:28:58,592 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.25896357283782295
+2024-08-23 10:28:58,616 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 10:28:58,616 - INFO - Running random_refined menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-23 10:29:27,897 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 10:29:27,898 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.4479052823315117}
+2024-08-23 10:29:27,898 - INFO - random_refined menu plan generated in 29.28 seconds with a reward of 0.5370671150634939
+2024-08-23 10:29:27,898 - INFO - Running random_refined menu generator for menu plan 2
+2024-08-23 10:29:57,505 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:29:57,506 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 5.633333333333334}
+2024-08-23 10:29:57,506 - INFO - random_refined menu plan generated in 29.60 seconds with a reward of 0.8644635303193619
+2024-08-23 10:29:57,506 - INFO - Running random_refined menu generator for menu plan 3
+2024-08-23 10:30:27,138 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 10:30:27,139 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -2.941666666666667}
+2024-08-23 10:30:27,139 - INFO - random_refined menu plan generated in 29.63 seconds with a reward of 0.5927425980528257
+2024-08-23 10:30:27,139 - INFO - Running random_refined menu generator for menu plan 4
+2024-08-23 10:30:56,459 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:30:56,460 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.5555555555555554}
+2024-08-23 10:30:56,460 - INFO - random_refined menu plan generated in 29.32 seconds with a reward of 0.8190363202755835
+2024-08-23 10:30:56,460 - INFO - Running random_refined menu generator for menu plan 5
+2024-08-23 10:31:24,864 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 10:31:24,865 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.9231292517006802}
+2024-08-23 10:31:24,865 - INFO - random_refined menu plan generated in 28.40 seconds with a reward of 0.7448542550630833
+2024-08-23 10:31:24,893 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 10:31:24,893 - INFO - Running genetic menu generator for menu plan 1
+2024-08-23 10:34:21,435 - INFO - Calculating utilities for meal plan #1: ['Peas', 'Table grapes', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:34:21,438 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.245474613686534, 'predicted_gini': 0.23817381738173804}
+2024-08-23 10:34:21,438 - INFO - genetic menu plan generated in 176.54 seconds with a reward of 0.9852053140096618
+2024-08-23 10:34:21,438 - INFO - Running genetic menu generator for menu plan 2
+2024-08-23 10:37:11,795 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Pears', 'Chickpeas (dry)', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:37:11,795 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.20681399631675856, 'predicted_gini': 0.16085626911314965}
+2024-08-23 10:37:11,795 - INFO - genetic menu plan generated in 170.35 seconds with a reward of 0.9673309178743961
+2024-08-23 10:37:11,795 - INFO - Running genetic menu generator for menu plan 3
+2024-08-23 10:39:55,580 - INFO - Calculating utilities for meal plan #3: ['Swedes', 'Apples', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Sour cream', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:39:55,581 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.15185185185185168, 'predicted_gini': 0.17579529737206068}
+2024-08-23 10:39:55,581 - INFO - genetic menu plan generated in 163.78 seconds with a reward of 0.9714133897806175
+2024-08-23 10:39:55,581 - INFO - Running genetic menu generator for menu plan 4
+2024-08-23 10:42:40,809 - INFO - Calculating utilities for meal plan #4: ['Sweet corn', 'Common banana', 'Anchovies', 'Couscous', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:42:40,809 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.27524752475247505, 'predicted_gini': 0.3520947176684881}
+2024-08-23 10:42:40,809 - INFO - genetic menu plan generated in 165.22 seconds with a reward of 0.9583251807986887
+2024-08-23 10:42:40,810 - INFO - Running genetic menu generator for menu plan 5
+2024-08-23 10:45:25,349 - INFO - Calculating utilities for meal plan #5: ['Chili peppers', 'Nectarines', 'Mackerel', 'New potatoes', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:45:25,349 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.26575342465753415, 'predicted_gini': 0.45937499999999987}
+2024-08-23 10:45:25,349 - INFO - genetic menu plan generated in 164.54 seconds with a reward of 0.9460697568380286
+2024-08-23 10:45:25,379 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 10:45:25,380 - INFO - Running RL menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 10:55:22,638 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Cow milk semi skimmed (half fat)', 'Nectarines', 'Shrimps and prawns', 'Sweet potatoes', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 10:55:22,638 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.10155038759689905, 'predicted_gini': 0.13751493428912775}
+2024-08-23 10:55:22,638 - INFO - RL menu plan generated in 597.25 seconds with a reward of 0.9736243931157236
+2024-08-23 10:55:22,639 - INFO - Running RL menu generator for menu plan 2
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 11:05:44,921 - INFO - Calculating utilities for meal plan #2: ['Apples', 'Mackerel', 'Noodles', 'Sweet corn', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk plain']
+2024-08-23 11:05:44,922 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.11775362318840576, 'predicted_gini': 0.2666666666666666}
+2024-08-23 11:05:44,922 - INFO - RL menu plan generated in 622.28 seconds with a reward of 0.9089295797413817
+2024-08-23 11:05:44,922 - INFO - Running RL menu generator for menu plan 3
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 11:16:09,205 - INFO - Calculating utilities for meal plan #3: ['Chickpeas (dry)', 'New potatoes', 'Papayas', 'Sour cream', 'Swedes', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 11:16:09,206 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.265947242206235, 'predicted_gini': 0.20946502057613148}
+2024-08-23 11:16:09,206 - INFO - RL menu plan generated in 624.28 seconds with a reward of 0.9534915789911489
+2024-08-23 11:16:09,206 - INFO - Running RL menu generator for menu plan 4
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 11:26:37,594 - INFO - Calculating utilities for meal plan #4: ['Couscous', 'Hakes', 'Peas', 'Table grapes', 'Wheat bread and rolls white (refined flour)', 'Yoghurt cow milk flavoured']
+2024-08-23 11:26:37,594 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.1586666666666665, 'predicted_gini': 0.29404096834264415}
+2024-08-23 11:26:37,594 - INFO - RL menu plan generated in 628.38 seconds with a reward of 0.9503020210139951
+2024-08-23 11:26:37,594 - INFO - Running RL menu generator for menu plan 5
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 11:37:04,181 - INFO - Calculating utilities for meal plan #5: ['Breakfast-type sausage', 'Cauliflowers', 'Cow milk skimmed (low fat)', 'Oranges sweet', 'Pasta plain (not stuffed) uncooked', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 11:37:04,182 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.4463414634146341, 'predicted_gini': 0.42083333333333317}
+2024-08-23 11:37:04,182 - INFO - RL menu plan generated in 626.58 seconds with a reward of 0.8808132969892685
+2024-08-23 11:37:04,215 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 11:37:08,327 - INFO - Running random_random menu generator for menu plan 1
+2024-08-23 11:37:08,349 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:37:08,349 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 1.1173913043478259}
+2024-08-23 11:37:08,349 - INFO - random_random menu plan generated in 0.02 seconds with a reward of 0.3067121436721077
+2024-08-23 11:37:08,349 - INFO - Running random_random menu generator for menu plan 2
+2024-08-23 11:37:08,360 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 11:37:08,360 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 0.6216216216216215}
+2024-08-23 11:37:08,360 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.7821068640211829
+2024-08-23 11:37:08,360 - INFO - Running random_random menu generator for menu plan 3
+2024-08-23 11:37:08,370 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:37:08,371 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -77.96666666666667}
+2024-08-23 11:37:08,371 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.35277049082790707
+2024-08-23 11:37:08,371 - INFO - Running random_random menu generator for menu plan 4
+2024-08-23 11:37:08,381 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 11:37:08,382 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 10.46111111111111}
+2024-08-23 11:37:08,382 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.33810906723584094
+2024-08-23 11:37:08,382 - INFO - Running random_random menu generator for menu plan 5
+2024-08-23 11:37:08,392 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:37:08,392 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 1.1793650793650794}
+2024-08-23 11:37:08,392 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.2861897772817607
+2024-08-23 11:37:08,416 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 11:37:08,416 - INFO - Running random_refined menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-23 11:37:34,206 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:37:34,206 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 1.1173913043478259}
+2024-08-23 11:37:34,206 - INFO - random_refined menu plan generated in 25.79 seconds with a reward of 0.5458919377556922
+2024-08-23 11:37:34,206 - INFO - Running random_refined menu generator for menu plan 2
+2024-08-23 11:38:00,126 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 11:38:00,127 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 0.6216216216216215}
+2024-08-23 11:38:00,127 - INFO - random_refined menu plan generated in 25.92 seconds with a reward of 0.8562446044071992
+2024-08-23 11:38:00,127 - INFO - Running random_refined menu generator for menu plan 3
+2024-08-23 11:38:26,314 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:38:26,314 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -77.96666666666667}
+2024-08-23 11:38:26,314 - INFO - random_refined menu plan generated in 26.18 seconds with a reward of 0.626099973876399
+2024-08-23 11:38:26,314 - INFO - Running random_refined menu generator for menu plan 4
+2024-08-23 11:38:52,481 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 11:38:52,482 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 10.46111111111111}
+2024-08-23 11:38:52,482 - INFO - random_refined menu plan generated in 26.16 seconds with a reward of 0.7789074752633937
+2024-08-23 11:38:52,482 - INFO - Running random_refined menu generator for menu plan 5
+2024-08-23 11:39:18,753 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:39:18,754 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 1.1793650793650794}
+2024-08-23 11:39:18,754 - INFO - random_refined menu plan generated in 26.27 seconds with a reward of 0.7720804595070212
+2024-08-23 11:39:18,776 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 11:39:18,776 - INFO - Running genetic menu generator for menu plan 1
+2024-08-23 11:42:04,690 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:42:04,691 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.037529137529137335, 'predicted_gini': 0.1273069679849339}
+2024-08-23 11:42:04,691 - INFO - genetic menu plan generated in 165.91 seconds with a reward of 0.9995726495726496
+2024-08-23 11:42:04,691 - INFO - Running genetic menu generator for menu plan 2
+2024-08-23 11:44:50,286 - INFO - Calculating utilities for meal plan #2: ['Peas', 'Pears', 'Chickpeas (dry)', 'Noodles', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:44:50,286 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.4692929292929291, 'predicted_gini': 0.1961298377028713}
+2024-08-23 11:44:50,286 - INFO - genetic menu plan generated in 165.59 seconds with a reward of 0.9794216272092378
+2024-08-23 11:44:50,287 - INFO - Running genetic menu generator for menu plan 3
+2024-08-23 11:47:34,432 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Table grapes', 'Fish fingers breaded', 'Potatoes', 'Sour cream', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:47:34,432 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.5497175141242936, 'predicted_gini': 0.18622908622908607}
+2024-08-23 11:47:34,432 - INFO - genetic menu plan generated in 164.14 seconds with a reward of 0.9779179868167085
+2024-08-23 11:47:34,432 - INFO - Running genetic menu generator for menu plan 4
+2024-08-23 11:50:19,527 - INFO - Calculating utilities for meal plan #4: ['Chili peppers', 'Common banana', 'Lentils (dry)', 'Pasta plain (not stuffed) uncooked', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:50:19,527 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.7556521739130433, 'predicted_gini': 0.4795501022494886}
+2024-08-23 11:50:19,527 - INFO - genetic menu plan generated in 165.09 seconds with a reward of 0.9568126745609539
+2024-08-23 11:50:19,527 - INFO - Running genetic menu generator for menu plan 5
+2024-08-23 11:53:04,530 - INFO - Calculating utilities for meal plan #5: ['Swedes', 'Nectarines', 'Shrimps and prawns', 'Pasta wholemeal', 'Cow milk whole', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 11:53:04,531 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.19318181818181812, 'predicted_gini': 0.34412238325281796}
+2024-08-23 11:53:04,531 - INFO - genetic menu plan generated in 165.00 seconds with a reward of 0.9649544331488289
+2024-08-23 11:53:04,547 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 11:53:04,547 - INFO - Running RL menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 12:02:59,843 - INFO - Calculating utilities for meal plan #1: ['Fish fingers breaded', 'Leeks', 'Nectarines', 'Sweet potatoes', 'Wheat bread and rolls brown or wholemeal', 'Yoghurt cow milk flavoured']
+2024-08-23 12:02:59,844 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.16636636636636637, 'predicted_gini': 0.14483091787439606}
+2024-08-23 12:02:59,844 - INFO - RL menu plan generated in 595.29 seconds with a reward of 0.9004897148715812
+2024-08-23 12:02:59,844 - INFO - Running RL menu generator for menu plan 2
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 12:13:30,511 - INFO - Calculating utilities for meal plan #2: ['Breakfast-type sausage', 'Broccoli', 'Cow milk semi skimmed (half fat)', 'Pasta wholemeal', 'Plums', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 12:13:30,512 - INFO - Daily Gini coefficients for day 2: {'true_gini': 1.1541062801932365, 'predicted_gini': 0.6228758169934638}
+2024-08-23 12:13:30,512 - INFO - RL menu plan generated in 630.66 seconds with a reward of 0.8368032990565553
+2024-08-23 12:13:30,512 - INFO - Running RL menu generator for menu plan 3
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 12:23:59,208 - INFO - Calculating utilities for meal plan #3: ['Bacon', 'Courgettes', 'Cow milk skimmed (low fat)', 'Papayas', 'Pasta plain (not stuffed) uncooked', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 12:23:59,209 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.29803921568627434, 'predicted_gini': 0.288695652173913}
+2024-08-23 12:23:59,209 - INFO - RL menu plan generated in 628.69 seconds with a reward of 0.9281011695997333
+2024-08-23 12:23:59,209 - INFO - Running RL menu generator for menu plan 4
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 12:34:21,533 - INFO - Calculating utilities for meal plan #4: ['Anchovies', 'Pears', 'Potatoes', 'Sour cream', 'Swedes', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 12:34:21,533 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.7492063492063492, 'predicted_gini': 0.25536480686695273}
+2024-08-23 12:34:21,533 - INFO - RL menu plan generated in 622.32 seconds with a reward of 0.9644206341488492
+2024-08-23 12:34:21,533 - INFO - Running RL menu generator for menu plan 5
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/gymnasium/core.py:311: UserWarning: [33mWARN: env.action_masks to get variables from other wrappers is deprecated and will be removed in v1.0, to get this variable you can do `env.unwrapped.action_masks` for environment variables or `env.get_wrapper_attr('action_masks')` that will search the reminding wrappers.[0m
+  logger.warn(
+2024-08-23 12:44:41,698 - INFO - Calculating utilities for meal plan #5: ['Lentils (dry)', 'Noodles', 'Peas', 'Strawberries', 'Wheat bread and rolls brown or wholemeal', 'Yoghurt cow milk plain']
+2024-08-23 12:44:41,699 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.5858666666666665, 'predicted_gini': 0.6573333333333333}
+2024-08-23 12:44:41,699 - INFO - RL menu plan generated in 620.16 seconds with a reward of 0.9052246515813308
+2024-08-23 12:44:41,808 - INFO - Utilities and Gini coefficients have been saved and reset.
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/numpy/lib/function_base.py:520: RuntimeWarning: Mean of empty slice.
+  avg = a.mean(axis, **keepdims_kw)
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/numpy/core/_methods.py:129: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+2024-08-23 12:44:45,376 - INFO - Running random_random menu generator for menu plan 1
+2024-08-23 12:44:45,388 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 12:44:45,389 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.38835725677830935}
+2024-08-23 12:44:45,389 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.30543055978884687
+2024-08-23 12:44:45,389 - INFO - Running random_random menu generator for menu plan 2
+2024-08-23 12:44:45,399 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 12:44:45,399 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 3.039130434782609}
+2024-08-23 12:44:45,399 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.7913377956055704
+2024-08-23 12:44:45,399 - INFO - Running random_random menu generator for menu plan 3
+2024-08-23 12:44:45,409 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 12:44:45,410 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -3.0142857142857142}
+2024-08-23 12:44:45,410 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3197574803604509
+2024-08-23 12:44:45,410 - INFO - Running random_random menu generator for menu plan 4
+2024-08-23 12:44:45,420 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 12:44:45,420 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.21811594202898532}
+2024-08-23 12:44:45,420 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.3754698527918742
+2024-08-23 12:44:45,420 - INFO - Running random_random menu generator for menu plan 5
+2024-08-23 12:44:45,430 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 12:44:45,431 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.3933333333333333}
+2024-08-23 12:44:45,431 - INFO - random_random menu plan generated in 0.01 seconds with a reward of 0.26872531163927416
+2024-08-23 12:44:45,455 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 12:44:45,455 - INFO - Running random_refined menu generator for menu plan 1
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
+  warnings.warn("A class named '{0}' has already been created and it "
+2024-08-23 12:45:11,060 - INFO - Calculating utilities for meal plan #1: ['Asparagus', 'Kiwi fruits (green red yellow)', 'Sea bass', 'Couscous', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 12:45:11,061 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.38835725677830935, 'predicted_gini': 0.38835725677830935}
+2024-08-23 12:45:11,061 - INFO - random_refined menu plan generated in 25.60 seconds with a reward of 0.5446103538724313
+2024-08-23 12:45:11,061 - INFO - Running random_refined menu generator for menu plan 2
+2024-08-23 12:45:36,737 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Passionfruits', 'Lentils (dry)', 'Noodles', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 12:45:36,737 - INFO - Daily Gini coefficients for day 2: {'true_gini': 3.039130434782609, 'predicted_gini': 3.039130434782609}
+2024-08-23 12:45:36,737 - INFO - random_refined menu plan generated in 25.67 seconds with a reward of 0.8654755359915867
+2024-08-23 12:45:36,737 - INFO - Running random_refined menu generator for menu plan 3
+2024-08-23 12:46:02,681 - INFO - Calculating utilities for meal plan #3: ['Broccoli', 'Grapefruits', 'Lamb fresh meat', 'Rice grain long-grain', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 12:46:02,681 - INFO - Daily Gini coefficients for day 3: {'true_gini': -3.0142857142857142, 'predicted_gini': -3.0142857142857142}
+2024-08-23 12:46:02,681 - INFO - random_refined menu plan generated in 25.94 seconds with a reward of 0.593086963408943
+2024-08-23 12:46:02,681 - INFO - Running random_refined menu generator for menu plan 4
+2024-08-23 12:46:28,550 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Apples', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 12:46:28,550 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21811594202898532, 'predicted_gini': 0.21811594202898532}
+2024-08-23 12:46:28,550 - INFO - random_refined menu plan generated in 25.87 seconds with a reward of 0.8162682608194269
+2024-08-23 12:46:28,550 - INFO - Running random_refined menu generator for menu plan 5
+2024-08-23 12:46:54,583 - INFO - Calculating utilities for meal plan #5: ['White cabbage', 'Table grapes', 'Fish fingers breaded', 'New potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+2024-08-23 12:46:54,583 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.3933333333333333, 'predicted_gini': 0.3933333333333333}
+2024-08-23 12:46:54,583 - INFO - random_refined menu plan generated in 26.03 seconds with a reward of 0.7546159938645346
+2024-08-23 12:46:54,611 - INFO - Utilities and Gini coefficients have been saved and reset.
+2024-08-23 12:46:54,611 - INFO - Running genetic menu generator for menu plan 1
+2024-08-23 12:49:39,178 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Pears', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+2024-08-23 12:49:39,179 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.245474613686534, 'predicted_gini': 0.245474613686534}
+2024-08-23 12:49:39,179 - INFO - genetic menu plan generated in 164.56 seconds with a reward of 0.9842342342342342
+2024-08-23 12:49:39,179 - INFO - Running genetic menu generator for menu plan 2
