@@ -366,10 +366,10 @@ class IngredientNegotiator:
 
         ginis, weight_category_total = self._calculate_all_gini(weights)
         current_gini = ginis['total']
-        print("Current gini", current_gini)
+
         if use_fairness and current_gini > target_gini:
             updated_weights, final_ginis = self.scaling_to_adjust_weights_for_target_gini(weights, weight_category_total, current_gini, target_gini)
-            print(final_ginis)
+
         else:
             updated_weights = weights
             final_ginis = ginis
