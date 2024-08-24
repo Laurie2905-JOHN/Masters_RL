@@ -14,8 +14,8 @@ from models.preferences.voting import IngredientNegotiator
 from models.preferences.menu_generators import RandomMenuGenerator, RLMenuGenerator
 from models.preferences.random_menu_eval import MenuEvaluator
 import numpy as np
-import json
-import time
+from tqdm.contrib.logging import logging_redirect_tqdm
+from tqdm import tqdm
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -38,6 +38,7 @@ run_data_dir = os.path.join(data_dir, f'run_{run_number}')
 run_graphs_dir = os.path.join(graphs_dir, f'run_{run_number}')
 os.makedirs(run_data_dir, exist_ok=True)
 os.makedirs(run_graphs_dir, exist_ok=True)
+json_path = os.path.join(run_data_dir, "menu_utilities_simple")
 
 # Complex weight function arguments
 complex_weight_func_args = {
@@ -59,6 +60,47 @@ def run_menu_generation(seed):
     true_child_preference_data = initialize_child_preference_data(
         child_feature_data, ingredient_df, split=initial_split, seed=seed, plot_graphs=False
     )
+    
+    # Initialize utility calculators for each method
+    utility_calculator_dict = {
+        "genetic": MenuUtilityCalculator(
+            true_child_preference_data, 
+            child_feature_data, 
+            menu_plan_length=menu_plan_length, 
+            save_to_json=f"{json_path}_generator_utility_calculator_simple_split_1_model_genetic_seed_{str(seed)}.json"
+        ),
+        "random_random": MenuUtilityCalculator(
+            true_child_preference_data, 
+            child_feature_data, 
+            menu_plan_length=menu_plan_length, 
+            save_to_json=f"{json_path}_generator_utility_calculator_complex_split_1_model_random_random_seed_{str(seed)}.json"
+        ),
+        "random_refined": MenuUtilityCalculator(
+            true_child_preference_data, 
+            child_feature_data, 
+            menu_plan_length=menu_plan_length, 
+            save_to_json=f"{json_path}_generator_utility_calculator_simple_split_1_model_random_refined_seed_{str(seed)}.json"
+        ),
+        "prob_refined": MenuUtilityCalculator(
+            true_child_preference_data, 
+            child_feature_data, 
+            menu_plan_length=menu_plan_length, 
+            save_to_json=f"{json_path}_generator_utility_calculator_complex_split_1_model_prob_refined_seed_{str(seed)}.json"
+        ),
+        "best_refined": MenuUtilityCalculator(
+            true_child_preference_data, 
+            child_feature_data, 
+            menu_plan_length=menu_plan_length, 
+            save_to_json=f"{json_path}_generator_utility_calculator_simple_split_1_model_best_refined_seed_{str(seed)}.json"
+        ),
+        "RL": MenuUtilityCalculator(
+            true_child_preference_data, 
+            child_feature_data, 
+            menu_plan_length=menu_plan_length, 
+            save_to_json=f"{json_path}_generator_utility_calculator_complex_split_1_model_RL_seed_{str(seed)}.json"
+        ),
+    }
+
 
     with open(os.path.join(run_data_dir, 'true_child_preference_data.json'), 'w') as f:
         json.dump(true_child_preference_data, f)
@@ -79,79 +121,87 @@ def run_menu_generation(seed):
     negotiated_ingredients_simple, _, unavailable_ingredients = negotiator.negotiate_ingredients()
     evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients_simple, unavailable_ingredients)
     
-    # Save negotiation results
-    week, day = 1, 1
-    negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
-
     menu_generators = {
         "genetic": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
         "random_random": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
         "random_refined": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
         "prob_refined": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0, seed=seed),
-        # "prob_best_refined": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=0.5, seed=seed),
         "best_refined": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='score', probability_best=1, seed=seed),
         "RL": RLMenuGenerator(ingredient_df, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
     }
+        
+    # Save negotiation results
+    week, day = 1, 1
+    negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
 
     # Generate and evaluate menus, store results
     results = {}
-    for menu_plan_num in range(menu_plan_length):
-        results[menu_plan_num] = {}
-        for name, generator in menu_generators.items():
-            
-            print(f"Running {name} menu generator for menu plan {menu_plan_num}")
-            
-            # Start timing
-            start_time = time.time()
+    with logging_redirect_tqdm():
+        for menu_plan_num in tqdm(range(menu_plan_length), desc="Menu Plan Length Progress"):
+            results[menu_plan_num] = {}
+            for name, generator in tqdm(menu_generators.items(), desc=f"Menu Generators Progress (Plan {menu_plan_num})"):
+                
+                logging.info(f"Running {name} menu generator for menu plan {menu_plan_num}")
+                
+                # Start timing
+                start_time = time.time()
 
-            if name == "genetic":
-                menu_plan, _ = generator.run_genetic_menu_optimization_and_finalize(
-                    negotiated_ingredients_simple, unavailable_ingredients, 
-                    final_meal_plan_filename=f'final_meal_plan_{name}',
-                    ngen=180, population_size=333, cxpb=0.742143, mutpb=0.3062819
-                )
-            elif name == "RL":
-                menu_plan, _ = generator.generate_menu(
-                    negotiated_ingredients_simple, unavailable_ingredients, 
-                    final_meal_plan_filename=f'final_meal_plan_{name}', 
-                    save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, 
-                    week=week, day=day
-                )
-            else:
-                menu_plan, _ = generator.generate_menu(
-                    negotiated_ingredients_simple, unavailable_ingredients, 
-                    quantity_type='genetic_algorithm' if 'refined' in name else 'random', 
-                    final_meal_plan_filename=f'final_meal_plan_{name}', 
-                    save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, 
-                    week=week, day=day
-                )
+                if name == "genetic":
+                    menu_plan, _ = generator.run_genetic_menu_optimization_and_finalize(
+                        negotiated_ingredients_simple, unavailable_ingredients, 
+                        final_meal_plan_filename=f'final_meal_plan_{name}',
+                        ngen=180, population_size=333, cxpb=0.742143, mutpb=0.3062819
+                    )
+                elif name == "RL":
+                    menu_plan, _ = generator.generate_menu(
+                        negotiated_ingredients_simple, unavailable_ingredients, 
+                        final_meal_plan_filename=f'final_meal_plan_{name}', 
+                        save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, 
+                        week=week, day=day
+                    )
+                else:
+                    menu_plan, _ = generator.generate_menu(
+                        negotiated_ingredients_simple, unavailable_ingredients, 
+                        quantity_type='genetic_algorithm' if 'refined' in name else 'random', 
+                        final_meal_plan_filename=f'final_meal_plan_{name}', 
+                        save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, 
+                        week=week, day=day
+                    )
 
-            # End timing
-            end_time = time.time()
+                # End timing
+                end_time = time.time()
 
-            # Calculate the time taken
-            time_taken = end_time - start_time
+                # Calculate the time taken
+                time_taken = end_time - start_time
 
-            # Evaluate the menu plan and calculate the reward
-            reward, info = evaluator.select_ingredients(menu_plan)
-            
-            # Store the results including time taken and reward
-            results[menu_plan_num][name] = {
-                'info': info,
-                'reward': reward,
-                'time_taken': time_taken
-            }
+                # Evaluate the menu plan and calculate the reward
+                reward, info = evaluator.select_ingredients(menu_plan)
+                
+                utility_perfect_true, utility_perfect_predicted = utility_calculator_dict[name].calculate_day_menu_utility(updated_known_and_predicted_preferences, list(menu_plan.keys()))
+                
+                # Store the results including time taken and reward
+                results[menu_plan_num][name] = {
+                    'info': info,
+                    'reward': reward,
+                    'time_taken': time_taken,
+                    "utility_perfect_true": utility_perfect_true,
+                    "utility_perfect_predicted": utility_perfect_predicted
+                }
 
-            print(f"{name} menu plan generated in {time_taken:.2f} seconds with a reward of {reward}")
+                logging.info(f"{name} menu plan generated in {time_taken:.2f} seconds with a reward of {reward}")
 
     return results
+
+from models.preferences.utility_calculator import MenuUtilityCalculator
 
 def main():
     all_results = []
     seed = random.randint(0, int(1e6))
-    for i in range(10):
-        iteration_results = run_menu_generation(seed)
-        all_results.append(iteration_results)
+    
+    with logging_redirect_tqdm():
+        for i in tqdm(range(10), desc="Main Loop Progress"):
+            iteration_results = run_menu_generation(seed)
+            all_results.append(iteration_results)
 
     class NumpyEncoder(json.JSONEncoder):
         def default(self, obj):
