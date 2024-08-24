@@ -161,80 +161,78 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
         })
 
     # Loop for processing multiple menus
-    with logging_redirect_tqdm():
-        for method in tqdm(menu_generators.keys(), desc="Testing Method Types"):
-            with logging_redirect_tqdm():
-                for menu in tqdm(range(1, 180), desc=f"Processing Menus for method {method} and {model_name}"):
-                    
-                    week = (menu - 1) // 5 + 1  # Week number (1-based index)
-                    day = (menu - 1) % 5 + 1    # Day number within the week (1-based index)
-                    
-                    results[method][str(menu)] = {}
-                    
-                    predictor = PreferenceModel(
-                        ingredient_df, child_feature_data, updated_preferences_with_feedback, visualize_data=False, seed=seed
-                            )
-
-                    updated_known_and_predicted_preferences, total_true_unknown_preferences, total_predicted_unknown_preferences, label_encoder = predictor.run_pipeline()
-
-                    # Calculate unknown accuracy using sklearn's accuracy_score  
-                    accuracy_unknown = accuracy_score(total_true_unknown_preferences, total_predicted_unknown_preferences)
-                    accuracy_std_total = print_preference_difference_and_accuracy(true_child_preference_data, updated_known_and_predicted_preferences)
-
-                    label_mapping = {label: index for index, label in enumerate(label_encoder.classes_)}
-
-                    negotiator = IngredientNegotiator(
-                    seed, ingredient_df, updated_known_and_predicted_preferences, complex_weight_func_args, previous_feedback={}, previous_utility=predicted_utility
+    for method in tqdm(menu_generators.keys(), desc="Testing Method Types"):
+        for menu in tqdm(range(1, 50), desc=f"Processing Menus for method {method} and {model_name}"):
+            
+            week = (menu - 1) // 5 + 1  # Week number (1-based index)
+            day = (menu - 1) % 5 + 1    # Day number within the week (1-based index)
+            
+            results[method][str(menu)] = {}
+            
+            predictor = PreferenceModel(
+                ingredient_df, child_feature_data, updated_preferences_with_feedback, visualize_data=False, seed=seed
                     )
-                    
-                    if method == 'simple':              
-                        negotiated_ingredients, _, unavailable_ingredients = negotiator.negotiate_ingredients(simple_only = True)
-                                    
-                    elif method == 'complex':
-                        _, negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(simple_only = False)
-                    
-                    else:
-                        raise ValueError("Invalid method")
-                    
-                    negotiated_ingredients_dict = {
-                        'simple': negotiated_ingredients if method == 'simple' else None,
-                        'complex': negotiated_ingredients if method == 'complex' else None,
-                    }
-                    
-                    unavailable_ingredients_dict = {
-                        'simple': unavailable_ingredients if method == 'simple' else None,
-                        'complex': unavailable_ingredients if method == 'complex' else None,
-                    }
 
-                    # Generate menu plan with the updated ingredients
-                    menu_plan_dict[method] = run_mod(model_name, negotiated_ingredients_dict[method], unavailable_ingredients_dict[method], menu_generators, ingredient_df, method, week=week, day=day)
-                    
-                    sentiment_analyzer = SentimentAnalyzer(
-                        updated_preferences_with_feedback, true_child_preference_data, menu_plan_dict[method], child_data=child_feature_data, label_mapping=label_mapping, model_name='perfect', seed=seed
-                    )
-                    updated_preferences_with_feedback, _, previous_feedback, _, _ = sentiment_analyzer.get_sentiment_and_update_data(plot_confusion_matrix=False)
-                    percent_of_known_preferences = calculate_percent_of_known_ingredients_to_unknown(updated_preferences_with_feedback)
-                    true_utility, predicted_utility = utility_calculator_dict[method].calculate_day_menu_utility(updated_known_and_predicted_preferences, list(menu_plan_dict[method].keys()))
+            updated_known_and_predicted_preferences, total_true_unknown_preferences, total_predicted_unknown_preferences, label_encoder = predictor.run_pipeline()
 
-                                
-                    # Evaluate the menu plan and calculate the reward
-                    if model_name != 'RL':
-                        reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method])
-                    else:
-                        evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients = negotiated_ingredients_dict[method], unavailable_ingredients = unavailable_ingredients_dict[method])
-                        reward, info = evaluator.select_ingredients(menu_plan_dict[method])
-                    
-                    # Store the results including time taken and reward
-                    results[method][str(menu)].update({
-                        'info': info,
-                        'reward': reward,
-                        'percent_of_known_preferences': percent_of_known_preferences,
-                        'true_utility': true_utility,
-                        'predicted_utility': predicted_utility,
-                        'accuracy_unknown': accuracy_unknown,
-                        'accuracy_std_total': accuracy_std_total,
-                        'feedback': previous_feedback
-                    })
+            # Calculate unknown accuracy using sklearn's accuracy_score  
+            accuracy_unknown = accuracy_score(total_true_unknown_preferences, total_predicted_unknown_preferences)
+            accuracy_std_total = print_preference_difference_and_accuracy(true_child_preference_data, updated_known_and_predicted_preferences)
+
+            label_mapping = {label: index for index, label in enumerate(label_encoder.classes_)}
+
+            negotiator = IngredientNegotiator(
+            seed, ingredient_df, updated_known_and_predicted_preferences, complex_weight_func_args, previous_feedback={}, previous_utility=predicted_utility
+            )
+            
+            if method == 'simple':              
+                negotiated_ingredients, _, unavailable_ingredients = negotiator.negotiate_ingredients(simple_only = True)
+                            
+            elif method == 'complex':
+                _, negotiated_ingredients, unavailable_ingredients = negotiator.negotiate_ingredients(simple_only = False)
+            
+            else:
+                raise ValueError("Invalid method")
+            
+            negotiated_ingredients_dict = {
+                'simple': negotiated_ingredients if method == 'simple' else None,
+                'complex': negotiated_ingredients if method == 'complex' else None,
+            }
+            
+            unavailable_ingredients_dict = {
+                'simple': unavailable_ingredients if method == 'simple' else None,
+                'complex': unavailable_ingredients if method == 'complex' else None,
+            }
+
+            # Generate menu plan with the updated ingredients
+            menu_plan_dict[method] = run_mod(model_name, negotiated_ingredients_dict[method], unavailable_ingredients_dict[method], menu_generators, ingredient_df, method, week=week, day=day)
+            
+            sentiment_analyzer = SentimentAnalyzer(
+                updated_preferences_with_feedback, true_child_preference_data, menu_plan_dict[method], child_data=child_feature_data, label_mapping=label_mapping, model_name='perfect', seed=seed
+            )
+            updated_preferences_with_feedback, _, previous_feedback, _, _ = sentiment_analyzer.get_sentiment_and_update_data(plot_confusion_matrix=False)
+            percent_of_known_preferences = calculate_percent_of_known_ingredients_to_unknown(updated_preferences_with_feedback)
+            true_utility, predicted_utility = utility_calculator_dict[method].calculate_day_menu_utility(updated_known_and_predicted_preferences, list(menu_plan_dict[method].keys()))
+
+                        
+            # Evaluate the menu plan and calculate the reward
+            if model_name != 'RL':
+                reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method])
+            else:
+                evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients = negotiated_ingredients_dict[method], unavailable_ingredients = unavailable_ingredients_dict[method])
+                reward, info = evaluator.select_ingredients(menu_plan_dict[method])
+            
+            # Store the results including time taken and reward
+            results[method][str(menu)].update({
+                'info': info,
+                'reward': reward,
+                'percent_of_known_preferences': percent_of_known_preferences,
+                'true_utility': true_utility,
+                'predicted_utility': predicted_utility,
+                'accuracy_unknown': accuracy_unknown,
+                'accuracy_std_total': accuracy_std_total,
+                'feedback': previous_feedback
+            })
                 
     # Close utility calculators
     for key in utility_calculator_dict.keys():
@@ -311,12 +309,12 @@ def main():
     }
     
     menu_gen_names = [
-        "random",
-        "prob",
-        "best",
-        "prob_best",
+        # "random",
+        # "prob",
+        # "best",
+        # "prob_best"
         # "RL",
-        # "genetic",
+        "genetic"
     ]
     
     try:
