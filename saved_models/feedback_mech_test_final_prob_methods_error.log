@@ -1,548 +1,0 @@
-2024-08-23 11:18:44.984388: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2024-08-23 11:18:58.451992: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
-Testing Menu Generator Types:   0%|          | 0/1 [00:00<?, ?it/s]                                                                   2024-08-23 11:23:05,231 - INFO - Calculating utilities for meal plan #1: ['Carrots', 'Table grapes', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [03:26<?, ?it/s]                                                                   2024-08-23 11:23:05,232 - INFO - Daily Gini coefficients for day 1: {'true_gini': 0.245474613686534, 'predicted_gini': 0.245474613686534}
-Testing Menu Generator Types:   0%|          | 0/1 [03:26<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [00:00<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   0%|          | 0/49 [00:00<?, ?it/s][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                       [A[A2024-08-23 11:26:40,824 - INFO - Calculating utilities for meal plan #2: ['Peas', 'Apples', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [07:01<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [03:35<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   0%|          | 0/49 [03:35<?, ?it/s][A[A                                                                   
-                                                           [A
-
-                                                                                       [A[A2024-08-23 11:26:40,825 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.3054131054131053, 'predicted_gini': 0.30649717514124286}
-Testing Menu Generator Types:   0%|          | 0/1 [07:01<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [03:35<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   0%|          | 0/49 [03:35<?, ?it/s][A[A
-
-Processing Menus for method perfect and genetic:   2%|▏         | 1/49 [03:35<2:52:28, 215.59s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:30:14,247 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Common banana', 'Trouts', 'Couscous', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [10:35<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [07:09<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   2%|▏         | 1/49 [07:09<2:52:28, 215.59s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:30:14,248 - INFO - Daily Gini coefficients for day 3: {'true_gini': 0.1226299694189601, 'predicted_gini': 0.1495238095238094}
-Testing Menu Generator Types:   0%|          | 0/1 [10:35<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [07:09<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   2%|▏         | 1/49 [07:09<2:52:28, 215.59s/it][A[A
-
-Processing Menus for method perfect and genetic:   4%|▍         | 2/49 [07:09<2:47:52, 214.32s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:33:46,164 - INFO - Calculating utilities for meal plan #4: ['Tomatoes', 'Pears', 'Chickpeas (dry)', 'Noodles', 'Sour cream', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [14:07<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [10:40<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   4%|▍         | 2/49 [10:40<2:47:52, 214.32s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:33:46,165 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.20681399631675856, 'predicted_gini': 0.22180180180180176}
-Testing Menu Generator Types:   0%|          | 0/1 [14:07<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [10:40<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   4%|▍         | 2/49 [10:40<2:47:52, 214.32s/it][A[A
-
-Processing Menus for method perfect and genetic:   6%|▌         | 3/49 [10:40<2:43:28, 213.22s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:37:18,945 - INFO - Calculating utilities for meal plan #5: ['Swedes', 'Nectarines', 'Salmons', 'New potatoes', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [17:39<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [14:13<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   6%|▌         | 3/49 [14:13<2:43:28, 213.22s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:37:18,946 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.10425531914893615, 'predicted_gini': 0.12035087719298243}
-Testing Menu Generator Types:   0%|          | 0/1 [17:39<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [14:13<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   6%|▌         | 3/49 [14:13<2:43:28, 213.22s/it][A[A
-
-Processing Menus for method perfect and genetic:   8%|▊         | 4/49 [14:13<2:39:47, 213.05s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:40:51,874 - INFO - Calculating utilities for meal plan #6: ['Carrots', 'Table grapes', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [21:12<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [17:46<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   8%|▊         | 4/49 [17:46<2:39:47, 213.05s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:40:51,875 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
-Testing Menu Generator Types:   0%|          | 0/1 [21:12<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [17:46<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   8%|▊         | 4/49 [17:46<2:39:47, 213.05s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:40:51,888 - INFO - Utilities and Gini coefficients have been saved and reset.
-Testing Menu Generator Types:   0%|          | 0/1 [21:12<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [17:46<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   8%|▊         | 4/49 [17:46<2:39:47, 213.05s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:40:51,889 - INFO - Daily Gini coefficients for day 6: {'true_gini': 0.245474613686534, 'predicted_gini': 0.245474613686534}
-Testing Menu Generator Types:   0%|          | 0/1 [21:12<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [17:46<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:   8%|▊         | 4/49 [17:46<2:39:47, 213.05s/it][A[A
-
-Processing Menus for method perfect and genetic:  10%|█         | 5/49 [17:46<2:36:12, 213.01s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:44:23,132 - INFO - Calculating utilities for meal plan #2: ['Peas', 'Apples', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [24:44<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [21:17<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  10%|█         | 5/49 [21:17<2:36:12, 213.01s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:44:23,133 - INFO - Daily Gini coefficients for day 7: {'true_gini': 0.3054131054131053, 'predicted_gini': 0.30649717514124286}
-Testing Menu Generator Types:   0%|          | 0/1 [24:44<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [21:17<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  10%|█         | 5/49 [21:17<2:36:12, 213.01s/it][A[A
-
-Processing Menus for method perfect and genetic:  12%|█▏        | 6/49 [21:17<2:32:13, 212.41s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:48:07,634 - INFO - Calculating utilities for meal plan #3: ['Sweet corn', 'Pears', 'Chickpeas (dry)', 'Noodles', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [28:28<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [25:02<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  12%|█▏        | 6/49 [25:02<2:32:13, 212.41s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:48:07,635 - INFO - Daily Gini coefficients for day 8: {'true_gini': 0.12198198198198185, 'predicted_gini': 0.12295081967213095}
-Testing Menu Generator Types:   0%|          | 0/1 [28:28<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [25:02<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  12%|█▏        | 6/49 [25:02<2:32:13, 212.41s/it][A[A
-
-Processing Menus for method perfect and genetic:  14%|█▍        | 7/49 [25:02<2:31:27, 216.36s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:51:38,199 - INFO - Calculating utilities for meal plan #4: ['Chili peppers', 'Common banana', 'Anchovies', 'Couscous', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [31:59<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [28:32<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  14%|█▍        | 7/49 [28:32<2:31:27, 216.36s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:51:38,200 - INFO - Daily Gini coefficients for day 9: {'true_gini': 0.09202898550724625, 'predicted_gini': 0.10416666666666652}
-Testing Menu Generator Types:   0%|          | 0/1 [31:59<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [28:32<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  14%|█▍        | 7/49 [28:32<2:31:27, 216.36s/it][A[A
-
-Processing Menus for method perfect and genetic:  16%|█▋        | 8/49 [28:32<2:26:35, 214.52s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:55:09,668 - INFO - Calculating utilities for meal plan #5: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [35:30<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [32:04<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  16%|█▋        | 8/49 [32:04<2:26:35, 214.52s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:55:09,669 - INFO - Daily Gini coefficients for day 10: {'true_gini': 0.245474613686534, 'predicted_gini': 0.245474613686534}
-Testing Menu Generator Types:   0%|          | 0/1 [35:30<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [32:04<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  16%|█▋        | 8/49 [32:04<2:26:35, 214.52s/it][A[A
-
-Processing Menus for method perfect and genetic:  18%|█▊        | 9/49 [32:04<2:22:22, 213.56s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:58:41,555 - INFO - Calculating utilities for meal plan #6: ['Peas', 'Common banana', 'Mackerel', 'Noodles', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [39:02<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [35:36<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  18%|█▊        | 9/49 [35:36<2:22:22, 213.56s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:58:41,558 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
-Testing Menu Generator Types:   0%|          | 0/1 [39:02<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [35:36<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  18%|█▊        | 9/49 [35:36<2:22:22, 213.56s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:58:41,592 - INFO - Utilities and Gini coefficients have been saved and reset.
-Testing Menu Generator Types:   0%|          | 0/1 [39:02<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [35:36<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  18%|█▊        | 9/49 [35:36<2:22:22, 213.56s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                  [A[A2024-08-23 11:58:41,593 - INFO - Daily Gini coefficients for day 11: {'true_gini': 0.30638297872340425, 'predicted_gini': 0.29513888888888884}
-Testing Menu Generator Types:   0%|          | 0/1 [39:02<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [35:36<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  18%|█▊        | 9/49 [35:36<2:22:22, 213.56s/it][A[A
-
-Processing Menus for method perfect and genetic:  20%|██        | 10/49 [35:36<2:18:29, 213.06s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:02:14,565 - INFO - Calculating utilities for meal plan #2: ['Sweet corn', 'Pears', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [42:35<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [39:09<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  20%|██        | 10/49 [39:09<2:18:29, 213.06s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:02:14,568 - INFO - Daily Gini coefficients for day 12: {'true_gini': 0.09487179487179476, 'predicted_gini': 0.10526315789473673}
-Testing Menu Generator Types:   0%|          | 0/1 [42:35<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [39:09<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  20%|██        | 10/49 [39:09<2:18:29, 213.06s/it][A[A
-
-Processing Menus for method perfect and genetic:  22%|██▏       | 11/49 [39:09<2:14:55, 213.03s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:05:51,064 - INFO - Calculating utilities for meal plan #3: ['Swedes', 'Nectarines', 'Salmons', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [46:11<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [42:45<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  22%|██▏       | 11/49 [42:45<2:14:55, 213.03s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:05:51,065 - INFO - Daily Gini coefficients for day 13: {'true_gini': 0.09899999999999998, 'predicted_gini': 0.10396039603960383}
-Testing Menu Generator Types:   0%|          | 0/1 [46:11<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [42:45<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  22%|██▏       | 11/49 [42:45<2:14:55, 213.03s/it][A[A
-
-Processing Menus for method perfect and genetic:  24%|██▍       | 12/49 [42:45<2:12:01, 214.09s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:09:27,072 - INFO - Calculating utilities for meal plan #4: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [49:47<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [46:21<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  24%|██▍       | 12/49 [46:21<2:12:01, 214.09s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:09:27,073 - INFO - Daily Gini coefficients for day 14: {'true_gini': 0.245474613686534, 'predicted_gini': 0.245474613686534}
-Testing Menu Generator Types:   0%|          | 0/1 [49:47<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [46:21<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  24%|██▍       | 12/49 [46:21<2:12:01, 214.09s/it][A[A
-
-Processing Menus for method perfect and genetic:  27%|██▋       | 13/49 [46:21<2:08:48, 214.67s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:12:59,187 - INFO - Calculating utilities for meal plan #5: ['Peas', 'Pears', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [53:20<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [49:53<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  27%|██▋       | 13/49 [49:53<2:08:48, 214.67s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:12:59,188 - INFO - Daily Gini coefficients for day 15: {'true_gini': 0.3054131054131053, 'predicted_gini': 0.30649717514124286}
-Testing Menu Generator Types:   0%|          | 0/1 [53:20<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [49:53<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  27%|██▋       | 13/49 [49:53<2:08:48, 214.67s/it][A[A
-
-Processing Menus for method perfect and genetic:  29%|██▊       | 14/49 [49:53<2:04:46, 213.90s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:16:30,461 - INFO - Calculating utilities for meal plan #6: ['Sweet corn', 'Common banana', 'Chickpeas (dry)', 'Noodles', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [56:51<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [53:25<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  29%|██▊       | 14/49 [53:25<2:04:46, 213.90s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:16:30,462 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
-Testing Menu Generator Types:   0%|          | 0/1 [56:51<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [53:25<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  29%|██▊       | 14/49 [53:25<2:04:46, 213.90s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:16:30,550 - INFO - Utilities and Gini coefficients have been saved and reset.
-Testing Menu Generator Types:   0%|          | 0/1 [56:51<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [53:25<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  29%|██▊       | 14/49 [53:25<2:04:46, 213.90s/it][A[A                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:16:30,551 - INFO - Daily Gini coefficients for day 16: {'true_gini': 0.12198198198198185, 'predicted_gini': 0.12295081967213095}
-Testing Menu Generator Types:   0%|          | 0/1 [56:51<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [53:25<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  29%|██▊       | 14/49 [53:25<2:04:46, 213.90s/it][A[A
-
-Processing Menus for method perfect and genetic:  31%|███       | 15/49 [53:25<2:00:46, 213.13s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                   
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:20:04,482 - INFO - Calculating utilities for meal plan #2: ['Chili peppers', 'Nectarines', 'Anchovies', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [1:00:25<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [56:59<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  31%|███       | 15/49 [56:59<2:00:46, 213.13s/it][A[A                                                                     
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:20:04,484 - INFO - Daily Gini coefficients for day 17: {'true_gini': 0.1159420289855071, 'predicted_gini': 0.14070175438596477}
-Testing Menu Generator Types:   0%|          | 0/1 [1:00:25<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [56:59<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  31%|███       | 15/49 [56:59<2:00:46, 213.13s/it][A[A
-
-Processing Menus for method perfect and genetic:  33%|███▎      | 16/49 [56:59<1:57:21, 213.37s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                     
-                                                           [A
-
-                                                                                                   [A[A2024-08-23 12:23:44,109 - INFO - Calculating utilities for meal plan #3: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [1:04:04<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:00:38<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  33%|███▎      | 16/49 [1:00:38<1:57:21, 213.37s/it][A[A                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:23:44,110 - INFO - Daily Gini coefficients for day 18: {'true_gini': 0.245474613686534, 'predicted_gini': 0.245474613686534}
-Testing Menu Generator Types:   0%|          | 0/1 [1:04:04<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:00:38<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  33%|███▎      | 16/49 [1:00:38<1:57:21, 213.37s/it][A[A
-
-Processing Menus for method perfect and genetic:  35%|███▍      | 17/49 [1:00:38<1:54:48, 215.25s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:27:16,884 - INFO - Calculating utilities for meal plan #4: ['Peas', 'Pears', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [1:07:37<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:04:11<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  35%|███▍      | 17/49 [1:04:11<1:54:48, 215.25s/it][A[A                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:27:16,885 - INFO - Daily Gini coefficients for day 19: {'true_gini': 0.3054131054131053, 'predicted_gini': 0.30649717514124286}
-Testing Menu Generator Types:   0%|          | 0/1 [1:07:37<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:04:11<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  35%|███▍      | 17/49 [1:04:11<1:54:48, 215.25s/it][A[A
-
-Processing Menus for method perfect and genetic:  37%|███▋      | 18/49 [1:04:11<1:50:49, 214.51s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:30:48,679 - INFO - Calculating utilities for meal plan #5: ['Sweet corn', 'Common banana', 'Anchovies', 'Couscous', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [1:11:09<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:07:43<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  37%|███▋      | 18/49 [1:07:43<1:50:49, 214.51s/it][A[A                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:30:48,680 - INFO - Daily Gini coefficients for day 20: {'true_gini': 0.09801980198019788, 'predicted_gini': 0.1149659863945578}
-Testing Menu Generator Types:   0%|          | 0/1 [1:11:09<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:07:43<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  37%|███▋      | 18/49 [1:07:43<1:50:49, 214.51s/it][A[A
-
-Processing Menus for method perfect and genetic:  39%|███▉      | 19/49 [1:07:43<1:46:50, 213.69s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:34:22,613 - INFO - Calculating utilities for meal plan #6: ['Tomatoes', 'Nectarines', 'Chickpeas (dry)', 'New potatoes', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [1:14:43<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:11:17<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  39%|███▉      | 19/49 [1:11:17<1:46:50, 213.69s/it][A[A                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:34:22,614 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
-Testing Menu Generator Types:   0%|          | 0/1 [1:14:43<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:11:17<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  39%|███▉      | 19/49 [1:11:17<1:46:50, 213.69s/it][A[A                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:34:22,643 - INFO - Utilities and Gini coefficients have been saved and reset.
-Testing Menu Generator Types:   0%|          | 0/1 [1:14:43<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:11:17<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  39%|███▉      | 19/49 [1:11:17<1:46:50, 213.69s/it][A[A                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:34:22,644 - INFO - Daily Gini coefficients for day 21: {'true_gini': 0.2734204793028321, 'predicted_gini': 0.25704697986577174}
-Testing Menu Generator Types:   0%|          | 0/1 [1:14:43<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:11:17<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  39%|███▉      | 19/49 [1:11:17<1:46:50, 213.69s/it][A[A
-
-Processing Menus for method perfect and genetic:  41%|████      | 20/49 [1:11:17<1:43:19, 213.77s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:37:52,948 - INFO - Calculating utilities for meal plan #2: ['Carrots', 'Apples', 'Kidney bean', 'Sweet potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [1:18:13<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:14:47<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  41%|████      | 20/49 [1:14:47<1:43:19, 213.77s/it][A[A                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:37:52,949 - INFO - Daily Gini coefficients for day 22: {'true_gini': 0.245474613686534, 'predicted_gini': 0.245474613686534}
-Testing Menu Generator Types:   0%|          | 0/1 [1:18:13<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:14:47<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  41%|████      | 20/49 [1:14:47<1:43:19, 213.77s/it][A[A
-
-Processing Menus for method perfect and genetic:  43%|████▎     | 21/49 [1:14:47<1:39:16, 212.73s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:41:28,995 - INFO - Calculating utilities for meal plan #3: ['Peas', 'Nectarines', 'Shrimps and prawns', 'Pasta plain (not stuffed) uncooked', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [1:21:49<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:18:23<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  43%|████▎     | 21/49 [1:18:23<1:39:16, 212.73s/it][A[A                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:41:28,996 - INFO - Daily Gini coefficients for day 23: {'true_gini': 0.3054131054131053, 'predicted_gini': 0.3013947001394699}
-Testing Menu Generator Types:   0%|          | 0/1 [1:21:49<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:18:23<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  43%|████▎     | 21/49 [1:18:23<1:39:16, 212.73s/it][A[A
-
-Processing Menus for method perfect and genetic:  45%|████▍     | 22/49 [1:18:23<1:36:10, 213.73s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:44:59,519 - INFO - Calculating utilities for meal plan #4: ['Sweet corn', 'Table grapes', 'Chickpeas (dry)', 'Noodles', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [1:25:20<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:21:54<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  45%|████▍     | 22/49 [1:21:54<1:36:10, 213.73s/it][A[A                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:44:59,520 - INFO - Daily Gini coefficients for day 24: {'true_gini': 0.12198198198198185, 'predicted_gini': 0.12295081967213095}
-Testing Menu Generator Types:   0%|          | 0/1 [1:25:20<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:21:54<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  45%|████▍     | 22/49 [1:21:54<1:36:10, 213.73s/it][A[A
-
-Processing Menus for method perfect and genetic:  47%|████▋     | 23/49 [1:21:54<1:32:11, 212.77s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:48:30,650 - INFO - Calculating utilities for meal plan #5: ['Chili peppers', 'Pears', 'Anchovies', 'Couscous', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
-Testing Menu Generator Types:   0%|          | 0/1 [1:28:51<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:25:25<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  47%|████▋     | 23/49 [1:25:25<1:32:11, 212.77s/it][A[A                                                                     
-                                                             [A
-
-                                                                                                     [A[A2024-08-23 12:48:30,651 - INFO - Daily Gini coefficients for day 25: {'true_gini': 0.1159420289855071, 'predicted_gini': 0.13546099290780123}
-Testing Menu Generator Types:   0%|          | 0/1 [1:28:51<?, ?it/s]
-Testing Method Types:   0%|          | 0/1 [1:25:25<?, ?it/s][A
-
-Processing Menus for method perfect and genetic:  47%|████▋     | 23/49 [1:25:25<1:32:11, 212.77s/it][A[A
-
-Processing Menus for method perfect and genetic:  49%|████▉     | 24/49 [1:25:25<1:28:26, 212.28s/it][A[A/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'FitnessMax' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "
-/rds/general/user/lej23/home/anaconda3/envs/MasterEnv/lib/python3.11/site-packages/deap/creator.py:185: RuntimeWarning: A class named 'Individual' has already been created and it will be overwritten. Consider deleting previous creation of that class or rename it.
-  warnings.warn("A class named '{0}' has already been created and it "

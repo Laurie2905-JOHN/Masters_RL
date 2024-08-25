@@ -1,0 +1,9 @@
+Successfully read 136 lines from the file. Loaded 135 ingredients.
+
+Overall Accuracy of Preferences: 0.712593
+Standard Deviation of Accuracies: 0.052671
+Data successfully logged to /rds/general/user/lej23/home/fyp/Masters_RL/scripts/preference/report_tests/saved_data/data/run_1/log_file.json
+Negotiator closed and data saved.
+Generated ingredient quantities (random): {'Cauliflowers': 46, 'Apples': 70, 'Pig fresh meat': 58, 'Buckwheat': 79, 'Yoghurt cow milk plain': 54, 'Wheat bread and rolls brown or wholemeal': 50} with score 0.8311302005890943
+Generated ingredient quantities (random): {'Cauliflowers': 49, 'Apples': 72, 'Pig fresh meat': 41, 'Buckwheat': 131, 'Yoghurt cow milk plain': 62, 'Wheat bread and rolls brown or wholemeal': 53} with score 0.8569812829596692
+Generated ingredient quantities (random): {'Cauliflowers': 55, 'Apples': 66, 'Pig fresh meat': 87, 'Buckwheat': 100, 'Yoghurt cow milk plain': 57, 'Wheat bread and rolls brown or wholemeal': 63} with score 0.727645796209233

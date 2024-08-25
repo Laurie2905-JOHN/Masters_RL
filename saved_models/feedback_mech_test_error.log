@@ -1,0 +1,765 @@
+2024-08-25 09:32:54.424250: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-08-25 09:33:10.838571: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+Testing Menu Generator Types:   0%|          | 0/5 [00:00<?, ?it/s]                                                                   2024-08-25 09:33:58,056 - INFO - Calculating utilities for meal plan #1: ['Cauliflowers', 'Apples', 'Pig fresh meat', 'Buckwheat', 'Yoghurt cow milk plain', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [00:00<?, ?it/s]                                                                   2024-08-25 09:33:58,057 - INFO - Daily Gini coefficients for day 1: {'true_gini': -5.446666666666666, 'predicted_gini': -6.123809523809523}
+Testing Menu Generator Types:   0%|          | 0/5 [00:00<?, ?it/s]                                                                   2024-08-25 09:33:58,141 - INFO - Calculating utilities for meal plan #1: ['Cauliflowers', 'Apples', 'Pig fresh meat', 'Buckwheat', 'Yoghurt cow milk plain', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [00:00<?, ?it/s]                                                                   2024-08-25 09:33:58,142 - INFO - Daily Gini coefficients for day 1: {'true_gini': -5.446666666666666, 'predicted_gini': -6.123809523809523}
+Testing Menu Generator Types:   0%|          | 0/5 [00:00<?, ?it/s]                                                                   2024-08-25 09:33:58,166 - INFO - Calculating utilities for meal plan #1: ['Cauliflowers', 'Apples', 'Pig fresh meat', 'Buckwheat', 'Yoghurt cow milk plain', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [00:00<?, ?it/s]                                                                   2024-08-25 09:33:58,166 - INFO - Daily Gini coefficients for day 1: {'true_gini': -5.446666666666666, 'predicted_gini': -6.123809523809523}
+Testing Menu Generator Types:   0%|          | 0/5 [00:00<?, ?it/s]
+Testing Method Types:   0%|          | 0/3 [00:00<?, ?it/s][A
+
+Processing Menus for method perfect and random:   0%|          | 0/99 [00:00<?, ?it/s][A[A                                                                   
+
+                                                                                      [A[A
+                                                           [A2024-08-25 09:34:05,250 - INFO - Calculating utilities for meal plan #2: ['Cucumber', 'Limes', 'Fish fingers breaded', 'Sweet potatoes', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [00:07<?, ?it/s]
+
+Processing Menus for method perfect and random:   0%|          | 0/99 [00:07<?, ?it/s][A[A
+Testing Method Types:   0%|          | 0/3 [00:07<?, ?it/s][A                                                                   
+
+                                                                                      [A[A
+                                                           [A2024-08-25 09:34:05,251 - INFO - Daily Gini coefficients for day 2: {'true_gini': 0.16666666666666652, 'predicted_gini': 0.31292217327459615}
+Testing Menu Generator Types:   0%|          | 0/5 [00:07<?, ?it/s]
+
+Processing Menus for method perfect and random:   0%|          | 0/99 [00:07<?, ?it/s][A[A
+Testing Method Types:   0%|          | 0/3 [00:07<?, ?it/s][A
+
+Processing Menus for method perfect and random:   1%|          | 1/99 [00:07<11:34,  7.09s/it][A[A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:12,193 - INFO - Calculating utilities for meal plan #3: ['Lettuces (generic)', 'Mango', 'Pistachios', 'Potatoes', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [00:14<?, ?it/s]
+
+Processing Menus for method perfect and random:   1%|          | 1/99 [00:14<11:34,  7.09s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:14<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:12,194 - INFO - Daily Gini coefficients for day 3: {'true_gini': 2.661904761904762, 'predicted_gini': -50.56666666666666}
+Testing Menu Generator Types:   0%|          | 0/5 [00:14<?, ?it/s]
+
+Processing Menus for method perfect and random:   1%|          | 1/99 [00:14<11:34,  7.09s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:14<?, ?it/s][A
+
+Processing Menus for method perfect and random:   2%|▏         | 2/99 [00:14<11:19,  7.00s/it][A[A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:19,173 - INFO - Calculating utilities for meal plan #4: ['Pepper', 'Nectarines', 'Kidney bean', 'Couscous', 'Cow milk whole', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [00:21<?, ?it/s]
+
+Processing Menus for method perfect and random:   2%|▏         | 2/99 [00:21<11:19,  7.00s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:21<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:19,174 - INFO - Daily Gini coefficients for day 4: {'true_gini': 0.21588785046728964, 'predicted_gini': 0.17342143906020557}
+Testing Menu Generator Types:   0%|          | 0/5 [00:21<?, ?it/s]
+
+Processing Menus for method perfect and random:   2%|▏         | 2/99 [00:21<11:19,  7.00s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:21<?, ?it/s][A
+
+Processing Menus for method perfect and random:   3%|▎         | 3/99 [00:21<11:11,  6.99s/it][A[A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:26,647 - INFO - Calculating utilities for meal plan #5: ['Swedes', 'Oranges sweet', 'Edible crab', 'Pasta plain (not stuffed) uncooked', 'Sour cream', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [00:28<?, ?it/s]
+
+Processing Menus for method perfect and random:   3%|▎         | 3/99 [00:28<11:11,  6.99s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:28<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:26,649 - INFO - Daily Gini coefficients for day 5: {'true_gini': 0.41773879142300174, 'predicted_gini': 0.5890510948905108}
+Testing Menu Generator Types:   0%|          | 0/5 [00:28<?, ?it/s]
+
+Processing Menus for method perfect and random:   3%|▎         | 3/99 [00:28<11:11,  6.99s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:28<?, ?it/s][A
+
+Processing Menus for method perfect and random:   4%|▍         | 4/99 [00:28<11:22,  7.18s/it][A[A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:33,753 - INFO - Calculating utilities for meal plan #6: ['Courgettes', 'Kiwi fruits (green red yellow)', 'Brazil nuts', 'New potatoes', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [00:35<?, ?it/s]
+
+Processing Menus for method perfect and random:   4%|▍         | 4/99 [00:35<11:22,  7.18s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:35<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:33,754 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
+Testing Menu Generator Types:   0%|          | 0/5 [00:35<?, ?it/s]
+
+Processing Menus for method perfect and random:   4%|▍         | 4/99 [00:35<11:22,  7.18s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:35<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:33,763 - INFO - Utilities and Gini coefficients have been saved and reset.
+Testing Menu Generator Types:   0%|          | 0/5 [00:35<?, ?it/s]
+
+Processing Menus for method perfect and random:   4%|▍         | 4/99 [00:35<11:22,  7.18s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:35<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:33,764 - INFO - Daily Gini coefficients for day 6: {'true_gini': 1.315204678362573, 'predicted_gini': 1.0358024691358023}
+Testing Menu Generator Types:   0%|          | 0/5 [00:35<?, ?it/s]
+
+Processing Menus for method perfect and random:   4%|▍         | 4/99 [00:35<11:22,  7.18s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:35<?, ?it/s][A
+
+Processing Menus for method perfect and random:   5%|▌         | 5/99 [00:35<11:12,  7.16s/it][A[A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:41,060 - INFO - Calculating utilities for meal plan #2: ['Jerusalem artichokes', 'Rhubarbs', 'Almonds', 'Rice grain brown', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [00:43<?, ?it/s]
+
+Processing Menus for method perfect and random:   5%|▌         | 5/99 [00:42<11:12,  7.16s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:42<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:41,062 - INFO - Daily Gini coefficients for day 7: {'true_gini': -1.6492957746478876, 'predicted_gini': -0.9495238095238097}
+Testing Menu Generator Types:   0%|          | 0/5 [00:43<?, ?it/s]
+
+Processing Menus for method perfect and random:   5%|▌         | 5/99 [00:42<11:12,  7.16s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:42<?, ?it/s][A
+
+Processing Menus for method perfect and random:   6%|▌         | 6/99 [00:42<11:10,  7.21s/it][A[A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:48,474 - INFO - Calculating utilities for meal plan #3: ['Savoy cabbages', 'Oranges sweet', 'Hakes', 'Buckwheat', 'Mascarpone', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [00:50<?, ?it/s]
+
+Processing Menus for method perfect and random:   6%|▌         | 6/99 [00:50<11:10,  7.21s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:50<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:48,475 - INFO - Daily Gini coefficients for day 8: {'true_gini': -1.111965811965812, 'predicted_gini': -1.993617021276596}
+Testing Menu Generator Types:   0%|          | 0/5 [00:50<?, ?it/s]
+
+Processing Menus for method perfect and random:   6%|▌         | 6/99 [00:50<11:10,  7.21s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:50<?, ?it/s][A
+
+Processing Menus for method perfect and random:   7%|▋         | 7/99 [00:50<11:09,  7.27s/it][A[A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:55,733 - INFO - Calculating utilities for meal plan #4: ['Onions', 'Papayas', 'Bacon', 'Potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [00:57<?, ?it/s]
+
+Processing Menus for method perfect and random:   7%|▋         | 7/99 [00:57<11:09,  7.27s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:57<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:34:55,735 - INFO - Daily Gini coefficients for day 9: {'true_gini': 0.48685446009389666, 'predicted_gini': 0.7811594202898551}
+Testing Menu Generator Types:   0%|          | 0/5 [00:57<?, ?it/s]
+
+Processing Menus for method perfect and random:   7%|▋         | 7/99 [00:57<11:09,  7.27s/it][A[A
+Testing Method Types:   0%|          | 0/3 [00:57<?, ?it/s][A
+
+Processing Menus for method perfect and random:   8%|▊         | 8/99 [00:57<11:01,  7.27s/it][A[A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:35:03,286 - INFO - Calculating utilities for meal plan #5: ['Aubergines', 'Pineapples', 'Tuna', 'Rice grain', 'Mozzarella', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [01:05<?, ?it/s]
+
+Processing Menus for method perfect and random:   8%|▊         | 8/99 [01:05<11:01,  7.27s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:05<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:35:03,287 - INFO - Daily Gini coefficients for day 10: {'true_gini': 0.5915989159891597, 'predicted_gini': 1.0208722741433023}
+Testing Menu Generator Types:   0%|          | 0/5 [01:05<?, ?it/s]
+
+Processing Menus for method perfect and random:   8%|▊         | 8/99 [01:05<11:01,  7.27s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:05<?, ?it/s][A
+
+Processing Menus for method perfect and random:   9%|▉         | 9/99 [01:05<11:02,  7.36s/it][A[A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:35:10,179 - INFO - Calculating utilities for meal plan #6: ['Beetroots', 'Watermelons', 'Frankfurter sausage', 'Couscous', 'Cream plain', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [01:12<?, ?it/s]
+
+Processing Menus for method perfect and random:   9%|▉         | 9/99 [01:12<11:02,  7.36s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:12<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:35:10,179 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
+Testing Menu Generator Types:   0%|          | 0/5 [01:12<?, ?it/s]
+
+Processing Menus for method perfect and random:   9%|▉         | 9/99 [01:12<11:02,  7.36s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:12<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:35:10,209 - INFO - Utilities and Gini coefficients have been saved and reset.
+Testing Menu Generator Types:   0%|          | 0/5 [01:12<?, ?it/s]
+
+Processing Menus for method perfect and random:   9%|▉         | 9/99 [01:12<11:02,  7.36s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:12<?, ?it/s][A                                                                   
+
+                                                                                              [A[A
+                                                           [A2024-08-25 09:35:10,210 - INFO - Daily Gini coefficients for day 11: {'true_gini': 1.4210526315789471, 'predicted_gini': 2.0076923076923077}
+Testing Menu Generator Types:   0%|          | 0/5 [01:12<?, ?it/s]
+
+Processing Menus for method perfect and random:   9%|▉         | 9/99 [01:12<11:02,  7.36s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:12<?, ?it/s][A
+
+Processing Menus for method perfect and random:  10%|█         | 10/99 [01:12<10:42,  7.22s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:15,991 - INFO - Calculating utilities for meal plan #2: ['Tomatoes', 'Limes', 'Cow ox or bull fresh meat', 'Rice grain', 'Mozzarella', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [01:17<?, ?it/s]
+
+Processing Menus for method perfect and random:  10%|█         | 10/99 [01:17<10:42,  7.22s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:17<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:15,993 - INFO - Daily Gini coefficients for day 12: {'true_gini': 1.0598566308243729, 'predicted_gini': 8.154166666666667}
+Testing Menu Generator Types:   0%|          | 0/5 [01:17<?, ?it/s]
+
+Processing Menus for method perfect and random:  10%|█         | 10/99 [01:17<10:42,  7.22s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:17<?, ?it/s][A
+
+Processing Menus for method perfect and random:  11%|█         | 11/99 [01:17<09:56,  6.78s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:22,019 - INFO - Calculating utilities for meal plan #3: ['Garlic', 'Common banana', 'Pig fresh meat', 'Rice grain long-grain', 'Cow milk whole', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [01:24<?, ?it/s]
+
+Processing Menus for method perfect and random:  11%|█         | 11/99 [01:23<09:56,  6.78s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:23<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:22,020 - INFO - Daily Gini coefficients for day 13: {'true_gini': 0.1660130718954247, 'predicted_gini': 1.0726666666666664}
+Testing Menu Generator Types:   0%|          | 0/5 [01:24<?, ?it/s]
+
+Processing Menus for method perfect and random:  11%|█         | 11/99 [01:23<09:56,  6.78s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:23<?, ?it/s][A
+
+Processing Menus for method perfect and random:  12%|█▏        | 12/99 [01:23<09:30,  6.55s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:27,873 - INFO - Calculating utilities for meal plan #4: ['Broccoli', 'Pineapples', 'Peanuts', 'Pasta plain (not stuffed) uncooked', 'Cow milk skimmed (low fat)', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [01:29<?, ?it/s]
+
+Processing Menus for method perfect and random:  12%|█▏        | 12/99 [01:29<09:30,  6.55s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:29<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:27,874 - INFO - Daily Gini coefficients for day 14: {'true_gini': 2.3701754385964913, 'predicted_gini': 3.92}
+Testing Menu Generator Types:   0%|          | 0/5 [01:29<?, ?it/s]
+
+Processing Menus for method perfect and random:  12%|█▏        | 12/99 [01:29<09:30,  6.55s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:29<?, ?it/s][A
+
+Processing Menus for method perfect and random:  13%|█▎        | 13/99 [01:29<09:05,  6.34s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:33,841 - INFO - Calculating utilities for meal plan #5: ['Swedes', 'Passionfruits', 'Pistachios', 'Sweet potatoes', 'Traditional margarine', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [01:35<?, ?it/s]
+
+Processing Menus for method perfect and random:  13%|█▎        | 13/99 [01:35<09:05,  6.34s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:35<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:33,842 - INFO - Daily Gini coefficients for day 15: {'true_gini': 0.5166666666666666, 'predicted_gini': 0.5671081677704193}
+Testing Menu Generator Types:   0%|          | 0/5 [01:35<?, ?it/s]
+
+Processing Menus for method perfect and random:  13%|█▎        | 13/99 [01:35<09:05,  6.34s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:35<?, ?it/s][A
+
+Processing Menus for method perfect and random:  14%|█▍        | 14/99 [01:35<08:49,  6.23s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:40,328 - INFO - Calculating utilities for meal plan #6: ['Leeks', 'Strawberries', 'Turkey fresh meat', 'New potatoes', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [01:42<?, ?it/s]
+
+Processing Menus for method perfect and random:  14%|█▍        | 14/99 [01:42<08:49,  6.23s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:42<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:40,328 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
+Testing Menu Generator Types:   0%|          | 0/5 [01:42<?, ?it/s]
+
+Processing Menus for method perfect and random:  14%|█▍        | 14/99 [01:42<08:49,  6.23s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:42<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:40,333 - INFO - Utilities and Gini coefficients have been saved and reset.
+Testing Menu Generator Types:   0%|          | 0/5 [01:42<?, ?it/s]
+
+Processing Menus for method perfect and random:  14%|█▍        | 14/99 [01:42<08:49,  6.23s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:42<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:40,334 - INFO - Daily Gini coefficients for day 16: {'true_gini': 0.30979284369114857, 'predicted_gini': 0.6866666666666665}
+Testing Menu Generator Types:   0%|          | 0/5 [01:42<?, ?it/s]
+
+Processing Menus for method perfect and random:  14%|█▍        | 14/99 [01:42<08:49,  6.23s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:42<?, ?it/s][A
+
+Processing Menus for method perfect and random:  15%|█▌        | 15/99 [01:42<08:49,  6.31s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:45,843 - INFO - Calculating utilities for meal plan #2: ['Swedes', 'Oranges sweet', 'Frankfurter sausage', 'Potatoes', 'Sour cream', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [01:47<?, ?it/s]
+
+Processing Menus for method perfect and random:  15%|█▌        | 15/99 [01:47<08:49,  6.31s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:47<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:45,843 - INFO - Daily Gini coefficients for day 17: {'true_gini': 0.8611111111111109, 'predicted_gini': 0.485238095238095}
+Testing Menu Generator Types:   0%|          | 0/5 [01:47<?, ?it/s]
+
+Processing Menus for method perfect and random:  15%|█▌        | 15/99 [01:47<08:49,  6.31s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:47<?, ?it/s][A
+
+Processing Menus for method perfect and random:  16%|█▌        | 16/99 [01:47<08:23,  6.07s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:51,596 - INFO - Calculating utilities for meal plan #3: ['Avocados', 'Pineapples', 'Kidney bean', 'Couscous', 'Yoghurt cow milk plain', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [01:53<?, ?it/s]
+
+Processing Menus for method perfect and random:  16%|█▌        | 16/99 [01:53<08:23,  6.07s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:53<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:51,597 - INFO - Daily Gini coefficients for day 18: {'true_gini': 0.7333333333333332, 'predicted_gini': 1.6796747967479673}
+Testing Menu Generator Types:   0%|          | 0/5 [01:53<?, ?it/s]
+
+Processing Menus for method perfect and random:  16%|█▌        | 16/99 [01:53<08:23,  6.07s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:53<?, ?it/s][A
+
+Processing Menus for method perfect and random:  17%|█▋        | 17/99 [01:53<08:09,  5.97s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:57,473 - INFO - Calculating utilities for meal plan #4: ['Onions', 'Pears', 'Mackerel', 'Buckwheat', 'Mascarpone', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [01:59<?, ?it/s]
+
+Processing Menus for method perfect and random:  17%|█▋        | 17/99 [01:59<08:09,  5.97s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:59<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:35:57,474 - INFO - Daily Gini coefficients for day 19: {'true_gini': 3.833333333333333, 'predicted_gini': -17.33809523809524}
+Testing Menu Generator Types:   0%|          | 0/5 [01:59<?, ?it/s]
+
+Processing Menus for method perfect and random:  17%|█▋        | 17/99 [01:59<08:09,  5.97s/it][A[A
+Testing Method Types:   0%|          | 0/3 [01:59<?, ?it/s][A
+
+Processing Menus for method perfect and random:  18%|█▊        | 18/99 [01:59<08:01,  5.94s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:02,760 - INFO - Calculating utilities for meal plan #5: ['Savoy cabbages', 'Grapefruits', 'Hakes', 'Sweet potatoes', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [02:04<?, ?it/s]
+
+Processing Menus for method perfect and random:  18%|█▊        | 18/99 [02:04<08:01,  5.94s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:04<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:02,761 - INFO - Daily Gini coefficients for day 20: {'true_gini': 2.043396226415094, 'predicted_gini': 0.5915032679738561}
+Testing Menu Generator Types:   0%|          | 0/5 [02:04<?, ?it/s]
+
+Processing Menus for method perfect and random:  18%|█▊        | 18/99 [02:04<08:01,  5.94s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:04<?, ?it/s][A
+
+Processing Menus for method perfect and random:  19%|█▉        | 19/99 [02:04<07:39,  5.75s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:08,516 - INFO - Calculating utilities for meal plan #6: ['Spinaches', 'Rhubarbs', 'Eggs', 'Noodles', 'Mozzarella', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [02:10<?, ?it/s]
+
+Processing Menus for method perfect and random:  19%|█▉        | 19/99 [02:10<07:39,  5.75s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:10<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:08,517 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
+Testing Menu Generator Types:   0%|          | 0/5 [02:10<?, ?it/s]
+
+Processing Menus for method perfect and random:  19%|█▉        | 19/99 [02:10<07:39,  5.75s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:10<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:08,521 - INFO - Utilities and Gini coefficients have been saved and reset.
+Testing Menu Generator Types:   0%|          | 0/5 [02:10<?, ?it/s]
+
+Processing Menus for method perfect and random:  19%|█▉        | 19/99 [02:10<07:39,  5.75s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:10<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:08,522 - INFO - Daily Gini coefficients for day 21: {'true_gini': 2.819047619047619, 'predicted_gini': -1.9308457711442788}
+Testing Menu Generator Types:   0%|          | 0/5 [02:10<?, ?it/s]
+
+Processing Menus for method perfect and random:  19%|█▉        | 19/99 [02:10<07:39,  5.75s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:10<?, ?it/s][A
+
+Processing Menus for method perfect and random:  20%|██        | 20/99 [02:10<07:34,  5.75s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:14,563 - INFO - Calculating utilities for meal plan #2: ['Brussels sprouts', 'Passionfruits', 'Duck fresh meat', 'Potatoes', 'Mascarpone', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [02:16<?, ?it/s]
+
+Processing Menus for method perfect and random:  20%|██        | 20/99 [02:16<07:34,  5.75s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:16<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:14,565 - INFO - Daily Gini coefficients for day 22: {'true_gini': -0.28373983739837405, 'predicted_gini': -1.4824074074074076}
+Testing Menu Generator Types:   0%|          | 0/5 [02:16<?, ?it/s]
+
+Processing Menus for method perfect and random:  20%|██        | 20/99 [02:16<07:34,  5.75s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:16<?, ?it/s][A
+
+Processing Menus for method perfect and random:  21%|██        | 21/99 [02:16<07:35,  5.84s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:20,453 - INFO - Calculating utilities for meal plan #3: ['Lettuces (generic)', 'Pears', 'Pumpkin seeds', 'Pasta plain (not stuffed) uncooked', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [02:22<?, ?it/s]
+
+Processing Menus for method perfect and random:  21%|██        | 21/99 [02:22<07:35,  5.84s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:22<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:20,454 - INFO - Daily Gini coefficients for day 23: {'true_gini': 0.3699999999999999, 'predicted_gini': 2.0279279279279274}
+Testing Menu Generator Types:   0%|          | 0/5 [02:22<?, ?it/s]
+
+Processing Menus for method perfect and random:  21%|██        | 21/99 [02:22<07:35,  5.84s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:22<?, ?it/s][A
+
+Processing Menus for method perfect and random:  22%|██▏       | 22/99 [02:22<07:30,  5.85s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:26,008 - INFO - Calculating utilities for meal plan #4: ['Celeries', 'Kiwi fruits (green red yellow)', 'Fish fingers breaded', 'Rice grain', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [02:27<?, ?it/s]
+
+Processing Menus for method perfect and random:  22%|██▏       | 22/99 [02:27<07:30,  5.85s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:27<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:26,009 - INFO - Daily Gini coefficients for day 24: {'true_gini': 0.5827160493827159, 'predicted_gini': 0.7295597484276728}
+Testing Menu Generator Types:   0%|          | 0/5 [02:27<?, ?it/s]
+
+Processing Menus for method perfect and random:  22%|██▏       | 22/99 [02:27<07:30,  5.85s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:27<?, ?it/s][A
+
+Processing Menus for method perfect and random:  23%|██▎       | 23/99 [02:27<07:18,  5.76s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:31,844 - INFO - Calculating utilities for meal plan #5: ['Sweet corn', 'Strawberries', 'Pig fresh meat', 'Pasta wholemeal', 'Cream plain', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [02:33<?, ?it/s]
+
+Processing Menus for method perfect and random:  23%|██▎       | 23/99 [02:33<07:18,  5.76s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:33<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:31,845 - INFO - Daily Gini coefficients for day 25: {'true_gini': 0.3439932318104906, 'predicted_gini': 0.34430379746835427}
+Testing Menu Generator Types:   0%|          | 0/5 [02:33<?, ?it/s]
+
+Processing Menus for method perfect and random:  23%|██▎       | 23/99 [02:33<07:18,  5.76s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:33<?, ?it/s][A
+
+Processing Menus for method perfect and random:  24%|██▍       | 24/99 [02:33<07:13,  5.79s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:37,809 - INFO - Calculating utilities for meal plan #6: ['Savoy cabbages', 'Blueberries', 'Bacon', 'New potatoes', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [02:39<?, ?it/s]
+
+Processing Menus for method perfect and random:  24%|██▍       | 24/99 [02:39<07:13,  5.79s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:39<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:37,809 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
+Testing Menu Generator Types:   0%|          | 0/5 [02:39<?, ?it/s]
+
+Processing Menus for method perfect and random:  24%|██▍       | 24/99 [02:39<07:13,  5.79s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:39<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:37,814 - INFO - Utilities and Gini coefficients have been saved and reset.
+Testing Menu Generator Types:   0%|          | 0/5 [02:39<?, ?it/s]
+
+Processing Menus for method perfect and random:  24%|██▍       | 24/99 [02:39<07:13,  5.79s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:39<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:37,815 - INFO - Daily Gini coefficients for day 26: {'true_gini': 3.4393939393939394, 'predicted_gini': -2.4212121212121214}
+Testing Menu Generator Types:   0%|          | 0/5 [02:39<?, ?it/s]
+
+Processing Menus for method perfect and random:  24%|██▍       | 24/99 [02:39<07:13,  5.79s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:39<?, ?it/s][A
+
+Processing Menus for method perfect and random:  25%|██▌       | 25/99 [02:39<07:12,  5.84s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:43,541 - INFO - Calculating utilities for meal plan #2: ['Broccoli', 'Mango', 'Fish fingers breaded', 'Buckwheat', 'Mascarpone', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [02:45<?, ?it/s]
+
+Processing Menus for method perfect and random:  25%|██▌       | 25/99 [02:45<07:12,  5.84s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:45<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:43,542 - INFO - Daily Gini coefficients for day 27: {'true_gini': 9.083333333333334, 'predicted_gini': 1.2858156028368792}
+Testing Menu Generator Types:   0%|          | 0/5 [02:45<?, ?it/s]
+
+Processing Menus for method perfect and random:  25%|██▌       | 25/99 [02:45<07:12,  5.84s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:45<?, ?it/s][A
+
+Processing Menus for method perfect and random:  26%|██▋       | 26/99 [02:45<07:03,  5.81s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:49,516 - INFO - Calculating utilities for meal plan #3: ['Lettuces (generic)', 'Coconuts', 'Coalfish', 'Rice grain', 'Yoghurt cow milk flavoured', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [02:51<?, ?it/s]
+
+Processing Menus for method perfect and random:  26%|██▋       | 26/99 [02:51<07:03,  5.81s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:51<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:49,519 - INFO - Daily Gini coefficients for day 28: {'true_gini': 0.31434599156118126, 'predicted_gini': 2.3016260162601627}
+Testing Menu Generator Types:   0%|          | 0/5 [02:51<?, ?it/s]
+
+Processing Menus for method perfect and random:  26%|██▋       | 26/99 [02:51<07:03,  5.81s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:51<?, ?it/s][A
+
+Processing Menus for method perfect and random:  27%|██▋       | 27/99 [02:51<07:01,  5.86s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:55,712 - INFO - Calculating utilities for meal plan #4: ['Onions', 'Table grapes', 'Eggs', 'Pasta wholemeal', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [02:57<?, ?it/s]
+
+Processing Menus for method perfect and random:  27%|██▋       | 27/99 [02:57<07:01,  5.86s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:57<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:36:55,715 - INFO - Daily Gini coefficients for day 29: {'true_gini': 0.33299663299663296, 'predicted_gini': 0.6757575757575756}
+Testing Menu Generator Types:   0%|          | 0/5 [02:57<?, ?it/s]
+
+Processing Menus for method perfect and random:  27%|██▋       | 27/99 [02:57<07:01,  5.86s/it][A[A
+Testing Method Types:   0%|          | 0/3 [02:57<?, ?it/s][A
+
+Processing Menus for method perfect and random:  28%|██▊       | 28/99 [02:57<07:03,  5.96s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:01,915 - INFO - Calculating utilities for meal plan #5: ['Pepper', 'Cherries and similar-', 'Chicken fresh meat', 'Potatoes', 'Parmesan', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [03:03<?, ?it/s]
+
+Processing Menus for method perfect and random:  28%|██▊       | 28/99 [03:03<07:03,  5.96s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:03<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:01,916 - INFO - Daily Gini coefficients for day 30: {'true_gini': 0.1836805555555554, 'predicted_gini': 0.6361904761904762}
+Testing Menu Generator Types:   0%|          | 0/5 [03:03<?, ?it/s]
+
+Processing Menus for method perfect and random:  28%|██▊       | 28/99 [03:03<07:03,  5.96s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:03<?, ?it/s][A
+
+Processing Menus for method perfect and random:  29%|██▉       | 29/99 [03:03<07:02,  6.03s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:08,153 - INFO - Calculating utilities for meal plan #6: ['Garlic', 'Apples', 'Peanuts', 'Pasta plain (not stuffed) uncooked', 'Traditional margarine', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [03:10<?, ?it/s]
+
+Processing Menus for method perfect and random:  29%|██▉       | 29/99 [03:09<07:02,  6.03s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:09<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:08,154 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
+Testing Menu Generator Types:   0%|          | 0/5 [03:10<?, ?it/s]
+
+Processing Menus for method perfect and random:  29%|██▉       | 29/99 [03:09<07:02,  6.03s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:09<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:08,165 - INFO - Utilities and Gini coefficients have been saved and reset.
+Testing Menu Generator Types:   0%|          | 0/5 [03:10<?, ?it/s]
+
+Processing Menus for method perfect and random:  29%|██▉       | 29/99 [03:09<07:02,  6.03s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:09<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:08,165 - INFO - Daily Gini coefficients for day 31: {'true_gini': 0.5968553459119497, 'predicted_gini': 0.630886850152905}
+Testing Menu Generator Types:   0%|          | 0/5 [03:10<?, ?it/s]
+
+Processing Menus for method perfect and random:  29%|██▉       | 29/99 [03:09<07:02,  6.03s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:09<?, ?it/s][A
+
+Processing Menus for method perfect and random:  30%|███       | 30/99 [03:09<07:00,  6.10s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:14,138 - INFO - Calculating utilities for meal plan #2: ['Red cabbage', 'Papayas', 'Eggs', 'Couscous', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [03:16<?, ?it/s]
+
+Processing Menus for method perfect and random:  30%|███       | 30/99 [03:15<07:00,  6.10s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:15<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:14,139 - INFO - Daily Gini coefficients for day 32: {'true_gini': 1.1136054421768706, 'predicted_gini': 1.0463917525773196}
+Testing Menu Generator Types:   0%|          | 0/5 [03:16<?, ?it/s]
+
+Processing Menus for method perfect and random:  30%|███       | 30/99 [03:15<07:00,  6.10s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:15<?, ?it/s][A
+
+Processing Menus for method perfect and random:  31%|███▏      | 31/99 [03:15<06:52,  6.06s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:20,410 - INFO - Calculating utilities for meal plan #3: ['Beetroots', 'Mango', 'Almonds', 'Potatoes', 'Yoghurt cow milk plain', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [03:22<?, ?it/s]
+
+Processing Menus for method perfect and random:  31%|███▏      | 31/99 [03:22<06:52,  6.06s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:22<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:20,410 - INFO - Daily Gini coefficients for day 33: {'true_gini': -0.895897435897436, 'predicted_gini': -0.9216374269005849}
+Testing Menu Generator Types:   0%|          | 0/5 [03:22<?, ?it/s]
+
+Processing Menus for method perfect and random:  31%|███▏      | 31/99 [03:22<06:52,  6.06s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:22<?, ?it/s][A
+
+Processing Menus for method perfect and random:  32%|███▏      | 32/99 [03:22<06:50,  6.12s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:26,499 - INFO - Calculating utilities for meal plan #4: ['Lettuces (generic)', 'Pineapples', 'Chicken fresh meat', 'Rice grain brown', 'Cream plain', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [03:28<?, ?it/s]
+
+Processing Menus for method perfect and random:  32%|███▏      | 32/99 [03:28<06:50,  6.12s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:28<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:26,500 - INFO - Daily Gini coefficients for day 34: {'true_gini': 0.9370370370370369, 'predicted_gini': -6.677777777777778}
+Testing Menu Generator Types:   0%|          | 0/5 [03:28<?, ?it/s]
+
+Processing Menus for method perfect and random:  32%|███▏      | 32/99 [03:28<06:50,  6.12s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:28<?, ?it/s][A
+
+Processing Menus for method perfect and random:  33%|███▎      | 33/99 [03:28<06:43,  6.11s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:32,565 - INFO - Calculating utilities for meal plan #5: ['Pepper', 'Rhubarbs', 'Salmons', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [03:34<?, ?it/s]
+
+Processing Menus for method perfect and random:  33%|███▎      | 33/99 [03:34<06:43,  6.11s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:34<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:32,566 - INFO - Daily Gini coefficients for day 35: {'true_gini': 0.23894080996884726, 'predicted_gini': 0.6161512027491407}
+Testing Menu Generator Types:   0%|          | 0/5 [03:34<?, ?it/s]
+
+Processing Menus for method perfect and random:  33%|███▎      | 33/99 [03:34<06:43,  6.11s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:34<?, ?it/s][A
+
+Processing Menus for method perfect and random:  34%|███▍      | 34/99 [03:34<06:36,  6.10s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:38,437 - INFO - Calculating utilities for meal plan #6: ['Spinaches', 'Cherries and similar-', 'Edible crab', 'Rice grain long-grain', 'Cow milk semi skimmed (half fat)', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [03:40<?, ?it/s]
+
+Processing Menus for method perfect and random:  34%|███▍      | 34/99 [03:40<06:36,  6.10s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:40<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:38,437 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
+Testing Menu Generator Types:   0%|          | 0/5 [03:40<?, ?it/s]
+
+Processing Menus for method perfect and random:  34%|███▍      | 34/99 [03:40<06:36,  6.10s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:40<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:38,459 - INFO - Utilities and Gini coefficients have been saved and reset.
+Testing Menu Generator Types:   0%|          | 0/5 [03:40<?, ?it/s]
+
+Processing Menus for method perfect and random:  34%|███▍      | 34/99 [03:40<06:36,  6.10s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:40<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:38,460 - INFO - Daily Gini coefficients for day 36: {'true_gini': 1.3938271604938273, 'predicted_gini': 2.6289855072463766}
+Testing Menu Generator Types:   0%|          | 0/5 [03:40<?, ?it/s]
+
+Processing Menus for method perfect and random:  34%|███▍      | 34/99 [03:40<06:36,  6.10s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:40<?, ?it/s][A
+
+Processing Menus for method perfect and random:  35%|███▌      | 35/99 [03:40<06:26,  6.04s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:46,010 - INFO - Calculating utilities for meal plan #2: ['Common bean sprouts', 'Kiwi fruits (green red yellow)', 'Anchovies', 'Pasta plain (not stuffed) uncooked', 'Traditional margarine', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [03:47<?, ?it/s]
+
+Processing Menus for method perfect and random:  35%|███▌      | 35/99 [03:47<06:26,  6.04s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:47<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:46,011 - INFO - Daily Gini coefficients for day 37: {'true_gini': 0.15402298850574692, 'predicted_gini': 0.27352472089314195}
+Testing Menu Generator Types:   0%|          | 0/5 [03:47<?, ?it/s]
+
+Processing Menus for method perfect and random:  35%|███▌      | 35/99 [03:47<06:26,  6.04s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:47<?, ?it/s][A
+
+Processing Menus for method perfect and random:  36%|███▋      | 36/99 [03:47<06:48,  6.49s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:52,232 - INFO - Calculating utilities for meal plan #3: ['Curly kales', 'Pineapples', 'Lamb fresh meat', 'Sweet potatoes', 'Butter', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [03:54<?, ?it/s]
+
+Processing Menus for method perfect and random:  36%|███▋      | 36/99 [03:54<06:48,  6.49s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:54<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:52,233 - INFO - Daily Gini coefficients for day 38: {'true_gini': 0.48119658119658104, 'predicted_gini': 0.4616161616161616}
+Testing Menu Generator Types:   0%|          | 0/5 [03:54<?, ?it/s]
+
+Processing Menus for method perfect and random:  36%|███▋      | 36/99 [03:54<06:48,  6.49s/it][A[A
+Testing Method Types:   0%|          | 0/3 [03:54<?, ?it/s][A
+
+Processing Menus for method perfect and random:  37%|███▋      | 37/99 [03:54<06:37,  6.41s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:58,316 - INFO - Calculating utilities for meal plan #4: ['Common mushrooms', 'Blueberries', 'Ham pork', 'Rice grain', 'Creme fraiche cheese', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [04:00<?, ?it/s]
+
+Processing Menus for method perfect and random:  37%|███▋      | 37/99 [04:00<06:37,  6.41s/it][A[A
+Testing Method Types:   0%|          | 0/3 [04:00<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:37:58,317 - INFO - Daily Gini coefficients for day 39: {'true_gini': -3.5375000000000005, 'predicted_gini': -11.4}
+Testing Menu Generator Types:   0%|          | 0/5 [04:00<?, ?it/s]
+
+Processing Menus for method perfect and random:  37%|███▋      | 37/99 [04:00<06:37,  6.41s/it][A[A
+Testing Method Types:   0%|          | 0/3 [04:00<?, ?it/s][A
+
+Processing Menus for method perfect and random:  38%|███▊      | 38/99 [04:00<06:25,  6.31s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:38:04,157 - INFO - Calculating utilities for meal plan #5: ['Courgettes', 'Coconuts', 'Sunflower seeds', 'Potatoes', 'Parmesan', 'Wheat bread and rolls brown or wholemeal']
+Testing Menu Generator Types:   0%|          | 0/5 [04:06<?, ?it/s]
+
+Processing Menus for method perfect and random:  38%|███▊      | 38/99 [04:05<06:25,  6.31s/it][A[A
+Testing Method Types:   0%|          | 0/3 [04:05<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:38:04,158 - INFO - Daily Gini coefficients for day 40: {'true_gini': 0.9235772357723577, 'predicted_gini': 1.0555555555555556}
+Testing Menu Generator Types:   0%|          | 0/5 [04:06<?, ?it/s]
+
+Processing Menus for method perfect and random:  38%|███▊      | 38/99 [04:05<06:25,  6.31s/it][A[A
+Testing Method Types:   0%|          | 0/3 [04:05<?, ?it/s][A
+
+Processing Menus for method perfect and random:  39%|███▉      | 39/99 [04:05<06:10,  6.17s/it][A[A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:38:10,309 - INFO - Calculating utilities for meal plan #6: ['Leeks', 'Table grapes', 'Eggs', 'Couscous', 'Cream plain', 'Wheat bread and rolls white (refined flour)']
+Testing Menu Generator Types:   0%|          | 0/5 [04:12<?, ?it/s]
+
+Processing Menus for method perfect and random:  39%|███▉      | 39/99 [04:12<06:10,  6.17s/it][A[A
+Testing Method Types:   0%|          | 0/3 [04:12<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:38:10,310 - INFO - Reached 5 meal plans. Resetting utilities and saving data.
+Testing Menu Generator Types:   0%|          | 0/5 [04:12<?, ?it/s]
+
+Processing Menus for method perfect and random:  39%|███▉      | 39/99 [04:12<06:10,  6.17s/it][A[A
+Testing Method Types:   0%|          | 0/3 [04:12<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:38:10,337 - INFO - Utilities and Gini coefficients have been saved and reset.
+Testing Menu Generator Types:   0%|          | 0/5 [04:12<?, ?it/s]
+
+Processing Menus for method perfect and random:  39%|███▉      | 39/99 [04:12<06:10,  6.17s/it][A[A
+Testing Method Types:   0%|          | 0/3 [04:12<?, ?it/s][A                                                                   
+
+                                                                                               [A[A
+                                                           [A2024-08-25 09:38:10,337 - INFO - Daily Gini coefficients for day 41: {'true_gini': 0.12238095238095226, 'predicted_gini': 0.6388429752066114}
+Testing Menu Generator Types:   0%|          | 0/5 [04:12<?, ?it/s]
+
+Processing Menus for method perfect and random:  39%|███▉      | 39/99 [04:12<06:10,  6.17s/it][A[A
+Testing Method Types:   0%|          | 0/3 [04:12<?, ?it/s][A
+
+Processing Menus for method perfect and random:  40%|████      | 40/99 [04:12<06:04,  6.17s/it][A[A
