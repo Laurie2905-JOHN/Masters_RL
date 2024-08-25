@@ -39,8 +39,8 @@ existing_runs = [d for d in os.listdir(data_dir) if d.startswith('run_')]
 run_number = len(existing_runs) + 1
 
 # Create run directories
-run_data_dir = os.path.join(data_dir, f'run_{run_number}_reward_test', )
-run_graphs_dir = os.path.join(graphs_dir, f'run_{run_number}_reward_test')
+run_data_dir = os.path.join(data_dir, f'run_{run_number}')
+run_graphs_dir = os.path.join(graphs_dir, f'run_{run_number}')
 os.makedirs(run_data_dir, exist_ok=True)
 os.makedirs(run_graphs_dir, exist_ok=True)
 json_path = os.path.join(run_data_dir, "menu_utilities_simple")
@@ -165,7 +165,7 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
     with logging_redirect_tqdm():
         for method in tqdm(menu_generators.keys(), desc="Testing Method Types"):
             with logging_redirect_tqdm():
-                for menu in tqdm(range(1, 50), desc=f"Processing Menus for method {method} and {model_name}"):
+                for menu in tqdm(range(1, 2), desc=f"Processing Menus for method {method} and {model_name}"):
                     
                     week = (menu - 1) // 5 + 1  # Week number (1-based index)
                     day = (menu - 1) % 5 + 1    # Day number within the week (1-based index)
@@ -314,8 +314,8 @@ def main():
     menu_gen_names = [
         "random",
         "prob",
-        "best",
-        "prob_best",
+        # "best",
+        # "prob_best"
         # "RL"
         # "genetic"
     ]

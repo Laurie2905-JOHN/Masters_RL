@@ -375,7 +375,7 @@ def main():
         "best",
         "prob_best",
         # "RL",
-        "genetic"
+        # "genetic"
     ]
     
     try:
