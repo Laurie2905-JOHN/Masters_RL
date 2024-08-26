@@ -110,16 +110,28 @@ def run_mod(model_name, negotiated, unavailable, menu_generators, ingredient_df,
 
 
 def generate_feedback_chance(num_children=30):
-    # Re-seed the random number generator using the current time
     random.seed(time.time())
+    feedback_values = [0, 0.5, 1]
     
-    # Define the possible values
-    values = [0, 0.5, 1]
+    # Create a list of all children
+    children = [f'child{index + 1}' for index in range(num_children)]
+    
+    # Shuffle the list of children
+    random.shuffle(children)
+    
+    # Calculate how many children per feedback value
+    group_size = num_children // len(feedback_values)
+    remainder = num_children % len(feedback_values)
 
-    # Create a dictionary with "childX" as the key and a randomly selected value as the value
-    child_feedback_dict = {
-        f'child{index + 1}': random.choice(values) for index in range(num_children)
-    }
+    child_feedback_dict = {}
+    start_index = 0
+
+    for i, value in enumerate(feedback_values):
+        end_index = start_index + group_size + (1 if i < remainder else 0)
+        selected_children = children[start_index:end_index]
+        for child in selected_children:
+            child_feedback_dict[child] = value
+        start_index = end_index
     
     return child_feedback_dict
 
