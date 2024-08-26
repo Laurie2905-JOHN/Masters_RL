@@ -295,7 +295,7 @@ def main():
     ingredient_df = get_data("data.csv")
     child_feature_data = get_child_data()
     true_child_preference_data = initialize_child_preference_data(
-        child_feature_data, ingredient_df, split=0.05, seed=seed, plot_graphs=False
+        child_feature_data, ingredient_df, split=1, seed=seed, plot_graphs=False
     )
 
     with open(os.path.join(run_data_dir, 'true_child_preference_data.json'), 'w') as f:
