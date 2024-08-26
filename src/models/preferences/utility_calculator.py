@@ -164,7 +164,7 @@ class MenuUtilityCalculator:
 
     def calculate_gini_coefficient(self, utilities: Dict[str, float]) -> float:
         """
-        Calculate the Gini coefficient from the sorted utilities.
+        Calculate the Gini coefficient from the utilities, handling both positive and negative values.
         """
         
         if isinstance(utilities, list):
@@ -176,14 +176,16 @@ class MenuUtilityCalculator:
         if n == 0:
             return 0  # No values to calculate Gini coefficient
         
-        sorted_values = sorted(values)
+        # Shift values to ensure all are non-negative by adding the absolute minimum value to all elements
+        min_value = min(values)
+        shifted_values = [value - min_value for value in values]
+        
+        sorted_values = sorted(shifted_values)
         gini_numerator = sum((i + 1) * sorted_values[i] for i in range(n))
         gini_denominator = n * sum(sorted_values)
         
         if gini_denominator == 0:
             # Handle the special case where the sum of utilities is zero
-            # One option is to return 0, indicating no inequality
-            # Another option is to return a special value, or raise an exception, depending on the context
             return 0
         
         gini_coefficient = (2 * gini_numerator) / gini_denominator - (n + 1) / n

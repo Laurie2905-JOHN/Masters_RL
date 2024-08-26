@@ -12,7 +12,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
 
 class SentimentAnalyzer:
-    def __init__(self, current_known_and_unknown_preferences, true_child_preferences, menu_plan, child_data, label_mapping, model_name: str = "Vader", seed: int = 42):
+    def __init__(self, current_known_and_unknown_preferences, true_child_preferences, menu_plan, child_data, label_mapping, model_name: str = "Vader", seed: int = 42, child_feedback_dict = {}):
         """
         Initialize the sentiment analyzer with the specified model.
         """
@@ -37,6 +37,7 @@ class SentimentAnalyzer:
         
         self.menu_plan = menu_plan
         self.label_mapping = label_mapping
+        self.child_feedback_dict = child_feedback_dict
         self.feedback = self.get_feedback(child_data, true_child_preferences, feedback_method='standard')
         self.changes = []
         self.incorrect_comments = []
@@ -388,7 +389,10 @@ class SentimentAnalyzer:
             elif feedback_method == 'none':
                 feedback_chance = 0
             elif feedback_method == 'standard':
-                feedback_chance = child_data[child]["feedback_chance"]
+                if self.child_feedback_dict != {}:
+                    feedback_chance = self.child_feedback_dict[child]
+                else:
+                    feedback_chance = child_data[child]["feedback_chance"]
             else:
                 raise ValueError(f"Unknown feedback type: {feedback_method}")
 
@@ -439,7 +443,7 @@ class SentimentAnalyzer:
                 correct_action = {ingredient: feedback_types[idx] for idx, ingredient in enumerate(matched_ingredients)}
                 feedback[child] = {"comment": comment, "correct_action": correct_action}
                 
-        if feedback_method == 'standard':
+        if feedback_method == 'standard' and self.child_feedback_dict == {}:
             for child, info in child_data.items():
                 if info['feedback_chance'] == 0 and child in feedback.keys():
                     raise ValueError(f"Child {child} should not have feedback but has feedback")

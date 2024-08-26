@@ -81,6 +81,8 @@ def run_mod(model_name, negotiated, unavailable, menu_generators, ingredient_df,
     menu_generator = menu_generators[method][model_name]
     
     if model_name != 'RL':
+        
+    if model_name != 'RL':
         menu_generator.update_evaluator(ingredient_df, negotiated, unavailable)
 
     if "genetic" in model_name:
@@ -158,6 +160,12 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
             no_feedback_feedback = {} 
             
         # Evaluate the menu plan and calculate the reward
+        if model_name != 'RL':
+            reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method])
+        else:
+            evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients = negotiated_ingredients_start, unavailable_ingredients = unavailable_ingredients_start)
+            reward, info = evaluator.select_ingredients(menu_plan_dict[method])
+
         if model_name != 'RL':
             reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method])
         else:
@@ -259,6 +267,20 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
                 utility_perfect_true, utility_perfect_predicted = utility_calculator_perfect.calculate_day_menu_utility(updated_known_and_predicted_preferences, list(menu_plan_dict[method].keys()))
                 accuracy_unknown_perfect = accuracy_unknown
                 accuracy_std_total_perfect = accuracy_std_total
+            # Generate menu plan with the updated ingredients
+            menu_plan_dict[method] = run_mod(model_name, negotiated_ingredients_dict[method], unavailable_ingredients_dict[method], menu_generators, ingredient_df, method, week=week, day=day)
+            
+            
+            # Perform feedback analysis and calculate metrics
+            if method == 'perfect':
+                sentiment_analyzer = SentimentAnalyzer(
+                    updated_preferences_with_feedback_perfect, true_child_preference_data, menu_plan_dict[method], child_data=child_feature_data, label_mapping=label_mapping_perfect, model_name='perfect', seed=seed
+                )
+                updated_preferences_with_feedback_perfect, _, perfect_feedback, _, _ = sentiment_analyzer.get_sentiment_and_update_data(plot_confusion_matrix=False)
+                percent_of_known_preferences_perfect = calculate_percent_of_known_ingredients_to_unknown(updated_preferences_with_feedback_perfect)
+                utility_perfect_true, utility_perfect_predicted = utility_calculator_perfect.calculate_day_menu_utility(updated_known_and_predicted_preferences, list(menu_plan_dict[method].keys()))
+                accuracy_unknown_perfect = accuracy_unknown
+                accuracy_std_total_perfect = accuracy_std_total
 
             elif method == 'sentiment':
                 sentiment_analyzer = SentimentAnalyzer(
@@ -270,6 +292,31 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
                 accuracy_unknown_sentiment = sentiment_accuracy
                 accuracy_std_total_sentiment = accuracy_std_total
 
+            elif method == 'no_feedback':
+                no_feedback_feedback = {} 
+                percent_of_known_preferences_no_feedback = calculate_percent_of_known_ingredients_to_unknown(true_child_preference_data)
+                utility_no_feedback_true, utility_no_feedback_predicted = utility_calculator_no_feedback.calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plan_dict[method].keys()))
+                accuracy_unknown_no_feedback = accuracy_unknown_no_feedback
+                accuracy_std_total_no_feedback = accuracy_std_total_no_feedback
+                
+            # Evaluate the menu plan and calculate the reward
+            if model_name != 'RL':
+                reward, info = menu_generators[method][model_name].evaluator.select_ingredients(menu_plan_dict[method])
+            else:
+                evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients = negotiated_ingredients_dict[method], unavailable_ingredients = unavailable_ingredients_dict[method])
+                reward, info = evaluator.select_ingredients(menu_plan_dict[method])
+            
+            # Store the results including time taken and reward
+            results[method][str(menu)].update({
+                'info': info,
+                'reward': reward,
+                'percent_of_known_preferences': locals()[f'percent_of_known_preferences_{method}'],
+                'true_utility': locals()[f'utility_{method}_true'],
+                'predicted_utility': locals()[f'utility_{method}_predicted'],
+                'accuracy_unknown': locals()[f'accuracy_unknown_{method}'],
+                'accuracy_std_total': locals()[f'accuracy_std_total_{method}'],
+                'feedback': locals()[f'{method}_feedback']
+            })
             elif method == 'no_feedback':
                 no_feedback_feedback = {} 
                 percent_of_known_preferences_no_feedback = calculate_percent_of_known_ingredients_to_unknown(true_child_preference_data)
@@ -421,3 +468,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+    # run 160
