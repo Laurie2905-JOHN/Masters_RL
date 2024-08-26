@@ -1,0 +1,1727 @@
+/rds/general/user/lej23/home/fyp/Masters_RL/scripts/preference/report_tests/saved_data/data/run_3_reward_test
+Successfully read 136 lines from the file. Loaded 135 ingredients.
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.017107
+Data successfully logged to /rds/general/user/lej23/home/fyp/Masters_RL/scripts/preference/report_tests/saved_data/data/run_3_reward_test/log_file.json
+Negotiator closed and data saved.
+Generated ingredient quantities (random): {'Common mushrooms': 78, 'Limes': 85, 'Fish fingers breaded': 62, 'Couscous': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3568992831609919
+Generated ingredient quantities (random): {'Common mushrooms': 62, 'Limes': 64, 'Fish fingers breaded': 70, 'Couscous': 142, 'Cream plain': 69, 'Wheat bread and rolls brown or wholemeal': 54} with score 0.5071503054433153
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.014357
+Generated ingredient quantities (random): {'Swedes': 78, 'Papayas': 85, 'Mackerel': 62, 'Rice grain long-grain': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.8150596607080427
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.016748
+Generated ingredient quantities (random): {'Savoy cabbages': 78, 'Rhubarbs': 85, 'Trouts': 62, 'Rice grain brown': 40, 'Sour cream': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5554440003736516
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.017475
+Generated ingredient quantities (random): {'Parsnip roots': 78, 'Coconuts': 85, 'Kidney bean': 62, 'New potatoes': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5928671383297076
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.017291
+Generated ingredient quantities (random): {'Cauliflowers': 78, 'Pineapples': 85, 'Pistachios': 62, 'Buckwheat': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.5673824311930443
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.015506
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Lettuces (generic)': 78, 'Passionfruits': 85, 'Salmons': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3647541349925966
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.015927
+Generated ingredient quantities (random): {'Cucumber': 78, 'Nectarines': 85, 'Edible crab': 62, 'Rice grain brown': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.22387596091431497
+
+Overall Accuracy of Preferences: 0.964444
+Standard Deviation of Accuracies: 0.020811
+Generated ingredient quantities (random): {'Aubergines': 78, 'Grapefruits': 85, 'Eggs': 62, 'Noodles': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5595131566479138
+
+Overall Accuracy of Preferences: 0.968148
+Standard Deviation of Accuracies: 0.015904
+Generated ingredient quantities (random): {'Cauliflowers': 78, 'Limes': 85, 'Ham pork': 62, 'Potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.37625944601968647
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.020303
+Generated ingredient quantities (random): {'Spring onions': 78, 'Rhubarbs': 85, 'Lentils (dry)': 62, 'New potatoes': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8670562806089502
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.014431
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Blueberries': 85, 'Coalfish': 62, 'Rice grain': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.799828032237556
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.015966
+Generated ingredient quantities (random): {'Beetroots': 78, 'Coconuts': 85, 'Lamb fresh meat': 62, 'New potatoes': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3586032449313222
+
+Overall Accuracy of Preferences: 0.967654
+Standard Deviation of Accuracies: 0.015595
+Generated ingredient quantities (random): {'Courgettes': 78, 'Common banana': 85, 'Chicken fresh meat': 62, 'Buckwheat': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4708818294939376
+
+Overall Accuracy of Preferences: 0.967407
+Standard Deviation of Accuracies: 0.018104
+Generated ingredient quantities (random): {'Spinaches': 78, 'Apples': 85, 'Turkey fresh meat': 62, 'Sweet potatoes': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8572057144442504
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.018193
+Generated ingredient quantities (random): {'Avocados': 78, 'Passionfruits': 85, 'Eggs': 62, 'Rice grain long-grain': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2746860138652077
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.016776
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Aubergines': 78, 'Plums': 85, 'Trouts': 62, 'Couscous': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7562174392200237
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.019816
+Generated ingredient quantities (random): {'Spring onions': 78, 'Blueberries': 85, 'Pistachios': 62, 'Rice grain brown': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3659872138520499
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.016506
+Generated ingredient quantities (random): {'Celeries': 78, 'Grapefruits': 85, 'Kidney bean': 62, 'Pasta wholemeal': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8749505386417585
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.018380
+Generated ingredient quantities (random): {'Parsnip roots': 78, 'Watermelons': 85, 'Peanuts': 62, 'Potatoes': 40, 'Mascarpone': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.32526568867389294
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.016748
+Generated ingredient quantities (random): {'Courgettes': 78, 'Passionfruits': 85, 'Deer red fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.2702531533774966
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.018642
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Cauliflowers': 78, 'Apples': 85, 'Breakfast-type sausage': 62, 'Rice grain long-grain': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7171652233721658
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.017991
+Generated ingredient quantities (random): {'Garlic': 78, 'Blueberries': 85, 'Chicken fresh meat': 62, 'Rice grain': 40, 'Cow milk whole': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6904204820272092
+
+Overall Accuracy of Preferences: 0.971852
+Standard Deviation of Accuracies: 0.016717
+Generated ingredient quantities (random): {'Onions': 78, 'Papayas': 85, 'Pumpkin seeds': 62, 'Buckwheat': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.33337261810773827
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.019792
+Generated ingredient quantities (random): {'Red cabbage': 78, 'Passionfruits': 85, 'Haddock': 62, 'Couscous': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.24547063161413965
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.017935
+Generated ingredient quantities (random): {'Beetroots': 78, 'Watermelons': 85, 'Cow ox or bull fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Sour cream': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.5934577457560151
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.016528
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Courgettes': 78, 'Limes': 85, 'Sea bass': 62, 'Potatoes': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.37657692841376145
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.017522
+Generated ingredient quantities (random): {'Jerusalem artichokes': 78, 'Grapefruits': 85, 'Tuna': 62, 'Rice grain brown': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.27414302026094894
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.019816
+Generated ingredient quantities (random): {'Onions': 78, 'Coconuts': 85, 'Breakfast-type sausage': 62, 'Pasta wholemeal': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4871899757222215
+
+Overall Accuracy of Preferences: 0.972593
+Standard Deviation of Accuracies: 0.017957
+Generated ingredient quantities (random): {'Turnips': 78, 'Kiwi fruits (green red yellow)': 85, 'Pistachios': 62, 'Rice grain long-grain': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3237065018704389
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.018479
+Generated ingredient quantities (random): {'Swedes': 78, 'Oranges sweet': 85, 'Cashew nuts': 62, 'Sweet potatoes': 40, 'Sour cream': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6314862163627368
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.016229
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Aubergines': 78, 'Passionfruits': 85, 'Ham pork': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.5933756813291103
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.015412
+Generated ingredient quantities (random): {'Celeries': 78, 'Plums': 85, 'Coalfish': 62, 'Buckwheat': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8129585169560305
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.020807
+Generated ingredient quantities (random): {'Red cabbage': 78, 'Pineapples': 85, 'Peanuts': 62, 'Pasta wholemeal': 40, 'Cow milk whole': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6201019184649872
+
+Overall Accuracy of Preferences: 0.971852
+Standard Deviation of Accuracies: 0.014236
+Generated ingredient quantities (random): {'Avocados': 78, 'Blueberries': 85, 'Haddock': 62, 'Potatoes': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.21574697798844014
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.015412
+Generated ingredient quantities (random): {'Courgettes': 78, 'Mango': 85, 'Pumpkin seeds': 62, 'Couscous': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3218039466146746
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.019076
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Cherries and similar-': 85, 'Shrimps and prawns': 62, 'Sweet potatoes': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.45485049345111594
+
+Overall Accuracy of Preferences: 0.973086
+Standard Deviation of Accuracies: 0.014501
+Generated ingredient quantities (random): {'Beetroots': 78, 'Plums': 85, 'Hazelnuts': 62, 'Rice grain': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7215744837053392
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.017522
+Generated ingredient quantities (random): {'Cucumber': 78, 'Papayas': 85, 'Breakfast-type sausage': 62, 'New potatoes': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.4888722945928347
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.017605
+Generated ingredient quantities (random): {'Turnips': 78, 'Passionfruits': 85, 'Lentils (dry)': 62, 'Noodles': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6993057178810913
+
+Overall Accuracy of Preferences: 0.968148
+Standard Deviation of Accuracies: 0.018851
+Generated ingredient quantities (random): {'Parsnip roots': 78, 'Coconuts': 85, 'Almonds': 62, 'Rice grain brown': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3476424761702767
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.018512
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Broccoli': 78, 'Common banana': 85, 'Chicken fresh meat': 62, 'Potatoes': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.37294517187994675
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.019736
+Generated ingredient quantities (random): {'Spring onions': 78, 'Cherries and similar-': 85, 'Duck fresh meat': 62, 'Rice grain long-grain': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6416311976743775
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.017265
+Generated ingredient quantities (random): {'White cabbage': 78, 'Oranges sweet': 85, 'Peanuts': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Mascarpone': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.34054212546450463
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.018438
+Generated ingredient quantities (random): {'Garlic': 78, 'Strawberries': 85, 'Fish fingers breaded': 62, 'Sweet potatoes': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3118526529766472
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.014981
+Generated ingredient quantities (random): {'Brussels sprouts': 78, 'Coconuts': 85, 'Haddock': 62, 'Rice grain brown': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2960446814372517
+
+Overall Accuracy of Preferences: 0.966667
+Standard Deviation of Accuracies: 0.020218
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Onions': 78, 'Nectarines': 85, 'Frankfurter sausage': 62, 'New potatoes': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7710052240569053
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.015994
+Generated ingredient quantities (random): {'Jerusalem artichokes': 78, 'Strawberries': 85, 'Pistachios': 62, 'Sweet potatoes': 40, 'Parmesan': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.2607225405046885
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.015293
+Generated ingredient quantities (random): {'White cabbage': 78, 'Plums': 85, 'Tuna': 62, 'Rice grain': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.769052386024709
+
+Overall Accuracy of Preferences: 0.973086
+Standard Deviation of Accuracies: 0.016170
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Hazelnuts': 62, 'Noodles': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8143543582546707
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.022097
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Pears': 85, 'Trouts': 62, 'Rice grain brown': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7231435437269286
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.016334
+Generated ingredient quantities (random): {'Swedes': 78, 'Papayas': 85, 'Mackerel': 62, 'Rice grain long-grain': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.8154873099131589
+
+Overall Accuracy of Preferences: 0.972593
+Standard Deviation of Accuracies: 0.016690
+Generated ingredient quantities (random): {'Savoy cabbages': 78, 'Rhubarbs': 85, 'Trouts': 62, 'Rice grain brown': 40, 'Sour cream': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5583258735843057
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.016639
+Generated ingredient quantities (random): {'Parsnip roots': 78, 'Coconuts': 85, 'Kidney bean': 62, 'New potatoes': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5918371392946458
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.017370
+Generated ingredient quantities (random): {'Cauliflowers': 78, 'Pineapples': 85, 'Pistachios': 62, 'Buckwheat': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.5693928830534376
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.017942
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Lettuces (generic)': 78, 'Passionfruits': 85, 'Salmons': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.36631993225667947
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.017286
+Generated ingredient quantities (random): {'Cucumber': 78, 'Nectarines': 85, 'Edible crab': 62, 'Rice grain brown': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.22856154003967158
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.021332
+Generated ingredient quantities (random): {'Aubergines': 78, 'Grapefruits': 85, 'Eggs': 62, 'Noodles': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5611604888474716
+
+Overall Accuracy of Preferences: 0.973086
+Standard Deviation of Accuracies: 0.018193
+Generated ingredient quantities (random): {'Cauliflowers': 78, 'Limes': 85, 'Ham pork': 62, 'Potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.37922585808233716
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.015412
+Generated ingredient quantities (random): {'Spring onions': 78, 'Rhubarbs': 85, 'Lentils (dry)': 62, 'New potatoes': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8714327544930356
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.017461
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Blueberries': 85, 'Coalfish': 62, 'Rice grain': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8020048494555149
+
+Overall Accuracy of Preferences: 0.972593
+Standard Deviation of Accuracies: 0.014833
+Generated ingredient quantities (random): {'Beetroots': 78, 'Coconuts': 85, 'Lamb fresh meat': 62, 'New potatoes': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.35852893990045015
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.015579
+Generated ingredient quantities (random): {'Courgettes': 78, 'Common banana': 85, 'Chicken fresh meat': 62, 'Buckwheat': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4718731554282589
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.016445
+Generated ingredient quantities (random): {'Spinaches': 78, 'Apples': 85, 'Turkey fresh meat': 62, 'Sweet potatoes': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.852823164257499
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.017312
+Generated ingredient quantities (random): {'Avocados': 78, 'Passionfruits': 85, 'Eggs': 62, 'Rice grain long-grain': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2775825011580193
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.019505
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Aubergines': 78, 'Plums': 85, 'Trouts': 62, 'Couscous': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7570775832983895
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.016417
+Generated ingredient quantities (random): {'Spring onions': 78, 'Blueberries': 85, 'Pistachios': 62, 'Rice grain brown': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.371311097188976
+
+Overall Accuracy of Preferences: 0.973827
+Standard Deviation of Accuracies: 0.014782
+Generated ingredient quantities (random): {'Celeries': 78, 'Grapefruits': 85, 'Kidney bean': 62, 'Pasta wholemeal': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8799993084018611
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.017669
+Generated ingredient quantities (random): {'Parsnip roots': 78, 'Watermelons': 85, 'Peanuts': 62, 'Potatoes': 40, 'Mascarpone': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.32913963947212477
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.019418
+Generated ingredient quantities (random): {'Courgettes': 78, 'Passionfruits': 85, 'Deer red fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.2692289364208325
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.015477
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Cauliflowers': 78, 'Apples': 85, 'Breakfast-type sausage': 62, 'Rice grain long-grain': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7159128535317834
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.017730
+Generated ingredient quantities (random): {'Garlic': 78, 'Blueberries': 85, 'Chicken fresh meat': 62, 'Rice grain': 40, 'Cow milk whole': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6925592885217191
+
+Overall Accuracy of Preferences: 0.973086
+Standard Deviation of Accuracies: 0.015712
+Generated ingredient quantities (random): {'Onions': 78, 'Papayas': 85, 'Pumpkin seeds': 62, 'Buckwheat': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3368746704687145
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.017991
+Generated ingredient quantities (random): {'Red cabbage': 78, 'Passionfruits': 85, 'Haddock': 62, 'Couscous': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.2504867570887539
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.015530
+Generated ingredient quantities (random): {'Beetroots': 78, 'Watermelons': 85, 'Cow ox or bull fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Sour cream': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.5927904317977438
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.016334
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Courgettes': 78, 'Limes': 85, 'Sea bass': 62, 'Potatoes': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3777561395774676
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.016712
+Generated ingredient quantities (random): {'Jerusalem artichokes': 78, 'Grapefruits': 85, 'Tuna': 62, 'Rice grain brown': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.278525152642266
+
+Overall Accuracy of Preferences: 0.972593
+Standard Deviation of Accuracies: 0.014459
+Generated ingredient quantities (random): {'Onions': 78, 'Coconuts': 85, 'Breakfast-type sausage': 62, 'Pasta wholemeal': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.48987179033893574
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.016573
+Generated ingredient quantities (random): {'Turnips': 78, 'Kiwi fruits (green red yellow)': 85, 'Pistachios': 62, 'Rice grain long-grain': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.330146536527181
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.014557
+Generated ingredient quantities (random): {'Swedes': 78, 'Oranges sweet': 85, 'Cashew nuts': 62, 'Sweet potatoes': 40, 'Sour cream': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6285590137782376
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.017370
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Aubergines': 78, 'Passionfruits': 85, 'Ham pork': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.5937430155342235
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.015772
+Generated ingredient quantities (random): {'Celeries': 78, 'Plums': 85, 'Coalfish': 62, 'Buckwheat': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8169118252877808
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.018578
+Generated ingredient quantities (random): {'Red cabbage': 78, 'Pineapples': 85, 'Peanuts': 62, 'Pasta wholemeal': 40, 'Cow milk whole': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6231612544604245
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.014626
+Generated ingredient quantities (random): {'Avocados': 78, 'Blueberries': 85, 'Haddock': 62, 'Potatoes': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.21934577048212422
+
+Overall Accuracy of Preferences: 0.973333
+Standard Deviation of Accuracies: 0.017695
+Generated ingredient quantities (random): {'Courgettes': 78, 'Mango': 85, 'Pumpkin seeds': 62, 'Couscous': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3216992948963942
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.013515
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Cherries and similar-': 85, 'Shrimps and prawns': 62, 'Sweet potatoes': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.4547109035203219
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.018079
+Generated ingredient quantities (random): {'Beetroots': 78, 'Plums': 85, 'Hazelnuts': 62, 'Rice grain': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7222338327148424
+
+Overall Accuracy of Preferences: 0.972593
+Standard Deviation of Accuracies: 0.016019
+Generated ingredient quantities (random): {'Cucumber': 78, 'Papayas': 85, 'Breakfast-type sausage': 62, 'New potatoes': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.4914378688711319
+
+Overall Accuracy of Preferences: 0.972840
+Standard Deviation of Accuracies: 0.018378
+Generated ingredient quantities (random): {'Turnips': 78, 'Passionfruits': 85, 'Lentils (dry)': 62, 'Noodles': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7005981673845366
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.021038
+Generated ingredient quantities (random): {'Parsnip roots': 78, 'Coconuts': 85, 'Almonds': 62, 'Rice grain brown': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.34938152414684587
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.016380
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Broccoli': 78, 'Common banana': 85, 'Chicken fresh meat': 62, 'Potatoes': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.37338656347376603
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.017312
+Generated ingredient quantities (random): {'Spring onions': 78, 'Cherries and similar-': 85, 'Duck fresh meat': 62, 'Rice grain long-grain': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6427156581417659
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.019592
+Generated ingredient quantities (random): {'White cabbage': 78, 'Oranges sweet': 85, 'Peanuts': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Mascarpone': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.33854569894418646
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.017566
+Generated ingredient quantities (random): {'Garlic': 78, 'Strawberries': 85, 'Fish fingers breaded': 62, 'Sweet potatoes': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.31149564122765244
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.017626
+Generated ingredient quantities (random): {'Brussels sprouts': 78, 'Coconuts': 85, 'Haddock': 62, 'Rice grain brown': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.29716832345023825
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.017100
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Onions': 78, 'Nectarines': 85, 'Frankfurter sausage': 62, 'New potatoes': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7682594386053561
+
+Overall Accuracy of Preferences: 0.966667
+Standard Deviation of Accuracies: 0.022691
+Generated ingredient quantities (random): {'Jerusalem artichokes': 78, 'Strawberries': 85, 'Pistachios': 62, 'Sweet potatoes': 40, 'Parmesan': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.26086626273672237
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.019196
+Generated ingredient quantities (random): {'White cabbage': 78, 'Plums': 85, 'Tuna': 62, 'Rice grain': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7697496961104052
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.018578
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Hazelnuts': 62, 'Noodles': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8165489581650066
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.020012
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Pears': 85, 'Trouts': 62, 'Rice grain brown': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7234047180950443
+Generated ingredient quantities (random): {'Chili peppers': 58, 'Mango': 72, 'Sea bass': 77, 'Noodles': 73, 'Cream plain': 51, 'Wheat bread and rolls brown or wholemeal': 52} with score 0.5389430641290897
+Generated ingredient quantities (random): {'Chili peppers': 64, 'Mango': 56, 'Sea bass': 75, 'Noodles': 125, 'Cream plain': 116, 'Wheat bread and rolls brown or wholemeal': 58} with score 0.26339425109616377
+
+Overall Accuracy of Preferences: 0.966173
+Standard Deviation of Accuracies: 0.022196
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Papayas': 85, 'Shrimps and prawns': 62, 'Sweet potatoes': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.8319391520295785
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.019381
+Generated ingredient quantities (random): {'Peas': 78, 'Strawberries': 85, 'Tuna': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Sour cream': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6548188914027091
+
+Overall Accuracy of Preferences: 0.966420
+Standard Deviation of Accuracies: 0.018117
+Generated ingredient quantities (random): {'Leeks': 78, 'Coconuts': 85, 'Kidney bean': 62, 'Couscous': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7018621279508342
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.015149
+Generated ingredient quantities (random): {'Asparagus': 78, 'Pineapples': 85, 'Fish fingers breaded': 62, 'Buckwheat': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.31573879622430306
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.015579
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Pepper': 78, 'Pears': 85, 'Edible crab': 62, 'Pasta wholemeal': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3890697492591087
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.016556
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Nectarines': 85, 'Salmons': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3113472633081962
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.016350
+Generated ingredient quantities (random): {'Asparagus': 78, 'Common banana': 85, 'Hakes': 62, 'Sweet potatoes': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.47557645256221104
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.017475
+Generated ingredient quantities (random): {'Carrots': 78, 'Limes': 85, 'Shrimps and prawns': 62, 'Potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.39528588558901506
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.016884
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Strawberries': 85, 'Tuna': 62, 'New potatoes': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8050105124025407
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.017008
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Blueberries': 85, 'Fish fingers breaded': 62, 'Rice grain': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8305333442862293
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.015348
+Generated ingredient quantities (random): {'Asparagus': 78, 'Cherries and similar-': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.42526086133064384
+
+Overall Accuracy of Preferences: 0.972593
+Standard Deviation of Accuracies: 0.012851
+Generated ingredient quantities (random): {'Leeks': 78, 'Coconuts': 85, 'Edible crab': 62, 'Noodles': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.26986860438741456
+
+Overall Accuracy of Preferences: 0.968395
+Standard Deviation of Accuracies: 0.018537
+Generated ingredient quantities (random): {'Pepper': 78, 'Apples': 85, 'Turkey fresh meat': 62, 'Sweet potatoes': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7245796773799063
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.018092
+Generated ingredient quantities (random): {'Brussels sprouts': 78, 'Pears': 85, 'Salmons': 62, 'Rice grain long-grain': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3449050084688703
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.016108
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Aubergines': 78, 'Raspberries': 85, 'Kidney bean': 62, 'Buckwheat': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8606062052927718
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.014905
+Generated ingredient quantities (random): {'Swedes': 78, 'Blueberries': 85, 'Tuna': 62, 'Pasta wholemeal': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.49977584703553757
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.017522
+Generated ingredient quantities (random): {'Carrots': 78, 'Common banana': 85, 'Trouts': 62, 'Noodles': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8077639196020688
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.017675
+Generated ingredient quantities (random): {'Peas': 78, 'Watermelons': 85, 'Frankfurter sausage': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Mascarpone': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.33135357623006706
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.016311
+Generated ingredient quantities (random): {'Asparagus': 78, 'Pears': 85, 'Duck fresh meat': 62, 'Sweet potatoes': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3019287791410344
+
+Overall Accuracy of Preferences: 0.967654
+Standard Deviation of Accuracies: 0.017265
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Courgettes': 78, 'Apples': 85, 'Deer red fresh meat': 62, 'Couscous': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7079341898384836
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.017914
+Generated ingredient quantities (random): {'Peas': 78, 'Blueberries': 85, 'Haddock': 62, 'Sweet potatoes': 40, 'Cow milk whole': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7411667489313198
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.017909
+Generated ingredient quantities (random): {'Onions': 78, 'Papayas': 85, 'Tuna': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3701065638387074
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.017100
+Generated ingredient quantities (random): {'Swedes': 78, 'Pears': 85, 'Salmons': 62, 'Buckwheat': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.29874404410027516
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.013792
+Generated ingredient quantities (random): {'Asparagus': 78, 'Watermelons': 85, 'Frankfurter sausage': 62, 'New potatoes': 40, 'Sour cream': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.5480607893753989
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.012554
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Leeks': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3820110949948912
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.015647
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Common banana': 85, 'Turkey fresh meat': 62, 'Sweet potatoes': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4172427292342413
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.014532
+Generated ingredient quantities (random): {'Peas': 78, 'Coconuts': 85, 'Edible crab': 62, 'Noodles': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4104196743038777
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.013112
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Mango': 85, 'Shrimps and prawns': 62, 'Rice grain brown': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.5166399384727254
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.014440
+Generated ingredient quantities (random): {'Carrots': 78, 'Oranges sweet': 85, 'Duck fresh meat': 62, 'Rice grain long-grain': 40, 'Sour cream': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.644968765141788
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.015971
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Asparagus': 78, 'Pineapples': 85, 'Kidney bean': 62, 'Potatoes': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7136176921497248
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.017396
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Raspberries': 85, 'Fish fingers breaded': 62, 'Noodles': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7283972317371643
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.015027
+Generated ingredient quantities (random): {'Swedes': 78, 'Plums': 85, 'Tuna': 62, 'Pasta wholemeal': 40, 'Cow milk whole': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7913727077936148
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.017704
+Generated ingredient quantities (random): {'Brussels sprouts': 78, 'Cherries and similar-': 85, 'Haddock': 62, 'Sweet potatoes': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.43370491998101013
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.015118
+Generated ingredient quantities (random): {'Leeks': 78, 'Mango': 85, 'Trouts': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6113407342455494
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.012495
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Pepper': 78, 'Apples': 85, 'Edible crab': 62, 'Rice grain long-grain': 40, 'Parmesan': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3718519243152332
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.016506
+Generated ingredient quantities (random): {'Asparagus': 78, 'Plums': 85, 'Shrimps and prawns': 62, 'Sweet potatoes': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7080678829270513
+
+Overall Accuracy of Preferences: 0.973086
+Standard Deviation of Accuracies: 0.014501
+Generated ingredient quantities (random): {'Leeks': 78, 'Papayas': 85, 'Frankfurter sausage': 62, 'Noodles': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.4829038130512529
+
+Overall Accuracy of Preferences: 0.971852
+Standard Deviation of Accuracies: 0.012887
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Pears': 85, 'Tuna': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8500549428392176
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.019221
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Coconuts': 85, 'Duck fresh meat': 62, 'Rice grain': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2996438397969226
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.018681
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Brussels sprouts': 78, 'Common banana': 85, 'Haddock': 62, 'Potatoes': 40, 'Sour cream': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6539165149724226
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.016617
+Generated ingredient quantities (random): {'Swedes': 78, 'Cherries and similar-': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.9214887172051919
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.018016
+Generated ingredient quantities (random): {'Pepper': 78, 'Papayas': 85, 'Tuna': 62, 'Noodles': 40, 'Mascarpone': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3214918842195509
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.015461
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Table grapes': 85, 'Frankfurter sausage': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.34530482790007433
+
+Overall Accuracy of Preferences: 0.971852
+Standard Deviation of Accuracies: 0.012600
+Generated ingredient quantities (random): {'Asparagus': 78, 'Coconuts': 85, 'Fish fingers breaded': 62, 'Rice grain long-grain': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3696795319256975
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.015191
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Leeks': 78, 'Nectarines': 85, 'Hakes': 62, 'New potatoes': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8535240434431227
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.014948
+Generated ingredient quantities (random): {'Peas': 78, 'Table grapes': 85, 'Tuna': 62, 'Sweet potatoes': 40, 'Parmesan': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.39405486772625203
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.017291
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Plums': 85, 'Turkey fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8450576798708432
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.016002
+Generated ingredient quantities (random): {'Asparagus': 78, 'Apples': 85, 'Sea bass': 62, 'Noodles': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.702232746161966
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.014100
+Generated ingredient quantities (random): {'Courgettes': 78, 'Pineapples': 85, 'Shrimps and prawns': 62, 'Rice grain brown': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7208081412531117
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.018037
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Papayas': 85, 'Shrimps and prawns': 62, 'Sweet potatoes': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.83173986738494
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.017370
+Generated ingredient quantities (random): {'Peas': 78, 'Strawberries': 85, 'Tuna': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Sour cream': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6556629724109689
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.016161
+Generated ingredient quantities (random): {'Leeks': 78, 'Coconuts': 85, 'Frankfurter sausage': 62, 'Couscous': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5010949920736395
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.014782
+Generated ingredient quantities (random): {'Asparagus': 78, 'Pineapples': 85, 'Kidney bean': 62, 'Buckwheat': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7059032952475576
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.017042
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Pepper': 78, 'Pears': 85, 'Fish fingers breaded': 62, 'Pasta wholemeal': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.33289707811738983
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.013242
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Nectarines': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.34224620868005223
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.014440
+Generated ingredient quantities (random): {'Asparagus': 78, 'Common banana': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Mascarpone': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.46604884537019714
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.015764
+Generated ingredient quantities (random): {'Carrots': 78, 'Limes': 85, 'Sea bass': 62, 'Noodles': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.38626321334435304
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.016445
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Strawberries': 85, 'Tuna': 62, 'New potatoes': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8081819235482453
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.020303
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Blueberries': 85, 'Duck fresh meat': 62, 'Rice grain': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6999046017077096
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.015477
+Generated ingredient quantities (random): {'Asparagus': 78, 'Cherries and similar-': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.42522012302751944
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.016783
+Generated ingredient quantities (random): {'Leeks': 78, 'Coconuts': 85, 'Frankfurter sausage': 62, 'Noodles': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.39306891329589605
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.015358
+Generated ingredient quantities (random): {'Peas': 78, 'Apples': 85, 'Turkey fresh meat': 62, 'Sweet potatoes': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.873947083078801
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.017626
+Generated ingredient quantities (random): {'Brussels sprouts': 78, 'Pears': 85, 'Pig fresh meat': 62, 'Rice grain long-grain': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.36680403591794425
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.014751
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Carrots': 78, 'Raspberries': 85, 'Tuna': 62, 'Buckwheat': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7444610881160143
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.016462
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Blueberries': 85, 'Trouts': 62, 'Pasta wholemeal': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.47026873500581295
+
+Overall Accuracy of Preferences: 0.972840
+Standard Deviation of Accuracies: 0.013297
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Common banana': 85, 'Pig fresh meat': 62, 'Noodles': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7612701127648442
+
+Overall Accuracy of Preferences: 0.972840
+Standard Deviation of Accuracies: 0.013836
+Generated ingredient quantities (random): {'Peas': 78, 'Watermelons': 85, 'Kidney bean': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Mascarpone': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.44830305554172206
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.015818
+Generated ingredient quantities (random): {'Leeks': 78, 'Pears': 85, 'Deer red fresh meat': 62, 'Sweet potatoes': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.4408126490655427
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.015741
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Asparagus': 78, 'Apples': 85, 'Breakfast-type sausage': 62, 'Couscous': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7121038251964714
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.015358
+Generated ingredient quantities (random): {'Peas': 78, 'Blueberries': 85, 'Hakes': 62, 'Sweet potatoes': 40, 'Cow milk whole': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7473447559663503
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.017073
+Generated ingredient quantities (random): {'Onions': 78, 'Papayas': 85, 'Tuna': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.379238242310759
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.015764
+Generated ingredient quantities (random): {'Swedes': 78, 'Pears': 85, 'Kidney bean': 62, 'Buckwheat': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.46564370438447417
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.014997
+Generated ingredient quantities (random): {'Carrots': 78, 'Watermelons': 85, 'Haddock': 62, 'Noodles': 40, 'Sour cream': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6626316096401876
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.017424
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Leeks': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Rice grain': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38031860568872006
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.017605
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Common banana': 85, 'Turkey fresh meat': 62, 'Sweet potatoes': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4185371601009043
+
+Overall Accuracy of Preferences: 0.971852
+Standard Deviation of Accuracies: 0.016826
+Generated ingredient quantities (random): {'Peas': 78, 'Coconuts': 85, 'Duck fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5512417566290332
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.016341
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Mango': 85, 'Shrimps and prawns': 62, 'Noodles': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.5159038568966533
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.016453
+Generated ingredient quantities (random): {'Carrots': 78, 'Oranges sweet': 85, 'Edible crab': 62, 'Rice grain long-grain': 40, 'Sour cream': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.4979741685227657
+
+Overall Accuracy of Preferences: 0.968395
+Standard Deviation of Accuracies: 0.016108
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Aubergines': 78, 'Pineapples': 85, 'Kidney bean': 62, 'Potatoes': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.705635213389077
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.014874
+Generated ingredient quantities (random): {'Carrots': 78, 'Raspberries': 85, 'Edible crab': 62, 'Noodles': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6214086370954213
+
+Overall Accuracy of Preferences: 0.971852
+Standard Deviation of Accuracies: 0.012157
+Generated ingredient quantities (random): {'Pepper': 78, 'Plums': 85, 'Tuna': 62, 'Pasta wholemeal': 40, 'Cow milk whole': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6175768524469375
+
+Overall Accuracy of Preferences: 0.971852
+Standard Deviation of Accuracies: 0.013168
+Generated ingredient quantities (random): {'Asparagus': 78, 'Cherries and similar-': 85, 'Trouts': 62, 'Sweet potatoes': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.2971577870818083
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.017250
+Generated ingredient quantities (random): {'Leeks': 78, 'Mango': 85, 'Sea bass': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7027200059571319
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.017626
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Apples': 85, 'Frankfurter sausage': 62, 'Rice grain long-grain': 40, 'Parmesan': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.2843874438790943
+
+Overall Accuracy of Preferences: 0.972840
+Standard Deviation of Accuracies: 0.014482
+Generated ingredient quantities (random): {'Asparagus': 78, 'Raspberries': 85, 'Shrimps and prawns': 62, 'Sweet potatoes': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6312791245499033
+
+Overall Accuracy of Preferences: 0.971852
+Standard Deviation of Accuracies: 0.014236
+Generated ingredient quantities (random): {'Leeks': 78, 'Papayas': 85, 'Edible crab': 62, 'Noodles': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.39331102166106285
+
+Overall Accuracy of Preferences: 0.968395
+Standard Deviation of Accuracies: 0.017730
+Generated ingredient quantities (random): {'Swedes': 78, 'Pears': 85, 'Tuna': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8519387505926214
+
+Overall Accuracy of Preferences: 0.971852
+Standard Deviation of Accuracies: 0.018285
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Coconuts': 85, 'Duck fresh meat': 62, 'Rice grain': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3004001838496966
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.018037
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Brussels sprouts': 78, 'Common banana': 85, 'Turkey fresh meat': 62, 'Potatoes': 40, 'Sour cream': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7151775186395118
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.016221
+Generated ingredient quantities (random): {'Swedes': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7355408647384146
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.013075
+Generated ingredient quantities (random): {'Pepper': 78, 'Oranges sweet': 85, 'Tuna': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Mascarpone': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.33640307342538706
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.014176
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Table grapes': 85, 'Haddock': 62, 'Noodles': 40, 'Cream plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3071262798668897
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.019096
+Generated ingredient quantities (random): {'Asparagus': 78, 'Coconuts': 85, 'Kidney bean': 62, 'Rice grain long-grain': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.40478861752710094
+
+Overall Accuracy of Preferences: 0.973333
+Standard Deviation of Accuracies: 0.018602
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Leeks': 78, 'Nectarines': 85, 'Edible crab': 62, 'New potatoes': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6485293405906415
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.015971
+Generated ingredient quantities (random): {'Peas': 78, 'Table grapes': 85, 'Tuna': 62, 'Sweet potatoes': 40, 'Parmesan': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.39553367186058835
+
+Overall Accuracy of Preferences: 0.968395
+Standard Deviation of Accuracies: 0.016445
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Plums': 85, 'Turkey fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8466588211083073
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.016884
+Generated ingredient quantities (random): {'Asparagus': 78, 'Apples': 85, 'Sea bass': 62, 'Noodles': 40, 'Cow milk whole': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7059087933238213
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.016492
+Generated ingredient quantities (random): {'Swedes': 78, 'Pineapples': 85, 'Shrimps and prawns': 62, 'Rice grain brown': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7386111057380759
+Generated ingredient quantities (random): {'Carrots': 51, 'Apples': 122, 'Kidney bean': 75, 'Sweet potatoes': 114, 'Cheese cheddar': 75, 'Wheat bread and rolls white (refined flour)': 50} with score 0.7455100871273759
+Generated ingredient quantities (random): {'Carrots': 65, 'Apples': 124, 'Kidney bean': 79, 'Sweet potatoes': 59, 'Cheese cheddar': 104, 'Wheat bread and rolls white (refined flour)': 53} with score 0.6222758476815977
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.016534
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2800755496731
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.019631
+Generated ingredient quantities (random): {'Pepper': 78, 'Coconuts': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.27900717360472393
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.017396
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Common banana': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.380016555410392
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.015548
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Kiwi fruits (green red yellow)': 85, 'Tuna': 62, 'Pasta wholemeal': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7363235392477353
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.018830
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Mango': 85, 'Pig fresh meat': 62, 'New potatoes': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5319767753280309
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.017501
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.016380
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2802007956920658
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.018837
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2851787561446002
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.013915
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3807962453310261
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.017475
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Nectarines': 85, 'Tuna': 62, 'Pasta wholemeal': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7990376257107417
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.017417
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.014576
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.28019425812514176
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.015851
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.28559027877834503
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.018676
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3815219837276505
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.015293
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Mango': 85, 'Pig fresh meat': 62, 'New potatoes': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5324212197724753
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.015530
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.018353
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.28011612091620286
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.017889
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2852328511354041
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.018537
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38105568135970885
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.015548
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Nectarines': 85, 'Tuna': 62, 'Pasta wholemeal': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7978803524954975
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.014176
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.020285
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2800755496731
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.018934
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2851787561446002
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.016891
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38107753928320615
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.015538
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Mango': 85, 'Pig fresh meat': 62, 'New potatoes': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5326896040988306
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.019126
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.017051
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.28011612091620286
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.016125
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2851787561446002
+
+Overall Accuracy of Preferences: 0.968395
+Standard Deviation of Accuracies: 0.017206
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3812743544558667
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.014751
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Nectarines': 85, 'Tuna': 62, 'Pasta wholemeal': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7994402022002748
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.016155
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.015173
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2800755496731
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.015070
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.28530400216356605
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.019456
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3805654761002568
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.019291
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Mango': 85, 'Pig fresh meat': 62, 'New potatoes': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5324212197724753
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.019755
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.014807
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2802007956920658
+
+Overall Accuracy of Preferences: 0.967901
+Standard Deviation of Accuracies: 0.017771
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2851787561446002
+
+Overall Accuracy of Preferences: 0.968148
+Standard Deviation of Accuracies: 0.019140
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3815219837276505
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.016506
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Nectarines': 85, 'Tuna': 62, 'Pasta wholemeal': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7988137637341107
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.016965
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.017642
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2800755496731
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.016674
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2851787561446002
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.015897
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3815219837276505
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.017833
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Mango': 85, 'Pig fresh meat': 62, 'New potatoes': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5319767753280309
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.014557
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.019908
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.28011612091620286
+
+Overall Accuracy of Preferences: 0.971852
+Standard Deviation of Accuracies: 0.014490
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2851787561446002
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.019354
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3810374829908684
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.018543
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2809711427913297
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.017078
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2845664559807965
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.014406
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3808205555925124
+
+Overall Accuracy of Preferences: 0.972593
+Standard Deviation of Accuracies: 0.017335
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Mango': 85, 'Tuna': 62, 'New potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7315022307591196
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.014229
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Nectarines': 85, 'Pig fresh meat': 62, 'Pasta wholemeal': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5420226838710908
+
+Overall Accuracy of Preferences: 0.968395
+Standard Deviation of Accuracies: 0.018733
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.012648
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2804149236975131
+
+Overall Accuracy of Preferences: 0.968148
+Standard Deviation of Accuracies: 0.018754
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2843959529969942
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.014065
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3807204406918913
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.017669
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Mango': 85, 'Tuna': 62, 'New potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7326463278968144
+
+Overall Accuracy of Preferences: 0.968148
+Standard Deviation of Accuracies: 0.019982
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.015741
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2804149236975131
+
+Overall Accuracy of Preferences: 0.968148
+Standard Deviation of Accuracies: 0.014956
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2843959529969942
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.016666
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38069440377153824
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.016380
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Nectarines': 85, 'Pig fresh meat': 62, 'Pasta wholemeal': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5399080945233939
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.017291
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.015897
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2804149236975131
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.016170
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.30875793173980565
+
+Overall Accuracy of Preferences: 0.967901
+Standard Deviation of Accuracies: 0.017142
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38153291948256457
+
+Overall Accuracy of Preferences: 0.968148
+Standard Deviation of Accuracies: 0.018459
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Mango': 85, 'Tuna': 62, 'New potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7317977390333512
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.017051
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.018610
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.280506138849179
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.015118
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2843959529969942
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.019505
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3805514733998181
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.016857
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Nectarines': 85, 'Pig fresh meat': 62, 'Pasta wholemeal': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5403813840871327
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.019736
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.014501
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.281266796340091
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.016776
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2845664559807965
+
+Overall Accuracy of Preferences: 0.967901
+Standard Deviation of Accuracies: 0.019536
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3810979550225471
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.018708
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Mango': 85, 'Tuna': 62, 'New potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7315204653894715
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.017914
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.972593
+Standard Deviation of Accuracies: 0.015319
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2788997721823616
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.018908
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2843959529969942
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.013792
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3808003359749281
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.017914
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Nectarines': 85, 'Pig fresh meat': 62, 'Pasta wholemeal': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5405441072115139
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.013650
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.015342
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2804149236975131
+
+Overall Accuracy of Preferences: 0.967654
+Standard Deviation of Accuracies: 0.018591
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.28465297158369735
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.016350
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3810979550225471
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.016992
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Mango': 85, 'Tuna': 62, 'New potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7319753463081452
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.019821
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.016776
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2804149236975131
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.018117
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2843959529969942
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.017256
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3809027949913215
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.017875
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Nectarines': 85, 'Pig fresh meat': 62, 'Pasta wholemeal': 40, 'Mozzarella': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5397903675386693
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.018484
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5633267498729679
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.014117
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2804149236975131
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.014807
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Shrimps and prawns': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.2829466776346754
+
+Overall Accuracy of Preferences: 0.972593
+Standard Deviation of Accuracies: 0.016246
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Trouts': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38080692046843273
+Generated ingredient quantities (random): {'Chili peppers': 47, 'Apples': 124, 'Kidney bean': 82, 'Pasta plain (not stuffed) uncooked': 60, 'Cow milk semi skimmed (half fat)': 131, 'Wheat bread and rolls white (refined flour)': 55} with score 0.874932853470718
+Generated ingredient quantities (random): {'Chili peppers': 75, 'Apples': 95, 'Kidney bean': 75, 'Pasta plain (not stuffed) uncooked': 57, 'Cow milk semi skimmed (half fat)': 66, 'Wheat bread and rolls white (refined flour)': 51} with score 0.9050168864992619
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.016821
+Generated ingredient quantities (random): {'Carrots': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Mascarpone': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3042789415042199
+
+Overall Accuracy of Preferences: 0.960988
+Standard Deviation of Accuracies: 0.020235
+Generated ingredient quantities (random): {'Parsnip roots': 78, 'Pears': 85, 'Edible crab': 62, 'Noodles': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.36053185727615644
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.018345
+Generated ingredient quantities (random): {'Peas': 78, 'Raspberries': 85, 'Duck fresh meat': 62, 'Rice grain long-grain': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.40705814436347576
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.015764
+Generated ingredient quantities (random): {'Pepper': 78, 'Pineapples': 85, 'Haddock': 62, 'Couscous': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6027490728656033
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.016395
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Papayas': 85, 'Shrimps and prawns': 62, 'Rice grain brown': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3365551173299443
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.012395
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Noodles': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.8970164609053498
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.018479
+Generated ingredient quantities (random): {'Peas': 78, 'Oranges sweet': 85, 'Frankfurter sausage': 62, 'Pasta wholemeal': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3892479157196968
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.014683
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Raspberries': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.36206662303496245
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.021098
+Generated ingredient quantities (random): {'Pepper': 78, 'Cherries and similar-': 85, 'Edible crab': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.40043321964294604
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.018043
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Pineapples': 85, 'Trouts': 62, 'Buckwheat': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6654836767074003
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.016395
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Tuna': 62, 'Couscous': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4887729847246986
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.019792
+Generated ingredient quantities (random): {'Peas': 78, 'Strawberries': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Mascarpone': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4889783242885997
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.017370
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Cherries and similar-': 85, 'Edible crab': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.2403848489999106
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.019324
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Salmons': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.27900717360472393
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.016462
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Kiwi fruits (green red yellow)': 85, 'Shrimps and prawns': 62, 'Rice grain': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.39157306980068385
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.015781
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Duck fresh meat': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4178559440343659
+
+Overall Accuracy of Preferences: 0.968148
+Standard Deviation of Accuracies: 0.017957
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Fish fingers breaded': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.30366608849007143
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.018193
+Generated ingredient quantities (random): {'Asparagus': 78, 'Papayas': 85, 'Kidney bean': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.43839237814492615
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.018393
+Generated ingredient quantities (random): {'Pepper': 78, 'Coconuts': 85, 'Turkey fresh meat': 62, 'Couscous': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.5088689578134299
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.018079
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Common banana': 85, 'Frankfurter sausage': 62, 'New potatoes': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5073762320367926
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.015579
+Generated ingredient quantities (random): {'Peas': 78, 'Watermelons': 85, 'Edible crab': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3754655998571759
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.016666
+Generated ingredient quantities (random): {'Parsnip roots': 78, 'Apples': 85, 'Kidney bean': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6409807398121883
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.017709
+Generated ingredient quantities (random): {'Asparagus': 78, 'Strawberries': 85, 'Salmons': 62, 'Couscous': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.24554176861645635
+
+Overall Accuracy of Preferences: 0.967407
+Standard Deviation of Accuracies: 0.017695
+Generated ingredient quantities (random): {'Carrots': 78, 'Raspberries': 85, 'Tuna': 62, 'Noodles': 40, 'Parmesan': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.3920119390258532
+
+Overall Accuracy of Preferences: 0.966914
+Standard Deviation of Accuracies: 0.020840
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Onions': 78, 'Nectarines': 85, 'Haddock': 62, 'Pasta wholemeal': 40, 'Cream plain': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3619090718701272
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.015239
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Oranges sweet': 85, 'Tuna': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4880036276170249
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.018748
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Noodles': 40, 'Sour cream': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8388844473191938
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.016492
+Generated ingredient quantities (random): {'Peas': 78, 'Mango': 85, 'Salmons': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.2849607961328753
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.017745
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Common banana': 85, 'Duck fresh meat': 62, 'Couscous': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5590102333702912
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.016891
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Pepper': 78, 'Cherries and similar-': 85, 'Shrimps and prawns': 62, 'Buckwheat': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.39083998325748914
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.015595
+Generated ingredient quantities (random): {'Leeks': 78, 'Apples': 85, 'Kidney bean': 62, 'Couscous': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.9198154479265591
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.018117
+Generated ingredient quantities (random): {'Carrots': 78, 'Coconuts': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.36426977274168615
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.016617
+Generated ingredient quantities (random): {'Swedes': 78, 'Common banana': 85, 'Fish fingers breaded': 62, 'Noodles': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6338333263673087
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.017669
+Generated ingredient quantities (random): {'Peas': 78, 'Kiwi fruits (green red yellow)': 85, 'Duck fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6870016048572585
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.015311
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Oranges sweet': 85, 'Trouts': 62, 'Potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8174984769835296
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.015173
+Generated ingredient quantities (random): {'Onions': 78, 'Apples': 85, 'Tuna': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4888195641920731
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.016155
+Generated ingredient quantities (random): {'Carrots': 78, 'Watermelons': 85, 'Kidney bean': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.44855812757201646
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.019349
+Generated ingredient quantities (random): {'Peas': 78, 'Raspberries': 85, 'Salmons': 62, 'Noodles': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38991017133497335
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.017222
+Generated ingredient quantities (random): {'Pepper': 78, 'Strawberries': 85, 'Duck fresh meat': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3872104157715543
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.014557
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Cherries and similar-': 85, 'Shrimps and prawns': 62, 'Buckwheat': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4394132274316007
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.016563
+Generated ingredient quantities (random): {'Swedes': 78, 'Pineapples': 85, 'Kidney bean': 62, 'Noodles': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5564723527531503
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.020285
+Generated ingredient quantities (random): {'Carrots': 78, 'Pears': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.362868958558284
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.018492
+Generated ingredient quantities (random): {'Peas': 78, 'Apples': 85, 'Duck fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.37632096205256566
+
+Overall Accuracy of Preferences: 0.971358
+Standard Deviation of Accuracies: 0.017605
+Generated ingredient quantities (random): {'Leeks': 78, 'Common banana': 85, 'Trouts': 62, 'Couscous': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.4136731913402445
+
+Overall Accuracy of Preferences: 0.972099
+Standard Deviation of Accuracies: 0.014776
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Parsnip roots': 78, 'Oranges sweet': 85, 'Almonds': 62, 'Potatoes': 40, 'Cow milk whole': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7952145245128405
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.018011
+Generated ingredient quantities (random): {'Pepper': 78, 'Apples': 85, 'Kidney bean': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.46971618377757135
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.014997
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7105347744179417
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.017786
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Coconuts': 85, 'Shrimps and prawns': 62, 'Noodles': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.27492415498682155
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.017149
+Generated ingredient quantities (random): {'Carrots': 78, 'Plums': 85, 'Trouts': 62, 'Rice grain': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5155427269080124
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.017475
+Generated ingredient quantities (random): {'Carrots': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Mascarpone': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3043474247529307
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.019229
+Generated ingredient quantities (random): {'Peas': 78, 'Pears': 85, 'Edible crab': 62, 'Noodles': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.37096437517123865
+
+Overall Accuracy of Preferences: 0.968395
+Standard Deviation of Accuracies: 0.019119
+Generated ingredient quantities (random): {'Cucumber': 78, 'Rhubarbs': 85, 'Duck fresh meat': 62, 'Rice grain long-grain': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.4144954985737623
+
+Overall Accuracy of Preferences: 0.968395
+Standard Deviation of Accuracies: 0.017417
+Generated ingredient quantities (random): {'Pepper': 78, 'Plums': 85, 'Haddock': 62, 'Couscous': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6079592073331976
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.015530
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Pineapples': 85, 'Shrimps and prawns': 62, 'Rice grain brown': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.34500117984022133
+
+Overall Accuracy of Preferences: 0.968148
+Standard Deviation of Accuracies: 0.016580
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Noodles': 40, 'Yoghurt cow milk plain': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.8971410080706562
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.013723
+Generated ingredient quantities (random): {'Peas': 78, 'Oranges sweet': 85, 'Haddock': 62, 'Pasta wholemeal': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.40539866978340133
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.018052
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Raspberries': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.36188232140579607
+
+Overall Accuracy of Preferences: 0.968148
+Standard Deviation of Accuracies: 0.018948
+Generated ingredient quantities (random): {'Pepper': 78, 'Cherries and similar-': 85, 'Duck fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38350893314043777
+
+Overall Accuracy of Preferences: 0.968395
+Standard Deviation of Accuracies: 0.017206
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Pears': 85, 'Trouts': 62, 'Buckwheat': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7489035705816988
+
+Overall Accuracy of Preferences: 0.966667
+Standard Deviation of Accuracies: 0.022691
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Sea bass': 62, 'Couscous': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.463408223186448
+
+Overall Accuracy of Preferences: 0.966173
+Standard Deviation of Accuracies: 0.018708
+Generated ingredient quantities (random): {'Peas': 78, 'Strawberries': 85, 'Kidney bean': 62, 'Sweet potatoes': 40, 'Mascarpone': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4877996439063795
+
+Overall Accuracy of Preferences: 0.966173
+Standard Deviation of Accuracies: 0.017496
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Cherries and similar-': 85, 'Frankfurter sausage': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.26255505432002685
+
+Overall Accuracy of Preferences: 0.967901
+Standard Deviation of Accuracies: 0.016378
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Salmons': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.27963338397741916
+
+Overall Accuracy of Preferences: 0.969630
+Standard Deviation of Accuracies: 0.016380
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Coconuts': 85, 'Shrimps and prawns': 62, 'Rice grain': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.26470627042602995
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.016350
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Duck fresh meat': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4180498387164495
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.016193
+Generated ingredient quantities (random): {'Peas': 78, 'Cherries and similar-': 85, 'Edible crab': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.27224903055363897
+
+Overall Accuracy of Preferences: 0.967407
+Standard Deviation of Accuracies: 0.019839
+Generated ingredient quantities (random): {'Asparagus': 78, 'Papayas': 85, 'Kidney bean': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.43801408228247457
+
+Overall Accuracy of Preferences: 0.967901
+Standard Deviation of Accuracies: 0.015810
+Generated ingredient quantities (random): {'Pepper': 78, 'Common banana': 85, 'Turkey fresh meat': 62, 'Couscous': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6911488374800463
+
+Overall Accuracy of Preferences: 0.971111
+Standard Deviation of Accuracies: 0.016380
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Kiwi fruits (green red yellow)': 85, 'Frankfurter sausage': 62, 'New potatoes': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.508386327643778
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.017328
+Generated ingredient quantities (random): {'Onions': 78, 'Watermelons': 85, 'Duck fresh meat': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38604350439240637
+
+Overall Accuracy of Preferences: 0.967901
+Standard Deviation of Accuracies: 0.019348
+Generated ingredient quantities (random): {'Peas': 78, 'Apples': 85, 'Kidney bean': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.638363966133096
+
+Overall Accuracy of Preferences: 0.966173
+Standard Deviation of Accuracies: 0.019000
+Generated ingredient quantities (random): {'Asparagus': 78, 'Rhubarbs': 85, 'Salmons': 62, 'Noodles': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.20067463176557032
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.016229
+Generated ingredient quantities (random): {'Carrots': 78, 'Strawberries': 85, 'Tuna': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.38646539318146833
+
+Overall Accuracy of Preferences: 0.968642
+Standard Deviation of Accuracies: 0.022766
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Leeks': 78, 'Oranges sweet': 85, 'Haddock': 62, 'Pasta wholemeal': 40, 'Cream plain': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.36288193089355136
+
+Overall Accuracy of Preferences: 0.969383
+Standard Deviation of Accuracies: 0.016085
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Nectarines': 85, 'Tuna': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4889011333617219
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.016884
+Generated ingredient quantities (random): {'Carrots': 78, 'Apples': 85, 'Kidney bean': 62, 'Noodles': 40, 'Sour cream': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.8359597334467676
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.018884
+Generated ingredient quantities (random): {'Peas': 78, 'Mango': 85, 'Salmons': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Butter': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.2854848906259786
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.016108
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Common banana': 85, 'Edible crab': 62, 'Couscous': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4209293429004283
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.014304
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Swedes': 78, 'Cherries and similar-': 85, 'Shrimps and prawns': 62, 'Buckwheat': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38904478845107443
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.015412
+Generated ingredient quantities (random): {'Leeks': 78, 'Apples': 85, 'Kidney bean': 62, 'Couscous': 40, 'Cow milk semi skimmed (half fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.9219464274036525
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.018845
+Generated ingredient quantities (random): {'Carrots': 78, 'Coconuts': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.36479234255559456
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.020593
+Generated ingredient quantities (random): {'Onions': 78, 'Common banana': 85, 'Tuna': 62, 'Noodles': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6001848485977365
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.018037
+Generated ingredient quantities (random): {'Peas': 78, 'Kiwi fruits (green red yellow)': 85, 'Deer red fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cow milk skimmed (low fat)': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.7484770685027424
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.017424
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Pepper': 78, 'Oranges sweet': 85, 'Trouts': 62, 'Potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.6285158760566467
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.017100
+Generated ingredient quantities (random): {'Onions': 78, 'Apples': 85, 'Tuna': 62, 'Sweet potatoes': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.49289568934321465
+
+Overall Accuracy of Preferences: 0.969136
+Standard Deviation of Accuracies: 0.018551
+Generated ingredient quantities (random): {'Carrots': 78, 'Watermelons': 85, 'Kidney bean': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.45021073376530607
+
+Overall Accuracy of Preferences: 0.971605
+Standard Deviation of Accuracies: 0.015665
+Generated ingredient quantities (random): {'Peas': 78, 'Raspberries': 85, 'Salmons': 62, 'Noodles': 40, 'Traditional margarine': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.38884384423234586
+
+Overall Accuracy of Preferences: 0.970370
+Standard Deviation of Accuracies: 0.014815
+Generated ingredient quantities (random): {'Tomatoes': 78, 'Strawberries': 85, 'Deer red fresh meat': 62, 'Couscous': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4076979379292496
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.014374
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Chili peppers': 78, 'Cherries and similar-': 85, 'Shrimps and prawns': 62, 'Buckwheat': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.440770293663396
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.019024
+Generated ingredient quantities (random): {'Swedes': 78, 'Plums': 85, 'Kidney bean': 62, 'Noodles': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.5364861526718088
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.016506
+Generated ingredient quantities (random): {'Carrots': 78, 'Pears': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Butter': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.3634697227116362
+
+Overall Accuracy of Preferences: 0.970617
+Standard Deviation of Accuracies: 0.017786
+Generated ingredient quantities (random): {'Peas': 78, 'Apples': 85, 'Duck fresh meat': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.37540761118620797
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.017475
+Generated ingredient quantities (random): {'Leeks': 78, 'Common banana': 85, 'Trouts': 62, 'Couscous': 40, 'Traditional margarine': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.4135521764893515
+
+Overall Accuracy of Preferences: 0.968889
+Standard Deviation of Accuracies: 0.019542
+
+Generated 5 meal plans, resetting ingredients.
+Generated ingredient quantities (random): {'Onions': 78, 'Oranges sweet': 85, 'Deer red fresh meat': 62, 'Potatoes': 40, 'Cow milk whole': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.6902803879583597
+
+Overall Accuracy of Preferences: 0.970123
+Standard Deviation of Accuracies: 0.018591
+Generated ingredient quantities (random): {'Pepper': 78, 'Apples': 85, 'Kidney bean': 62, 'Pasta plain (not stuffed) uncooked': 40, 'Cheese cheddar': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.4694862152469492
+
+Overall Accuracy of Preferences: 0.970864
+Standard Deviation of Accuracies: 0.017206
+Generated ingredient quantities (random): {'Sweet corn': 78, 'Cherries and similar-': 85, 'Salmons': 62, 'Sweet potatoes': 40, 'Yoghurt cow milk flavoured': 112, 'Wheat bread and rolls brown or wholemeal': 61} with score 0.7086857823784333
+
+Overall Accuracy of Preferences: 0.969877
+Standard Deviation of Accuracies: 0.016445
+Generated ingredient quantities (random): {'Carrots': 78, 'Coconuts': 85, 'Shrimps and prawns': 62, 'Noodles': 40, 'Parmesan': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.276799068986569
+
+Overall Accuracy of Preferences: 0.972346
+Standard Deviation of Accuracies: 0.017206
+Generated ingredient quantities (random): {'Cucumber': 78, 'Plums': 85, 'Trouts': 62, 'Rice grain': 40, 'Creme fraiche cheese': 112, 'Wheat bread and rolls white (refined flour)': 61} with score 0.45402304481412714

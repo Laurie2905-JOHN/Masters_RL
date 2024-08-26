@@ -1,9 +1,9 @@
 #!/bin/bash
-#PBS -l select=1:ncpus=16:mem=16gb:ngpus=1
-#PBS -l walltime=05:00:00
-#PBS -N PPO_benchmark
-#PBS -o /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/PPO_benchmark.log
-#PBS -e /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/hpc_output/PPO_benchmark_error.log
+#PBS -l select=1:ncpus=32:mem=32GB:ngpus=1
+#PBS -l walltime=60:00:00
+#PBS -N feedback_mech_RL
+#PBS -o /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/feedback_mech_RL.log
+#PBS -e /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/feedback_mech_RL_error.log
 
 cd $PBS_O_WORKDIR
 
@@ -12,9 +12,4 @@ module load anaconda3/personal
 
 source activate MasterEnv
 
-python "scripts/training/benchmarks/optuna_benchmark.py" \
-    --algo="PPO" \
-    --study_name="PPO_benchmark" \
-    --n_trials=8 \
-    --timeout=14400 \
-    --num_timesteps=20000
+python "scripts/preference/report_tests/feedback_mechanism_test.py"

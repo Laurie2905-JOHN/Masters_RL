@@ -2,8 +2,8 @@
 #PBS -l select=1:ncpus=32:mem=32GB:ngpus=0
 #PBS -l walltime=48:00:00
 #PBS -N feedback_reward_test
-#PBS -o /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/feedback_reward_test.log
-#PBS -e /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/feedback_reward_test_error.log
+#PBS -o /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/feedback_reward_test2.log
+#PBS -e /rds/general/user/lej23/home/fyp/Masters_RL/saved_models/feedback_reward_test_error2.log
 
 cd $PBS_O_WORKDIR
 

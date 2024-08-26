@@ -39,8 +39,8 @@ existing_runs = [d for d in os.listdir(data_dir) if d.startswith('run_')]
 run_number = len(existing_runs) + 1
 
 # Create run directories
-run_data_dir = os.path.join(data_dir, f'run_{run_number}_reward_test', )
-run_graphs_dir = os.path.join(graphs_dir, f'run_{run_number}_reward_test')
+run_data_dir = os.path.join(data_dir, f'run_{run_number}_reward_test_split05', )
+run_graphs_dir = os.path.join(graphs_dir, f'run_{run_number}_reward_test_split05')
 os.makedirs(run_data_dir, exist_ok=True)
 os.makedirs(run_graphs_dir, exist_ok=True)
 json_path = os.path.join(run_data_dir, "menu_utilities_simple")
@@ -165,7 +165,7 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
     with logging_redirect_tqdm():
         for method in tqdm(menu_generators.keys(), desc="Testing Method Types"):
             with logging_redirect_tqdm():
-                for menu in tqdm(range(1, 50), desc=f"Processing Menus for method {method} and {model_name}"):
+                for menu in tqdm(range(1, 100), desc=f"Processing Menus for method {method} and {model_name}"):
                     
                     week = (menu - 1) // 5 + 1  # Week number (1-based index)
                     day = (menu - 1) % 5 + 1    # Day number within the week (1-based index)
@@ -259,7 +259,7 @@ def main():
     ingredient_df = get_data("data.csv")
     child_feature_data = get_child_data()
     true_child_preference_data = initialize_child_preference_data(
-        child_feature_data, ingredient_df, split=0.5, seed=seed, plot_graphs=False
+        child_feature_data, ingredient_df, split=0.05, seed=seed, plot_graphs=False
     )
 
     with open(os.path.join(run_data_dir, 'true_child_preference_data.json'), 'w') as f:
@@ -317,7 +317,7 @@ def main():
         "best",
         "prob_best",
         # "RL"
-        # "genetic"
+        "genetic"
     ]
     
     try:
@@ -328,7 +328,7 @@ def main():
 
                 # Check elapsed time
                 elapsed_time = time.time() - global_start_time
-                if (elapsed_time > 35 * 3600):
+                if (elapsed_time > 47.56 * 3600):
                     logging.warning("Approaching time limit, saving intermediate results.")
                     save_intermediate_results(results, seed)
                     break
