@@ -1,0 +1,22 @@
+gamma: 0.99
+gae_lambda: 0.99
+n_steps: 448
+batch_size: 1024
+lr_schedule: linear
+learning_rate: 0.00021060270578995247
+ent_coef: 3.639025325057036e-07
+rollout_buffer_class: null
+rollout_buffer_kwargs: null
+clip_range: 0.32
+n_epochs: 20
+max_grad_norm: 0.52
+vf_coef: 0.61
+clip_range_vf: 0.26
+normalize_advantage: True
+target_kl: 0.015
+ortho_init: null
+activation_fn: tanh
+net_arch_width: 128
+net_arch_depth: 4
+stats_window_size: null
+

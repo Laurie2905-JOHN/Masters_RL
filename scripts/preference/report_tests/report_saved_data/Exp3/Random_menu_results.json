@@ -1,0 +1,23 @@
+[
+    {
+        "week": 1,
+        "day": 1,
+        "type": "simple",
+        "meal_plan": [
+            "Onions",
+            "Oranges sweet",
+            "Ham pork",
+            "Rice grain long-grain",
+            "Cow milk semi skimmed (half fat)",
+            "Wheat bread and rolls brown or wholemeal"
+        ],
+        "quantities": {
+            "Onions": 44,
+            "Oranges sweet": 111,
+            "Ham pork": 65,
+            "Rice grain long-grain": 105,
+            "Cow milk semi skimmed (half fat)": 111,
+            "Wheat bread and rolls brown or wholemeal": 51
+        }
+    }
+]

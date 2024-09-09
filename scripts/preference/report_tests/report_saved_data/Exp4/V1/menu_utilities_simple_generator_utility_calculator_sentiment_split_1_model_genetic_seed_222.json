@@ -1,0 +1,16 @@
+[
+    {
+        "week": 1,
+        "true_utility": {},
+        "predicted_utility": {},
+        "sum_true_utility": {},
+        "sum_predicted_utility": {},
+        "daily_gini_coefficients": {},
+        "cumulative_gini_coefficients": [
+            {
+                "true_cumulative_gini": 0,
+                "predicted_cumulative_gini": 0
+            }
+        ]
+    }
+]
