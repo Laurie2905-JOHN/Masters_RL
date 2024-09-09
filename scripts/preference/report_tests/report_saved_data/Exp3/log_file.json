@@ -1,0 +1,882 @@
+[
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12365914786967357,
+                "neutral": 0.0686761340480896,
+                "dislikes": 0.28852422415717877,
+                "total": 0.0940420073453778
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12650651887534703,
+                "neutral": 0.09902907309519515,
+                "dislikes": 0.3328390489928071,
+                "total": 0.11410049490873231
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.13393494655694238,
+                "neutral": 0.15365534660132596,
+                "dislikes": 0.2890877816639783,
+                "total": 0.08976719173474608
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.2582512660741909,
+                "neutral": 0.2239053312376964,
+                "dislikes": 0.4411279272876514,
+                "total": 0.13993555197648475
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12365914786967357,
+                "neutral": 0.0686761340480896,
+                "dislikes": 0.28852422415717877,
+                "total": 0.0940420073453778
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.1306643815926808,
+                "neutral": 0.09748719083756252,
+                "dislikes": 0.3326019471943608,
+                "total": 0.11535737350483835
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.14284812013042655,
+                "neutral": 0.13902938820228813,
+                "dislikes": 0.3008243277758398,
+                "total": 0.10037210018211275
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.20847553358048543,
+                "neutral": 0.23019276755870713,
+                "dislikes": 0.46831543198890574,
+                "total": 0.14800235166536332
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12365914786967357,
+                "neutral": 0.0686761340480896,
+                "dislikes": 0.28852422415717877,
+                "total": 0.0940420073453778
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12713913013580863,
+                "neutral": 0.0923572091995238,
+                "dislikes": 0.32876389749057733,
+                "total": 0.1106176144485022
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.1332736697609692,
+                "neutral": 0.13820136420673193,
+                "dislikes": 0.2786283391892154,
+                "total": 0.08997997204262348
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.24438419190808666,
+                "neutral": 0.22186018437737492,
+                "dislikes": 0.4372706786580362,
+                "total": 0.14796657013011424
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12365914786967357,
+                "neutral": 0.0686761340480896,
+                "dislikes": 0.28852422415717877,
+                "total": 0.0940420073453778
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12216855405846112,
+                "neutral": 0.10206568314903171,
+                "dislikes": 0.32117744624014555,
+                "total": 0.10705049190394018
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12732312090309866,
+                "neutral": 0.13461651797558152,
+                "dislikes": 0.30036874740064895,
+                "total": 0.09517933600331017
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.2071484226914649,
+                "neutral": 0.21363073904025232,
+                "dislikes": 0.44036917605986836,
+                "total": 0.146835438458563
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12365914786967357,
+                "neutral": 0.0686761340480896,
+                "dislikes": 0.28852422415717877,
+                "total": 0.0940420073453778
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12636220955952177,
+                "neutral": 0.09510173230663702,
+                "dislikes": 0.32405281775463585,
+                "total": 0.10682987155706972
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.13780792918341206,
+                "neutral": 0.15102187076328316,
+                "dislikes": 0.31216312457740425,
+                "total": 0.10635569705562886
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.19548287908820475,
+                "neutral": 0.2043787168361003,
+                "dislikes": 0.4124050525773746,
+                "total": 0.14573145052166914
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12365914786967357,
+                "neutral": 0.0686761340480896,
+                "dislikes": 0.28852422415717877,
+                "total": 0.0940420073453778
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12729511723577983,
+                "neutral": 0.10536392476037434,
+                "dislikes": 0.3274866866035882,
+                "total": 0.11385508094452293
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.14032158419210136,
+                "neutral": 0.14448121558487254,
+                "dislikes": 0.3105064913387043,
+                "total": 0.09821029246724589
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.2517928412182125,
+                "neutral": 0.216001863849541,
+                "dislikes": 0.4370874692556246,
+                "total": 0.1461665034954927
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12365914786967357,
+                "neutral": 0.0686761340480896,
+                "dislikes": 0.28852422415717877,
+                "total": 0.0940420073453778
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12548248975343312,
+                "neutral": 0.1093889189281053,
+                "dislikes": 0.32757845571808386,
+                "total": 0.11180568182607577
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.1388836396423643,
+                "neutral": 0.1508989854010865,
+                "dislikes": 0.29674467795386333,
+                "total": 0.09416355467433202
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.24903027410500264,
+                "neutral": 0.2362179929416592,
+                "dislikes": 0.44322531416910615,
+                "total": 0.14747761742116852
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12365914786967357,
+                "neutral": 0.0686761340480896,
+                "dislikes": 0.28852422415717877,
+                "total": 0.0940420073453778
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.1279462039292091,
+                "neutral": 0.09710224294149333,
+                "dislikes": 0.3317665949772565,
+                "total": 0.11268503299843151
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.13439370170057421,
+                "neutral": 0.14156752993296196,
+                "dislikes": 0.29328862129454497,
+                "total": 0.09373477437227111
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.26349945752034826,
+                "neutral": 0.2321023559447351,
+                "dislikes": 0.43385107135178563,
+                "total": 0.1396368606908634
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12365914786967357,
+                "neutral": 0.0686761340480896,
+                "dislikes": 0.28852422415717877,
+                "total": 0.0940420073453778
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12666405724289248,
+                "neutral": 0.10530803255909844,
+                "dislikes": 0.3244680017371117,
+                "total": 0.1157138311968021
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.13310631901496447,
+                "neutral": 0.1213256084468745,
+                "dislikes": 0.29690977863596907,
+                "total": 0.09507299233841142
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.2387253293535547,
+                "neutral": 0.23757870368994208,
+                "dislikes": 0.45838762798125,
+                "total": 0.14903887901949917
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.12365914786967357,
+                "neutral": 0.0686761340480896,
+                "dislikes": 0.28852422415717877,
+                "total": 0.0940420073453778
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.1258330102215184,
+                "neutral": 0.10143811199255723,
+                "dislikes": 0.32616993510499337,
+                "total": 0.10910248317519532
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.13012991588620532,
+                "neutral": 0.14792531170674555,
+                "dislikes": 0.31274642705387673,
+                "total": 0.10275921324396964
+            },
+            "Children Dislikes in Top n": null
+        }
+    },
+    {
+        "Week": 1,
+        "Day": 1,
+        "Simple Method": {
+            "Gini Votes": {
+                "likes": 0.0,
+                "neutral": 0.0,
+                "dislikes": 0.0,
+                "total": 0.0
+            },
+            "Children Dislikes in Top n": null
+        },
+        "Complex Method": {
+            "Gini Votes": {
+                "likes": 0.2139084401160616,
+                "neutral": 0.21868188431735167,
+                "dislikes": 0.44803209896026625,
+                "total": 0.13915418349781655
+            },
+            "Children Dislikes in Top n": null
+        }
+    }
+]

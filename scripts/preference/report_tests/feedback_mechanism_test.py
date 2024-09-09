@@ -79,8 +79,6 @@ def save_intermediate_results(results, seed):
 def run_mod(model_name, negotiated, unavailable, menu_generators, ingredient_df, method, week=1, day=1):
     
     menu_generator = menu_generators[method][model_name]
-    
-    if model_name != 'RL':
         
     if model_name != 'RL':
         menu_generator.update_evaluator(ingredient_df, negotiated, unavailable)

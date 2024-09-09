@@ -1,0 +1,23 @@
+[
+    {
+        "week": 1,
+        "day": 1,
+        "type": "simple",
+        "meal_plan": [
+            "Carrots",
+            "Rhubarbs",
+            "Breakfast-type sausage",
+            "Pasta wholemeal",
+            "Butter",
+            "Wheat bread and rolls brown or wholemeal"
+        ],
+        "quantities": {
+            "Carrots": 53,
+            "Rhubarbs": 66,
+            "Breakfast-type sausage": 89,
+            "Pasta wholemeal": 40,
+            "Butter": 86,
+            "Wheat bread and rolls brown or wholemeal": 53
+        }
+    }
+]

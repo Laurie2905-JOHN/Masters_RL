@@ -165,20 +165,20 @@ cython_debug/
 # saved_models/*
 
 # Ignore all files within the specific directories
-saved_models/reward/*
-saved_models/checkpoints/*
-saved_models/best_models/*
-saved_models/tensorboard/*
-saved_models/hpc_output/*
-saved_models/optuna/*
-saved_models/hyperparams/*
-# saved_models/evaluation/*
-scripts/preference/saved_data/*
+# saved_models/reward/*
+# saved_models/checkpoints/*
+# saved_models/best_models/*
+# saved_models/tensorboard/*
+# saved_models/hpc_output/*
+# saved_models/optuna/*
+# saved_models/hyperparams/*
+# # saved_models/evaluation/*
+# scripts/preference/saved_data/*
 
 # Filetypes
-*.dat
-*.txt
-*.json
+# *.dat
+# *.txt
+# *.json
 # *.db
 # *.pkl
 # *.csv

@@ -1,0 +1,161 @@
+[
+    {
+        "week": 1,
+        "true_utility": {
+            "1": {
+                "child1": 2,
+                "child2": 16,
+                "child3": 16,
+                "child4": -4,
+                "child5": 16,
+                "child6": 2,
+                "child7": 16,
+                "child8": 16,
+                "child9": -4,
+                "child10": -2,
+                "child11": 8,
+                "child12": 2,
+                "child13": 2,
+                "child14": 16,
+                "child15": 2,
+                "child16": 4,
+                "child17": -4,
+                "child18": 4,
+                "child19": 2,
+                "child20": -2,
+                "child21": 16,
+                "child22": 16,
+                "child23": 8,
+                "child24": -2,
+                "child25": 16,
+                "child26": 16,
+                "child27": 12,
+                "child28": 2,
+                "child29": 16,
+                "child30": -4
+            },
+            "2": {
+                "child1": 6,
+                "child2": 30,
+                "child3": 26,
+                "child4": 6,
+                "child5": 26,
+                "child6": 6,
+                "child7": 26,
+                "child8": 30,
+                "child9": 6,
+                "child10": 6,
+                "child11": 22,
+                "child12": 6,
+                "child13": 10,
+                "child14": 26,
+                "child15": 10,
+                "child16": 10,
+                "child17": 6,
+                "child18": 10,
+                "child19": 10,
+                "child20": 6,
+                "child21": 26,
+                "child22": 26,
+                "child23": 22,
+                "child24": 6,
+                "child25": 26,
+                "child26": 26,
+                "child27": 22,
+                "child28": 10,
+                "child29": 30,
+                "child30": 6
+            }
+        },
+        "predicted_utility": {
+            "1": {
+                "child1": -2,
+                "child2": 16,
+                "child3": 16,
+                "child4": -4,
+                "child5": 16,
+                "child6": -4,
+                "child7": 16,
+                "child8": 16,
+                "child9": -4,
+                "child10": -2,
+                "child11": 8,
+                "child12": 2,
+                "child13": 2,
+                "child14": 16,
+                "child15": 2,
+                "child16": 4,
+                "child17": -4,
+                "child18": 4,
+                "child19": 2,
+                "child20": -2,
+                "child21": 16,
+                "child22": 16,
+                "child23": 8,
+                "child24": -2,
+                "child25": 16,
+                "child26": 16,
+                "child27": 12,
+                "child28": 2,
+                "child29": 16,
+                "child30": -4
+            },
+            "2": {
+                "child1": 6,
+                "child2": 26,
+                "child3": 26,
+                "child4": 6,
+                "child5": 26,
+                "child6": 6,
+                "child7": 26,
+                "child8": 26,
+                "child9": 6,
+                "child10": 6,
+                "child11": 22,
+                "child12": 6,
+                "child13": 10,
+                "child14": 26,
+                "child15": 10,
+                "child16": 10,
+                "child17": 6,
+                "child18": 6,
+                "child19": 10,
+                "child20": 6,
+                "child21": 26,
+                "child22": 26,
+                "child23": 22,
+                "child24": 2,
+                "child25": 26,
+                "child26": 26,
+                "child27": 22,
+                "child28": 10,
+                "child29": 30,
+                "child30": 6
+            }
+        },
+        "sum_true_utility": {
+            "1": 204,
+            "2": 484
+        },
+        "sum_predicted_utility": {
+            "1": 194,
+            "2": 468
+        },
+        "daily_gini_coefficients": {
+            "1": {
+                "true_gini": 0.4008230452674897,
+                "predicted_gini": 0.42993630573248387
+            },
+            "2": {
+                "true_gini": 0.5096491228070175,
+                "predicted_gini": 0.37516339869281046
+            }
+        },
+        "cumulative_gini_coefficients": [
+            {
+                "true_cumulative_gini": 0.4535031847133757,
+                "predicted_cumulative_gini": 0.4333333333333331
+            }
+        ]
+    }
+]

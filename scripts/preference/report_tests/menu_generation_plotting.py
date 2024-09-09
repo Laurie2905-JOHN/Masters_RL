@@ -1,0 +1,174 @@
+import logging
+import os
+import json
+import random
+import time
+from sklearn.metrics import accuracy_score
+from models.preferences.preference_utils import (
+    get_child_data,
+    initialize_child_preference_data,
+)
+from utils.process_data import get_data
+from models.preferences.prediction import PreferenceModel
+from models.preferences.voting import IngredientNegotiator
+from models.preferences.menu_generators import RandomMenuGenerator, RLMenuGenerator
+from models.preferences.random_menu_eval import MenuEvaluator
+import numpy as np
+from tqdm.contrib.logging import logging_redirect_tqdm
+from tqdm import tqdm
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Directory paths
+base_dir = os.path.abspath(os.path.dirname(__file__))
+data_dir = os.path.join(base_dir, 'saved_data', 'data')
+graphs_dir = os.path.join(base_dir, 'saved_data', 'graphs')
+
+# Ensure directories exist
+os.makedirs(data_dir, exist_ok=True)
+os.makedirs(graphs_dir, exist_ok=True)
+
+# Determine the run number
+existing_runs = [d for d in os.listdir(data_dir) if d.startswith('run_')]
+run_number = len(existing_runs) + 1
+
+# Create run directories
+run_data_dir = os.path.join(data_dir, f'run_{run_number}_menu_gen_plotting')
+run_graphs_dir = os.path.join(graphs_dir, f'run_{run_number}_menu_gen_plotting')
+os.makedirs(run_data_dir, exist_ok=True)
+os.makedirs(run_graphs_dir, exist_ok=True)
+json_path = os.path.join(run_data_dir, "menu_utilities_simple")
+
+# Complex weight function arguments
+complex_weight_func_args = {
+    'use_compensatory': True,
+    'use_feedback': True,
+    'use_fairness': True,
+    'target_gini': 0.15,
+}
+
+initial_split = 1
+menu_plan_length = 5
+
+def run_menu_generation(seed):
+    # Load data
+    ingredient_df = get_data("data.csv")
+    child_feature_data = get_child_data()
+    true_child_preference_data = initialize_child_preference_data(
+        child_feature_data, ingredient_df, split=initial_split, seed=seed, plot_graphs=False
+    )
+    
+    # Initialize utility calculators for each method
+    utility_calculator_dict = {
+        "genetic": MenuUtilityCalculator(
+            true_child_preference_data, 
+            child_feature_data, 
+            menu_plan_length=menu_plan_length, 
+            save_to_json=f"{json_path}_generator_utility_calculator_simple_split_1_model_genetic_seed_{str(seed)}.json"
+        ),
+    
+        "RL": MenuUtilityCalculator(
+            true_child_preference_data, 
+            child_feature_data, 
+            menu_plan_length=menu_plan_length, 
+            save_to_json=f"{json_path}_generator_utility_calculator_complex_split_1_model_RL_seed_{str(seed)}.json"
+        ),
+    }
+
+
+    with open(os.path.join(run_data_dir, 'true_child_preference_data.json'), 'w') as f:
+        json.dump(true_child_preference_data, f)
+        
+    # Initial prediction of preferences
+    file_path = os.path.join(run_graphs_dir, "preferences_visualization.png")
+    predictor = PreferenceModel(
+        ingredient_df, child_feature_data, true_child_preference_data, visualize_data=False, file_path=file_path, seed=seed
+    )
+    
+    updated_known_and_predicted_preferences, _, _, _ = predictor.run_pipeline()
+    
+    # Initial negotiation of ingredients
+    negotiator = IngredientNegotiator(
+        seed, ingredient_df, updated_known_and_predicted_preferences, complex_weight_func_args, previous_feedback={}, previous_utility={}
+    )
+    
+    negotiated_ingredients_simple, _, unavailable_ingredients = negotiator.negotiate_ingredients()
+    evaluator = MenuEvaluator(ingredient_df, negotiated_ingredients_simple, unavailable_ingredients)
+    
+    menu_generators = {
+        "genetic": RandomMenuGenerator(evaluator=evaluator, menu_plan_length=menu_plan_length, weight_type='random', probability_best=0, seed=seed),
+        # "RL": RLMenuGenerator(ingredient_df, menu_plan_length=menu_plan_length, seed=seed, model_save_path='rl_model'),
+    }
+        
+    # Save negotiation results
+    week, day = 1, 1
+    negotiator.close(os.path.join(run_data_dir, "log_file.json"), week=week, day=day)
+
+    # Generate and evaluate menus, store results
+    results = {}
+    with logging_redirect_tqdm():
+        for menu_plan_num in tqdm(range(menu_plan_length), desc="Menu Plan Length Progress"):
+            results[menu_plan_num] = {}
+            for name, generator in tqdm(menu_generators.items(), desc=f"Menu Generators Progress (Plan {menu_plan_num})"):
+                
+                logging.info(f"Running {name} menu generator for menu plan {menu_plan_num}")
+
+                if name == "genetic":
+                    menu_plan, _ = generator.run_genetic_menu_optimization_and_finalize(
+                        negotiated_ingredients_simple, unavailable_ingredients, 
+                        final_meal_plan_filename=f'final_meal_plan_{name}',
+                        ngen=180, population_size=333, cxpb=0.742143, mutpb=0.3062819
+                    )
+                elif name == "RL":
+                    menu_plan, _ = generator.generate_menu(
+                        negotiated_ingredients_simple, unavailable_ingredients, 
+                        final_meal_plan_filename=f'final_meal_plan_{name}', 
+                        save_paths={'data': run_data_dir, 'graphs': run_graphs_dir}, 
+                        week=week, day=day
+                    )
+
+
+                # Evaluate the menu plan and calculate the reward
+                reward, info = evaluator.select_ingredients(menu_plan)
+                
+                utility_perfect_true, utility_perfect_predicted = utility_calculator_dict[name].calculate_day_menu_utility(updated_known_and_predicted_preferences, list(menu_plan.keys()))
+                
+                # Store the results including time taken and reward
+                results[menu_plan_num][name] = {
+                    'menu_plan': menu_plan,
+                    'info': info,
+                    'reward': reward,
+                    "utility_perfect_true": utility_perfect_true,
+                    "utility_perfect_predicted": utility_perfect_predicted
+                }
+
+    return results
+
+from models.preferences.utility_calculator import MenuUtilityCalculator
+
+def main():
+    all_results = []
+    seed = random.randint(0, int(1e6))
+    
+    with logging_redirect_tqdm():
+        for i in tqdm(range(5), desc="Main Loop Progress"):
+            iteration_results = run_menu_generation(seed)
+            all_results.append(iteration_results)
+
+    class NumpyEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, np.float32):
+                return float(obj)
+            if isinstance(obj, np.int32):
+                return int(obj)
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+            return super(NumpyEncoder, self).default(obj)
+
+    # Save all results using the custom encoder
+    with open(os.path.join(run_data_dir, 'all_results.json'), 'w') as f:
+        json.dump(all_results, f, cls=NumpyEncoder)
+    
+if __name__ == "__main__":
+    main()

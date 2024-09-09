@@ -1,0 +1,23 @@
+[
+    {
+        "week": 1,
+        "day": 1,
+        "type": "simple",
+        "meal_plan": [
+            "Common mushrooms",
+            "Limes",
+            "Fish fingers breaded",
+            "Couscous",
+            "Cream plain",
+            "Wheat bread and rolls brown or wholemeal"
+        ],
+        "quantities": {
+            "Common mushrooms": 78,
+            "Limes": 85,
+            "Fish fingers breaded": 62,
+            "Couscous": 40,
+            "Cream plain": 112,
+            "Wheat bread and rolls brown or wholemeal": 61
+        }
+    }
+]
