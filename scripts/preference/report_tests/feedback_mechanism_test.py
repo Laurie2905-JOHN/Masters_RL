@@ -317,12 +317,6 @@ def run_menu_generation(seed, model_name, negotiated_ingredients_start, unavaila
                 'accuracy_std_total': locals()[f'accuracy_std_total_{method}'],
                 'feedback': locals()[f'{method}_feedback']
             })
-            elif method == 'no_feedback':
-                no_feedback_feedback = {} 
-                percent_of_known_preferences_no_feedback = calculate_percent_of_known_ingredients_to_unknown(true_child_preference_data)
-                utility_no_feedback_true, utility_no_feedback_predicted = utility_calculator_no_feedback.calculate_day_menu_utility(updated_known_and_predicted_preferences_start, list(menu_plan_dict[method].keys()))
-                accuracy_unknown_no_feedback = accuracy_unknown_no_feedback
-                accuracy_std_total_no_feedback = accuracy_std_total_no_feedback
                 
             # Evaluate the menu plan and calculate the reward
             if model_name != 'RL':
